@@ -27,8 +27,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-function ContactCard({ contact }: { contact: Contact }) {
-  const [status, setStatus] = useState<ContactStatus>(contact.status);
+function ContactCard({ contact, onStatusChange }: { contact: Contact; onStatusChange: (id: string, s: ContactStatus) => void }) {
   const [expanded, setExpanded] = useState(contact.status === "new");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -38,9 +37,11 @@ function ContactCard({ contact }: { contact: Contact }) {
     startTransition(async () => {
       const res = await updateContactStatus(contact.id, next);
       if ("error" in res) setError(res.error);
-      else setStatus(next);
+      else onStatusChange(contact.id, next);
     });
   }
+
+  const status = contact.status;
 
   const cfg = STATUS_CONFIG[status];
 
@@ -155,8 +156,13 @@ const FILTER_OPTIONS: { value: ContactStatus | "all"; label: string }[] = [
   { value: "spam", label: "Spam" },
 ];
 
-export function ContactsClient({ contacts }: { contacts: Contact[] }) {
+export function ContactsClient({ contacts: initialContacts }: { contacts: Contact[] }) {
+  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [filter, setFilter] = useState<ContactStatus | "all">("new");
+
+  function handleStatusChange(id: string, newStatus: ContactStatus) {
+    setContacts((prev) => prev.map((c) => c.id === id ? { ...c, status: newStatus } : c));
+  }
 
   const filtered = filter === "all" ? contacts : contacts.filter((c) => c.status === filter);
   const newCount = contacts.filter((c) => c.status === "new").length;
@@ -204,7 +210,7 @@ export function ContactsClient({ contacts }: { contacts: Contact[] }) {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {filtered.map((c) => <ContactCard key={c.id} contact={c} />)}
+          {filtered.map((c) => <ContactCard key={c.id} contact={c} onStatusChange={handleStatusChange} />)}
         </div>
       )}
     </div>
