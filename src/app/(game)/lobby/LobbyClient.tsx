@@ -299,16 +299,28 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
                 type="submit"
                 title="Se déconnecter"
                 style={{
-                  width: desktop ? 48 : 38, height: desktop ? 48 : 38, borderRadius: 12,
-                  background: "rgba(26,15,94,0.55)", border: `2px solid ${EA.ink}`,
-                  color: EA.white, cursor: "pointer",
+                  width: desktop ? 44 : 38, height: desktop ? 44 : 38,
+                  borderRadius: "50%",
+                  background: "rgba(255,30,140,0.12)", border: `2.5px solid ${EA.pink}`,
+                  color: EA.pink, cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: `2px 2px 0 ${EA.pink}`,
-                  fontSize: desktop ? 20 : 16,
+                  boxShadow: `3px 3px 0 ${EA.ink}`,
                   padding: 0,
+                  transition: "transform .1s, box-shadow .1s",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translate(3px,3px)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "";
+                  e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`;
                 }}
               >
-                ⎋
+                <svg width={desktop ? 20 : 16} height={desktop ? 20 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" />
+                  <line x1="12" y1="2" x2="12" y2="12" />
+                </svg>
               </button>
             </form>
           </div>
