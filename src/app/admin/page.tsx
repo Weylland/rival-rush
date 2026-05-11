@@ -2,8 +2,9 @@ import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { EA } from "@/lib/design";
 import { SvgBlob } from "@/components/ui/blob";
-import { AdminClient } from "./AdminClient";
 import { AdminLoginForm } from "./AdminLoginForm";
+import { AdminTabs } from "./AdminTabs";
+import type { Contact } from "./ContactsClient";
 export default async function AdminPage() {
   const cookieStore = await cookies();
   const isAuth = cookieStore.get("ea_admin")?.value === process.env.ADMIN_SECRET;
@@ -14,9 +15,10 @@ export default async function AdminPage() {
 
   const supabase = await createClient();
 
-  const [{ data: allPlayers }, { data: lbRows }] = await Promise.all([
+  const [{ data: allPlayers }, { data: lbRows }, { data: contactRows }] = await Promise.all([
     supabase.from("players").select("id, pseudo, created_at").order("pseudo", { ascending: true }),
     supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
+    supabase.from("contacts").select("*").order("created_at", { ascending: false }),
   ]);
 
   const lbMap = new Map((lbRows ?? []).map((r) => [r.player_id, r]));
@@ -49,10 +51,7 @@ export default async function AdminPage() {
               ADMIN
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginTop: 4 }}>
-              GESTION JOUEURS
-            </div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>
-              {players.length} joueur{players.length !== 1 ? "s" : ""} · supprimer recalcule le leaderboard des adversaires
+              PANNEAU ADMIN
             </div>
           </div>
           <form action={async () => {
@@ -88,7 +87,7 @@ export default async function AdminPage() {
           </form>
         </div>
 
-        <AdminClient players={players} />
+        <AdminTabs players={players} contacts={(contactRows ?? []) as Contact[]} />
       </div>
     </div>
   );

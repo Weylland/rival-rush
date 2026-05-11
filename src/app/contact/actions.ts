@@ -64,7 +64,10 @@ export async function sendContact(_prev: ContactState, formData: FormData): Prom
     return { error: "Erreur lors de l'envoi. Réessaie plus tard." };
   }
 
-  await supabase.from("contact_logs").insert({ email });
+  await Promise.all([
+    supabase.from("contact_logs").insert({ email }),
+    supabase.from("contacts").insert({ name, email, subject: subject || null, message }),
+  ]);
 
   return { success: true };
 }

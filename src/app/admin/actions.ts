@@ -147,3 +147,22 @@ export async function resetPlayerPassword(playerId: string): Promise<{ tempPassw
 
   return { tempPassword };
 }
+
+export type ContactStatus = "new" | "in_progress" | "done" | "spam";
+
+export async function updateContactStatus(
+  contactId: string,
+  status: ContactStatus,
+): Promise<{ ok: boolean } | { error: string }> {
+  const store = await cookies();
+  const adminCookie = store.get("ea_admin")?.value;
+  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+    return { error: "Non autorisé" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("contacts").update({ status }).eq("id", contactId);
+  if (error) return { error: error.message };
+
+  return { ok: true };
+}

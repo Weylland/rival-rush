@@ -92,6 +92,23 @@ create policy "presence upsert"    on public.presence   for insert with check (t
 create policy "presence update"    on public.presence   for update using (true);
 create policy "presence delete"    on public.presence   for delete using (true);
 
+-- ── Contacts (formulaire de contact) ────────────────────────────
+
+create table public.contacts (
+  id         uuid primary key default uuid_generate_v4(),
+  name       text not null,
+  email      text not null,
+  subject    text,
+  message    text not null,
+  status     text not null default 'new' check (status in ('new', 'in_progress', 'done', 'spam')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.contacts enable row level security;
+create policy "contacts insert" on public.contacts for insert with check (true);
+create policy "contacts select" on public.contacts for select using (true);
+create policy "contacts update" on public.contacts for update using (true);
+
 -- ── Realtime ────────────────────────────────────────────────────
 -- À activer dans le dashboard Supabase > Database > Replication :
 -- tables : presence, challenges, games
