@@ -218,9 +218,9 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, in
       <div style={{ position: "relative", zIndex: 10, margin: "24px 20px 0", display: "flex", justifyContent: "center" }}>
         <div style={{
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 0,
-          background: EA.ink,
-          border: `3px solid ${EA.ink}`,
+          gap: 3,
+          background: "rgba(255,255,255,0.2)",
+          border: `3px solid rgba(255,255,255,0.2)`,
           borderRadius: 16,
           overflow: "hidden",
           boxShadow: `5px 5px 0 ${EA.ink}`,
@@ -239,11 +239,9 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, in
                 style={{
                   aspectRatio: "1",
                   background: isWinCell
-                    ? (winnerId === myId ? `rgba(0,212,232,0.2)` : `rgba(255,30,140,0.2)`)
-                    : EA.violetDeep,
+                    ? (winnerId === myId ? `rgba(0,212,232,0.25)` : `rgba(255,30,140,0.25)`)
+                    : EA.violetMid,
                   border: "none",
-                  borderRight: (idx % 3 < 2) ? `2.5px solid ${EA.ink}` : "none",
-                  borderBottom: (idx < 6) ? `2.5px solid ${EA.ink}` : "none",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: canClick ? "pointer" : "default",
                   transition: "background 0.2s",
