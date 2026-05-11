@@ -103,8 +103,8 @@ export function ChallengeNotifier({ playerId }: Props) {
 
   if (!incoming || suppress) return null;
 
-  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : "MORPION";
-  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : "⨯⭕⨯";
+  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : incoming.game_type === "puissance4" ? "PUISSANCE 4" : "MORPION";
+  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : incoming.game_type === "puissance4" ? "🔴🟡🔴" : "⨯⭕⨯";
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.7)", zIndex: 100 }}>

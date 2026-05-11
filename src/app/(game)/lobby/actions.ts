@@ -88,7 +88,9 @@ export async function acceptChallenge(challengeId: string) {
   const initialState =
     challenge.game_type === "pfc"
       ? { rounds: [], scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } }
-      : { board: Array(9).fill(null), scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } };
+      : challenge.game_type === "puissance4"
+        ? { board: Array(42).fill(null) }
+        : { board: Array(9).fill(null), scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } };
 
   const { data: game } = await supabase
     .from("games")

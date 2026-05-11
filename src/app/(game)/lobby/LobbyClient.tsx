@@ -30,6 +30,7 @@ interface LobbyClientProps {
 const TIPS = [
   "Au PFC, observe le rythme de l'adversaire 👀",
   "Au Morpion, les coins valent de l'or 🎯",
+  "Au P4, contrôle le centre pour gagner 🔴",
   "La victoire sourit aux audacieux ⚡",
 ];
 
@@ -116,10 +117,11 @@ function ChooseGameModal({
           }}>{error}</div>
         )}
 
-        <div style={{ display: "flex", gap: 10, marginTop: 18, position: "relative", zIndex: 2 }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 18, position: "relative", zIndex: 2, flexWrap: "wrap" }}>
           {([
             { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
             { type: "morpion" as GameType, icon: "⨯⭕⨯", title: "MORPION", sub: "Tactique", color: EA.pink, shadow: EA.butter, badge: undefined },
+            { type: "puissance4" as GameType, icon: "🔴🟡🔴", title: "PUISSANCE 4", sub: "Stratégie", color: EA.butter, shadow: EA.cyan, badge: "NEW ✨" },
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[]).map((g) => (
             <button
               key={g.type}

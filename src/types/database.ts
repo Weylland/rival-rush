@@ -1,4 +1,4 @@
-export type GameType = "pfc" | "morpion";
+export type GameType = "pfc" | "morpion" | "puissance4";
 export type ChallengeStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type GameStatus = "waiting" | "playing" | "finished";
 
@@ -45,6 +45,12 @@ export type MorpionBoard = (string | null)[];
 export interface MorpionState {
   board: MorpionBoard;
   scores: Record<string, number>;
+}
+
+export type Puissance4Board = (string | null)[]; // 42 cells, row * 7 + col, row 0 = top
+
+export interface Puissance4State {
+  board: Puissance4Board;
 }
 
 export interface LeaderboardEntry {
