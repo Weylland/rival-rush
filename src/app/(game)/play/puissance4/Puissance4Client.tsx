@@ -11,6 +11,7 @@ import { submitPuissance4Move } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { RulesButton } from "@/components/ui/rules-button";
 import type { Puissance4State, GameStatus } from "@/types/database";
 
 const ROWS = 6;
@@ -313,6 +314,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   if (desktop) {
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <RulesButton gameType="puissance4" />
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
         <SvgBlob color={EA.pink} style={{ width: 560, height: 480, top: -210, left: -170, opacity: 0.6, animation: "ea-float 6s ease-in-out infinite" }} />
         <SvgBlob color={EA.cyan} style={{ width: 500, height: 420, bottom: -170, right: -150, opacity: 0.5, animation: "ea-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
@@ -361,6 +363,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <RulesButton gameType="puissance4" />
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
       <SvgBlob color={EA.pink} style={{ width: 200, height: 180, top: -80, left: -60, opacity: 0.85, animation: "ea-float 4s ease-in-out infinite" }} />
       <SvgBlob color={EA.cyan} style={{ width: 180, height: 160, bottom: -60, right: -40, opacity: 0.85, animation: "ea-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />

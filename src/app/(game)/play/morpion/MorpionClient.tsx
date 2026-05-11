@@ -11,6 +11,7 @@ import { submitMorpionMove } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { RulesButton } from "@/components/ui/rules-button";
 import type { MorpionState, GameStatus } from "@/types/database";
 
 const WINNING_LINES = [
@@ -282,6 +283,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, in
   if (desktop) {
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <RulesButton gameType="morpion" />
         {/* BG */}
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
         <SvgBlob color={EA.pink} style={{ width: 580, height: 500, top: -230, left: -180, opacity: 0.65, animation: "ea-float 6s ease-in-out infinite" }} />
@@ -340,6 +342,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, in
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <RulesButton gameType="morpion" />
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
       <SvgBlob color={EA.pink} style={{ width: 220, height: 200, top: -90, left: -70, opacity: 0.85, animation: "ea-float 4s ease-in-out infinite" }} />
       <SvgBlob color={EA.cyan} style={{ width: 200, height: 180, bottom: -70, right: -50, opacity: 0.85, animation: "ea-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />

@@ -10,6 +10,7 @@ import { submitPFCMove } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { RulesButton } from "@/components/ui/rules-button";
 import type { PFCState, PFCRound, GameStatus } from "@/types/database";
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
@@ -421,6 +422,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initia
   // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
   return (
     <div style={{ position: "absolute", inset: 0, background: EA.violet, overflow: "hidden" }}>
+      <RulesButton gameType="pfc" />
       {BG}
 
       {(phase === "picking" || phase === "waiting") && (
