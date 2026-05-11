@@ -283,6 +283,7 @@ export function SettingsClient({ initialPseudo }: Props) {
           { href: "/legal/mentions", label: "Mentions légales" },
           { href: "/legal/privacy", label: "Confidentialité" },
           { href: "/legal/cgu", label: "CGU" },
+          { href: "/contact", label: "Contact" },
         ].map(({ href, label }) => (
           <Link
             key={href}

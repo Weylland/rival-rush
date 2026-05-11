@@ -28,6 +28,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
           <Link href="/legal/mentions" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.35)", textDecoration: "underline" }}>Mentions légales</Link>
           <Link href="/legal/privacy" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.35)", textDecoration: "underline" }}>Confidentialité</Link>
           <Link href="/legal/cgu" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.35)", textDecoration: "underline" }}>CGU</Link>
+          <Link href="/contact" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.35)", textDecoration: "underline" }}>Contact</Link>
         </div>
       </div>
     </div>
