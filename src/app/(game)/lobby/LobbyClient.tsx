@@ -104,7 +104,7 @@ function ChooseGameModal({
             CHOISIS TON JEU
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", textAlign: "center" }}>
-            Best of 3 · 60 sec par manche
+            Choisis le jeu, l'adversaire accepte
           </div>
         </div>
 
