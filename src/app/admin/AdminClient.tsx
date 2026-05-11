@@ -5,6 +5,8 @@ import { deletePlayer, resetPlayerPassword } from "./actions";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 
+const PAGE_SIZE = 15;
+
 interface Player {
   id: string;
   pseudo: string;
@@ -15,22 +17,21 @@ interface Player {
   neverPlayed: boolean;
 }
 
-export function AdminClient({ players }: { players: Player[] }) {
-  const [list, setList] = useState<Player[]>(players);
+export function AdminClient({ players: initialPlayers }: { players: Player[] }) {
+  const [list, setList] = useState<Player[]>(initialPlayers);
   const [pending, startTransition] = useTransition();
   const [confirm, setConfirm] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tempPasswords, setTempPasswords] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   function handleReset(playerId: string) {
     setError(null);
     startTransition(async () => {
       const result = await resetPlayerPassword(playerId);
-      if ("error" in result) {
-        setError(result.error);
-      } else {
-        setTempPasswords((prev) => ({ ...prev, [playerId]: result.tempPassword }));
-      }
+      if ("error" in result) setError(result.error);
+      else setTempPasswords((prev) => ({ ...prev, [playerId]: result.tempPassword }));
     });
   }
 
@@ -42,13 +43,54 @@ export function AdminClient({ players }: { players: Player[] }) {
         setError(result.error);
       } else {
         setList((prev) => prev.filter((p) => p.id !== playerId));
+        setConfirm(null);
       }
-      setConfirm(null);
     });
   }
 
+  const filtered = search.trim()
+    ? list.filter((p) => p.pseudo.toLowerCase().includes(search.trim().toLowerCase()))
+    : list;
+
+  const paginated = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = paginated.length < filtered.length;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Barre de recherche */}
+      <div style={{ position: "relative" }}>
+        <svg
+          style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", opacity: 0.4, pointerEvents: "none" }}
+          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={EA.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          placeholder={`Rechercher parmi ${list.length} joueur${list.length !== 1 ? "s" : ""}…`}
+          style={{
+            width: "100%", boxSizing: "border-box",
+            fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+            color: EA.white, background: "rgba(255,255,255,0.06)",
+            border: `2px solid ${search ? EA.cyan : EA.ink}`,
+            borderRadius: 12, padding: "12px 16px 12px 42px",
+            outline: "none", transition: "border-color .15s",
+          }}
+        />
+        {search && (
+          <button
+            onClick={() => { setSearch(""); setPage(1); }}
+            style={{
+              position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "rgba(255,255,255,0.4)",
+              cursor: "pointer", fontSize: 16, lineHeight: 1, padding: 4,
+            }}
+          >×</button>
+        )}
+      </div>
+
       {error && (
         <div style={{
           background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
@@ -57,16 +99,16 @@ export function AdminClient({ players }: { players: Player[] }) {
         }}>{error}</div>
       )}
 
-      {list.length === 0 && (
+      {filtered.length === 0 && (
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 18, color: "rgba(255,255,255,0.4)",
           textAlign: "center", padding: "40px 0", transform: "skewX(-4deg)",
         }}>
-          Aucun joueur
+          {search ? `Aucun résultat pour "${search}"` : "Aucun joueur"}
         </div>
       )}
 
-      {list.map((player) => (
+      {paginated.map((player) => (
         <div key={player.id} style={{
           position: "relative", overflow: "hidden",
           background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
@@ -160,6 +202,24 @@ export function AdminClient({ players }: { players: Player[] }) {
           )}
         </div>
       ))}
+
+      {hasMore && (
+        <button
+          onClick={() => setPage((p) => p + 1)}
+          style={{
+            width: "100%",
+            fontFamily: "var(--font-display)", fontSize: 14,
+            color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.06)",
+            border: `2px solid rgba(255,255,255,0.15)`,
+            borderRadius: 999, padding: "12px",
+            cursor: "pointer", transform: "skewX(-3deg)",
+          }}
+        >
+          <span style={{ display: "inline-block", transform: "skewX(3deg)" }}>
+            Voir plus ({filtered.length - paginated.length} restants)
+          </span>
+        </button>
+      )}
     </div>
   );
 }
