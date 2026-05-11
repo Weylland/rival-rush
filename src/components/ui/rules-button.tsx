@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { EA } from "@/lib/design";
 import type { GameType } from "@/types/database";
 
@@ -39,15 +40,20 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
 
 export function RulesButton({ gameType }: { gameType: GameType }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const rules = RULES[gameType];
 
-  return (
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       <button
         onClick={() => setOpen(true)}
         title="Règles du jeu"
         style={{
-          position: "fixed", bottom: 16, right: 16, zIndex: 100,
+          position: "fixed", bottom: 16, right: 16, zIndex: 200,
           height: 36, borderRadius: 999,
           background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
           color: EA.cyan, cursor: "pointer",
@@ -57,13 +63,13 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
           letterSpacing: 0.5,
         }}
       >
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 15, lineHeight: 1 }}>?</span>
+        <span style={{ fontSize: 15, lineHeight: 1 }}>?</span>
         Règles
       </button>
 
       {open && (
         <div
-          style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.75)", zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 12px 20px" }}
+          style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.75)", zIndex: 201, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 12px 20px" }}
           onClick={() => setOpen(false)}
         >
           <div
@@ -97,7 +103,7 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
               ))}
             </div>
 
-            <div style={{ marginTop: 16, display: "flex", gap: 8, justifyContent: "flex-end", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
+            <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>
                 Victoire +3pts · Nul +1pt
               </div>
@@ -105,6 +111,7 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
           </div>
         </div>
       )}
-    </>
+    </>,
+    document.body,
   );
 }
