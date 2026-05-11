@@ -158,7 +158,7 @@ export function ChallengeNotifier({ playerId }: Props) {
             <div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)" }}>{gameLabel}</div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 }}>
-                Best of 3 · 60 sec/manche
+                Duel en temps réel
               </div>
             </div>
           </div>

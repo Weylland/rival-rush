@@ -7,9 +7,11 @@ interface Options {
   isFinishedRef: React.MutableRefObject<boolean>;
 }
 
-const OPPONENT_GONE_GRACE_MS = 5_000;
+const OPPONENT_GONE_GRACE_MS = 8_000;
 const STALE_CHECK_INTERVAL_MS = 20_000;
 const STALE_THRESHOLD_MS = 60_000;
+// Don't start watching until both players have had time to land on the game page
+const STARTUP_DELAY_MS = 15_000;
 
 /**
  * Watches the opponent's presence row during a game.
@@ -18,6 +20,7 @@ const STALE_THRESHOLD_MS = 60_000;
  */
 export function useOpponentWatcher({ gameId, opponentId, isFinishedRef }: Options) {
   const graceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -44,12 +47,15 @@ export function useOpponentWatcher({ gameId, opponentId, isFinishedRef }: Option
       }
     };
 
+    let watcherActive = false;
+
     const sub = supabase
       .channel(`opponent-${opponentId}-${gameId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "presence", filter: `player_id=eq.${opponentId}` },
         (payload) => {
+          if (!watcherActive) return;
           if (payload.eventType === "DELETE") {
             armGraceTimer();
           } else if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
@@ -62,7 +68,7 @@ export function useOpponentWatcher({ gameId, opponentId, isFinishedRef }: Option
     // Periodic stale check — catches the case where the row is still there
     // but hasn't been heartbeated (browser crash, network drop)
     const stalePoll = setInterval(async () => {
-      if (isFinishedRef.current) return;
+      if (!watcherActive || isFinishedRef.current) return;
       const { data } = await supabase
         .from("presence")
         .select("updated_at")
@@ -73,10 +79,20 @@ export function useOpponentWatcher({ gameId, opponentId, isFinishedRef }: Option
       if (isStale) requestForfeit();
     }, STALE_CHECK_INTERVAL_MS);
 
+    // Give both players time to land on the game page before activating
+    startupTimerRef.current = setTimeout(() => {
+      watcherActive = true;
+      startupTimerRef.current = null;
+    }, STARTUP_DELAY_MS);
+
     return () => {
       supabase.removeChannel(sub);
       clearInterval(stalePoll);
       cancelGraceTimer();
+      if (startupTimerRef.current) {
+        clearTimeout(startupTimerRef.current);
+        startupTimerRef.current = null;
+      }
     };
   }, [gameId, opponentId, isFinishedRef]);
 }
