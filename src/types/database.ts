@@ -5,6 +5,7 @@ export type GameStatus = "waiting" | "playing" | "finished";
 export interface Player {
   id: string;
   pseudo: string;
+  password: string;
   created_at: string;
 }
 
