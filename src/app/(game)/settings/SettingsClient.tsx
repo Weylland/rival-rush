@@ -277,24 +277,41 @@ export function SettingsClient({ initialPseudo }: Props) {
         )}
       </SectionCard>
 
+      {/* Contact */}
+      <Link
+        href="/contact"
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
+          borderRadius: 20, padding: "18px 20px",
+          boxShadow: `4px 4px 0 ${EA.cyan}`,
+          textDecoration: "none",
+        }}
+      >
+        <div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+            Nous contacter
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+            Bug, suggestion, question ?
+          </div>
+        </div>
+        <span style={{ fontSize: 22 }}>✉️</span>
+      </Link>
+
       {/* Liens légaux */}
-      <div style={{ display: "flex", gap: 16, justifyContent: "center", paddingTop: 8, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, justifyContent: "center", paddingTop: 4, flexWrap: "wrap" }}>
         {[
           { href: "/legal/mentions", label: "Mentions légales" },
           { href: "/legal/privacy", label: "Confidentialité" },
           { href: "/legal/cgu", label: "CGU" },
-          { href: "/contact", label: "Contact" },
         ].map(({ href, label }) => (
           <Link
             key={href}
             href={href}
             style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: 12,
-              fontWeight: 700,
-              color: "rgba(255,255,255,0.35)",
-              textDecoration: "underline",
-              textUnderlineOffset: 3,
+              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
+              color: "rgba(255,255,255,0.35)", textDecoration: "underline", textUnderlineOffset: 3,
             }}
           >
             {label}

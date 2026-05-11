@@ -290,6 +290,19 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           )}
         </div>
 
+        <div style={{ marginTop: 20, textAlign: "center" }}>
+          <a
+            href="/contact"
+            style={{
+              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+              color: "rgba(255,255,255,0.35)", textDecoration: "underline",
+              textUnderlineOffset: 3, letterSpacing: 0.5,
+            }}
+          >
+            Un problème ? Contacte-moi →
+          </a>
+        </div>
+
         {qrSvg && (
           <div style={{
             marginTop: 28,
