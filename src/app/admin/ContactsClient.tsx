@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateContactStatus, type ContactStatus } from "./actions";
+import { updateContactStatus, deleteContact, type ContactStatus } from "./actions";
+
+const PAGE_SIZE = 15;
 import { EA } from "@/lib/design";
 
 export interface Contact {
@@ -27,10 +29,15 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-function ContactCard({ contact, onStatusChange }: { contact: Contact; onStatusChange: (id: string, s: ContactStatus) => void }) {
+function ContactCard({ contact, onStatusChange, onDelete }: {
+  contact: Contact;
+  onStatusChange: (id: string, s: ContactStatus) => void;
+  onDelete: (id: string) => void;
+}) {
   const [expanded, setExpanded] = useState(contact.status === "new");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function handleStatus(next: ContactStatus) {
     setError(null);
@@ -38,6 +45,14 @@ function ContactCard({ contact, onStatusChange }: { contact: Contact; onStatusCh
       const res = await updateContactStatus(contact.id, next);
       if ("error" in res) setError(res.error);
       else onStatusChange(contact.id, next);
+    });
+  }
+
+  function handleDelete() {
+    startTransition(async () => {
+      const res = await deleteContact(contact.id);
+      if ("error" in res) setError(res.error);
+      else onDelete(contact.id);
     });
   }
 
@@ -124,11 +139,6 @@ function ContactCard({ contact, onStatusChange }: { contact: Contact; onStatusCh
               );
             })}
 
-            {error && (
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.pink, padding: "6px 0" }}>
-                ⚠ {error}
-              </span>
-            )}
             <a
               href={`mailto:${contact.email}?subject=Re: ${encodeURIComponent(contact.subject ?? "Votre message")}`}
               style={{
@@ -141,7 +151,40 @@ function ContactCard({ contact, onStatusChange }: { contact: Contact; onStatusCh
             >
               ✉️ Répondre
             </a>
+
+            {!confirmDelete ? (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                disabled={pending}
+                style={{
+                  fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+                  color: EA.pink, background: "rgba(255,30,140,0.12)",
+                  border: `2px solid ${EA.pink}`, borderRadius: 999, padding: "6px 12px",
+                  cursor: "pointer",
+                }}
+              >🗑</button>
+            ) : (
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)" }}>
+                  Supprimer ?
+                </span>
+                <button onClick={() => setConfirmDelete(false)} disabled={pending}
+                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.08)", border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
+                  Non
+                </button>
+                <button onClick={handleDelete} disabled={pending}
+                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.white, background: EA.pink, border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 10px", cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1 }}>
+                  Oui
+                </button>
+              </div>
+            )}
           </div>
+
+          {error && (
+            <div style={{ marginTop: 8, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.pink }}>
+              ⚠ {error}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -159,13 +202,20 @@ const FILTER_OPTIONS: { value: ContactStatus | "all"; label: string }[] = [
 export function ContactsClient({ contacts: initialContacts }: { contacts: Contact[] }) {
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [filter, setFilter] = useState<ContactStatus | "all">("new");
+  const [page, setPage] = useState(1);
 
   function handleStatusChange(id: string, newStatus: ContactStatus) {
     setContacts((prev) => prev.map((c) => c.id === id ? { ...c, status: newStatus } : c));
   }
 
+  function handleDelete(id: string) {
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  }
+
   const filtered = filter === "all" ? contacts : contacts.filter((c) => c.status === filter);
   const newCount = contacts.filter((c) => c.status === "new").length;
+  const paginated = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = paginated.length < filtered.length;
 
   return (
     <div>
@@ -177,7 +227,7 @@ export function ContactsClient({ contacts: initialContacts }: { contacts: Contac
           return (
             <button
               key={value}
-              onClick={() => setFilter(value)}
+              onClick={() => { setFilter(value); setPage(1); }}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 13,
                 color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
@@ -209,9 +259,31 @@ export function ContactsClient({ contacts: initialContacts }: { contacts: Contac
           Aucun message
         </div>
       ) : (
+        <>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {filtered.map((c) => <ContactCard key={c.id} contact={c} onStatusChange={handleStatusChange} />)}
+          {paginated.map((c) => (
+            <ContactCard key={c.id} contact={c} onStatusChange={handleStatusChange} onDelete={handleDelete} />
+          ))}
         </div>
+
+        {hasMore && (
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            style={{
+              marginTop: 16, width: "100%",
+              fontFamily: "var(--font-display)", fontSize: 14,
+              color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.06)",
+              border: `2px solid rgba(255,255,255,0.15)`,
+              borderRadius: 999, padding: "12px",
+              cursor: "pointer", transform: "skewX(-3deg)",
+            }}
+          >
+            <span style={{ display: "inline-block", transform: "skewX(3deg)" }}>
+              Voir plus ({filtered.length - paginated.length} restants)
+            </span>
+          </button>
+        )}
+        </>
       )}
     </div>
   );

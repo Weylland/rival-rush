@@ -108,6 +108,7 @@ alter table public.contacts enable row level security;
 create policy "contacts insert" on public.contacts for insert with check (true);
 create policy "contacts select" on public.contacts for select using (true);
 create policy "contacts update" on public.contacts for update using (true);
+create policy "contacts delete" on public.contacts for delete using (true);
 
 -- ── Realtime ────────────────────────────────────────────────────
 -- À activer dans le dashboard Supabase > Database > Replication :
