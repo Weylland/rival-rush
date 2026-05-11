@@ -31,11 +31,14 @@ function ContactCard({ contact }: { contact: Contact }) {
   const [status, setStatus] = useState<ContactStatus>(contact.status);
   const [expanded, setExpanded] = useState(contact.status === "new");
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleStatus(next: ContactStatus) {
+    setError(null);
     startTransition(async () => {
       const res = await updateContactStatus(contact.id, next);
-      if (!("error" in res)) setStatus(next);
+      if ("error" in res) setError(res.error);
+      else setStatus(next);
     });
   }
 
@@ -120,6 +123,11 @@ function ContactCard({ contact }: { contact: Contact }) {
               );
             })}
 
+            {error && (
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.pink, padding: "6px 0" }}>
+                ⚠ {error}
+              </span>
+            )}
             <a
               href={`mailto:${contact.email}?subject=Re: ${encodeURIComponent(contact.subject ?? "Votre message")}`}
               style={{
