@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deletePlayer } from "./actions";
+import { deletePlayer, resetPlayerPassword } from "./actions";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 
@@ -20,6 +20,19 @@ export function AdminClient({ players }: { players: Player[] }) {
   const [pending, startTransition] = useTransition();
   const [confirm, setConfirm] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tempPasswords, setTempPasswords] = useState<Record<string, string>>({});
+
+  function handleReset(playerId: string) {
+    setError(null);
+    startTransition(async () => {
+      const result = await resetPlayerPassword(playerId);
+      if ("error" in result) {
+        setError(result.error);
+      } else {
+        setTempPasswords((prev) => ({ ...prev, [playerId]: result.tempPassword }));
+      }
+    });
+  }
 
   function handleDelete(playerId: string) {
     setError(null);
@@ -55,6 +68,7 @@ export function AdminClient({ players }: { players: Player[] }) {
 
       {list.map((player) => (
         <div key={player.id} style={{
+          position: "relative", overflow: "hidden",
           background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
           borderRadius: 18, padding: "14px 16px",
           boxShadow: `2px 2px 0 ${EA.ink}`,
@@ -72,6 +86,32 @@ export function AdminClient({ players }: { players: Player[] }) {
                 : `${player.wins}V · ${player.losses}D · ${player.draws}= · ${player.points}pts`}
             </div>
           </div>
+
+          {tempPasswords[player.id] && (
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 18,
+              background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: 8, padding: "12px 16px",
+            }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1 }}>
+                Mdp temporaire pour {player.pseudo}
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.butter, letterSpacing: 6, transform: "skewX(-4deg)" }}>
+                {tempPasswords[player.id]}
+              </div>
+              <button
+                onClick={() => setTempPasswords((prev) => { const n = { ...prev }; delete n[player.id]; return n; })}
+                style={{
+                  fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
+                  background: "rgba(255,255,255,0.1)", border: `1.5px solid ${EA.ink}`,
+                  borderRadius: 999, padding: "5px 12px", color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                }}
+              >
+                OK, j'ai noté
+              </button>
+            </div>
+          )}
 
           {confirm === player.id ? (
             <div style={{ display: "flex", gap: 8 }}>
@@ -97,14 +137,26 @@ export function AdminClient({ players }: { players: Player[] }) {
                 }}>Confirmer</button>
             </div>
           ) : (
-            <button
-              onClick={() => setConfirm(player.id)}
-              style={{
-                fontFamily: "var(--font-display)", fontSize: 13,
-                background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
-                borderRadius: 999, padding: "8px 16px",
-                color: EA.pink, cursor: "pointer",
-              }}>🗑 Supprimer</button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => handleReset(player.id)}
+                disabled={pending}
+                style={{
+                  fontFamily: "var(--font-display)", fontSize: 13,
+                  background: "rgba(255,233,74,0.15)", border: `2px solid ${EA.butter}`,
+                  borderRadius: 999, padding: "8px 14px",
+                  color: EA.butter, cursor: pending ? "wait" : "pointer",
+                  opacity: pending ? 0.6 : 1,
+                }}>🔑 Reset</button>
+              <button
+                onClick={() => setConfirm(player.id)}
+                style={{
+                  fontFamily: "var(--font-display)", fontSize: 13,
+                  background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+                  borderRadius: 999, padding: "8px 14px",
+                  color: EA.pink, cursor: "pointer",
+                }}>🗑</button>
+            </div>
           )}
         </div>
       ))}

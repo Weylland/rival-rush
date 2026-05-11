@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hashPassword } from "@/lib/auth";
 
 export async function adminLogin(_prev: string | null, formData: FormData): Promise<string | null> {
   const secret = formData.get("secret") as string;
@@ -127,4 +128,22 @@ export async function deletePlayer(playerId: string) {
   if (playerErr) return { error: `Erreur suppression joueur: ${playerErr.message}` };
 
   return { ok: true };
+}
+
+export async function resetPlayerPassword(playerId: string): Promise<{ tempPassword: string } | { error: string }> {
+  const store = await cookies();
+  const adminCookie = store.get("ea_admin")?.value;
+  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+    return { error: "Non autorisé" };
+  }
+
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const tempPassword = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+
+  const hashed = await hashPassword(tempPassword);
+  const supabase = await createClient();
+  const { error } = await supabase.from("players").update({ password: hashed }).eq("id", playerId);
+  if (error) return { error: `Erreur: ${error.message}` };
+
+  return { tempPassword };
 }
