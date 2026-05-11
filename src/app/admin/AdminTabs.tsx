@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EA } from "@/lib/design";
+import { createClient } from "@/lib/supabase/client";
 import { AdminClient } from "./AdminClient";
 import { ContactsClient } from "./ContactsClient";
 import type { Contact } from "./ContactsClient";
+import type { ContactStatus } from "./actions";
 
 interface Player {
   id: string;
@@ -18,8 +20,35 @@ interface Player {
 
 type Tab = "players" | "contacts";
 
-export function AdminTabs({ players, contacts }: { players: Player[]; contacts: Contact[] }) {
+export function AdminTabs({ players, contacts: initialContacts }: { players: Player[]; contacts: Contact[] }) {
   const [tab, setTab] = useState<Tab>("players");
+  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+
+  // Realtime — nouveaux messages entrants
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("admin-contacts")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "contacts" },
+        (payload) => {
+          setContacts((prev) => [payload.new as Contact, ...prev]);
+        },
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  function handleStatusChange(id: string, newStatus: ContactStatus) {
+    setContacts((prev) => prev.map((c) => c.id === id ? { ...c, status: newStatus } : c));
+  }
+
+  function handleDelete(id: string) {
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  }
+
   const newMessages = contacts.filter((c) => c.status === "new").length;
 
   return (
@@ -27,7 +56,7 @@ export function AdminTabs({ players, contacts }: { players: Player[]; contacts: 
       {/* Tab bar */}
       <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
         {([
-          { value: "players" as Tab, label: `Joueurs`, badge: players.length, badgeColor: undefined as string | undefined },
+          { value: "players" as Tab, label: "Joueurs", badge: players.length, badgeColor: undefined as string | undefined },
           { value: "contacts" as Tab, label: "Messages", badge: newMessages, badgeColor: EA.pink as string | undefined },
         ]).map(({ value, label, badge, badgeColor }) => {
           const active = tab === value;
@@ -65,11 +94,17 @@ export function AdminTabs({ players, contacts }: { players: Player[]; contacts: 
         })}
       </div>
 
-      {tab === "players" ? (
+      {/* Les deux panels restent montés — display none pour éviter le reset au changement d'onglet */}
+      <div style={{ display: tab === "players" ? "block" : "none" }}>
         <AdminClient players={players} />
-      ) : (
-        <ContactsClient contacts={contacts} />
-      )}
+      </div>
+      <div style={{ display: tab === "contacts" ? "block" : "none" }}>
+        <ContactsClient
+          contacts={contacts}
+          onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
+        />
+      </div>
     </div>
   );
 }

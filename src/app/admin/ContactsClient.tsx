@@ -199,18 +199,15 @@ const FILTER_OPTIONS: { value: ContactStatus | "all"; label: string }[] = [
   { value: "spam", label: "Spam" },
 ];
 
-export function ContactsClient({ contacts: initialContacts }: { contacts: Contact[] }) {
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+interface ContactsClientProps {
+  contacts: Contact[];
+  onStatusChange: (id: string, s: ContactStatus) => void;
+  onDelete: (id: string) => void;
+}
+
+export function ContactsClient({ contacts, onStatusChange, onDelete }: ContactsClientProps) {
   const [filter, setFilter] = useState<ContactStatus | "all">("new");
   const [page, setPage] = useState(1);
-
-  function handleStatusChange(id: string, newStatus: ContactStatus) {
-    setContacts((prev) => prev.map((c) => c.id === id ? { ...c, status: newStatus } : c));
-  }
-
-  function handleDelete(id: string) {
-    setContacts((prev) => prev.filter((c) => c.id !== id));
-  }
 
   const filtered = filter === "all" ? contacts : contacts.filter((c) => c.status === filter);
   const newCount = contacts.filter((c) => c.status === "new").length;
@@ -262,7 +259,7 @@ export function ContactsClient({ contacts: initialContacts }: { contacts: Contac
         <>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {paginated.map((c) => (
-            <ContactCard key={c.id} contact={c} onStatusChange={handleStatusChange} onDelete={handleDelete} />
+            <ContactCard key={c.id} contact={c} onStatusChange={onStatusChange} onDelete={onDelete} />
           ))}
         </div>
 
