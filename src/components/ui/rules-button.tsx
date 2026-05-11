@@ -54,18 +54,14 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
         title="Règles du jeu"
         style={{
           position: "fixed", bottom: 16, right: 16, zIndex: 200,
-          height: 36, borderRadius: 999,
+          width: 36, height: 36, borderRadius: "50%",
           background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
           color: EA.cyan, cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 6, padding: "0 12px",
-          fontFamily: "var(--font-display)", fontSize: 13,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "var(--font-display)", fontSize: 16,
           boxShadow: `3px 3px 0 ${EA.cyan}`,
-          letterSpacing: 0.5,
         }}
-      >
-        <span style={{ fontSize: 15, lineHeight: 1 }}>?</span>
-        Règles
-      </button>
+      >?</button>
 
       {open && (
         <div
