@@ -77,12 +77,16 @@ create policy "presence public read"    on public.presence   for select using (t
 
 -- Écriture permissive (on gère l'auth côté app avec le mot de passe hashé)
 create policy "players insert"     on public.players    for insert with check (true);
+create policy "players delete"     on public.players    for delete using (true);
 create policy "challenges insert"  on public.challenges for insert with check (true);
 create policy "challenges update"  on public.challenges for update using (true);
+create policy "challenges delete"  on public.challenges for delete using (true);
 create policy "games insert"       on public.games      for insert with check (true);
 create policy "games update"       on public.games      for update using (true);
+create policy "games delete"       on public.games      for delete using (true);
 create policy "leaderboard insert" on public.leaderboard for insert with check (true);
 create policy "leaderboard update" on public.leaderboard for update using (true);
+create policy "leaderboard delete" on public.leaderboard for delete using (true);
 create policy "presence upsert"    on public.presence   for insert with check (true);
 create policy "presence update"    on public.presence   for update using (true);
 create policy "presence delete"    on public.presence   for delete using (true);

@@ -108,8 +108,10 @@ export async function deletePlayer(playerId: string) {
 
   // 3. Delete games then challenges
   if (challengeIds.length > 0) {
-    await supabase.from("games").delete().in("challenge_id", challengeIds);
-    await supabase.from("challenges").delete().in("id", challengeIds);
+    const { error: gamesErr } = await supabase.from("games").delete().in("challenge_id", challengeIds);
+    if (gamesErr) return { error: `Erreur suppression games: ${gamesErr.message}` };
+    const { error: chalErr } = await supabase.from("challenges").delete().in("id", challengeIds);
+    if (chalErr) return { error: `Erreur suppression challenges: ${chalErr.message}` };
   }
 
   // 4. Recalculate leaderboard for all affected opponents
@@ -118,9 +120,11 @@ export async function deletePlayer(playerId: string) {
   }
 
   // 5. Clean up player's own records
-  await supabase.from("leaderboard").delete().eq("player_id", playerId);
+  const { error: lbErr } = await supabase.from("leaderboard").delete().eq("player_id", playerId);
+  if (lbErr) return { error: `Erreur suppression leaderboard: ${lbErr.message}` };
   await supabase.from("presence").delete().eq("player_id", playerId);
-  await supabase.from("players").delete().eq("id", playerId);
+  const { error: playerErr } = await supabase.from("players").delete().eq("id", playerId);
+  if (playerErr) return { error: `Erreur suppression joueur: ${playerErr.message}` };
 
   return { ok: true };
 }

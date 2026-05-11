@@ -50,12 +50,31 @@ export default async function AdminPage() {
             const store = await cookies();
             store.delete("ea_admin");
           }}>
-            <button type="submit" style={{
-              fontFamily: "var(--font-display)", fontSize: 12,
-              background: "rgba(255,255,255,0.1)", border: `2px solid ${EA.ink}`,
-              borderRadius: 999, padding: "8px 16px", color: "rgba(255,255,255,0.6)",
-              cursor: "pointer", marginTop: 8,
-            }}>⎋ Déconnexion</button>
+            <style>{`
+              .ea-admin-logout { transition: transform .1s, box-shadow .1s; }
+              .ea-admin-logout:hover { transform: translate(3px,3px); box-shadow: none !important; }
+            `}</style>
+            <button
+              type="submit"
+              title="Déconnexion"
+              className="ea-admin-logout"
+              style={{
+                marginTop: 8,
+                width: 44, height: 44,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "rgba(255,30,140,0.12)",
+                border: `2.5px solid ${EA.pink}`,
+                borderRadius: "50%",
+                boxShadow: `3px 3px 0 ${EA.ink}`,
+                cursor: "pointer",
+                color: EA.pink,
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" />
+                <line x1="12" y1="2" x2="12" y2="12" />
+              </svg>
+            </button>
           </form>
         </div>
 
