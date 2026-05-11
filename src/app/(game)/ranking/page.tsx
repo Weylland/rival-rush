@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { EA } from "@/lib/design";
-import { Avatar } from "@/components/ui/avatar";
+import { SvgBlob } from "@/components/ui/blob";
+import { Star } from "@/components/ui/star";
 import Link from "next/link";
+import { RankingClient } from "./RankingClient";
 import type { LeaderboardEntry } from "@/types/database";
 
 export default async function RankingPage() {
@@ -20,8 +22,6 @@ export default async function RankingPage() {
 
   const entries = (rows ?? []) as LeaderboardEntry[];
 
-  const medals = ["🥇", "🥈", "🥉"];
-
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
       <div aria-hidden style={{
@@ -30,72 +30,43 @@ export default async function RankingPage() {
         backgroundSize: "16px 16px",
       }} />
 
-      <div style={{ position: "relative", zIndex: 10, padding: "28px 20px 100px" }}>
+      <SvgBlob color={EA.butter} style={{ width: 560, height: 480, top: -180, right: -140, opacity: 0.7, animation: "ea-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={EA.pink} style={{ width: 480, height: 420, bottom: -160, left: -130, opacity: 0.65, animation: "ea-float 8s ease-in-out infinite reverse" }}
+        path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+      <SvgBlob color={EA.cyan} style={{ width: 300, height: 260, top: "42%", left: -110, opacity: 0.35, animation: "ea-float 11s ease-in-out infinite" }}
+        path="M 40 20 Q 80 0 130 25 Q 190 55 170 120 Q 155 180 85 175 Q 15 170 10 105 Q -5 45 40 20 Z" />
+
+      <Star color={EA.butter} size={38} style={{ top: "7%", left: "5%", animation: "ea-spin-slow 12s linear infinite" }} />
+      <Star color={EA.white} size={24} style={{ top: "5%", right: "7%", animation: "ea-spin-slow 18s linear infinite reverse" }} />
+      <Star color={EA.cyan} size={20} style={{ bottom: "22%", right: "5%", animation: "ea-float 5s ease-in-out infinite" }} />
+      <Star color={EA.pink} size={16} style={{ top: "28%", right: "4%", animation: "ea-spin-slow 9s linear infinite" }} />
+      <Star color={EA.butter} size={14} style={{ bottom: "9%", left: "8%", transform: "rotate(-15deg)" }} />
+      <Star color={EA.white} size={12} style={{ top: "60%", left: "4%", animation: "ea-float 7s ease-in-out infinite reverse" }} />
+
+      <div style={{ position: "relative", zIndex: 10, maxWidth: 680, margin: "0 auto", padding: "40px 24px 100px" }}>
         {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>
             CLASSEMENT
           </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginTop: 2 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginTop: 4 }}>
             TOP JOUEURS
           </div>
         </div>
 
-        {/* Legend */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
-          marginBottom: 8, padding: "0 12px",
-        }}>
-          {["JOUEUR", "V", "D", "=", "PTS"].map(h => (
-            <div key={h} style={{ fontFamily: "var(--font-sans)", fontSize: 8, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, textAlign: h === "JOUEUR" ? "left" : "center" }}>
-              {h}
-            </div>
-          ))}
-        </div>
+        <RankingClient myPlayerId={session.playerId} initialEntries={entries} />
 
-        {/* Rows */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {entries.length === 0 && (
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "40px 0", transform: "skewX(-4deg)" }}>
-              Aucun joueur classé pour l'instant
-            </div>
-          )}
-          {entries.map((entry, i) => {
-            const isMe = entry.player_id === session.playerId;
-            return (
-              <div key={entry.player_id} style={{
-                background: isMe ? `rgba(0,212,232,0.12)` : EA.violetDeep,
-                border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
-                borderRadius: 14, padding: "12px",
-                boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
-                display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
-                alignItems: "center",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 16, minWidth: 20 }}>{medals[i] ?? `#${i + 1}`}</span>
-                  <Avatar name={entry.pseudo} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={28} />
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {entry.pseudo.toUpperCase()}
-                    {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 7, fontWeight: 900, color: EA.cyan, marginLeft: 4 }}>TOI</span>}
-                  </div>
-                </div>
-                {[entry.wins, entry.losses, entry.draws].map((val, j) => (
-                  <div key={j} style={{ fontFamily: "var(--font-display)", fontSize: 14, color: j === 0 ? EA.cyan : j === 1 ? EA.pink : EA.butter, textAlign: "center", transform: "skewX(-4deg)" }}>
-                    {val}
-                  </div>
-                ))}
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white, textAlign: "center", transform: "skewX(-6deg)" }}>
-                  {entry.points}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Back */}
-        <div style={{ marginTop: 32, textAlign: "center" }}>
+        {/* Back + History */}
+        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+          <Link href="/history" style={{
+            fontFamily: "var(--font-display)", fontSize: 15, color: EA.butter,
+            textDecoration: "none", display: "inline-block", transform: "skewX(-4deg)",
+            borderBottom: `2px solid ${EA.butter}`, paddingBottom: 2,
+          }}>
+            📜 MON HISTORIQUE
+          </Link>
           <Link href="/lobby" style={{
-            fontFamily: "var(--font-display)", fontSize: 13, color: EA.cyan,
+            fontFamily: "var(--font-display)", fontSize: 18, color: EA.cyan,
             textDecoration: "none", display: "inline-block", transform: "skewX(-4deg)",
             borderBottom: `2px solid ${EA.cyan}`, paddingBottom: 2,
           }}>

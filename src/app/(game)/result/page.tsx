@@ -40,6 +40,9 @@ export default async function ResultPage({ searchParams }: Props) {
   const raw = game.state as Record<string, unknown>;
   const pfcState: PFCState | null = raw && "rounds" in raw ? (raw as unknown as PFCState) : null;
 
+  const opponentId = session.playerId === p1Id ? p2Id : p1Id;
+  const opponentPseudo = pseudoOf[opponentId] ?? "?";
+
   return (
     <ResultClient
       myId={session.playerId}
@@ -50,6 +53,8 @@ export default async function ResultPage({ searchParams }: Props) {
       winnerId={game.winner_id as string | null}
       gameType={game.game_type as "pfc" | "morpion"}
       pfcState={pfcState}
+      opponentId={opponentId}
+      opponentPseudo={opponentPseudo}
     />
   );
 }

@@ -3,25 +3,20 @@
 import { useEffect, useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { sendChallenge, acceptChallenge, declineChallenge } from "./actions";
+import { sendChallenge } from "./actions";
+import { logout } from "@/app/(auth)/login/actions";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { EAButton } from "@/components/ui/ea-button";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
 import type { GameType } from "@/types/database";
 
 interface PresencePlayer {
   player_id: string;
   pseudo: string;
   status: "online" | "in-game";
-}
-
-interface IncomingChallenge {
-  id: string;
-  challenger_id: string;
-  challenger_pseudo: string;
-  game_type: GameType;
 }
 
 interface LobbyClientProps {
@@ -42,11 +37,13 @@ function ChooseGameModal({
   onClose,
   onChoose,
   isPending,
+  error,
 }: {
   opponent: PresencePlayer;
   onClose: () => void;
   onChoose: (g: GameType) => void;
   isPending: boolean;
+  error: string | null;
 }) {
   return (
     <div style={{
@@ -109,6 +106,15 @@ function ChooseGameModal({
           </div>
         </div>
 
+        {error && (
+          <div style={{
+            background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+            borderRadius: 12, padding: "10px 14px", marginTop: 8,
+            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
+            color: EA.white, textAlign: "center", position: "relative", zIndex: 2,
+          }}>{error}</div>
+        )}
+
         <div style={{ display: "flex", gap: 10, marginTop: 18, position: "relative", zIndex: 2 }}>
           {([
             { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
@@ -151,161 +157,25 @@ function ChooseGameModal({
   );
 }
 
-function ChallengeModal({
-  challenge,
-  onAccept,
-  onDecline,
-  isPending,
-}: {
-  challenge: IncomingChallenge;
-  onAccept: () => void;
-  onDecline: () => void;
-  isPending: boolean;
-}) {
-  const [countdown, setCountdown] = useState(20);
-
-  useEffect(() => {
-    if (countdown <= 0) { onDecline(); return; }
-    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [countdown, onDecline]);
-
-  const gameLabel = challenge.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : "MORPION";
-  const gameIcon = challenge.game_type === "pfc" ? "✊✋✌" : "⨯⭕⨯";
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0,
-      background: "rgba(26,15,94,0.7)",
-      zIndex: 50,
-    }}>
-      {/* Banner top */}
-      <div style={{
-        position: "absolute", top: 30, left: 16, right: 16,
-        background: EA.butter, border: `2.5px solid ${EA.ink}`,
-        borderRadius: 16, padding: "8px 12px",
-        textAlign: "center",
-        fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, letterSpacing: 1.4,
-        transform: "rotate(-1.5deg)",
-        boxShadow: `4px 4px 0 ${EA.pink}`,
-        zIndex: 30,
-      }}>
-        ⚡ DÉFI ENTRANT ⚡
-      </div>
-
-      {/* Modal */}
-      <div style={{
-        position: "absolute", left: 16, right: 16, top: 100,
-        background: EA.pink, border: `3px solid ${EA.ink}`,
-        borderRadius: 28, padding: "24px 18px 20px",
-        boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`,
-        zIndex: 20,
-      }}>
-        <div style={{
-          position: "absolute", inset: 4, borderRadius: 24,
-          backgroundImage: "radial-gradient(circle, rgba(255,233,74,0.35) 1px, transparent 1.4px)",
-          backgroundSize: "12px 12px", pointerEvents: "none",
-        }} />
-
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, position: "relative", zIndex: 2 }}>
-          <div style={{ position: "relative", marginBottom: 4 }}>
-            <div style={{
-              position: "absolute", inset: -8, borderRadius: "50%",
-              border: `3px dashed ${EA.butter}`,
-              animation: "ea-spin 6s linear infinite",
-            }} />
-            <Avatar name={challenge.challenger_pseudo} color={EA.cyan} ring={EA.butter} size={84} />
-          </div>
-
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}` }}>
-            {challenge.challenger_pseudo.toUpperCase()}
-          </div>
-          <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
-            te défie sur
-          </div>
-
-          <div style={{
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
-            borderRadius: 16, padding: "8px 16px", marginTop: 4,
-            display: "flex", alignItems: "center", gap: 8,
-            boxShadow: `3px 3px 0 ${EA.butter}`, transform: "rotate(-1deg)",
-          }}>
-            <div style={{ fontSize: 22 }}>{gameIcon}</div>
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)" }}>{gameLabel}</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 }}>
-                Best of 3 · 60 sec/manche
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: 1 }}>
-              auto-refus dans
-            </div>
-            <div style={{
-              background: EA.white, border: `2px solid ${EA.ink}`,
-              borderRadius: 10, padding: "2px 8px",
-              fontFamily: "var(--font-display)", fontSize: 16, color: countdown <= 5 ? EA.pink : EA.ink,
-              transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.cyan}`,
-            }}>0:{String(countdown).padStart(2, "0")}</div>
-          </div>
-
-          <div style={{ display: "flex", gap: 10, marginTop: 18, width: "100%" }}>
-            <button
-              onClick={onDecline}
-              disabled={isPending}
-              style={{
-                flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                color: EA.white, background: EA.violetDeep,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
-                padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
-              }}>Refuser</button>
-            <button
-              onClick={onAccept}
-              disabled={isPending}
-              style={{
-                flex: 1.4, fontFamily: "var(--font-display)", fontSize: 16,
-                color: EA.ink, background: EA.butter,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
-                padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                cursor: isPending ? "wait" : "pointer",
-                boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
-                transform: "skewX(-4deg)",
-                opacity: isPending ? 0.7 : 1,
-              }}>
-              <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>⚔ J'accepte !</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <Star color={EA.butter} size={22} style={{ top: 90, left: 22, transform: "rotate(15deg)" }} />
-      <Star color={EA.cyan} size={16} style={{ bottom: 200, right: 20 }} />
-    </div>
-  );
-}
-
-function PlayerRow({ p, idx, onChallenge }: { p: PresencePlayer; idx: number; onChallenge: () => void }) {
+function PlayerRow({ p, idx, onChallenge, desktop }: { p: PresencePlayer; idx: number; onChallenge: () => void; desktop: boolean }) {
   const inGame = p.status === "in-game";
   const shadowColor = idx % 2 === 0 ? EA.cyan : EA.pink;
   return (
     <div style={{
       background: EA.white, border: `2.5px solid ${EA.ink}`,
-      borderRadius: 22, padding: "12px 14px",
-      display: "flex", alignItems: "center", gap: 12,
+      borderRadius: 22, padding: desktop ? "16px 20px" : "12px 14px",
+      display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
       boxShadow: `4px 4px 0 ${shadowColor}`,
       transform: idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
     }}>
-      <Avatar name={p.pseudo} color={idx % 2 === 0 ? EA.cyan : EA.pink} ring={idx % 2 === 0 ? EA.pink : EA.cyan} size={44} />
+      <Avatar name={p.pseudo} color={idx % 2 === 0 ? EA.cyan : EA.pink} ring={idx % 2 === 0 ? EA.pink : EA.cyan} size={desktop ? 56 : 44} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 17, color: EA.ink, transform: "skewX(-4deg)" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: EA.ink, transform: "skewX(-4deg)" }}>
           {p.pseudo}
         </div>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: inGame ? EA.pink : EA.violetDeep, marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 12, fontWeight: 800, color: inGame ? EA.pink : EA.violetDeep, marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{
-            width: 7, height: 7, borderRadius: "50%",
+            width: 8, height: 8, borderRadius: "50%",
             background: inGame ? EA.pink : "#1ee29a",
             boxShadow: inGame ? "none" : "0 0 6px #1ee29a",
           }} />
@@ -316,11 +186,11 @@ function PlayerRow({ p, idx, onChallenge }: { p: PresencePlayer; idx: number; on
         onClick={inGame ? undefined : onChallenge}
         disabled={inGame}
         style={{
-          fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: 0.6,
+          fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13, letterSpacing: 0.6,
           color: inGame ? "rgba(26,15,94,0.4)" : EA.white,
           background: inGame ? "#e6e2f5" : EA.pink,
           border: `2px solid ${inGame ? "#bdb5da" : EA.ink}`,
-          borderRadius: 999, padding: "8px 14px",
+          borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
           textTransform: "uppercase",
           cursor: inGame ? "not-allowed" : "pointer",
           boxShadow: inGame ? "none" : `2px 2px 0 ${EA.cyan}`,
@@ -333,95 +203,52 @@ function PlayerRow({ p, idx, onChallenge }: { p: PresencePlayer; idx: number; on
 
 export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: LobbyClientProps) {
   const router = useRouter();
+  const desktop = useIsDesktop();
   const [players, setPlayers] = useState<PresencePlayer[]>(initialPlayers);
   const [tab, setTab] = useState<"joueurs" | "classement">("joueurs");
   const [chooseOpponent, setChooseOpponent] = useState<PresencePlayer | null>(null);
-  const [incomingChallenge, setIncomingChallenge] = useState<IncomingChallenge | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [challengeError, setChallengeError] = useState<string | null>(null);
 
-  // Join presence + subscribe to realtime
+  // Subscribe to realtime
   useEffect(() => {
     const supabase = createClient();
 
-    // Upsert presence on mount
-    supabase.from("presence").upsert({
-      player_id: myPlayerId,
-      pseudo: myPseudo,
-      status: "online",
-      updated_at: new Date().toISOString(),
-    }).then(() => {});
-
-    // Delete presence on leave
-    const handleUnload = () => {
-      navigator.sendBeacon("/api/presence/leave", JSON.stringify({ playerId: myPlayerId }));
-    };
-    window.addEventListener("beforeunload", handleUnload);
+    // Fresh fetch on mount — initialPlayers is server-rendered before our presence upsert
+    const cutoff = new Date(Date.now() - 90_000).toISOString();
+    supabase.from("presence").select("*").gte("updated_at", cutoff).then(({ data }) => {
+      if (data) setPlayers(data.filter((p) => p.player_id !== myPlayerId) as PresencePlayer[]);
+    });
 
     // Subscribe to presence changes
     const presenceSub = supabase
       .channel("presence-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "presence" }, () => {
-        supabase.from("presence").select("*").then(({ data }) => {
+        const cutoff = new Date(Date.now() - 90_000).toISOString();
+        supabase.from("presence").select("*").gte("updated_at", cutoff).then(({ data }) => {
           if (data) setPlayers(data.filter((p) => p.player_id !== myPlayerId) as PresencePlayer[]);
         });
       })
       .subscribe();
 
-    // Subscribe to incoming challenges
-    const challengeSub = supabase
-      .channel("challenges-incoming")
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "challenges",
-        filter: `challenged_id=eq.${myPlayerId}`,
-      }, async (payload) => {
-        const c = payload.new as { id: string; challenger_id: string; game_type: GameType };
-        const { data: challenger } = await supabase
-          .from("players")
-          .select("pseudo")
-          .eq("id", c.challenger_id)
-          .single();
-        if (challenger) {
-          setIncomingChallenge({
-            id: c.id,
-            challenger_id: c.challenger_id,
-            challenger_pseudo: challenger.pseudo,
-            game_type: c.game_type,
-          });
-        }
-      })
-      .subscribe();
-
     return () => {
-      window.removeEventListener("beforeunload", handleUnload);
       supabase.removeChannel(presenceSub);
-      supabase.removeChannel(challengeSub);
-      supabase.from("presence").delete().eq("player_id", myPlayerId).then(() => {});
     };
-  }, [myPlayerId, myPseudo]);
+  }, [myPlayerId]);
 
   const handleChooseGame = useCallback((gameType: GameType) => {
     if (!chooseOpponent) return;
+    setChallengeError(null);
     startTransition(async () => {
-      await sendChallenge(chooseOpponent.player_id, gameType);
+      const result = await sendChallenge(chooseOpponent.player_id, gameType);
+      if (result?.error) {
+        setChallengeError(result.error);
+      }
     });
   }, [chooseOpponent]);
 
-  const handleAccept = useCallback(() => {
-    if (!incomingChallenge) return;
-    startTransition(async () => {
-      await acceptChallenge(incomingChallenge.id);
-    });
-  }, [incomingChallenge]);
-
-  const handleDecline = useCallback(() => {
-    if (!incomingChallenge) return;
-    declineChallenge(incomingChallenge.id);
-    setIncomingChallenge(null);
-  }, [incomingChallenge]);
-
   const visiblePlayers = players.filter((p) => p.player_id !== myPlayerId);
+  const inGameCount = visiblePlayers.filter((p) => p.status === "in-game").length;
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
@@ -433,38 +260,63 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
       }} />
 
       {/* Deco blobs */}
-      <SvgBlob color={EA.pink} style={{ width: 200, height: 180, top: -70, right: -60, opacity: 0.9 }} />
-      <Star color={EA.butter} size={20} style={{ top: 110, left: 30 }} />
-      <Star color={EA.cyan} size={14} style={{ top: 180, right: 60 }} />
+      <SvgBlob color={EA.pink} style={{ width: 520, height: 460, top: -220, right: -180, opacity: 0.7, animation: "ea-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={EA.butter} style={{ width: 420, height: 380, bottom: -180, left: -150, opacity: 0.5, animation: "ea-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+      <SvgBlob color={EA.cyan} style={{ width: 320, height: 280, top: "38%", left: -130, opacity: 0.25, animation: "ea-float 11s ease-in-out infinite" }} />
+      <Star color={EA.butter} size={38} style={{ top: "16%", left: "7%", animation: "ea-spin-slow 10s linear infinite" }} />
+      <Star color={EA.cyan} size={26} style={{ top: "32%", right: "5%", animation: "ea-float 4s ease-in-out infinite" }} />
+      <Star color={EA.white} size={20} style={{ bottom: "30%", left: "4%", transform: "rotate(15deg)", animation: "ea-spin-slow 16s linear infinite reverse" }} />
+      <Star color={EA.pink} size={16} style={{ bottom: "14%", right: "7%", animation: "ea-float 7s ease-in-out infinite" }} />
+      <Star color={EA.butter} size={14} style={{ top: "55%", left: "12%", animation: "ea-spin-slow 8s linear infinite" }} />
+      <Star color={EA.white} size={12} style={{ top: "72%", right: "11%", transform: "rotate(-20deg)", animation: "ea-float 9s ease-in-out infinite reverse" }} />
 
       {/* Header */}
-      <div style={{ position: "relative", zIndex: 10, padding: "8px 20px 0" }}>
+      <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 0" : "8px 20px 0" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
               Salut {myPseudo}
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
               LE LOBBY
             </div>
           </div>
-          <div style={{
-            background: EA.cyan, border: `2px solid ${EA.ink}`,
-            borderRadius: 14, padding: "6px 12px",
-            transform: "rotate(3deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
-          }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>
-              Mes points
+          <div style={{ display: "flex", alignItems: "center", gap: desktop ? 12 : 8 }}>
+            <div style={{
+              background: EA.cyan, border: `2px solid ${EA.ink}`,
+              borderRadius: 14, padding: desktop ? "10px 18px" : "6px 12px",
+              transform: "rotate(3deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
+            }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 13 : 10, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>
+                Mes points
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 32 : 22, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
+                {myPoints.toLocaleString("fr-FR")}
+              </div>
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
-              {myPoints.toLocaleString("fr-FR")}
-            </div>
+            <form action={logout}>
+              <button
+                type="submit"
+                title="Se déconnecter"
+                style={{
+                  width: desktop ? 48 : 38, height: desktop ? 48 : 38, borderRadius: 12,
+                  background: "rgba(26,15,94,0.55)", border: `2px solid ${EA.ink}`,
+                  color: EA.white, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `2px 2px 0 ${EA.pink}`,
+                  fontSize: desktop ? 20 : 16,
+                  padding: 0,
+                }}
+              >
+                ⎋
+              </button>
+            </form>
           </div>
         </div>
 
         {/* Tab bar */}
         <div style={{
-          marginTop: 18,
+          marginTop: desktop ? 24 : 18,
           display: "flex", gap: 8,
           background: "rgba(26,15,94,0.55)",
           border: `2px solid ${EA.ink}`,
@@ -477,13 +329,15 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
               style={{
                 flex: 1, textAlign: "center",
                 background: tab === t ? EA.pink : "transparent",
-                border: "none", borderRadius: 999, padding: "8px 0",
-                fontFamily: "var(--font-display)", fontSize: 13,
+                border: "none", borderRadius: 999, padding: desktop ? "12px 0" : "8px 0",
+                fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 13,
                 color: tab === t ? EA.white : "rgba(255,255,255,0.65)",
                 letterSpacing: 0.6, cursor: "pointer",
                 boxShadow: tab === t ? `2px 2px 0 ${EA.cyan}` : "none",
               }}>
-              {t === "joueurs" ? `JOUEURS · ${visiblePlayers.length}` : "CLASSEMENT"}
+              {t === "joueurs"
+                ? `JOUEURS · ${visiblePlayers.length - inGameCount} en ligne${inGameCount > 0 ? ` · ${inGameCount} en match` : ""}`
+                : "CLASSEMENT"}
             </button>
           ))}
         </div>
@@ -492,8 +346,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
       {/* Player list */}
       <div style={{
         position: "relative", zIndex: 10,
-        margin: "16px 16px 100px",
-        display: "flex", flexDirection: "column", gap: 10,
+        maxWidth: desktop ? 680 : "100%", margin: "0 auto",
+        padding: desktop ? "16px 40px 120px" : "0 16px 100px",
+        marginTop: 16,
+        display: "flex", flexDirection: "column", gap: desktop ? 12 : 10,
       }}>
         {visiblePlayers.length === 0 ? (
           <div style={{
@@ -506,28 +362,32 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
           </div>
         ) : (
           visiblePlayers.map((p, i) => (
-            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} />
+            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} desktop={desktop} />
           ))
         )}
       </div>
 
       {/* Match rapide sticky */}
       <div style={{
-        position: "fixed", bottom: 20, left: 16, right: 16,
+        position: "fixed", bottom: 20,
+        left: desktop ? "50%" : 16,
+        right: desktop ? "auto" : 16,
+        transform: desktop ? "translateX(-50%)" : "none",
+        width: desktop ? 640 : "auto",
         zIndex: 20,
         background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
-        borderRadius: 22, padding: "10px 14px",
-        display: "flex", alignItems: "center", gap: 10,
+        borderRadius: 22, padding: desktop ? "14px 20px" : "10px 14px",
+        display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
         boxShadow: `4px 4px 0 ${EA.pink}`,
       }}>
         <div style={{
-          width: 36, height: 36, borderRadius: 10,
+          width: desktop ? 48 : 36, height: desktop ? 48 : 36, borderRadius: 10,
           background: EA.cyan, display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18, border: `2px solid ${EA.ink}`,
+          fontSize: desktop ? 24 : 18, border: `2px solid ${EA.ink}`,
         }}>🎲</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, lineHeight: 1 }}>MATCH RAPIDE</div>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Adversaire au hasard</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 14, color: EA.white, lineHeight: 1 }}>MATCH RAPIDE</div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Adversaire au hasard</div>
         </div>
         <button
           onClick={() => {
@@ -535,7 +395,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
             if (available.length > 0) setChooseOpponent(available[Math.floor(Math.random() * available.length)]);
           }}
           style={{
-            fontFamily: "var(--font-display)", fontSize: 18, color: EA.cyan,
+            fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 18, color: EA.cyan,
             background: "none", border: "none", cursor: "pointer",
             transform: "skewX(-6deg)",
           }}>GO →</button>
@@ -545,17 +405,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
       {chooseOpponent && (
         <ChooseGameModal
           opponent={chooseOpponent}
-          onClose={() => setChooseOpponent(null)}
+          onClose={() => { setChooseOpponent(null); setChallengeError(null); }}
           onChoose={handleChooseGame}
           isPending={isPending}
-        />
-      )}
-      {incomingChallenge && !chooseOpponent && (
-        <ChallengeModal
-          challenge={incomingChallenge}
-          onAccept={handleAccept}
-          onDecline={handleDecline}
-          isPending={isPending}
+          error={challengeError}
         />
       )}
     </div>

@@ -11,6 +11,30 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
 
   const supabase = await createClient();
 
+  // Guard: opponent must be online
+  const { data: presence } = await supabase
+    .from("presence")
+    .select("status")
+    .eq("player_id", challengedId)
+    .maybeSingle();
+
+  if (!presence || presence.status !== "online") {
+    return { error: "Ce joueur n'est plus disponible" };
+  }
+
+  // Guard: no pending challenge already between these two players
+  const { data: existing } = await supabase
+    .from("challenges")
+    .select("id")
+    .eq("status", "pending")
+    .or(
+      `and(challenger_id.eq.${session.playerId},challenged_id.eq.${challengedId}),` +
+      `and(challenger_id.eq.${challengedId},challenged_id.eq.${session.playerId})`
+    )
+    .maybeSingle();
+
+  if (existing) return { error: "Un défi est déjà en cours avec ce joueur" };
+
   const { data: challenge, error } = await supabase
     .from("challenges")
     .insert({
@@ -25,6 +49,19 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
   if (error || !challenge) return { error: "Impossible d'envoyer le défi" };
 
   redirect(`/waiting?challenge_id=${challenge.id}`);
+}
+
+export async function cancelChallenge(challengeId: string) {
+  const session = await getSession();
+  if (!session) return;
+
+  const supabase = await createClient();
+
+  await supabase
+    .from("challenges")
+    .update({ status: "cancelled" })
+    .eq("id", challengeId)
+    .eq("challenger_id", session.playerId);
 }
 
 export async function acceptChallenge(challengeId: string) {

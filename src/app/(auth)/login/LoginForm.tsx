@@ -140,7 +140,7 @@ function LogoMark({ size = 72 }: { size?: number }) {
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: string | null }) {
   const [tab, setTab] = useState<"signup" | "signin">("signup");
   const [signupState, signupAction, signupPending] = useActionState<AuthState, FormData>(signup, null);
   const [signinState, signinAction, signinPending] = useActionState<AuthState, FormData>(signin, null);
@@ -178,6 +178,8 @@ export function LoginForm() {
         padding: "24px 24px 0",
         display: "flex", flexDirection: "column",
         alignItems: "center", gap: 4,
+        width: "100%", maxWidth: 480,
+        margin: "0 auto", boxSizing: "border-box",
       }}>
         <LogoMark size={72} />
         <div style={{
@@ -209,7 +211,10 @@ export function LoginForm() {
       {/* Form */}
       <div style={{
         position: "relative", zIndex: 10,
-        margin: "20px 20px 0",
+        width: "100%", maxWidth: 440,
+        margin: "20px auto 0",
+        padding: "0 20px",
+        boxSizing: "border-box",
         display: "flex", flexDirection: "column", gap: 14,
       }}>
         <TabSwitch active={tab} onSwitch={setTab} />
@@ -284,6 +289,28 @@ export function LoginForm() {
             </>
           )}
         </div>
+
+        {qrSvg && (
+          <div style={{
+            marginTop: 28,
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+            background: "rgba(26,15,94,0.55)", border: `2px dashed ${EA.cyan}`,
+            borderRadius: 20, padding: "16px 20px",
+          }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, letterSpacing: 1.6, textTransform: "uppercase" }}>
+              📱 Rejoins depuis ton téléphone
+            </div>
+            <div
+              style={{ width: 120, height: 120, borderRadius: 12, overflow: "hidden" }}
+              dangerouslySetInnerHTML={{ __html: qrSvg }}
+            />
+            {appUrl && (
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
+                {appUrl}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

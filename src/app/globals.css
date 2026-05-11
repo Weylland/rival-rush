@@ -11,9 +11,9 @@
   --color-butter:      #FFE94A;
   --color-ink:         #1A0F5E;
 
-  /* Fonts */
-  --font-display: var(--font-righteous), "Boogaloo", system-ui, sans-serif;
-  --font-sans:    var(--font-nunito), system-ui, sans-serif;
+  /* Fonts — emoji fonts in fallback chain for cross-browser rendering */
+  --font-display: var(--font-righteous), "Boogaloo", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji Mozilla", system-ui, sans-serif;
+  --font-sans:    var(--font-nunito), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji Mozilla", system-ui, sans-serif;
 }
 
 /* ── Base ───────────────────────────────────────────────────────── */
@@ -29,7 +29,8 @@ html, body {
 /* ── Keyframes ──────────────────────────────────────────────────── */
 @keyframes ea-blink  { 50% { opacity: 0; } }
 @keyframes ea-pulse  { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
-@keyframes ea-spin   { to { transform: rotate(360deg); } }
+@keyframes ea-spin      { to { transform: rotate(360deg); } }
+@keyframes ea-spin-slow { to { transform: rotate(360deg); } }
 @keyframes ea-float  { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(8px,-12px); } }
 @keyframes ea-bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
 @keyframes ea-glow-pulse {
