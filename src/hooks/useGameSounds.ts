@@ -36,6 +36,7 @@ export function useGameSounds() {
   }, []);
 
   const play = useCallback((sound: SoundType) => {
+    if (typeof window !== "undefined" && localStorage.getItem("ea_sounds_enabled") === "false") return;
     const ctx = getCtx();
     if (!ctx) return;
 
