@@ -12,6 +12,7 @@ interface Player {
   losses: number;
   draws: number;
   points: number;
+  neverPlayed: boolean;
 }
 
 export function AdminClient({ players }: { players: Player[] }) {
@@ -66,7 +67,9 @@ export function AdminClient({ players }: { players: Player[] }) {
               {player.pseudo}
             </div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
-              {player.wins}V · {player.losses}D · {player.draws}= · {player.points}pts
+              {player.neverPlayed
+                ? "Aucune partie jouée"
+                : `${player.wins}V · ${player.losses}D · ${player.draws}= · ${player.points}pts`}
             </div>
           </div>
 

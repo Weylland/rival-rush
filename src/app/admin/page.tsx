@@ -4,8 +4,6 @@ import { EA } from "@/lib/design";
 import { SvgBlob } from "@/components/ui/blob";
 import { AdminClient } from "./AdminClient";
 import { AdminLoginForm } from "./AdminLoginForm";
-import type { LeaderboardEntry } from "@/types/database";
-
 export default async function AdminPage() {
   const cookieStore = await cookies();
   const isAuth = cookieStore.get("ea_admin")?.value === process.env.ADMIN_SECRET;
@@ -16,12 +14,24 @@ export default async function AdminPage() {
 
   const supabase = await createClient();
 
-  const { data: rows } = await supabase
-    .from("leaderboard_with_pseudo")
-    .select("*")
-    .order("pseudo", { ascending: true });
+  const [{ data: allPlayers }, { data: lbRows }] = await Promise.all([
+    supabase.from("players").select("id, pseudo, created_at").order("pseudo", { ascending: true }),
+    supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
+  ]);
 
-  const players = (rows ?? []) as LeaderboardEntry[];
+  const lbMap = new Map((lbRows ?? []).map((r) => [r.player_id, r]));
+  const players = (allPlayers ?? []).map((p) => {
+    const lb = lbMap.get(p.id);
+    return {
+      id: p.id,
+      pseudo: p.pseudo,
+      wins: lb?.wins ?? 0,
+      losses: lb?.losses ?? 0,
+      draws: lb?.draws ?? 0,
+      points: lb?.points ?? 0,
+      neverPlayed: !lb,
+    };
+  });
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
@@ -78,16 +88,7 @@ export default async function AdminPage() {
           </form>
         </div>
 
-        <AdminClient
-          players={players.map((p) => ({
-            id: p.player_id,
-            pseudo: p.pseudo,
-            wins: p.wins,
-            losses: p.losses,
-            draws: p.draws,
-            points: p.points,
-          }))}
-        />
+        <AdminClient players={players} />
       </div>
     </div>
   );
