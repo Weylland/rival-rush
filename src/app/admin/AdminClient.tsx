@@ -14,7 +14,7 @@ interface Player {
   points: number;
 }
 
-export function AdminClient({ players, secret }: { players: Player[]; secret: string }) {
+export function AdminClient({ players }: { players: Player[] }) {
   const [list, setList] = useState<Player[]>(players);
   const [pending, startTransition] = useTransition();
   const [confirm, setConfirm] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function AdminClient({ players, secret }: { players: Player[]; secret: st
   function handleDelete(playerId: string) {
     setError(null);
     startTransition(async () => {
-      const result = await deletePlayer(playerId, secret);
+      const result = await deletePlayer(playerId);
       if (result?.error) {
         setError(result.error);
       } else {

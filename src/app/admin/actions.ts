@@ -1,6 +1,18 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+export async function adminLogin(_prev: string | null, formData: FormData): Promise<string | null> {
+  const secret = formData.get("secret") as string;
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
+    return "Mot de passe incorrect";
+  }
+  const store = await cookies();
+  store.set("ea_admin", secret, { httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 8, path: "/" });
+  redirect("/admin");
+}
 
 const WIN_PTS = 3;
 const DRAW_PTS = 1;
@@ -36,8 +48,10 @@ async function recalculateLeaderboard(
   await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
 }
 
-export async function deletePlayer(playerId: string, secret: string) {
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+export async function deletePlayer(playerId: string) {
+  const store = await cookies();
+  const adminCookie = store.get("ea_admin")?.value;
+  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
     return { error: "Non autorisé" };
   }
 
