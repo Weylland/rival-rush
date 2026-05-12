@@ -110,7 +110,8 @@ function ChooseGameModal({
             { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
             { type: "morpion" as GameType, icon: "⨯⭕⨯", title: "MORPION", sub: "Tactique", color: EA.pink, shadow: EA.butter, badge: undefined },
             { type: "puissance4" as GameType, icon: "🔴🟡🔴", title: "PUISSANCE 4", sub: "Stratégie", color: EA.butter, shadow: EA.cyan, badge: undefined },
-            { type: "reflexe" as GameType, icon: "⚡⚡⚡", title: "RÉFLEXE", sub: "Vitesse", color: EA.pink, shadow: EA.butter, badge: "NEW ✨" },
+            { type: "reflexe" as GameType, icon: "⚡⚡⚡", title: "RÉFLEXE", sub: "Vitesse", color: EA.pink, shadow: EA.butter, badge: undefined },
+            { type: "naval" as GameType, icon: "🚢⚓🎯", title: "BATAILLE\nNAVALE", sub: "Stratégie", color: EA.cyan, shadow: EA.butter, badge: "NEW ✨" },
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[]).map((g) => (
             <button
               key={g.type}

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
+import { generateFleet } from "@/lib/battleship";
 import type { GameType } from "@/types/database";
 
 export async function sendChallenge(challengedId: string, gameType: GameType) {
@@ -85,14 +86,19 @@ export async function acceptChallenge(challengeId: string) {
     .update({ status: "accepted" })
     .eq("id", challengeId);
 
+  const p1 = challenge.challenger_id;
+  const p2 = session.playerId;
+
   const initialState =
     challenge.game_type === "pfc"
-      ? { rounds: [], scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } }
+      ? { rounds: [], scores: { [p1]: 0, [p2]: 0 } }
       : challenge.game_type === "puissance4"
         ? { board: Array(42).fill(null) }
         : challenge.game_type === "reflexe"
-          ? { rounds: [], scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] }
-          : { board: Array(9).fill(null), scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } };
+          ? { rounds: [], scores: { [p1]: 0, [p2]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] }
+          : challenge.game_type === "naval"
+            ? { ships: { [p1]: generateFleet(), [p2]: generateFleet() }, shots: { [p1]: [], [p2]: [] } }
+            : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase
     .from("games")

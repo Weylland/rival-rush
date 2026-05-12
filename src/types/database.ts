@@ -1,4 +1,4 @@
-export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe";
+export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval";
 export type ChallengeStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type GameStatus = "waiting" | "playing" | "finished";
 
@@ -67,6 +67,23 @@ export interface TapState {
   signal_at: string | null;
   current_round: number;
   ready: string[]; // player IDs who clicked "Prêt"
+}
+
+export interface NavalShip {
+  id: number;
+  name: string;
+  size: number;
+  cells: number[]; // flat indices 0-99 on a 10×10 grid
+}
+
+export interface NavalShot {
+  cell: number;
+  result: "miss" | "hit" | "sunk";
+}
+
+export interface NavalState {
+  ships: Record<string, NavalShip[]>; // playerId → their fleet (used server-side for validation)
+  shots: Record<string, NavalShot[]>; // playerId → shots they fired at opponent
 }
 
 export interface LeaderboardEntry {

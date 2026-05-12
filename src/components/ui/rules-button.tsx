@@ -6,6 +6,17 @@ import { EA } from "@/lib/design";
 import type { GameType } from "@/types/database";
 
 const RULES: Record<GameType, { title: string; icon: string; items: { icon: string; text: string }[] }> = {
+  naval: {
+    title: "Bataille Navale",
+    icon: "🚢⚓🎯",
+    items: [
+      { icon: "🎲", text: "Bateaux placés aléatoirement : Porte-avions (5), Croiseur (4), 2×Destroyer/Sous-marin (3), Torpilleur (2)" },
+      { icon: "🎯", text: "Tour par tour : clique sur la grille ennemie pour tirer" },
+      { icon: "🔥", text: "Touché = rejoue pas, c'est l'adversaire qui joue ensuite" },
+      { icon: "💥", text: "Coulé = tout le navire est révélé" },
+      { icon: "🏆", text: "Coule toute la flotte ennemie (17 cases) pour gagner" },
+    ],
+  },
   reflexe: {
     title: "Tap de réflexe",
     icon: "⚡⚡⚡",
