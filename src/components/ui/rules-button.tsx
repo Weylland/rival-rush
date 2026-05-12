@@ -6,6 +6,17 @@ import { EA } from "@/lib/design";
 import type { GameType } from "@/types/database";
 
 const RULES: Record<GameType, { title: string; icon: string; items: { icon: string; text: string }[] }> = {
+  reflexe: {
+    title: "Tap de réflexe",
+    icon: "⚡⚡⚡",
+    items: [
+      { icon: "⚡", text: "Un joueur arme la manche en appuyant sur ARMER" },
+      { icon: "👀", text: "Délai aléatoire 2-5s, puis le signal s'affiche" },
+      { icon: "🖐", text: "Tapez le plus vite possible dès le signal !" },
+      { icon: "⚠", text: "Tapper avant le signal = faux départ, manche rejouée" },
+      { icon: "🏆", text: "Premier à 2 manches gagne le match" },
+    ],
+  },
   pfc: {
     title: "Pierre Feuille Ciseaux",
     icon: "✊✋✌",

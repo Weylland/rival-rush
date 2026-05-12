@@ -166,12 +166,12 @@ export default async function HistoryPage() {
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{
-                      background: game.game_type === "pfc" ? EA.cyan : game.game_type === "puissance4" ? EA.butter : EA.pink,
+                      background: game.game_type === "pfc" ? EA.cyan : game.game_type === "puissance4" ? EA.butter : game.game_type === "reflexe" ? EA.pink : EA.pink,
                       border: `1.5px solid ${EA.ink}`, borderRadius: 999,
                       padding: "2px 8px", fontSize: 10,
                       fontFamily: "var(--font-display)", color: EA.ink, letterSpacing: 0.6,
                     }}>
-                      {game.game_type === "pfc" ? "PFC" : game.game_type === "puissance4" ? "P4" : "MORPION"}
+                      {game.game_type === "pfc" ? "PFC" : game.game_type === "puissance4" ? "P4" : game.game_type === "reflexe" ? "⚡" : "MORPION"}
                     </div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
                       {dateStr}

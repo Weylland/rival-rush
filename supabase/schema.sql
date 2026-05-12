@@ -18,7 +18,7 @@ create table public.challenges (
   id            uuid primary key default uuid_generate_v4(),
   challenger_id uuid not null references public.players(id) on delete cascade,
   challenged_id uuid not null references public.players(id) on delete cascade,
-  game_type     text not null check (game_type in ('pfc', 'morpion', 'puissance4')),
+  game_type     text not null check (game_type in ('pfc', 'morpion', 'puissance4', 'reflexe')),
   status        text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'cancelled')),
   created_at    timestamptz not null default now(),
   constraint no_self_challenge check (challenger_id <> challenged_id)
@@ -27,7 +27,7 @@ create table public.challenges (
 create table public.games (
   id           uuid primary key default uuid_generate_v4(),
   challenge_id uuid not null references public.challenges(id) on delete cascade,
-  game_type    text not null check (game_type in ('pfc', 'morpion')),
+  game_type    text not null check (game_type in ('pfc', 'morpion', 'puissance4', 'reflexe')),
   state        jsonb not null default '{}',
   current_turn uuid references public.players(id),
   winner_id    uuid references public.players(id),

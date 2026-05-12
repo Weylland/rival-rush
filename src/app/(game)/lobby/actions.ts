@@ -90,7 +90,9 @@ export async function acceptChallenge(challengeId: string) {
       ? { rounds: [], scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } }
       : challenge.game_type === "puissance4"
         ? { board: Array(42).fill(null) }
-        : { board: Array(9).fill(null), scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } };
+        : challenge.game_type === "reflexe"
+          ? { rounds: [], scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 }, phase: "idle", signal_at: null, current_round: 1 }
+          : { board: Array(9).fill(null), scores: { [challenge.challenger_id]: 0, [session.playerId]: 0 } };
 
   const { data: game } = await supabase
     .from("games")

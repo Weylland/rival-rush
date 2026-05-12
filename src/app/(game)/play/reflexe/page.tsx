@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ResultClient } from "./ResultClient";
-import type { PFCState } from "@/types/database";
+import { ReflexeClient } from "./ReflexeClient";
+import type { TapState } from "@/types/database";
 
 interface Props {
   searchParams: Promise<{ game_id?: string }>;
 }
 
-export default async function ResultPage({ searchParams }: Props) {
+export default async function ReflexePage({ searchParams }: Props) {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -23,7 +23,7 @@ export default async function ResultPage({ searchParams }: Props) {
     .eq("id", game_id)
     .single();
 
-  if (!game) redirect("/lobby");
+  if (!game || game.game_type !== "reflexe") redirect("/lobby");
 
   const challenge = game.challenges as { challenger_id: string; challenged_id: string };
   const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
@@ -38,23 +38,22 @@ export default async function ResultPage({ searchParams }: Props) {
   const pseudoOf = Object.fromEntries((players ?? []).map(p => [p.id, p.pseudo]));
 
   const raw = game.state as Record<string, unknown>;
-  const pfcState: PFCState | null = raw && "rounds" in raw ? (raw as unknown as PFCState) : null;
-
-  const opponentId = session.playerId === p1Id ? p2Id : p1Id;
-  const opponentPseudo = pseudoOf[opponentId] ?? "?";
+  const initialState: TapState =
+    raw && "phase" in raw
+      ? (raw as unknown as TapState)
+      : { rounds: [], scores: { [p1Id]: 0, [p2Id]: 0 }, phase: "idle", signal_at: null, current_round: 1 };
 
   return (
-    <ResultClient
+    <ReflexeClient
+      gameId={game_id}
       myId={session.playerId}
       p1Id={p1Id}
       p2Id={p2Id}
       p1Pseudo={pseudoOf[p1Id] ?? "?"}
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
-      winnerId={game.winner_id as string | null}
-      gameType={game.game_type as "pfc" | "morpion" | "puissance4" | "reflexe"}
-      pfcState={pfcState}
-      opponentId={opponentId}
-      opponentPseudo={opponentPseudo}
+      initialState={initialState}
+      initialStatus={game.status as "waiting" | "playing" | "finished"}
+      initialWinnerId={game.winner_id as string | null}
     />
   );
 }

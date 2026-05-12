@@ -20,7 +20,7 @@ interface Props {
   p1Pseudo: string;
   p2Pseudo: string;
   winnerId: string | null;
-  gameType: "pfc" | "morpion" | "puissance4";
+  gameType: "pfc" | "morpion" | "puissance4" | "reflexe";
   pfcState: PFCState | null;
   opponentId: string;
   opponentPseudo: string;

@@ -83,6 +83,23 @@ export default async function GamesPage() {
             ]}
           />
 
+          {/* Réflexe */}
+          <GameCard
+            icon="⚡⚡⚡"
+            title="Réflexe"
+            tag="Vitesse"
+            tagColor={EA.pink}
+            borderColor={EA.pink}
+            shadowColor={EA.butter}
+            rules={[
+              { icon: "⚡", text: "Un des deux joueurs arme la manche en appuyant sur ARMER" },
+              { icon: "👀", text: "Attendez le signal — il apparaît après un délai aléatoire (2 à 5 secondes)" },
+              { icon: "🖐", text: "Dès que le signal s'affiche : TAPEZ le plus vite possible !" },
+              { icon: "⚠", text: "Taper avant le signal = faux départ, la manche repart de zéro" },
+              { icon: "🏆", text: "Premier à remporter 2 manches gagne le match" },
+            ]}
+          />
+
           {/* Points */}
           <div style={{
             background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
