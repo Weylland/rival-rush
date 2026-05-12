@@ -183,22 +183,24 @@ function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: numb
           {offline ? "Hors ligne" : inGame ? "En partie" : "En ligne"}
         </div>
       </div>
-      <button
-        onClick={offline || inGame ? undefined : onChallenge}
-        disabled={offline || inGame}
-        style={{
-          fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13, letterSpacing: 0.6,
-          color: offline || inGame ? "rgba(26,15,94,0.4)" : EA.white,
-          background: offline || inGame ? (offline ? "rgba(255,255,255,0.06)" : "#e6e2f5") : EA.pink,
-          border: `2px solid ${offline || inGame ? (offline ? "rgba(255,255,255,0.1)" : "#bdb5da") : EA.ink}`,
-          borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
-          textTransform: "uppercase",
-          cursor: offline || inGame ? "not-allowed" : "pointer",
-          boxShadow: offline || inGame ? "none" : `2px 2px 0 ${EA.cyan}`,
-          whiteSpace: "nowrap",
-        }}>
-        {offline ? "Hors ligne" : inGame ? "Occupé" : "Défier ⚔"}
-      </button>
+      {!offline && (
+        <button
+          onClick={inGame ? undefined : onChallenge}
+          disabled={inGame}
+          style={{
+            fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13, letterSpacing: 0.6,
+            color: inGame ? "rgba(26,15,94,0.4)" : EA.white,
+            background: inGame ? "#e6e2f5" : EA.pink,
+            border: `2px solid ${inGame ? "#bdb5da" : EA.ink}`,
+            borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
+            textTransform: "uppercase",
+            cursor: inGame ? "not-allowed" : "pointer",
+            boxShadow: inGame ? "none" : `2px 2px 0 ${EA.cyan}`,
+            whiteSpace: "nowrap",
+          }}>
+          {inGame ? "Occupé" : "Défier ⚔"}
+        </button>
+      )}
     </div>
   );
 }
@@ -227,7 +229,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
           Personne en ligne pour l'instant
         </div>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
-          Active <strong style={{ color: "rgba(255,255,255,0.55)" }}>Voir tous</strong> pour défier un ami hors ligne
+          Active <strong style={{ color: "rgba(255,255,255,0.55)" }}>Voir tous</strong> pour voir qui est inscrit
         </div>
       </div>
     );
