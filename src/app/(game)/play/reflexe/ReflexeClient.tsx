@@ -176,7 +176,7 @@ export function ReflexeClient({
             En attente...
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
-            {opPseudo} n&apos;est pas encore prêt
+            {`${opPseudo} n'est pas encore prêt`}
           </div>
         </>
       );
