@@ -11,12 +11,63 @@ import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import type { GameType } from "@/types/database";
 
-const TIPS = [
-  "Au PFC, observe le rythme de l'adversaire 👀",
-  "Au Morpion, les coins valent de l'or 🎯",
-  "La victoire sourit aux audacieux ⚡",
-  "Garde ton calme, c'est là que tout se joue 🧠",
-];
+const TIPS: Record<GameType | "global", string[]> = {
+  pfc: [
+    "Les joueurs stressés jouent souvent Pierre en premier — commence par Feuille.",
+    "Après une défaite, ton adversaire va rarement rejouer le même signe.",
+    "Tu viens de gagner ? L'adversaire va souvent jouer ce qui aurait battu ton choix.",
+    "Deux fois le même signe d'affilée ? Il s'y attend — change.",
+    "La Feuille est statistiquement le choix le moins joué. Exploite ça.",
+    "Après une Feuille perdante, beaucoup de joueurs passent instinctivement aux Ciseaux.",
+    "Si l'adversaire est imprévisible, joue aléatoirement — le hasard vaut parfois mieux que la stratégie.",
+  ],
+  morpion: [
+    "Prends le centre au premier coup si possible — il est impliqué dans 4 des 8 alignements gagnants.",
+    "Les coins valent plus que les côtés : un coin permet 3 alignements, un côté seulement 2.",
+    "Face à un centre adverse, réponds par un coin — jamais un côté.",
+    "Crée une double menace (deux aligner en même temps) : ton adversaire ne peut en bloquer qu'une.",
+    "La \"fourche\" (attaquer sur deux axes simultanément) est imbattable si elle n'est pas anticipée.",
+    "Jouer en diagonale coins opposés dès le début force l'adversaire dans une position défensive.",
+    "Vérifier chaque tour si l'adversaire peut gagner au suivant — bloquer passe avant attaquer.",
+  ],
+  puissance4: [
+    "La colonne centrale est décisive : elle est impliquée dans presque tous les alignements longs.",
+    "Construis des doubles menaces : deux alignements qui ne peuvent être bloqués qu'à un seul endroit.",
+    "Méfie-toi du piège \"7\" : une menace au sol + une en l'air dans la même colonne.",
+    "Ne remplis pas une colonne trop tôt — tu risques d'offrir à l'adversaire la case du dessus.",
+    "Si tu joues en deuxième, force les blocages : oblige-le à défendre plutôt qu'attaquer.",
+    "Vise plusieurs axes en même temps : diagonal + horizontal crée des situations impossibles à bloquer.",
+    "Compter les cases restantes par colonne évite de jouer dans une colonne pleine.",
+    "Un alignement en bas de grille est plus sûr qu'en hauteur : les cases du bas sont jouables immédiatement.",
+  ],
+  reflexe: [
+    "Pose ton doigt en survol de l'écran avant le signal — chaque milliseconde compte.",
+    "Ne fixe pas le bouton : fixe l'ensemble de l'écran, tu détectes le changement plus vite en vision périphérique.",
+    "Respire régulièrement avant la manche — apnée et tension ralentissent tes réflexes.",
+    "Anticiper = faux départ. Attends le signal, ne prévoie pas.",
+    "Si tu as perdu de peu, résiste à l'envie de taper plus tôt au prochain round — l'adversaire compte dessus.",
+    "La régularité bat la précipitation : un bon rythme de respiration donne de meilleurs temps.",
+  ],
+  naval: [
+    "Commence par tirer en diagonale espacée (un coup sur deux cases) pour balayer la grille efficacement.",
+    "Les grands bateaux (5-4 cases) ne tiennent pas en bord de grille — commence par le centre.",
+    "Dès un touché, tire dans les 4 directions adjacentes pour trouver l'orientation du bateau.",
+    "Une fois l'orientation trouvée, continue dans la même direction jusqu'à couler.",
+    "Le Torpilleur (2 cases) est le plus difficile à trouver — réserve les zones restantes pour lui.",
+    "Compte les cases touchées : 5+4+3+3+2 = 17 au total. Suivi ta progression avec le tracker de flotte.",
+    "Si l'adversaire touche mais ne coule pas, c'est qu'il cherche l'orientation — regarde où il tire ensuite.",
+  ],
+  global: [
+    "Un match nul, c'est mieux qu'une défaite — chaque point au classement compte.",
+    "Les meilleures décisions se prennent calme. Prends 2 secondes avant de jouer.",
+    "Rejoue après une défaite : le plus dur, c'est de revenir. Les champions reviennent.",
+  ],
+};
+
+function getTip(gameType: GameType): string {
+  const pool = [...(TIPS[gameType] ?? []), ...TIPS.global];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 interface Props {
   challengeId: string;
@@ -29,7 +80,7 @@ export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType 
   const router = useRouter();
   const desktop = useIsDesktop();
   const [, startTransition] = useTransition();
-  const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+  const tip = getTip(gameType);
 
   useEffect(() => {
     const supabase = createClient();
