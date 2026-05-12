@@ -20,6 +20,44 @@ interface IncomingChallenge {
   game_type: GameType;
 }
 
+// Draws a favicon with a red dot badge in the browser tab
+function setFaviconBadge(active: boolean) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  // Base: rounded violet square
+  ctx.fillStyle = "#2d1b69";
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 32, 32, 6);
+  ctx.fill();
+
+  // "EA" text
+  ctx.fillStyle = "#00d4e8";
+  ctx.font = "bold 14px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("EA", 16, 17);
+
+  // Red badge dot
+  if (active) {
+    ctx.fillStyle = "#ff1e8c";
+    ctx.beginPath();
+    ctx.arc(26, 6, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 8px sans-serif";
+    ctx.fillText("!", 26, 6);
+  }
+
+  const link: HTMLLinkElement = document.querySelector("link[rel~='icon']") ?? document.createElement("link");
+  link.type = "image/png";
+  link.rel = "icon";
+  link.href = canvas.toDataURL();
+  if (!link.parentNode) document.head.appendChild(link);
+}
+
 export function ChallengeNotifier({ playerId }: Props) {
   const pathname = usePathname();
   const [incoming, setIncoming] = useState<IncomingChallenge | null>(null);
@@ -121,6 +159,29 @@ export function ChallengeNotifier({ playerId }: Props) {
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown, incoming, handleDecline]);
+
+  // Blinking tab title + favicon badge while a challenge is pending
+  useEffect(() => {
+    if (!incoming) {
+      document.title = "Expression Arena";
+      setFaviconBadge(false);
+      return;
+    }
+    setFaviconBadge(true);
+    const alert = `⚔ Défi de ${incoming.challenger_pseudo} !`;
+    const original = "Expression Arena";
+    let show = true;
+    const interval = setInterval(() => {
+      document.title = show ? alert : original;
+      show = !show;
+    }, 900);
+    document.title = alert;
+    return () => {
+      clearInterval(interval);
+      document.title = original;
+      setFaviconBadge(false);
+    };
+  }, [incoming]);
 
   if (!incoming || suppress) return null;
 
