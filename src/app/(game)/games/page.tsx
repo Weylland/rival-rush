@@ -100,6 +100,24 @@ export default async function GamesPage() {
             ]}
           />
 
+          {/* Naval */}
+          <GameCard
+            icon="🚢⚓🎯"
+            title="Bataille Navale"
+            tag="Stratégie"
+            tagColor="#0ea5e9"
+            borderColor="#0ea5e9"
+            shadowColor={EA.cyan}
+            badge="NEW ✨"
+            rules={[
+              { icon: "🎲", text: "Bateaux placés aléatoirement : Porte-avions (5), Croiseur (4), 2×Destroyer/Sous-marin (3), Torpilleur (2) — soit 17 cases au total" },
+              { icon: "🎯", text: "Tour par tour : clique sur la grille ennemie pour tirer une salve" },
+              { icon: "🔥", text: "Touché ! La case est marquée — c'est maintenant au tour de l'adversaire" },
+              { icon: "💥", text: "Coulé ! Tout le navire est révélé quand toutes ses cases sont touchées" },
+              { icon: "🏆", text: "Coule les 17 cases de la flotte ennemie pour gagner la partie" },
+            ]}
+          />
+
           {/* Points */}
           <div style={{
             background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
@@ -132,13 +150,14 @@ export default async function GamesPage() {
   );
 }
 
-function GameCard({ icon, title, tag, tagColor, borderColor, shadowColor, rules }: {
+function GameCard({ icon, title, tag, tagColor, borderColor, shadowColor, badge, rules }: {
   icon: string;
   title: string;
   tag: string;
   tagColor: string;
   borderColor: string;
   shadowColor: string;
+  badge?: string;
   rules: { icon: string; text: string }[];
 }) {
   return (
@@ -148,7 +167,18 @@ function GameCard({ icon, title, tag, tagColor, borderColor, shadowColor, rules 
       borderRadius: 22,
       padding: "16px 18px",
       boxShadow: `4px 4px 0 ${shadowColor}, 4px 4px 0 1px ${EA.ink}`,
+      position: "relative",
     }}>
+      {badge && (
+        <div style={{
+          position: "absolute", top: -10, right: 14,
+          background: EA.butter, border: `2px solid ${EA.ink}`,
+          padding: "3px 10px", borderRadius: 999,
+          fontFamily: "var(--font-display)", fontSize: 10, color: EA.ink,
+          letterSpacing: 0.6, transform: "rotate(2deg)",
+          boxShadow: `2px 2px 0 ${EA.ink}`,
+        }}>{badge}</div>
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
         <div style={{ fontSize: 32, lineHeight: 1 }}>{icon}</div>
         <div>
