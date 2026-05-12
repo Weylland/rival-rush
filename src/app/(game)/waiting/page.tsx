@@ -25,11 +25,13 @@ export default async function WaitingPage({ searchParams }: Props) {
 
   if (!challenge) redirect("/lobby");
 
-  const { data: opponent } = await supabase
-    .from("players")
-    .select("pseudo")
-    .eq("id", challenge.challenged_id)
-    .single();
+  const [{ data: opponent }, { data: presence }] = await Promise.all([
+    supabase.from("players").select("pseudo").eq("id", challenge.challenged_id).single(),
+    supabase.from("presence").select("status, updated_at").eq("player_id", challenge.challenged_id).maybeSingle(),
+  ]);
+
+  const cutoff = new Date(Date.now() - 180_000).toISOString();
+  const opponentIsOffline = !presence || presence.updated_at < cutoff || presence.status === "offline";
 
   return (
     <WaitingClient
@@ -37,6 +39,7 @@ export default async function WaitingPage({ searchParams }: Props) {
       myPseudo={session.pseudo}
       opponentPseudo={opponent?.pseudo ?? "?"}
       gameType={challenge.game_type}
+      opponentIsOffline={opponentIsOffline}
     />
   );
 }

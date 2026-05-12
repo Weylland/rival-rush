@@ -4,7 +4,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
 import { generateFleet } from "@/lib/battleship";
+import { sendPushToSubscriptions } from "@/lib/push";
 import type { GameType } from "@/types/database";
+
+const GAME_LABELS: Record<GameType, string> = {
+  pfc: "Pierre Feuille Ciseaux",
+  morpion: "Morpion",
+  puissance4: "Puissance 4",
+  reflexe: "Réflexe ⚡",
+  naval: "Bataille Navale",
+};
 
 export async function sendChallenge(challengedId: string, gameType: GameType) {
   const session = await getSession();
@@ -12,16 +21,18 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
 
   const supabase = await createClient();
 
-  // Guard: opponent must be online
+  // Check presence (block only if actively in-game)
   const { data: presence } = await supabase
     .from("presence")
     .select("status")
     .eq("player_id", challengedId)
     .maybeSingle();
 
-  if (!presence || presence.status !== "online") {
-    return { error: "Ce joueur n'est plus disponible" };
+  if (presence?.status === "in-game") {
+    return { error: "Ce joueur est déjà en partie" };
   }
+
+  const isOffline = !presence || presence.status === "offline";
 
   // Guard: no pending challenge already between these two players
   const { data: existing } = await supabase
@@ -36,6 +47,10 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
 
   if (existing) return { error: "Un défi est déjà en cours avec ce joueur" };
 
+  // expires_at: 60s for online players, 5 minutes for offline
+  const expiresInMs = isOffline ? 5 * 60 * 1000 : 60 * 1000;
+  const expiresAt = new Date(Date.now() + expiresInMs).toISOString();
+
   const { data: challenge, error } = await supabase
     .from("challenges")
     .insert({
@@ -43,11 +58,29 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
       challenged_id: challengedId,
       game_type: gameType,
       status: "pending",
+      expires_at: expiresAt,
     })
     .select()
     .single();
 
   if (error || !challenge) return { error: "Impossible d'envoyer le défi" };
+
+  // Send Web Push if player is offline (or as backup even if online)
+  const { data: subs } = await supabase
+    .from("push_subscriptions")
+    .select("endpoint, p256dh, auth")
+    .eq("player_id", challengedId);
+
+  if (subs && subs.length > 0) {
+    const label = GAME_LABELS[gameType] ?? gameType;
+    const duration = isOffline ? "5 minutes" : "1 minute";
+    await sendPushToSubscriptions(subs as { endpoint: string; p256dh: string; auth: string }[], {
+      title: `⚔ Défi de ${session.pseudo} !`,
+      body: `${session.pseudo} te défie sur ${label}. Tu as ${duration} pour accepter !`,
+      tag: `challenge-${challenge.id}`,
+      url: "/lobby",
+    });
+  }
 
   redirect(`/waiting?challenge_id=${challenge.id}`);
 }

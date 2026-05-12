@@ -18,6 +18,7 @@ interface IncomingChallenge {
   challenger_id: string;
   challenger_pseudo: string;
   game_type: GameType;
+  expires_at: string;
 }
 
 // Draws a favicon matching the EA logo, with an optional pink badge
@@ -95,6 +96,28 @@ export function ChallengeNotifier({ playerId }: Props) {
   // Don't pop the modal while in a game / on the result page
   const suppress = pathname?.startsWith("/play/");
 
+  // On mount: fetch any already-pending challenge (e.g. opened via push notification)
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase
+      .from("challenges")
+      .select("id, challenger_id, game_type, expires_at")
+      .eq("challenged_id", playerId)
+      .eq("status", "pending")
+      .maybeSingle()
+      .then(async ({ data: c }) => {
+        if (!c || !c.expires_at) return;
+        const remaining = Math.round((new Date(c.expires_at).getTime() - Date.now()) / 1000);
+        if (remaining <= 0) return;
+        const { data: challenger } = await supabase.from("players").select("pseudo").eq("id", c.challenger_id).single();
+        if (!challenger) return;
+        setIncoming({ id: c.id, challenger_id: c.challenger_id, challenger_pseudo: challenger.pseudo, game_type: c.game_type as GameType, expires_at: c.expires_at });
+        setCountdown(remaining);
+        play("notify");
+      });
+  }, [playerId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const supabase = createClient();
 
@@ -109,7 +132,7 @@ export function ChallengeNotifier({ playerId }: Props) {
           filter: `challenged_id=eq.${playerId}`,
         },
         async (payload) => {
-          const c = payload.new as { id: string; challenger_id: string; game_type: GameType; status: string };
+          const c = payload.new as { id: string; challenger_id: string; game_type: GameType; status: string; expires_at: string };
           if (c.status !== "pending") return;
           const { data: challenger } = await supabase
             .from("players")
@@ -117,14 +140,18 @@ export function ChallengeNotifier({ playerId }: Props) {
             .eq("id", c.challenger_id)
             .single();
           if (!challenger) return;
+          const remaining = c.expires_at
+            ? Math.max(10, Math.round((new Date(c.expires_at).getTime() - Date.now()) / 1000))
+            : 60;
           const challenge: IncomingChallenge = {
             id: c.id,
             challenger_id: c.challenger_id,
             challenger_pseudo: challenger.pseudo,
             game_type: c.game_type,
+            expires_at: c.expires_at,
           };
           setIncoming(challenge);
-          setCountdown(20);
+          setCountdown(remaining);
           play("notify");
 
           // System notification when page is hidden (screen off / other app)

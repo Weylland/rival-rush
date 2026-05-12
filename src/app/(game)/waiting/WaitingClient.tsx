@@ -74,9 +74,10 @@ interface Props {
   myPseudo: string;
   opponentPseudo: string;
   gameType: GameType;
+  opponentIsOffline: boolean;
 }
 
-export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType }: Props) {
+export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType, opponentIsOffline }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const [, startTransition] = useTransition();
@@ -174,16 +175,17 @@ export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType 
             <div style={{
               width: desktop ? 96 : 72, height: desktop ? 96 : 72, borderRadius: "50%",
               background: "rgba(255,255,255,0.15)",
-              border: `2.5px dashed ${EA.cyan}`,
+              border: `2.5px dashed ${opponentIsOffline ? EA.butter : EA.cyan}`,
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-display)", fontSize: desktop ? 40 : 28, color: EA.cyan,
+              fontFamily: "var(--font-display)", fontSize: desktop ? 40 : 28,
+              color: opponentIsOffline ? EA.butter : EA.cyan,
               animation: "ea-pulse 1.4s ease-in-out infinite",
-            }}>?</div>
+            }}>{opponentIsOffline ? "📬" : "?"}</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 15, color: "rgba(255,255,255,0.5)", transform: "skewX(-4deg)" }}>
               {opponentPseudo.toUpperCase()}
             </div>
-            <div style={{ background: "rgba(26,15,94,0.55)", border: `2px solid ${EA.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: EA.cyan, letterSpacing: 1 }}>
-              ⏳ ARRIVE
+            <div style={{ background: opponentIsOffline ? "rgba(255,233,74,0.15)" : "rgba(26,15,94,0.55)", border: `2px solid ${opponentIsOffline ? EA.butter : EA.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: opponentIsOffline ? EA.butter : EA.cyan, letterSpacing: 1 }}>
+              {opponentIsOffline ? "📵 HORS LIGNE" : "⏳ ARRIVE"}
             </div>
           </div>
         </div>
@@ -201,7 +203,9 @@ export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType 
         </div>
 
         <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: desktop ? 18 : 14, fontWeight: 800, color: EA.white, opacity: 0.85, textAlign: "center" }}>
-          {opponentPseudo} se connecte au match...
+          {opponentIsOffline
+            ? `Invitation envoyée à ${opponentPseudo} — il a 5 min pour accepter`
+            : `${opponentPseudo} se connecte au match...`}
         </div>
 
         {/* Tip */}

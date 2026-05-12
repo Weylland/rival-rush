@@ -151,7 +151,7 @@ function ChooseGameModal({
 function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean }) {
   const inGame = p.status === "in-game";
   const offline = p.status === "offline";
-  const shadowColor = offline ? "transparent" : idx % 2 === 0 ? EA.cyan : EA.pink;
+  const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
 
   return (
     <div style={{
@@ -161,7 +161,7 @@ function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: numb
       display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
       boxShadow: offline ? "none" : `4px 4px 0 ${shadowColor}`,
       transform: offline ? "none" : idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
-      opacity: offline ? 0.45 : 1,
+      opacity: offline ? 0.6 : 1,
       transition: "opacity 0.2s",
     }}>
       <Avatar
@@ -184,22 +184,21 @@ function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: numb
           {offline ? "Hors ligne" : inGame ? "En partie" : "En ligne"}
         </div>
       </div>
-      {!offline && (
+      {!inGame && (
         <button
-          onClick={inGame ? undefined : onChallenge}
-          disabled={inGame}
+          onClick={onChallenge}
           style={{
             fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13, letterSpacing: 0.6,
-            color: inGame ? "rgba(26,15,94,0.4)" : EA.white,
-            background: inGame ? "#e6e2f5" : EA.pink,
-            border: `2px solid ${inGame ? "#bdb5da" : EA.ink}`,
+            color: offline ? "rgba(255,255,255,0.7)" : EA.white,
+            background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
+            border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
             borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
             textTransform: "uppercase",
-            cursor: inGame ? "not-allowed" : "pointer",
-            boxShadow: inGame ? "none" : `2px 2px 0 ${EA.cyan}`,
+            cursor: "pointer",
+            boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
             whiteSpace: "nowrap",
           }}>
-          {inGame ? "Occupé" : "Défier ⚔"}
+          {offline ? "Inviter 📬" : "Défier ⚔"}
         </button>
       )}
     </div>
