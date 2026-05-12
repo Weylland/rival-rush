@@ -148,6 +148,12 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initia
         } else {
           setPfcState(newState);
           if (lastRound && lastRound.moves[opponentId] && !lastRound.moves[myId]) { play("tick"); setOpponentChose(true); }
+          // Forfeit: game finished without a complete round (opponent left)
+          if (newStatus === "finished") {
+            isGameFinishedRef.current = true;
+            play(updated.winner_id === myId ? "win" : "lose");
+            setTimeout(() => router.push(`/result?game_id=${gameId}`), 1500);
+          }
         }
       })
       .subscribe();
