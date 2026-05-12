@@ -345,61 +345,61 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, init
         <RulesButton gameType="naval" />
         {Bg}
 
-        <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1100, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1500, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
           {/* Title */}
-          <div style={{ textAlign: "center", padding: "24px 40px 0" }}>
+          <div style={{ textAlign: "center", padding: "20px 40px 0" }}>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 56, color: EA.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${EA.cyan}`, lineHeight: 1, marginTop: 4 }}>BATAILLE NAVALE ⚓</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: EA.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${EA.cyan}`, lineHeight: 1, marginTop: 4 }}>BATAILLE NAVALE ⚓</div>
           </div>
 
           {/* Main layout */}
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 48, padding: "20px 40px 40px" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 40, padding: "16px 40px 32px" }}>
 
             {/* Me */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
               <div style={{ position: "relative" }}>
                 {isMyTurn && !isFinished && <div style={{ position: "absolute", top: -14, left: -10, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>TON TOUR</div>}
-                <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "18px 22px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, transform: "rotate(-1deg)", boxShadow: `4px 4px 0 ${EA.cyan}`, opacity: !isMyTurn && !isFinished ? 0.6 : 1, minWidth: 130 }}>
-                  <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={56} />
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white, transform: "skewX(-4deg)" }}>{myPseudo.toUpperCase()}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>{opHits}/{17} reçus</div>
+                <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: "rotate(-1deg)", boxShadow: `4px 4px 0 ${EA.cyan}`, opacity: !isMyTurn && !isFinished ? 0.6 : 1, minWidth: 160 }}>
+                  <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={72} />
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>{myPseudo.toUpperCase()}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>{opHits}/{17} reçus</div>
                 </div>
               </div>
-              <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "12px 16px" }}>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Ma flotte</div>
+              <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "14px 18px" }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 10 }}>Ma flotte</div>
                 <FleetTracker ships={myShips} shotCells={opShotCells} accent={EA.cyan} />
               </div>
             </div>
 
             {/* Grids */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-              <div style={{ display: "flex", gap: 20 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 1.2 }}>Ma flotte</div>
-                  <NavalGrid cells={myGrid} cellSize={30} interactive={false} shotCells={opShotCells} accentColor={EA.cyan} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+              <div style={{ display: "flex", gap: 28 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 1.2 }}>Ma flotte</div>
+                  <NavalGrid cells={myGrid} cellSize={44} interactive={false} shotCells={opShotCells} accentColor={EA.cyan} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: isMyTurn ? EA.pink : "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 1.2 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: isMyTurn ? EA.pink : "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 1.2 }}>
                     {isMyTurn ? "🎯 ATTAQUE !" : "Zone ennemie"}
                   </div>
-                  <NavalGrid cells={attackGrid} cellSize={30} interactive={isMyTurn && !shooting} shotCells={myShotCells} onShoot={handleShoot} accentColor={EA.pink} />
+                  <NavalGrid cells={attackGrid} cellSize={44} interactive={isMyTurn && !shooting} shotCells={myShotCells} onShoot={handleShoot} accentColor={EA.pink} />
                 </div>
               </div>
               <TurnPill isMyTurn={isMyTurn} isFinished={isFinished} iWon={iWon} isDraw={isDraw} opPseudo={opPseudo} shotFeedback={shotFeedback} />
             </div>
 
             {/* Opponent */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
               <div style={{ position: "relative" }}>
                 {!isMyTurn && !isFinished && <div style={{ position: "absolute", top: -14, right: -10, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>SON TOUR</div>}
-                <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "18px 22px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, transform: "rotate(1.5deg)", boxShadow: `4px 4px 0 ${EA.pink}`, opacity: isMyTurn && !isFinished ? 0.6 : 1, minWidth: 130 }}>
-                  <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={56} />
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.ink, transform: "skewX(-4deg)" }}>{opPseudo.toUpperCase()}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: "rgba(26,15,94,0.6)" }}>{myHits}/{17} reçus</div>
+                <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: "rotate(1.5deg)", boxShadow: `4px 4px 0 ${EA.pink}`, opacity: isMyTurn && !isFinished ? 0.6 : 1, minWidth: 160 }}>
+                  <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={72} />
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.ink, transform: "skewX(-4deg)" }}>{opPseudo.toUpperCase()}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(26,15,94,0.6)" }}>{myHits}/{17} reçus</div>
                 </div>
               </div>
-              <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "12px 16px" }}>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Flotte ennemie</div>
+              <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "14px 18px" }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 10 }}>Flotte ennemie</div>
                 <FleetTracker ships={opShips} shotCells={myShotCells} accent={EA.pink} />
               </div>
             </div>
