@@ -253,6 +253,18 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
   const router = useRouter();
   const desktop = useIsDesktop();
 
+  // Notification permission
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
+  useEffect(() => {
+    if (typeof Notification !== "undefined") setNotifPermission(Notification.permission);
+  }, []);
+
+  async function requestNotifPermission() {
+    if (typeof Notification === "undefined") return;
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+  }
+
   // Presence (online/in-game)
   const [onlinePlayers, setOnlinePlayers] = useState<PresencePlayer[]>(
     initialPlayers.filter(p => p.player_id !== myPlayerId)
@@ -372,6 +384,23 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: desktop ? 12 : 8 }}>
+            {notifPermission !== null && notifPermission !== "granted" && (
+              <button
+                onClick={requestNotifPermission}
+                title={notifPermission === "denied" ? "Notifications bloquées — autorise-les dans les réglages du navigateur" : "Activer les notifications de défi"}
+                style={{
+                  width: desktop ? 44 : 38, height: desktop ? 44 : 38, borderRadius: "50%",
+                  background: notifPermission === "denied" ? "rgba(255,255,255,0.04)" : "rgba(255,233,74,0.15)",
+                  border: `2.5px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.15)" : EA.butter}`,
+                  color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter,
+                  cursor: notifPermission === "denied" ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: desktop ? 18 : 15,
+                  boxShadow: notifPermission === "denied" ? "none" : `3px 3px 0 ${EA.ink}`,
+                  flexShrink: 0,
+                }}
+              >🔔</button>
+            )}
             <div style={{
               background: EA.cyan, border: `2px solid ${EA.ink}`,
               borderRadius: 14, padding: desktop ? "10px 18px" : "6px 12px",

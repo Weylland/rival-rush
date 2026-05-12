@@ -52,14 +52,35 @@ export function ChallengeNotifier({ playerId }: Props) {
             .eq("id", c.challenger_id)
             .single();
           if (!challenger) return;
-          setIncoming({
+          const challenge: IncomingChallenge = {
             id: c.id,
             challenger_id: c.challenger_id,
             challenger_pseudo: challenger.pseudo,
             game_type: c.game_type,
-          });
+          };
+          setIncoming(challenge);
           setCountdown(20);
           play("notify");
+
+          // System notification when page is hidden (screen off / other app)
+          if (
+            typeof Notification !== "undefined" &&
+            Notification.permission === "granted" &&
+            document.visibilityState === "hidden"
+          ) {
+            const gameLabel =
+              c.game_type === "pfc" ? "Pierre Feuille Ciseaux" :
+              c.game_type === "puissance4" ? "Puissance 4" :
+              c.game_type === "reflexe" ? "Réflexe ⚡" : "Morpion";
+            const notif = new Notification(`⚔ Défi de ${challenger.pseudo} !`, {
+              body: `${challenger.pseudo} te défie sur ${gameLabel}. Tu as 20 secondes !`,
+              tag: `challenge-${c.id}`,
+              requireInteraction: true,
+            });
+            notif.onclick = () => { window.focus(); notif.close(); };
+            // Vibrate via JS API (works if page comes to foreground)
+            if ("vibrate" in navigator) navigator.vibrate([300, 100, 300, 100, 300]);
+          }
         },
       )
       .on(
