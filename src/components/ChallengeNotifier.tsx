@@ -128,7 +128,9 @@ export function ChallengeNotifier({ playerId }: Props) {
           play("notify");
 
           // System notification when page is hidden (screen off / other app)
+          const notifEnabled = localStorage.getItem("ea_notif_enabled") !== "false";
           if (
+            notifEnabled &&
             typeof Notification !== "undefined" &&
             Notification.permission === "granted" &&
             document.visibilityState === "hidden"

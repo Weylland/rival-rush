@@ -8,6 +8,7 @@ import { EA } from "@/lib/design";
 import type { SettingsState } from "./actions";
 
 const SOUND_KEY = "ea_sounds_enabled";
+const NOTIF_KEY = "ea_notif_enabled";
 
 function inputStyle(focused: boolean): React.CSSProperties {
   return {
@@ -126,15 +127,32 @@ export function SettingsClient({ initialPseudo }: Props) {
   const [deleteState, deleteAction, deletePending] = useActionState<SettingsState, FormData>(deleteAccount as unknown as (s: SettingsState, f: FormData) => Promise<SettingsState>, null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
+  const [notifEnabled, setNotifEnabled] = useState(true);
 
   useEffect(() => {
     setSoundEnabled(localStorage.getItem(SOUND_KEY) !== "false");
+    setNotifEnabled(localStorage.getItem(NOTIF_KEY) !== "false");
+    if (typeof Notification !== "undefined") setNotifPermission(Notification.permission);
   }, []);
 
   function toggleSound() {
     const next = !soundEnabled;
     setSoundEnabled(next);
     localStorage.setItem(SOUND_KEY, next ? "true" : "false");
+  }
+
+  function toggleNotif() {
+    const next = !notifEnabled;
+    setNotifEnabled(next);
+    localStorage.setItem(NOTIF_KEY, next ? "true" : "false");
+  }
+
+  async function requestNotifPermission() {
+    if (typeof Notification === "undefined") return;
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+    if (result === "granted") setNotifEnabled(true);
   }
 
   return (
@@ -212,6 +230,89 @@ export function SettingsClient({ initialPseudo }: Props) {
           </button>
         </div>
       </SectionCard>
+
+      {/* Notifications */}
+      {notifPermission !== null && (
+        <SectionCard accent={EA.butter}>
+          <SectionTitle>🔔 Notifications de défi</SectionTitle>
+
+          {notifPermission === "default" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>
+                Reçois une notification même écran éteint quand quelqu'un te défie.
+              </div>
+              <button
+                type="button"
+                onClick={requestNotifPermission}
+                style={{
+                  alignSelf: "flex-start",
+                  fontFamily: "var(--font-display)", fontSize: 14,
+                  color: EA.violetDeep, background: EA.butter,
+                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "11px 24px", cursor: "pointer",
+                  boxShadow: `3px 3px 0 ${EA.ink}`,
+                  transform: "skewX(-4deg)", textTransform: "uppercase",
+                }}
+              >
+                <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>
+                  Activer les notifications
+                </span>
+              </button>
+            </div>
+          )}
+
+          {notifPermission === "granted" && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
+                  {notifEnabled ? "🟢 Notifications activées" : "⭕ Notifications désactivées"}
+                </div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>
+                  {notifEnabled ? "Tu seras alerté même écran éteint" : "Tu ne recevras pas d'alerte en arrière-plan"}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={toggleNotif}
+                style={{
+                  width: 52, height: 28, borderRadius: 999,
+                  background: notifEnabled ? EA.butter : "rgba(255,255,255,0.15)",
+                  border: `2px solid ${EA.ink}`,
+                  cursor: "pointer", position: "relative",
+                  transition: "background .2s", padding: 0, flexShrink: 0,
+                }}
+              >
+                <span style={{
+                  position: "absolute", top: 2,
+                  left: notifEnabled ? 26 : 2,
+                  width: 20, height: 20, borderRadius: "50%",
+                  background: EA.white, border: `2px solid ${EA.ink}`,
+                  transition: "left .2s", display: "block",
+                }} />
+              </button>
+            </div>
+          )}
+
+          {notifPermission === "denied" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10,
+                background: "rgba(255,30,140,0.1)", border: `2px solid ${EA.pink}`,
+                borderRadius: 12, padding: "12px 14px",
+              }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>🚫</span>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>
+                  Notifications bloquées par le navigateur.
+                  <br />
+                  <span style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Pour les réactiver : réglages du navigateur → Site → Notifications → Autoriser.
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </SectionCard>
+      )}
 
       {/* Danger zone */}
       <SectionCard accent="rgba(255,30,140,0.5)">
