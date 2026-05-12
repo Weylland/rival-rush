@@ -7,7 +7,7 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { Star } from "@/components/ui/star";
 import { SvgBlob } from "@/components/ui/blob";
-import { armReflexeRound, submitReflexeTap } from "./actions";
+import { setReflexeReady, submitReflexeTap } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -103,7 +103,7 @@ export function ReflexeClient({
     return () => { supabase.removeChannel(sub); };
   }, [gameId, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Signal detection — fires a setTimeout to the exact signal_at moment
+  // Signal detection
   useEffect(() => {
     setSignalFired(false);
     if (tapState.phase !== "armed" || !tapState.signal_at) return;
@@ -116,10 +116,10 @@ export function ReflexeClient({
     return () => clearTimeout(timer);
   }, [tapState.phase, tapState.signal_at]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleArm() {
+  async function handleReady() {
     if (tapState.phase !== "idle" || gameStatus === "finished" || submitting) return;
     setSubmitting(true);
-    try { await armReflexeRound(gameId); } finally { setSubmitting(false); }
+    try { await setReflexeReady(gameId); } finally { setSubmitting(false); }
   }
 
   async function handleTap() {
@@ -131,8 +131,127 @@ export function ReflexeClient({
   const isFinished = gameStatus === "finished";
   const myScore = tapState.scores?.[myId] ?? 0;
   const opScore = tapState.scores?.[opponentId] ?? 0;
+  const ready = tapState.ready ?? [];
+  const iAmReady = ready.includes(myId);
+  const opIsReady = ready.includes(opponentId);
   const isSignal = tapState.phase === "armed" && signalFired;
   const isArmed = tapState.phase === "armed" && !signalFired;
+
+  // ── Tap zone content ─────────────────────────────────────────────────────────
+
+  function tapZoneContent() {
+    if (isFinished) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 38, color: winnerId === myId ? EA.cyan : EA.pink, transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.ink}`, textAlign: "center" }}>
+            {winnerId === myId ? "🏆 VICTOIRE !" : "💀 DÉFAITE !"}
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+            Redirection en cours...
+          </div>
+        </div>
+      );
+    }
+
+    // Idle — attente que les deux soient prêts
+    if (tapState.phase === "idle") {
+      if (!iAmReady) {
+        return (
+          <>
+            <div style={{ fontSize: 48, lineHeight: 1 }}>✋</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.ink, transform: "skewX(-6deg)" }}>
+              {submitting ? "..." : "PRÊT ?"}
+            </div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(26,15,94,0.55)", textTransform: "uppercase", letterSpacing: 1, textAlign: "center", padding: "0 16px" }}>
+              {opIsReady ? `${opPseudo} attend...` : "Appuie quand tu es prêt"}
+            </div>
+          </>
+        );
+      }
+      // Je suis prêt, attente de l'adversaire
+      return (
+        <>
+          <div style={{ fontSize: 40, lineHeight: 1 }}>⏳</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: EA.white, transform: "skewX(-4deg)" }}>
+            En attente...
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
+            {opPseudo} n&apos;est pas encore prêt
+          </div>
+        </>
+      );
+    }
+
+    // Armed — tension
+    if (isArmed) {
+      return (
+        <>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "rgba(255,165,80,0.95)", letterSpacing: 4, transform: "skewX(-4deg)" }}>
+            ATTENTION...
+          </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            {[0, 1, 2].map(i => (
+              <div key={i} style={{
+                width: 16, height: 16, borderRadius: "50%",
+                background: "rgba(255,165,80,0.85)",
+                animation: `ea-pulse ${0.5 + i * 0.2}s ease-in-out infinite`,
+              }} />
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    // Signal !
+    return (
+      <>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: EA.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}`, lineHeight: 1 }}>
+          {submitting ? "..." : "TAPEZ !"}
+        </div>
+        {!submitting && (
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 900, color: EA.ink, letterSpacing: 4 }}>
+            ⚡ ⚡ ⚡
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ── Tap zone style par phase ─────────────────────────────────────────────────
+
+  function tapZoneStyle(): React.CSSProperties {
+    if (isFinished) return {
+      background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+      boxShadow: `4px 4px 0 ${EA.ink}`,
+    };
+    if (tapState.phase === "idle" && !iAmReady) return {
+      background: EA.butter, border: `2.5px solid ${EA.ink}`,
+      boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`,
+      cursor: submitting ? "wait" : "pointer",
+    };
+    if (tapState.phase === "idle" && iAmReady) return {
+      background: EA.violetDeep, border: `2.5px dashed rgba(255,255,255,0.25)`,
+      boxShadow: "none",
+    };
+    if (isArmed) return {
+      background: "rgba(255,90,30,0.13)", border: `2.5px solid rgba(255,150,60,0.7)`,
+      boxShadow: `6px 6px 0 rgba(255,90,30,0.5)`,
+      animation: "ea-pulse 0.9s ease-in-out infinite",
+    };
+    // Signal
+    return {
+      background: EA.cyan, border: `3px solid ${EA.ink}`,
+      boxShadow: `8px 8px 0 ${EA.pink}, 8px 8px 0 1px ${EA.ink}`,
+      animation: "ea-pulse 0.35s ease-in-out infinite",
+      cursor: "pointer",
+    };
+  }
+
+  function handleZoneClick() {
+    if (isFinished) return;
+    if (tapState.phase === "idle" && !iAmReady) { handleReady(); return; }
+    if (isSignal || isArmed) { handleTap(); return; }
+  }
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
@@ -153,27 +272,40 @@ export function ReflexeClient({
           <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1 }}>RÉFLEXE !</div>
         </div>
 
-        {/* Player cards */}
+        {/* Player cards avec indicateur "prêt" */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-          <div style={{ flex: 1, background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-0.8deg)", boxShadow: `3px 3px 0 ${EA.cyan}` }}>
-            <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} />
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, lineHeight: 1.1 }}>{myScore}</div>
+          {/* Me */}
+          <div style={{ flex: 1, position: "relative" }}>
+            {tapState.phase === "idle" && iAmReady && (
+              <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.cyan, border: `2px solid ${EA.ink}`, padding: "2px 8px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>✓ PRÊT</div>
+            )}
+            <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-0.8deg)", boxShadow: `3px 3px 0 ${EA.cyan}` }}>
+              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} />
+              <div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, lineHeight: 1.1 }}>{myScore}</div>
+              </div>
             </div>
           </div>
 
+          {/* Round */}
           <div style={{ flexShrink: 0, textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: "rgba(255,255,255,0.4)", lineHeight: 1 }}>MANCHE</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.cyan, lineHeight: 1 }}>{tapState.current_round}</div>
           </div>
 
-          <div style={{ flex: 1, background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(0.8deg)", boxShadow: `3px 3px 0 ${EA.pink}`, justifyContent: "flex-end" }}>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.ink, lineHeight: 1.1 }}>{opScore}</div>
+          {/* Opponent */}
+          <div style={{ flex: 1, position: "relative" }}>
+            {tapState.phase === "idle" && opIsReady && (
+              <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.cyan, border: `2px solid ${EA.ink}`, padding: "2px 8px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>✓ PRÊT</div>
+            )}
+            <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(0.8deg)", boxShadow: `3px 3px 0 ${EA.pink}`, justifyContent: "flex-end" }}>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.ink, lineHeight: 1.1 }}>{opScore}</div>
+              </div>
+              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} />
             </div>
-            <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} />
           </div>
         </div>
 
@@ -192,84 +324,20 @@ export function ReflexeClient({
         )}
 
         {/* TAP ZONE */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 180 }}>
-          {isFinished ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 38, color: winnerId === myId ? EA.cyan : EA.pink, transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.ink}`, textAlign: "center" }}>
-                {winnerId === myId ? "🏆 VICTOIRE !" : "💀 DÉFAITE !"}
-              </div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
-                Redirection en cours...
-              </div>
-            </div>
-          ) : (
-            <div
-              onClick={tapState.phase === "idle" ? handleArm : handleTap}
-              style={{
-                width: "100%", flex: 1, minHeight: 200,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
-                borderRadius: 28,
-                cursor: "pointer",
-                userSelect: "none",
-                transition: "all 0.15s",
-                ...(tapState.phase === "idle" ? {
-                  background: EA.violetDeep,
-                  border: `2.5px solid ${EA.ink}`,
-                  boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`,
-                } : isArmed ? {
-                  background: "rgba(255,90,30,0.13)",
-                  border: `2.5px solid rgba(255,150,60,0.7)`,
-                  boxShadow: `6px 6px 0 rgba(255,90,30,0.5)`,
-                  animation: "ea-pulse 0.9s ease-in-out infinite",
-                } : {
-                  background: EA.cyan,
-                  border: `3px solid ${EA.ink}`,
-                  boxShadow: `8px 8px 0 ${EA.pink}, 8px 8px 0 1px ${EA.ink}`,
-                  animation: "ea-pulse 0.35s ease-in-out infinite",
-                }),
-              }}
-            >
-              {tapState.phase === "idle" && (
-                <>
-                  <div style={{ fontSize: 52, lineHeight: 1 }}>⚡</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.white, transform: "skewX(-6deg)" }}>
-                    {submitting ? "..." : "ARMER"}
-                  </div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, textAlign: "center", padding: "0 20px" }}>
-                    Toi ou ton adversaire — appuie pour lancer
-                  </div>
-                </>
-              )}
-              {isArmed && (
-                <>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "rgba(255,165,80,0.95)", letterSpacing: 4, transform: "skewX(-4deg)" }}>
-                    ATTENTION...
-                  </div>
-                  <div style={{ display: "flex", gap: 12 }}>
-                    {[0, 1, 2].map(i => (
-                      <div key={i} style={{
-                        width: 16, height: 16, borderRadius: "50%",
-                        background: "rgba(255,165,80,0.85)",
-                        animation: `ea-pulse ${0.5 + i * 0.2}s ease-in-out infinite`,
-                      }} />
-                    ))}
-                  </div>
-                </>
-              )}
-              {isSignal && (
-                <>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: EA.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}`, lineHeight: 1 }}>
-                    {submitting ? "..." : "TAPEZ !"}
-                  </div>
-                  {!submitting && (
-                    <div style={{ fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 900, color: EA.ink, letterSpacing: 4 }}>
-                      ⚡ ⚡ ⚡
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+        <div style={{ flex: 1, display: "flex", alignItems: "stretch", minHeight: 180 }}>
+          <div
+            onClick={handleZoneClick}
+            style={{
+              width: "100%",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+              borderRadius: 28,
+              userSelect: "none",
+              transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s",
+              ...tapZoneStyle(),
+            }}
+          >
+            {tapZoneContent()}
+          </div>
         </div>
 
         {/* Footer */}

@@ -38,7 +38,8 @@ async function updateLeaderboard(
   }
 }
 
-export async function armReflexeRound(gameId: string) {
+// Called when a player clicks "Prêt". Arms automatically once both are ready.
+export async function setReflexeReady(gameId: string) {
   const session = await getSession();
   if (!session) throw new Error("Not authenticated");
 
@@ -55,20 +56,31 @@ export async function armReflexeRound(gameId: string) {
   }
 
   const challenge = game.challenges as { challenger_id: string; challenged_id: string };
+  const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
   const myId = session.playerId;
-  if (myId !== challenge.challenger_id && myId !== challenge.challenged_id) {
-    return { ok: false };
-  }
+
+  if (myId !== p1Id && myId !== p2Id) return { ok: false };
 
   const state = game.state as TapState;
   if (state.phase !== "idle") return { ok: false };
+  if ((state.ready ?? []).includes(myId)) return { ok: false }; // already ready
 
-  const delayMs = 2500 + Math.floor(Math.random() * 2500);
-  const signal_at = new Date(Date.now() + delayMs).toISOString();
+  const newReady = [...(state.ready ?? []), myId];
+  const bothReady = newReady.includes(p1Id) && newReady.includes(p2Id);
 
-  await supabase.from("games").update({
-    state: { ...state, phase: "armed", signal_at } as unknown as Record<string, unknown>,
-  }).eq("id", gameId);
+  if (bothReady) {
+    // Both ready → arm immediately
+    const delayMs = 2500 + Math.floor(Math.random() * 2500);
+    const signal_at = new Date(Date.now() + delayMs).toISOString();
+    await supabase.from("games").update({
+      state: { ...state, phase: "armed", signal_at, ready: [] } as unknown as Record<string, unknown>,
+    }).eq("id", gameId);
+  } else {
+    // Only one ready so far
+    await supabase.from("games").update({
+      state: { ...state, ready: newReady } as unknown as Record<string, unknown>,
+    }).eq("id", gameId);
+  }
 
   return { ok: true };
 }
@@ -105,7 +117,7 @@ export async function submitReflexeTap(gameId: string) {
   const signalAt = new Date(state.signal_at);
 
   if (now < signalAt) {
-    // False start — re-arm with new delay
+    // False start — re-arm with new delay, reset ready
     const delayMs = 2500 + Math.floor(Math.random() * 2500);
     const newSignalAt = new Date(Date.now() + delayMs).toISOString();
     await supabase.from("games").update({
@@ -115,23 +127,18 @@ export async function submitReflexeTap(gameId: string) {
   }
 
   const reaction_ms = Math.max(0, now.getTime() - signalAt.getTime());
-  const newRound = {
+  const newRounds = [...state.rounds, {
     round: state.current_round,
     signal_at: state.signal_at,
     winner_id: myId,
     reaction_ms,
-  };
-
-  const newRounds = [...state.rounds, newRound];
-  const newScores = { ...state.scores };
-  newScores[myId] = (newScores[myId] ?? 0) + 1;
-
-  const opponentId = myId === p1Id ? p2Id : p1Id;
+  }];
+  const newScores = { ...state.scores, [myId]: (state.scores[myId] ?? 0) + 1 };
   const isMatchOver = newScores[myId] >= 2;
 
   if (isMatchOver) {
     await supabase.from("games").update({
-      state: { ...state, rounds: newRounds, scores: newScores, phase: "idle", signal_at: null } as unknown as Record<string, unknown>,
+      state: { ...state, rounds: newRounds, scores: newScores, phase: "idle", signal_at: null, ready: [] } as unknown as Record<string, unknown>,
       status: "finished",
       winner_id: myId,
       current_turn: null,
@@ -146,11 +153,10 @@ export async function submitReflexeTap(gameId: string) {
         phase: "idle",
         signal_at: null,
         current_round: state.current_round + 1,
+        ready: [],
       } as unknown as Record<string, unknown>,
     }).eq("id", gameId);
   }
 
-  // Suppress unused variable warning
-  void opponentId;
   return { ok: true };
 }

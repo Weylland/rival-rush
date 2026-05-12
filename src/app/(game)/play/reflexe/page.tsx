@@ -41,7 +41,7 @@ export default async function ReflexePage({ searchParams }: Props) {
   const initialState: TapState =
     raw && "phase" in raw
       ? (raw as unknown as TapState)
-      : { rounds: [], scores: { [p1Id]: 0, [p2Id]: 0 }, phase: "idle", signal_at: null, current_round: 1 };
+      : { rounds: [], scores: { [p1Id]: 0, [p2Id]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] };
 
   return (
     <ReflexeClient

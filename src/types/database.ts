@@ -66,6 +66,7 @@ export interface TapState {
   phase: "idle" | "armed";
   signal_at: string | null;
   current_round: number;
+  ready: string[]; // player IDs who clicked "Prêt"
 }
 
 export interface LeaderboardEntry {
