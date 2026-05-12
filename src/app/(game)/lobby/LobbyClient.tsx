@@ -291,7 +291,9 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
 
     // Fresh presence fetch
     const fetchPresence = () => {
-      const cutoff = new Date(Date.now() - 90_000).toISOString();
+      // 3-minute window: mobile browsers suspend background JS so the 25s
+      // heartbeat can be delayed significantly. 180 s gives 7 missed beats.
+      const cutoff = new Date(Date.now() - 180_000).toISOString();
       supabase.from("presence").select("*").gte("updated_at", cutoff).then(({ data }) => {
         if (data) setOnlinePlayers(data.filter((p) => p.player_id !== myPlayerId) as PresencePlayer[]);
       });

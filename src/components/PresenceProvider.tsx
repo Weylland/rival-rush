@@ -8,28 +8,39 @@ interface Props {
   pseudo: string;
 }
 
+// Heartbeat every 25s — browsers throttle background tabs but don't stop them
+// entirely on desktop. On mobile the JS can be fully suspended; that's why the
+// lobby uses a 3-minute cutoff (STALE_MS) instead of 90 s.
 const HEARTBEAT_MS = 25_000;
 
 export function PresenceProvider({ playerId, pseudo }: Props) {
   useEffect(() => {
     const supabase = createClient();
 
-    supabase.from("presence").upsert({
-      player_id: playerId,
-      pseudo,
-      status: "online",
-      updated_at: new Date().toISOString(),
-    }).then(() => {});
+    // Always upsert so the row is (re)created if it was deleted
+    const beat = () =>
+      supabase.from("presence").upsert({
+        player_id: playerId,
+        pseudo,
+        status: "online",
+        updated_at: new Date().toISOString(),
+      }).then(() => {});
 
-    const timer = setInterval(() => {
-      supabase.from("presence")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("player_id", playerId)
-        .then(() => {});
-    }, HEARTBEAT_MS);
+    // Initial beat
+    beat();
 
+    // Periodic beat — keeps running even when tab is hidden so the row stays
+    // fresh. Mobile browsers may suspend it; the wide lobby cutoff compensates.
+    const timer = setInterval(beat, HEARTBEAT_MS);
+
+    // Immediate beat when the user comes back to the tab (screen on, tab focus)
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") beat();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // Mark offline on actual page unload (tab close, browser close, hard nav away)
     const leave = () => {
-      // sendBeacon is reliable during page unload; fetch with keepalive as fallback
       const payload = JSON.stringify({ playerId });
       const blob = new Blob([payload], { type: "application/json" });
       const sent = navigator.sendBeacon("/api/presence/leave", blob);
@@ -43,40 +54,15 @@ export function PresenceProvider({ playerId, pseudo }: Props) {
       }
     };
 
-    // pagehide fires more reliably than beforeunload on mobile / iOS Safari
+    // pagehide is more reliable than beforeunload on mobile / iOS Safari
     window.addEventListener("pagehide", leave);
     window.addEventListener("beforeunload", leave);
 
-    // When the tab becomes visible again, touch updated_at. If the row was
-    // deleted during a prior hide, recreate it.
-    const handleVisibility = async () => {
-      if (document.visibilityState !== "visible") return;
-      const { data: existing } = await supabase
-        .from("presence")
-        .select("player_id, status")
-        .eq("player_id", playerId)
-        .maybeSingle();
-
-      if (existing) {
-        await supabase.from("presence")
-          .update({ updated_at: new Date().toISOString() })
-          .eq("player_id", playerId);
-      } else {
-        await supabase.from("presence").upsert({
-          player_id: playerId,
-          pseudo,
-          status: "online",
-          updated_at: new Date().toISOString(),
-        });
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-
     return () => {
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("pagehide", leave);
       window.removeEventListener("beforeunload", leave);
-      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [playerId, pseudo]);
 
