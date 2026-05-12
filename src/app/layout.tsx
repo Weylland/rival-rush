@@ -21,6 +21,10 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "ExpressionArena",
   description: "Mini-jeux en duel · Fête de l'Expression",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default async function RootLayout({

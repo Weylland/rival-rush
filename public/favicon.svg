@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background -->
+  <rect width="100" height="100" rx="22" fill="#1a0f5e"/>
+
+  <!-- Cyan border -->
+  <rect x="4" y="4" width="92" height="92" rx="18" fill="none" stroke="#00d4e8" stroke-width="4"/>
+
+  <!-- Pink diagonal slash -->
+  <line x1="55" y1="14" x2="46" y2="86" stroke="#ff1e8c" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- E (white) + A (cyan), skewed as a group -->
+  <g transform="translate(50,66) skewX(-8)">
+    <text
+      text-anchor="middle"
+      font-family="'Arial Black','Impact','Helvetica Neue',Arial,sans-serif"
+      font-weight="900"
+      font-size="62"
+      letter-spacing="-4"
+    >
+      <tspan fill="#ffffff">E</tspan><tspan fill="#00d4e8">A</tspan>
+    </text>
+  </g>
+
+  <!-- Yellow star top-right -->
+  <polygon
+    points="83,9 85,15 91,15 86,19 88,25 83,21 78,25 80,19 75,15 81,15"
+    fill="#ffe94a"
+  />
+</svg>
