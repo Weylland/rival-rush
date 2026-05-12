@@ -20,35 +20,62 @@ interface IncomingChallenge {
   game_type: GameType;
 }
 
-// Draws a favicon with a red dot badge in the browser tab
+// Draws a favicon matching the EA logo, with an optional pink badge
 function setFaviconBadge(active: boolean) {
+  const S = 64;
   const canvas = document.createElement("canvas");
-  canvas.width = 32; canvas.height = 32;
+  canvas.width = S; canvas.height = S;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  // Base: rounded violet square
-  ctx.fillStyle = "#2d1b69";
+  const r = 14; // corner radius
+
+  // Background: violet deep
+  ctx.fillStyle = "#1a0f5e";
   ctx.beginPath();
-  ctx.roundRect(0, 0, 32, 32, 6);
+  ctx.roundRect(0, 0, S, S, r);
   ctx.fill();
 
-  // "EA" text
-  ctx.fillStyle = "#00d4e8";
-  ctx.font = "bold 14px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("EA", 16, 17);
+  // Cyan border
+  ctx.strokeStyle = "#00d4e8";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.roundRect(2, 2, S - 4, S - 4, r - 2);
+  ctx.stroke();
 
-  // Red badge dot
+  // Pink diagonal slash
+  ctx.strokeStyle = "#ff1e8c";
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(35, 10); ctx.lineTo(29, 54);
+  ctx.stroke();
+
+  // "E" in white
+  ctx.save();
+  ctx.translate(32, 42);
+  ctx.transform(1, 0, -0.14, 1, 0, 0); // skewX(-8deg)
+  ctx.font = "900 36px 'Arial Black', Impact, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("E", -10, 0);
+  // "A" in cyan
+  ctx.fillStyle = "#00d4e8";
+  ctx.fillText("A", 11, 0);
+  ctx.restore();
+
+  // Pink badge dot (top-right) when active
   if (active) {
     ctx.fillStyle = "#ff1e8c";
     ctx.beginPath();
-    ctx.arc(26, 6, 7, 0, Math.PI * 2);
+    ctx.arc(S - 10, 10, 9, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 8px sans-serif";
-    ctx.fillText("!", 26, 6);
+    ctx.font = "bold 11px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("!", S - 10, 10);
   }
 
   const link: HTMLLinkElement = document.querySelector("link[rel~='icon']") ?? document.createElement("link");
