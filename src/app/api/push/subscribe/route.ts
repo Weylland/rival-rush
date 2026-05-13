@@ -12,10 +12,14 @@ export async function POST(req: Request) {
   }
 
   const supabase = await createClient();
-  await supabase.from("push_subscriptions").upsert(
+  const { error } = await supabase.from("push_subscriptions").upsert(
     { player_id: session.playerId, endpoint, p256dh, auth },
     { onConflict: "endpoint" },
   );
+
+  if (error) {
+    return NextResponse.json({ error: error.message, code: error.code }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }
