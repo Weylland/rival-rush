@@ -13,6 +13,7 @@ import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
 import type { PFCState, PFCRound, GameStatus } from "@/types/database";
 import { GameChat } from "@/components/GameChat";
+import { PreventLeave } from "@/components/PreventLeave";
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
 type Phase = "picking" | "waiting" | "revealing";
@@ -519,6 +520,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
         </>
       )}
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
+      <PreventLeave enabled={initialStatus !== "finished"} />
     </div>
   );
 }

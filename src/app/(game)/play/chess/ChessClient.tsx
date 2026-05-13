@@ -12,6 +12,7 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
 import { GameChat } from "@/components/GameChat";
+import { PreventLeave } from "@/components/PreventLeave";
 import {
   legalMoves,
   applyMove,
@@ -702,6 +703,7 @@ export function ChessClient({
         </div>
       )}
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
+      <PreventLeave enabled={!isFinished} />
     </div>
   );
 }

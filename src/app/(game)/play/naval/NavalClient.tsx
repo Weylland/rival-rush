@@ -13,6 +13,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { EA } from "@/lib/design";
 import { GameChat } from "@/components/GameChat";
+import { PreventLeave } from "@/components/PreventLeave";
 import { FLEET_DEFS, generateFleet } from "@/lib/battleship";
 import type { NavalState, NavalShip, GameStatus } from "@/types/database";
 
@@ -934,6 +935,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         </div>
       </div>
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
+      <PreventLeave enabled={!isFinished} />
     </div>
   );
 }

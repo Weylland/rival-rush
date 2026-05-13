@@ -567,7 +567,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
                 boxShadow: t === "joueurs" ? `2px 2px 0 ${EA.cyan}` : "none",
               }}>
               {t === "joueurs"
-                ? `JOUEURS · ${availableCount} en ligne${inGameCount > 0 ? ` · ${inGameCount} en match` : ""}`
+                ? `JOUEURS · ${availableCount}`
                 : "CLASSEMENT"}
             </button>
           ))}

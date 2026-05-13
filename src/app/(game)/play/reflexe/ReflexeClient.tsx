@@ -12,6 +12,7 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
 import { GameChat } from "@/components/GameChat";
+import { PreventLeave } from "@/components/PreventLeave";
 import type { TapState, GameStatus } from "@/types/database";
 
 interface Props {
@@ -355,6 +356,7 @@ export function ReflexeClient({
         )}
       </div>
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
+      <PreventLeave enabled={!isFinished} />
     </div>
   );
 }
