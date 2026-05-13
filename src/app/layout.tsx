@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { PresenceProvider } from "@/components/PresenceProvider";
 import { ChallengeNotifier } from "@/components/ChallengeNotifier";
 import { PushProvider } from "@/components/PushProvider";
+import { NotifPrompt } from "@/components/NotifPrompt";
 import "./globals.css";
 
 const righteous = Righteous({
@@ -43,6 +44,7 @@ export default async function RootLayout({
             <PresenceProvider playerId={session.playerId} pseudo={session.pseudo} />
             <ChallengeNotifier playerId={session.playerId} />
             <PushProvider playerId={session.playerId} />
+            <NotifPrompt />
           </>
         )}
         {children}
