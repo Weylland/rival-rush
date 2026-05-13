@@ -1,14 +1,14 @@
 "use client";
 
-import { useActionState, useState, useEffect, useTransition } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updatePseudo, updatePassword, deleteAccount } from "./actions";
 import { EA } from "@/lib/design";
 import type { SettingsState } from "./actions";
+import { subscribePush, unsubscribePush, NOTIF_KEY } from "@/lib/push-client";
 
 const SOUND_KEY = "ea_sounds_enabled";
-const NOTIF_KEY = "ea_notif_enabled";
 
 function inputStyle(focused: boolean): React.CSSProperties {
   return {
@@ -142,10 +142,15 @@ export function SettingsClient({ initialPseudo }: Props) {
     localStorage.setItem(SOUND_KEY, next ? "true" : "false");
   }
 
-  function toggleNotif() {
+  async function toggleNotif() {
     const next = !notifEnabled;
     setNotifEnabled(next);
     localStorage.setItem(NOTIF_KEY, next ? "true" : "false");
+    if (next) {
+      await subscribePush();
+    } else {
+      await unsubscribePush();
+    }
   }
 
   async function requestNotifPermission() {
