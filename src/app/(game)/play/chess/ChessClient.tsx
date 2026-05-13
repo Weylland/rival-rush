@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
@@ -58,9 +60,9 @@ function Clock({ seconds, active }: { seconds: number | null; active: boolean })
   );
 }
 
-// Light square: warm tan — Dark square: deep purple (EA theme)
-const SQ_LIGHT = "#d4b896";
-const SQ_DARK = "#6442a8";
+// Light square: warm tan — Dark square: mid-purple (more contrast than before)
+const SQ_LIGHT = "#e8d5b0";
+const SQ_DARK = "#7c56c8";
 
 function squareColor(idx: number): string {
   return ((Math.floor(idx / 8) + (idx % 8)) % 2 === 0) ? SQ_LIGHT : SQ_DARK;
@@ -91,6 +93,7 @@ export function ChessClient({
   initialState, initialStatus, initialCurrentTurn, initialWinnerId,
 }: Props) {
   const router = useRouter();
+  const desktop = useIsDesktop();
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
@@ -109,10 +112,15 @@ export function ChessClient({
   const [moves, setMoves] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [pendingPromo, setPendingPromo] = useState<{ from: number; to: number } | null>(null);
+  const [dragState, setDragState] = useState<{
+    from: number; piece: string;
+    x: number; y: number; startX: number; startY: number;
+  } | null>(null);
 
   const isFinishedRef = useRef(initialStatus === "finished");
   const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeoutClaimedRef = useRef(false);
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const isFinished = gameStatus === "finished";
 
@@ -233,37 +241,92 @@ export function ChessClient({
     return flipBoard ? (7 - dRow) * 8 + (7 - dCol) : dRow * 8 + dCol;
   }
 
-  function handleSquareClick(boardIdx: number) {
+  // Carré du board sous le curseur (clientX/Y)
+  function squareAtPoint(clientX: number, clientY: number): number | null {
+    if (!boardRef.current) return null;
+    const rect = boardRef.current.getBoundingClientRect();
+    const col = Math.floor(((clientX - rect.left) / rect.width) * 8);
+    const row = Math.floor(((clientY - rect.top) / rect.height) * 8);
+    if (col < 0 || col > 7 || row < 0 || row > 7) return null;
+    return displayToBoard(row, col);
+  }
+
+  function tryExecuteMove(from: number, to: number) {
+    const movingPiece = chessState.board[from];
+    const destRow = Math.floor(to / 8);
+    const isPromo = movingPiece === `${myColor}P` &&
+      ((myColor === "w" && destRow === 0) || (myColor === "b" && destRow === 7));
+    if (isPromo) {
+      setPendingPromo({ from, to });
+      setSelected(null);
+      setMoves([]);
+    } else {
+      doMove(from, to, "Q");
+    }
+  }
+
+  function handleBoardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (!isMyTurn || submitting || isFinished) return;
+    const boardIdx = squareAtPoint(e.clientX, e.clientY);
+    if (boardIdx === null) return;
+    const piece = chessState.board[boardIdx];
+    const isMyPiece = piece && pieceColor(piece) === myColor;
+    if (!isMyPiece) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const legal = legalMoves(chessState, boardIdx);
+    setSelected(boardIdx);
+    setMoves(legal);
+    setDragState({ from: boardIdx, piece, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY });
+  }
+
+  function handleBoardPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragState) return;
+    setDragState(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null);
+  }
+
+  function handleBoardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragState) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    const wasDragging =
+      Math.abs(dragState.x - dragState.startX) > 5 ||
+      Math.abs(dragState.y - dragState.startY) > 5;
+    const targetIdx = squareAtPoint(e.clientX, e.clientY);
+    setDragState(null);
+
+    if (!wasDragging) {
+      // Click : pièce déjà sélectionnée, attente du 2ème clic
+      return;
+    }
+    // Drag terminé
+    if (targetIdx !== null && targetIdx !== dragState.from && moves.includes(targetIdx)) {
+      tryExecuteMove(dragState.from, targetIdx);
+    } else {
+      setSelected(null);
+      setMoves([]);
+    }
+  }
+
+  function handleBoardClick(e: React.MouseEvent<HTMLDivElement>) {
+    // Gère le 2ème clic (destination) après sélection par clic ou drag annulé
+    if (!isMyTurn || submitting || isFinished) return;
+    const boardIdx = squareAtPoint(e.clientX, e.clientY);
+    if (boardIdx === null) return;
     const piece = chessState.board[boardIdx];
     const isMyPiece = piece && pieceColor(piece) === myColor;
 
     if (selected === null) {
+      // Sélection initiale si onPointerDown n'a pas pu (ne devrait pas arriver)
       if (!isMyPiece) return;
-      const legal = legalMoves(chessState, boardIdx);
       setSelected(boardIdx);
-      setMoves(legal);
+      setMoves(legalMoves(chessState, boardIdx));
+    } else if (moves.includes(boardIdx)) {
+      tryExecuteMove(selected, boardIdx);
+    } else if (isMyPiece && boardIdx !== selected) {
+      setSelected(boardIdx);
+      setMoves(legalMoves(chessState, boardIdx));
     } else {
-      if (moves.includes(boardIdx)) {
-        // Check promotion
-        const movingPiece = chessState.board[selected];
-        const destRow = Math.floor(boardIdx / 8);
-        const isPromo = movingPiece === `${myColor}P` && ((myColor === "w" && destRow === 0) || (myColor === "b" && destRow === 7));
-        if (isPromo) {
-          setPendingPromo({ from: selected, to: boardIdx });
-          setSelected(null);
-          setMoves([]);
-        } else {
-          doMove(selected, boardIdx, "Q");
-        }
-      } else if (isMyPiece && boardIdx !== selected) {
-        const legal = legalMoves(chessState, boardIdx);
-        setSelected(boardIdx);
-        setMoves(legal);
-      } else {
-        setSelected(null);
-        setMoves([]);
-      }
+      setSelected(null);
+      setMoves([]);
     }
   }
 
@@ -288,173 +351,279 @@ export function ChessClient({
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
-  const playerBarStyle = (isMe: boolean): React.CSSProperties => ({
-    display: "flex", alignItems: "center", gap: 10,
-    padding: "8px 12px",
-    background: isMe ? "rgba(0,212,232,0.08)" : "rgba(255,255,255,0.04)",
-    border: `2px solid ${isMe ? EA.cyan : "rgba(255,255,255,0.12)"}`,
-    borderRadius: 14,
-    boxShadow: isMe ? `2px 2px 0 ${EA.cyan}` : "none",
-  });
-
   const colorLabel = iAmWhite ? "⬜ Blancs" : "⬛ Noirs";
   const opColorLabel = iAmWhite ? "⬛ Noirs" : "⬜ Blancs";
+
+  // Desktop: board fills available height, capped at 680px square
+  // Outline 8-directional : lisibilité garantie sur n'importe quel fond
+  // Pièces blanches : crème avec outline noir net
+  const whiteOutline = "1px 0 0 #111,-1px 0 0 #111,0 1px 0 #111,0 -1px 0 #111,1px 1px 0 #111,-1px 1px 0 #111,1px -1px 0 #111,-1px -1px 0 #111,0 0 8px rgba(0,0,0,0.6)";
+  // Pièces noires : noir profond avec outline blanc éclatant
+  const blackOutline = "1px 0 0 #fff,-1px 0 0 #fff,0 1px 0 #fff,0 -1px 0 #fff,1px 1px 0 #fff,-1px 1px 0 #fff,1px -1px 0 #fff,-1px -1px 0 #fff,0 0 8px rgba(255,255,255,0.4)";
+
+  const boardSize = desktop
+    ? "min(660px, calc(100dvh - 300px), calc(100vw - 120px))"
+    : "min(480px, calc(100vw - 32px))";
+
+  // Barre joueur — active = c'est son tour
+  const PlayerBar = ({ isMe, isActive, pseudo, avatarUrl, clabel, time }: {
+    isMe: boolean; isActive: boolean; pseudo: string; avatarUrl: string | null;
+    clabel: string; time: number | null;
+  }) => {
+    const color = isMe ? EA.cyan : EA.pink;
+    return (
+      <div style={{
+        display: "flex", alignItems: "center",
+        gap: desktop ? 14 : 10,
+        padding: desktop ? "10px 14px" : "8px 12px",
+        background: isActive ? `${color}30` : "rgba(255,255,255,0.04)",
+        border: `3px solid ${isActive ? color : "rgba(255,255,255,0.08)"}`,
+        borderRadius: 16,
+        boxShadow: isActive ? `4px 4px 0 ${color}, 4px 4px 0 1px ${EA.ink}` : "none",
+        opacity: isFinished ? 0.75 : isActive ? 1 : 0.5,
+        transition: "all 0.3s ease",
+        width: desktop ? boardSize : undefined,
+      }}>
+        <Avatar name={pseudo} src={avatarUrl} color={color} size={desktop ? 44 : 34} ring={isActive ? EA.ink : "transparent"} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: EA.white, lineHeight: 1 }}>
+            {pseudo.toUpperCase()}
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+            {clabel}
+          </div>
+        </div>
+        {/* Badge tour — pill EA quand c'est actif */}
+        {!isFinished && isActive && (
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: desktop ? 13 : 11,
+            color: EA.ink,
+            background: color,
+            border: `2px solid ${EA.ink}`,
+            borderRadius: 999,
+            padding: desktop ? "4px 14px" : "3px 10px",
+            flexShrink: 0,
+            letterSpacing: 0.5,
+            transform: "skewX(-4deg)",
+            boxShadow: `2px 2px 0 ${EA.ink}`,
+            animation: "ea-pulse 1s ease-in-out infinite alternate",
+          }}>
+            {isMe ? "TON TOUR ▶" : "joue…"}
+          </div>
+        )}
+        <Clock seconds={time} active={isActive} />
+      </div>
+    );
+  };
+
+  const statusText = isFinished
+    ? winnerId === myId ? "🏆 Victoire !" : winnerId ? "💀 Défaite" : "🤝 Match nul"
+    : selected !== null
+      ? `${moves.length} coup${moves.length > 1 ? "s" : ""} possible${moves.length > 1 ? "s" : ""} — clique la destination`
+      : isMyTurn
+        ? "Sélectionne une pièce"
+        : "Attends ton adversaire…";
+
+  const isDragging = dragState !== null && (
+    Math.abs(dragState.x - dragState.startX) > 5 ||
+    Math.abs(dragState.y - dragState.startY) > 5
+  );
+  const pieceFs = desktop ? "clamp(28px, 4.5vw, 56px)" : "clamp(22px, 7vw, 40px)";
+
+  const board = (
+    <div
+      ref={boardRef}
+      onPointerDown={handleBoardPointerDown}
+      onPointerMove={handleBoardPointerMove}
+      onPointerUp={handleBoardPointerUp}
+      onClick={handleBoardClick}
+      style={{
+        width: boardSize,
+        flexShrink: 0,
+        display: "grid",
+        gridTemplateColumns: "repeat(8, 1fr)",
+        border: `3px solid ${EA.ink}`,
+        borderRadius: 6,
+        overflow: "hidden",
+        boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
+        userSelect: "none",
+        cursor: isDragging ? "grabbing" : "default",
+        touchAction: "none",
+      }}
+    >
+      {Array.from({ length: 64 }, (_, displayIdx) => {
+        const dRow = Math.floor(displayIdx / 8);
+        const dCol = displayIdx % 8;
+        const boardIdx = displayToBoard(dRow, dCol);
+        const piece = chessState.board[boardIdx];
+        const isSelected = selected === boardIdx;
+        const isLegal = moves.includes(boardIdx);
+        const isLastFrom = chessState.lastMove?.from === boardIdx;
+        const isLastTo = chessState.lastMove?.to === boardIdx;
+        const isKingInCheck = kingInCheck && piece === `${turnColor}K`;
+        const isDragSource = dragState?.from === boardIdx && isDragging;
+
+        let bg = squareColor(boardIdx);
+        if (isSelected) bg = EA.cyan;
+        else if (isLastFrom || isLastTo) bg = "rgba(255,220,50,0.45)";
+        if (isKingInCheck) bg = "rgba(255,30,140,0.7)";
+
+        const pColor = piece ? pieceColor(piece) : null;
+        const isCanMove = isMyTurn && !isFinished && !submitting && piece && pieceColor(piece) === myColor;
+        const pieceStyle: React.CSSProperties = {
+          fontSize: pieceFs,
+          lineHeight: 1,
+          color: pColor === "w" ? "#fffef5" : "#04000f",
+          textShadow: pColor === "w" ? whiteOutline : blackOutline,
+          pointerEvents: "none",
+          cursor: isCanMove ? (isDragging ? "grabbing" : "grab") : "default",
+          opacity: isDragSource ? 0.15 : 1,
+          transition: "opacity 0.1s",
+        };
+
+        return (
+          <div
+            key={displayIdx}
+            style={{
+              aspectRatio: "1/1",
+              background: bg,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative",
+              transition: "background 0.1s",
+            }}
+          >
+            {isLegal && !piece && (
+              <div style={{
+                width: "32%", height: "32%", borderRadius: "50%",
+                background: "rgba(0,212,232,0.6)",
+                pointerEvents: "none",
+              }} />
+            )}
+            {isLegal && piece && !isSelected && (
+              <div style={{
+                position: "absolute", inset: 2, borderRadius: 3,
+                border: `3px solid rgba(0,212,232,0.8)`,
+                pointerEvents: "none",
+              }} />
+            )}
+            {piece && <span style={pieceStyle}>{UNICODE[piece]}</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // Pièce fantôme qui suit le curseur pendant le drag
+  const floatingPiece = isDragging && dragState && typeof document !== "undefined"
+    ? createPortal(
+        <span style={{
+          position: "fixed",
+          left: dragState.x,
+          top: dragState.y,
+          transform: "translate(-50%, -60%)",
+          fontSize: pieceFs,
+          lineHeight: 1,
+          color: pieceColor(dragState.piece) === "w" ? "#fffef5" : "#160c30",
+          textShadow: pieceColor(dragState.piece) === "w" ? whiteOutline : blackOutline,
+          pointerEvents: "none",
+          zIndex: 9999,
+          userSelect: "none",
+          filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.5))",
+        }}>
+          {UNICODE[dragState.piece]}
+        </span>,
+        document.body,
+      )
+    : null;
 
   return (
     <div style={{ minHeight: "100dvh", background: EA.violet, position: "relative", overflow: "hidden" }}>
       <SvgBlob color={EA.cyan} style={{ width: 300, height: 260, top: -100, right: -80, opacity: 0.25, animation: "ea-float 9s ease-in-out infinite" }} />
       <SvgBlob color={EA.pink} style={{ width: 240, height: 200, bottom: -80, left: -60, opacity: 0.2, animation: "ea-float 11s ease-in-out infinite reverse" }} />
 
-      <div style={{ position: "relative", zIndex: 5, maxWidth: 520, margin: "0 auto", padding: "16px 16px 40px", display: "flex", flexDirection: "column", gap: 12 }}>
-
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      {desktop ? (
+        /* ── Desktop : centré horizontalement + verticalement ── */
+        <div style={{
+          position: "relative", zIndex: 5,
+          minHeight: "100dvh",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          gap: 10, padding: "20px 40px",
+        }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4, alignSelf: "stretch", justifyContent: "center" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
                 ÉCHECS
               </div>
               {timeLabel && (
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1 }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1 }}>
                   {timeLabel}
                 </div>
               )}
             </div>
             {kingInCheck && (
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink,
+                fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink,
                 background: EA.pink, border: `2px solid ${EA.ink}`,
-                borderRadius: 999, padding: "3px 10px", animation: "ea-pulse 0.8s ease-in-out infinite alternate",
+                borderRadius: 999, padding: "4px 14px", animation: "ea-pulse 0.8s ease-in-out infinite alternate",
               }}>
                 ÉCHEC !
               </div>
             )}
+            <RulesButton gameType="chess" />
           </div>
-          <RulesButton gameType="chess" />
-        </div>
 
-        {/* Opponent bar */}
-        <div style={playerBarStyle(false)}>
-          <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} size={32} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>{opPseudo.toUpperCase()}</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>{opColorLabel}</div>
+          <PlayerBar isMe={false} isActive={!isFinished && currentTurn === opponentId} pseudo={opPseudo} avatarUrl={opAvatarUrl} clabel={opColorLabel} time={opDisplayTime} />
+          {board}
+          <PlayerBar isMe={true} isActive={!isFinished && isMyTurn} pseudo={myPseudo} avatarUrl={myAvatarUrl} clabel={colorLabel} time={myDisplayTime} />
+
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
+            {statusText}
           </div>
-          {!isFinished && currentTurn === opponentId && (
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.pink, animation: "ea-pulse 1s ease-in-out infinite alternate", flexShrink: 0 }}>
-              joue…
-            </div>
-          )}
-          <Clock seconds={opDisplayTime} active={currentTurn === opponentId} />
         </div>
+      ) : (
+        /* ── Mobile : colonne scrollable ── */
+        <div style={{ position: "relative", zIndex: 5, maxWidth: 520, margin: "0 auto", padding: "16px 16px 40px", display: "flex", flexDirection: "column", gap: 12 }}>
 
-        {/* Board */}
-        <div style={{
-          width: "min(416px, calc(100vw - 32px))",
-          alignSelf: "center",
-          display: "grid",
-          gridTemplateColumns: "repeat(8, 1fr)",
-          border: `3px solid ${EA.ink}`,
-          borderRadius: 6,
-          overflow: "hidden",
-          boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
-          userSelect: "none",
-        }}>
-          {Array.from({ length: 64 }, (_, displayIdx) => {
-            const dRow = Math.floor(displayIdx / 8);
-            const dCol = displayIdx % 8;
-            const boardIdx = displayToBoard(dRow, dCol);
-            const piece = chessState.board[boardIdx];
-            const isSelected = selected === boardIdx;
-            const isLegal = moves.includes(boardIdx);
-            const isLastFrom = chessState.lastMove?.from === boardIdx;
-            const isLastTo = chessState.lastMove?.to === boardIdx;
-            const isKingInCheck = kingInCheck && piece === `${turnColor}K`;
-
-            let bg = squareColor(boardIdx);
-            if (isSelected) bg = EA.cyan;
-            else if (isLastFrom || isLastTo) bg = "rgba(255,220,50,0.45)";
-            if (isKingInCheck) bg = "rgba(255,30,140,0.7)";
-
-            const pColor = piece ? pieceColor(piece) : null;
-            const pieceStyle: React.CSSProperties = {
-              fontSize: "clamp(22px, 6vw, 34px)",
-              lineHeight: 1,
-              color: pColor === "w" ? "#f8f4e8" : "#1a0a2e",
-              textShadow: pColor === "w"
-                ? "0 0 4px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)"
-                : "0 0 4px rgba(255,255,255,0.7), 0 1px 2px rgba(255,255,255,0.4)",
-              pointerEvents: "none",
-            };
-
-            return (
-              <div
-                key={displayIdx}
-                onClick={() => handleSquareClick(boardIdx)}
-                style={{
-                  aspectRatio: "1/1",
-                  background: bg,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: (isMyTurn && !isFinished && !submitting) ? "pointer" : "default",
-                  position: "relative",
-                  transition: "background 0.1s",
-                }}
-              >
-                {/* Legal move indicator */}
-                {isLegal && !piece && (
-                  <div style={{
-                    width: "32%", height: "32%", borderRadius: "50%",
-                    background: "rgba(0,212,232,0.6)",
-                    pointerEvents: "none",
-                  }} />
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
+                  ÉCHECS
+                </div>
+                {timeLabel && (
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1 }}>
+                    {timeLabel}
+                  </div>
                 )}
-                {isLegal && piece && !isSelected && (
-                  <div style={{
-                    position: "absolute", inset: 2,
-                    borderRadius: 3,
-                    border: `3px solid rgba(0,212,232,0.8)`,
-                    pointerEvents: "none",
-                  }} />
-                )}
-                {/* Piece */}
-                {piece && <span style={pieceStyle}>{UNICODE[piece]}</span>}
               </div>
-            );
-          })}
-        </div>
-
-        {/* My bar */}
-        <div style={playerBarStyle(true)}>
-          <Avatar name={myPseudo} src={myAvatarUrl} color={EA.cyan} size={32} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>{myPseudo.toUpperCase()}</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>{colorLabel}</div>
-          </div>
-          {!isFinished && isMyTurn && (
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.cyan, transform: "skewX(-4deg)", flexShrink: 0 }}>
-              TON TOUR
+              {kingInCheck && (
+                <div style={{
+                  fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink,
+                  background: EA.pink, border: `2px solid ${EA.ink}`,
+                  borderRadius: 999, padding: "3px 10px", animation: "ea-pulse 0.8s ease-in-out infinite alternate",
+                }}>
+                  ÉCHEC !
+                </div>
+              )}
             </div>
-          )}
-          <Clock seconds={myDisplayTime} active={isMyTurn} />
-        </div>
+            <RulesButton gameType="chess" />
+          </div>
 
-        {/* Turn / status info */}
-        <div style={{
-          textAlign: "center",
-          fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-          color: "rgba(255,255,255,0.35)",
-        }}>
-          {isFinished
-            ? winnerId === myId ? "🏆 Victoire !" : winnerId ? "💀 Défaite" : "🤝 Match nul"
-            : selected !== null
-              ? `${moves.length} coup${moves.length > 1 ? "s" : ""} possible${moves.length > 1 ? "s" : ""} — clique la destination`
-              : isMyTurn
-                ? "Sélectionne une pièce"
-                : "Attends ton adversaire…"
-          }
-        </div>
+          <PlayerBar isMe={false} isActive={!isFinished && currentTurn === opponentId} pseudo={opPseudo} avatarUrl={opAvatarUrl} clabel={opColorLabel} time={opDisplayTime} />
+          <div style={{ alignSelf: "center", width: boardSize }}>{board}</div>
+          <PlayerBar isMe={true} isActive={!isFinished && isMyTurn} pseudo={myPseudo} avatarUrl={myAvatarUrl} clabel={colorLabel} time={myDisplayTime} />
 
-      </div>
+          <div style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
+            {statusText}
+          </div>
+        </div>
+      )}
+
+      {floatingPiece}
 
       {/* Promotion modal */}
       {pendingPromo && (
@@ -493,10 +662,8 @@ export function ChessClient({
                 >
                   <span style={{
                     fontSize: 30,
-                    color: myColor === "w" ? "#f8f4e8" : "#1a0a2e",
-                    textShadow: myColor === "w"
-                      ? "0 0 4px rgba(0,0,0,0.9)"
-                      : "0 0 4px rgba(255,255,255,0.7)",
+                    color: myColor === "w" ? "#fffef5" : "#160c30",
+                    textShadow: myColor === "w" ? whiteOutline : blackOutline,
                   }}>{UNICODE[`${myColor}${p}`]}</span>
                   <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
                     {PROMO_LABELS[p].split(" ")[1]}

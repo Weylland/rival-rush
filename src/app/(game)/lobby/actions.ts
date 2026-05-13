@@ -49,8 +49,8 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
 
   if (existing) return { error: "Un défi est déjà en cours avec ce joueur" };
 
-  // expires_at: 60s for online players, 5 minutes for offline
-  const expiresInMs = isOffline ? 5 * 60 * 1000 : 60 * 1000;
+  // expires_at: 2min online (chess gets a bit more think-time), 5min offline
+  const expiresInMs = isOffline ? 5 * 60 * 1000 : 2 * 60 * 1000;
   const expiresAt = new Date(Date.now() + expiresInMs).toISOString();
 
   const { data: challenge, error } = await supabase
@@ -76,7 +76,7 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
 
   if (subs && subs.length > 0) {
     const label = GAME_LABELS[gameType] ?? gameType;
-    const duration = isOffline ? "5 minutes" : "1 minute";
+    const duration = isOffline ? "5 minutes" : "2 minutes";
     await sendPushToSubscriptions(subs as { endpoint: string; p256dh: string; auth: string }[], {
       title: `⚔ Défi de ${session.pseudo} !`,
       body: `${session.pseudo} te défie sur ${label}. Tu as ${duration} pour accepter !`,

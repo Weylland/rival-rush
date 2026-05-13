@@ -165,9 +165,11 @@ export function ChallengeNotifier({ playerId }: Props) {
             const gameLabel =
               c.game_type === "pfc" ? "Pierre Feuille Ciseaux" :
               c.game_type === "puissance4" ? "Puissance 4" :
-              c.game_type === "reflexe" ? "Réflexe ⚡" : "Morpion";
+              c.game_type === "reflexe" ? "Réflexe ⚡" :
+              c.game_type === "naval" ? "Bataille Navale" :
+              c.game_type === "chess" ? "Échecs" : "Morpion";
             const notif = new Notification(`⚔ Défi de ${challenger.pseudo} !`, {
-              body: `${challenger.pseudo} te défie sur ${gameLabel}. Tu as 20 secondes !`,
+              body: `${challenger.pseudo} te défie sur ${gameLabel}. Tu as 2 minutes pour accepter !`,
               tag: `challenge-${c.id}`,
               requireInteraction: true,
             });
@@ -205,7 +207,11 @@ export function ChallengeNotifier({ playerId }: Props) {
   const handleAccept = useCallback(() => {
     if (!incoming) return;
     startTransition(async () => {
-      await acceptChallenge(incoming.id);
+      const result = await acceptChallenge(incoming.id);
+      if (result?.error) {
+        alert(`⚠ ${result.error}`);
+        setIncoming(null);
+      }
     });
   }, [incoming]);
 
@@ -241,8 +247,8 @@ export function ChallengeNotifier({ playerId }: Props) {
 
   if (!incoming || suppress) return null;
 
-  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : incoming.game_type === "puissance4" ? "PUISSANCE 4" : incoming.game_type === "reflexe" ? "RÉFLEXE" : incoming.game_type === "naval" ? "BATAILLE NAVALE" : "MORPION";
-  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : incoming.game_type === "puissance4" ? "🔴🟡🔴" : incoming.game_type === "reflexe" ? "⚡⚡⚡" : incoming.game_type === "naval" ? "🚢⚓🎯" : "⨯⭕⨯";
+  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : incoming.game_type === "puissance4" ? "PUISSANCE 4" : incoming.game_type === "reflexe" ? "RÉFLEXE" : incoming.game_type === "naval" ? "BATAILLE NAVALE" : incoming.game_type === "chess" ? "ÉCHECS" : "MORPION";
+  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : incoming.game_type === "puissance4" ? "🔴🟡🔴" : incoming.game_type === "reflexe" ? "⚡⚡⚡" : incoming.game_type === "naval" ? "🚢⚓🎯" : incoming.game_type === "chess" ? "♟♔♛" : "⨯⭕⨯";
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.7)", zIndex: 100 }}>
