@@ -6,7 +6,7 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import type { LeaderboardEntry } from "@/types/database";
 
-type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval";
+type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess";
 
 interface TypeStat {
   wins: number;
@@ -27,6 +27,7 @@ const TAB_LABELS: Record<Tab, string> = {
   puissance4:"🔴 Puissance 4",
   reflexe:   "⚡ Réflexe",
   naval:     "🚢 Bataille Navale",
+  chess:     "♟ Échecs",
 };
 
 export function RankingClient({ myPlayerId, initialEntries }: Props) {
@@ -39,6 +40,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
     puissance4: new Map(),
     reflexe: new Map(),
     naval: new Map(),
+    chess: new Map(),
   });
   const [typeLoaded, setTypeLoaded] = useState(false);
 
@@ -77,12 +79,13 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         const puissance4Map = new Map<string, TypeStat>();
         const reflexeMap = new Map<string, TypeStat>();
         const navalMap = new Map<string, TypeStat>();
+        const chessMap = new Map<string, TypeStat>();
 
         for (const game of games) {
           const challenge = game.challenges as unknown as { challenger_id: string; challenged_id: string } | null;
           if (!challenge) continue;
 
-          const map = game.game_type === "pfc" ? pfcMap : game.game_type === "puissance4" ? puissance4Map : game.game_type === "reflexe" ? reflexeMap : game.game_type === "naval" ? navalMap : morpionMap;
+          const map = game.game_type === "pfc" ? pfcMap : game.game_type === "puissance4" ? puissance4Map : game.game_type === "reflexe" ? reflexeMap : game.game_type === "naval" ? navalMap : game.game_type === "chess" ? chessMap : morpionMap;
           const players = [challenge.challenger_id, challenge.challenged_id];
 
           for (const pid of players) {
@@ -94,7 +97,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
           }
         }
 
-        setTypeStats({ global: new Map(), pfc: pfcMap, morpion: morpionMap, puissance4: puissance4Map, reflexe: reflexeMap, naval: navalMap });
+        setTypeStats({ global: new Map(), pfc: pfcMap, morpion: morpionMap, puissance4: puissance4Map, reflexe: reflexeMap, naval: navalMap, chess: chessMap });
         setTypeLoaded(true);
       });
   }, []);

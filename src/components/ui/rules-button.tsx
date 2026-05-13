@@ -48,6 +48,17 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🤝", text: "Grille pleine sans alignement = match nul" },
     ],
   },
+  chess: {
+    title: "Échecs",
+    icon: "♟♔♛",
+    items: [
+      { icon: "⬜", text: "Blancs (le challenger) jouent en premier — tour par tour" },
+      { icon: "♟", text: "Clique ta pièce pour voir ses coups légaux, puis clique la destination" },
+      { icon: "⚠", text: "Tu ne peux pas te mettre en échec — si plus aucun coup légal : mat ou pat" },
+      { icon: "👑", text: "Pion promu quand il atteint la dernière rangée : choisis Dame, Tour, Fou ou Cavalier" },
+      { icon: "🏰", text: "Roque et prise en passant supportés — pat = match nul" },
+    ],
+  },
   puissance4: {
     title: "Puissance 4",
     icon: "🔴🟡🔴",

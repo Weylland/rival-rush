@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
 import { generateFleet } from "@/lib/battleship";
+import { initialChessState } from "@/lib/chess";
 import { sendPushToSubscriptions } from "@/lib/push";
 import type { GameType } from "@/types/database";
 
@@ -13,6 +14,7 @@ const GAME_LABELS: Record<GameType, string> = {
   puissance4: "Puissance 4",
   reflexe: "Réflexe ⚡",
   naval: "Bataille Navale",
+  chess: "Échecs ♟",
 };
 
 export async function sendChallenge(challengedId: string, gameType: GameType) {
@@ -131,7 +133,9 @@ export async function acceptChallenge(challengeId: string) {
           ? { rounds: [], scores: { [p1]: 0, [p2]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] }
           : challenge.game_type === "naval"
             ? { ships: { [p1]: generateFleet(), [p2]: generateFleet() }, shots: { [p1]: [], [p2]: [] } }
-            : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
+            : challenge.game_type === "chess"
+              ? initialChessState()
+              : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase
     .from("games")

@@ -57,6 +57,15 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Compte les cases touchées : 5+4+3+3+2 = 17 au total. Suivi ta progression avec le tracker de flotte.",
     "Si l'adversaire touche mais ne coule pas, c'est qu'il cherche l'orientation — regarde où il tire ensuite.",
   ],
+  chess: [
+    "Contrôle le centre dès le début : e4, d4, e5, d5 sont les cases les plus stratégiques.",
+    "Développe tes pièces mineures (Cavaliers et Fous) avant de roquer — ne bouge pas deux fois la même pièce en ouverture.",
+    "Le Roi est en sécurité derrière ses pions après le roque — castle tôt, castle souvent.",
+    "Les Cavaliers sont forts au centre, les Fous sont forts sur les diagonales ouvertes.",
+    "Un pion de plus en fin de partie peut gagner la partie — ne sacrifie pas de pions sans raison.",
+    "Avant chaque coup, demande-toi : mon adversaire peut-il me faire mat ou capturer une pièce importante ?",
+    "La Dame est puissante mais vulnérable au début — ne la joue pas trop tôt sans protection.",
+  ],
   global: [
     "Un match nul, c'est mieux qu'une défaite — chaque point au classement compte.",
     "Les meilleures décisions se prennent calme. Prends 2 secondes avant de jouer.",

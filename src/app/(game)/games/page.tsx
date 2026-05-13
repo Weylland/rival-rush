@@ -118,6 +118,24 @@ export default async function GamesPage() {
             ]}
           />
 
+          {/* Échecs */}
+          <GameCard
+            icon="♟♔♛"
+            title="Échecs"
+            tag="Réflexion"
+            tagColor="#9b8ec4"
+            borderColor="#9b8ec4"
+            shadowColor={EA.pink}
+            badge="NEW ✨"
+            rules={[
+              { icon: "⬜", text: "Blancs (le challenger) jouent en premier — tour par tour jusqu'à l'échec et mat ou la nulle" },
+              { icon: "♟", text: "Clique ta pièce pour voir ses coups légaux, puis clique la case destination" },
+              { icon: "⚠", text: "Déplacer le roi en échec est interdit — si tu n'as plus aucun coup légal c'est échec et mat" },
+              { icon: "👑", text: "Pion promu : choisis la pièce de remplacement (Dame, Tour, Fou ou Cavalier)" },
+              { icon: "🏆", text: "Roques et prise en passant sont supportés — la nulle par pat compte comme match nul" },
+            ]}
+          />
+
           {/* Points */}
           <div style={{
             background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
