@@ -66,6 +66,13 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Avant chaque coup, demande-toi : mon adversaire peut-il me faire mat ou capturer une pièce importante ?",
     "La Dame est puissante mais vulnérable au début — ne la joue pas trop tôt sans protection.",
   ],
+  nim: [
+    "La stratégie parfaite existe au Nim classique — mais misère change tout. Ne te fie pas à tes calculs habituels.",
+    "Le tas est aléatoire : impossible de savoir à l'avance si tu as l'avantage. Réfléchis coup par coup.",
+    "Laisser 1 allumette à ton adversaire, c'est le faire perdre. Vise ça.",
+    "Prendre 3 quand il en reste 4 te laisse gagner si l'adversaire ne prend qu'1. Mais il peut faire pareil…",
+    "Misère = celui qui vide le tas PERD. Garde toujours ça en tête avant de prendre.",
+  ],
   global: [
     "Un match nul, c'est mieux qu'une défaite — chaque point au classement compte.",
     "Les meilleures décisions se prennent calme. Prends 2 secondes avant de jouer.",

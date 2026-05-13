@@ -71,6 +71,16 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🤝", text: "Grille pleine sans alignement = match nul" },
     ],
   },
+  nim: {
+    title: "Nim 🔥",
+    icon: "🔥🔥🔥",
+    items: [
+      { icon: "🎲", text: "Tas aléatoire de 15 à 25 allumettes — impossible de connaître l'avantage à l'avance" },
+      { icon: "✋", text: "Chacun son tour : prends 1, 2 ou 3 allumettes" },
+      { icon: "💀", text: "Règle misère : celui qui prend la DERNIÈRE allumette PERD" },
+      { icon: "🧠", text: "La stratégie parfaite existe mais le tas aléatoire et la règle misère la rendent imprévisible" },
+    ],
+  },
 };
 
 export function RulesButton({ gameType }: { gameType: GameType }) {
