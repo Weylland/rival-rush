@@ -118,51 +118,19 @@ function SubmitButton({ pending, label, color = EA.cyan }: { pending: boolean; l
 
 const MAX_PX = 400;
 const MAX_BYTES = 300_000;
+const CROP_SIZE = 280;
 
-function cropAndCompress(file: File): Promise<Blob> {
+function compressCanvas(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-
-      // Center-crop to square
-      const side = Math.min(img.naturalWidth, img.naturalHeight);
-      const sx = (img.naturalWidth - side) / 2;
-      const sy = (img.naturalHeight - side) / 2;
-
-      // Target size: cap at MAX_PX
-      const out = Math.min(side, MAX_PX);
-
-      const canvas = document.createElement("canvas");
-      canvas.width = out;
-      canvas.height = out;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, sx, sy, side, side, 0, 0, out, out);
-
-      // Try quality from 0.85 down until under MAX_BYTES
-      let quality = 0.85;
-      const tryEncode = () => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { reject(new Error("Canvas toBlob failed")); return; }
-            if (blob.size <= MAX_BYTES || quality <= 0.3) {
-              resolve(blob);
-            } else {
-              quality = Math.max(quality - 0.1, 0.3);
-              tryEncode();
-            }
-          },
-          "image/jpeg",
-          quality,
-        );
-      };
-      tryEncode();
+    let quality = 0.85;
+    const tryEncode = () => {
+      canvas.toBlob((b) => {
+        if (!b) { reject(new Error("toBlob failed")); return; }
+        if (b.size <= MAX_BYTES || quality <= 0.3) { resolve(b); }
+        else { quality = Math.max(quality - 0.1, 0.3); tryEncode(); }
+      }, "image/jpeg", quality);
     };
-
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };
-    img.src = url;
+    tryEncode();
   });
 }
 
@@ -186,6 +154,13 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Crop modal state
+  const [cropUrl, setCropUrl] = useState<string | null>(null);
+  const [cropNatural, setCropNatural] = useState<{ w: number; h: number } | null>(null);
+  const [cropDisplay, setCropDisplay] = useState<{ w: number; h: number } | null>(null);
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null);
 
   useEffect(() => {
     setSoundEnabled(localStorage.getItem(SOUND_KEY) !== "false");
@@ -239,19 +214,89 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
     await saveAvatar(fd);
   }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Reset input so the same file can be re-selected after an error
     e.target.value = "";
+    const url = URL.createObjectURL(file);
+    setCropUrl(url);
+    setCropNatural(null);
+    setCropDisplay(null);
+    setCropOffset({ x: 0, y: 0 });
+  }
 
-    const processedBlob = await cropAndCompress(file);
+  function onCropImgLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const img = e.currentTarget;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    setCropNatural({ w: nw, h: nh });
+    // Scale so smallest dimension = CROP_SIZE, other can overflow (draggable)
+    let dw: number, dh: number;
+    if (nw <= nh) { dw = CROP_SIZE; dh = Math.round(CROP_SIZE * nh / nw); }
+    else { dh = CROP_SIZE; dw = Math.round(CROP_SIZE * nw / nh); }
+    setCropDisplay({ w: dw, h: dh });
+    setCropOffset({ x: 0, y: 0 });
+  }
 
+  function clampCrop(x: number, y: number, dw: number, dh: number) {
+    return {
+      x: Math.min(0, Math.max(x, -(dw - CROP_SIZE))),
+      y: Math.min(0, Math.max(y, -(dh - CROP_SIZE))),
+    };
+  }
+
+  function onCropPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { mx: e.clientX, my: e.clientY, ox: cropOffset.x, oy: cropOffset.y };
+  }
+
+  function onCropPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragRef.current || !cropDisplay) return;
+    const dx = e.clientX - dragRef.current.mx;
+    const dy = e.clientY - dragRef.current.my;
+    setCropOffset(clampCrop(dragRef.current.ox + dx, dragRef.current.oy + dy, cropDisplay.w, cropDisplay.h));
+  }
+
+  function onCropPointerUp() { dragRef.current = null; }
+
+  async function handleCropValidate() {
+    if (!cropUrl || !cropNatural || !cropDisplay) return;
+    setAvatarSaving(true);
+    setAvatarError(null);
+
+    const scale = cropNatural.w / cropDisplay.w;
+    const cropX = Math.round(-cropOffset.x * scale);
+    const cropY = Math.round(-cropOffset.y * scale);
+    const cropSide = Math.round(CROP_SIZE * scale);
+
+    const img = new Image();
+    img.src = cropUrl;
+    await new Promise<void>((res) => { img.onload = () => res(); });
+
+    const out = Math.min(cropSide, MAX_PX);
+    const canvas = document.createElement("canvas");
+    canvas.width = out;
+    canvas.height = out;
+    canvas.getContext("2d")!.drawImage(img, cropX, cropY, cropSide, cropSide, 0, 0, out, out);
+
+    URL.revokeObjectURL(cropUrl);
+    setCropUrl(null);
+    setCropNatural(null);
+    setCropDisplay(null);
+
+    const blob = await compressCanvas(canvas);
     const fd = new FormData();
     fd.append("type", "upload");
-    fd.append("file", processedBlob, "avatar.jpg");
+    fd.append("file", blob, "avatar.jpg");
     await saveAvatar(fd);
+  }
+
+  function handleCropCancel() {
+    if (cropUrl) URL.revokeObjectURL(cropUrl);
+    setCropUrl(null);
+    setCropNatural(null);
+    setCropDisplay(null);
+    setCropOffset({ x: 0, y: 0 });
   }
 
   async function handleRemoveAvatar() {
@@ -621,6 +666,100 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
           </Link>
         ))}
       </div>
+
+      {/* Crop modal */}
+      {cropUrl && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          background: "rgba(10,8,30,0.88)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}>
+          <div style={{
+            background: "rgba(26,18,58,0.97)",
+            border: `2.5px solid ${EA.ink}`,
+            borderRadius: 24,
+            padding: "24px 20px",
+            boxShadow: `6px 6px 0 ${EA.cyan}`,
+            width: "100%",
+            maxWidth: 340,
+          }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-6deg)", marginBottom: 4 }}>
+              Cadrer la photo
+            </div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
+              Glisse pour repositionner
+            </div>
+
+            {/* Crop window */}
+            <div
+              style={{
+                width: CROP_SIZE, height: CROP_SIZE,
+                margin: "0 auto",
+                overflow: "hidden",
+                borderRadius: 14,
+                border: `2.5px solid ${EA.ink}`,
+                boxShadow: `3px 3px 0 ${EA.cyan}`,
+                cursor: cropDisplay && (cropDisplay.w > CROP_SIZE || cropDisplay.h > CROP_SIZE) ? "grab" : "default",
+                userSelect: "none",
+                touchAction: "none",
+                position: "relative",
+                background: EA.violetDeep,
+              }}
+              onPointerDown={onCropPointerDown}
+              onPointerMove={onCropPointerMove}
+              onPointerUp={onCropPointerUp}
+              onPointerCancel={onCropPointerUp}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cropUrl}
+                alt="Aperçu du cadrage"
+                onLoad={onCropImgLoad}
+                draggable={false}
+                style={{
+                  display: "block",
+                  width: cropDisplay ? cropDisplay.w : "100%",
+                  height: cropDisplay ? cropDisplay.h : "100%",
+                  transform: `translate(${cropOffset.x}px, ${cropOffset.y}px)`,
+                  pointerEvents: "none",
+                  objectFit: cropDisplay ? undefined : "cover",
+                }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={handleCropCancel}
+                style={{
+                  flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
+                  color: EA.white, background: "rgba(255,255,255,0.08)",
+                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", cursor: "pointer", textTransform: "uppercase",
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleCropValidate}
+                disabled={!cropDisplay || avatarSaving}
+                style={{
+                  flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
+                  color: EA.ink, background: EA.cyan,
+                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", cursor: (!cropDisplay || avatarSaving) ? "wait" : "pointer",
+                  boxShadow: `3px 3px 0 ${EA.ink}`, textTransform: "uppercase",
+                  opacity: (!cropDisplay || avatarSaving) ? 0.6 : 1,
+                }}
+              >
+                {avatarSaving ? "..." : "Valider ✓"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
