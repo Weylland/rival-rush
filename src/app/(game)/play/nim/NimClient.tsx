@@ -326,7 +326,7 @@ export function NimClient({
           fontFamily: "var(--font-display)", fontSize: 11, color: EA.pink,
           transform: "skewX(-4deg)",
         }}>
-          🔥 Qui prend la dernière allumette PERD
+          💀 Prends la dernière allumette et tu PERDS
         </div>
       </div>
 
