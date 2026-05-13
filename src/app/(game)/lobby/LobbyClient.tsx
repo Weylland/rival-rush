@@ -59,14 +59,16 @@ function ChooseGameModal({
     <div style={{
       position: "fixed", inset: 0,
       background: "rgba(26,15,94,0.75)", backdropFilter: "blur(3px)",
-      zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px",
+      zIndex: 50, display: "flex", alignItems: "flex-start", justifyContent: "center",
+      padding: "16px 16px 24px", overflowY: "auto",
     }}>
       <div style={{
         width: "100%", maxWidth: 343,
         background: EA.violet, border: `3px solid ${EA.ink}`,
         borderRadius: 28, padding: "22px 18px 20px",
         boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
-        position: "relative",
+        position: "relative", marginTop: "auto", marginBottom: "auto",
+        flexShrink: 0,
       }}>
         <div style={{
           position: "absolute", inset: 4, borderRadius: 24,
