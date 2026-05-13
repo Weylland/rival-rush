@@ -20,7 +20,14 @@ interface Props {
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
-const TAB_LABELS: Record<Tab, string> = { global: "🏆 GLOBAL", pfc: "✊ PFC", morpion: "⨯ MORPION", puissance4: "🔴 P4", reflexe: "⚡ RÉFLEXE", naval: "🚢 NAVAL" };
+const TAB_LABELS: Record<Tab, string> = {
+  global:    "🏆 Classement global",
+  pfc:       "✊ Pierre Feuille Ciseaux",
+  morpion:   "⨯ Morpion",
+  puissance4:"🔴 Puissance 4",
+  reflexe:   "⚡ Réflexe",
+  naval:     "🚢 Bataille Navale",
+};
 
 export function RankingClient({ myPlayerId, initialEntries }: Props) {
   const [tab, setTab] = useState<Tab>("global");
@@ -110,32 +117,37 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
 
   return (
     <>
-      {/* Tabs */}
-      <div style={{
-        display: "flex", gap: 6,
-        background: "rgba(26,15,94,0.55)",
-        border: `2px solid ${EA.ink}`,
-        borderRadius: 999, padding: 4,
-        marginBottom: 24,
-      }}>
-        {(["global", "pfc", "morpion", "puissance4", "reflexe"] as Tab[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{
-              flex: 1, textAlign: "center",
-              background: tab === t ? EA.pink : "transparent",
-              border: "none", borderRadius: 999, padding: "10px 0",
-              fontFamily: "var(--font-display)", fontSize: 13,
-              color: tab === t ? EA.white : "rgba(255,255,255,0.65)",
-              letterSpacing: 0.6, cursor: "pointer",
-              boxShadow: tab === t ? `2px 2px 0 ${EA.cyan}` : "none",
-              transition: "all 0.15s",
-            }}
-          >
-            {TAB_LABELS[t]}
-          </button>
-        ))}
+      {/* Filter dropdown */}
+      <div style={{ position: "relative", marginBottom: 24 }}>
+        <select
+          value={tab}
+          onChange={e => setTab(e.target.value as Tab)}
+          style={{
+            width: "100%",
+            fontFamily: "var(--font-display)",
+            fontSize: 16,
+            color: EA.white,
+            background: EA.violetDeep,
+            border: `2.5px solid ${EA.pink}`,
+            borderRadius: 14,
+            padding: "13px 48px 13px 18px",
+            appearance: "none",
+            cursor: "pointer",
+            boxShadow: `3px 3px 0 ${EA.pink}`,
+            outline: "none",
+          }}
+        >
+          {(Object.keys(TAB_LABELS) as Tab[]).map(t => (
+            <option key={t} value={t} style={{ background: EA.violetDeep, color: EA.white }}>
+              {TAB_LABELS[t]}
+            </option>
+          ))}
+        </select>
+        {/* Chevron */}
+        <span aria-hidden style={{
+          position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
+          fontSize: 16, color: EA.pink, pointerEvents: "none",
+        }}>▾</span>
       </div>
 
       {tab !== "global" && !typeLoaded && (
