@@ -66,7 +66,7 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
     .select()
     .single();
 
-  if (error || !challenge) return { error: "Impossible d'envoyer le défi" };
+  if (error || !challenge) return { error: error?.message ?? "Impossible d'envoyer le défi" };
 
   // Send Web Push if player is offline (or as backup even if online)
   const { data: subs } = await supabase
