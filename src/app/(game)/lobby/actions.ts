@@ -22,6 +22,15 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
 
   const supabase = await createClient();
 
+  // Vérifie que la session pointe vers un joueur existant (session corrompue / compte supprimé)
+  const { data: me } = await supabase
+    .from("players")
+    .select("id")
+    .eq("id", session.playerId)
+    .maybeSingle();
+
+  if (!me) redirect("/login");
+
   // Check presence (block only if actively in-game)
   const { data: presence } = await supabase
     .from("presence")
