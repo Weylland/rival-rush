@@ -90,6 +90,30 @@ export async function submitChessMove(
   const promo = (["Q", "R", "B", "N"].includes(promotion) ? promotion : "Q") as PieceType;
   const newState = applyMove(state, from, to, promo);
 
+  // ── Timing ──────────────────────────────────────────────────────────────────
+  const now = Date.now();
+  if (state.timeControl && state.timeLeft && state.lastMoveAt) {
+    const elapsed = (now - new Date(state.lastMoveAt).getTime()) / 1000;
+    const remaining = (state.timeLeft[myId] ?? state.timeControl) - elapsed;
+
+    if (remaining <= 0) {
+      // Timed out on their own move — they lose
+      const opponentId = myId === p1Id ? p2Id : p1Id;
+      await supabase.from("games").update({
+        state: newState as unknown as Record<string, unknown>,
+        current_turn: null,
+        status: "finished",
+        winner_id: opponentId,
+      }).eq("id", gameId);
+      await updateLeaderboard(supabase, opponentId, p1Id, p2Id);
+      return { ok: true };
+    }
+
+    newState.timeLeft = { ...state.timeLeft, [myId]: remaining };
+  }
+  newState.lastMoveAt = new Date(now).toISOString();
+
+  // ── Game-end detection ───────────────────────────────────────────────────────
   const oppColor = myColor === "w" ? "b" : "w";
   const opponentId = myId === p1Id ? p2Id : p1Id;
 
@@ -109,5 +133,48 @@ export async function submitChessMove(
     await updateLeaderboard(supabase, winnerId, p1Id, p2Id);
   }
 
+  return { ok: true };
+}
+
+export async function claimChessTimeout(gameId: string) {
+  const session = await getSession();
+  if (!session) return { ok: false };
+
+  const supabase = await createClient();
+
+  const { data: game } = await supabase
+    .from("games")
+    .select("*, challenges(challenger_id, challenged_id)")
+    .eq("id", gameId)
+    .eq("status", "playing")
+    .single();
+
+  if (!game || game.game_type !== "chess") return { ok: false };
+
+  const challenge = game.challenges as { challenger_id: string; challenged_id: string };
+  const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
+
+  if (session.playerId !== p1Id && session.playerId !== p2Id) return { ok: false };
+
+  const state = game.state as unknown as ChessState;
+  if (!state.timeControl || !state.timeLeft || !state.lastMoveAt) return { ok: false };
+
+  const timedOutId = game.current_turn as string;
+  const elapsed = (Date.now() - new Date(state.lastMoveAt).getTime()) / 1000;
+  const remaining = (state.timeLeft[timedOutId] ?? state.timeControl) - elapsed;
+
+  if (remaining > 2) return { ok: false, error: "Not timed out" }; // 2s grace
+
+  const winnerId = timedOutId === p1Id ? p2Id : p1Id;
+
+  const { error } = await supabase.from("games").update({
+    status: "finished",
+    winner_id: winnerId,
+    current_turn: null,
+  }).eq("id", gameId).eq("status", "playing");
+
+  if (error) return { ok: false };
+
+  await updateLeaderboard(supabase, winnerId, p1Id, p2Id);
   return { ok: true };
 }

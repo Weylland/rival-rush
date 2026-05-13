@@ -86,13 +86,6 @@ export interface NavalState {
   shots: Record<string, NavalShot[]>; // playerId → shots they fired at opponent
 }
 
-export interface ChessState {
-  board: (string | null)[];
-  enPassantTarget: number | null;
-  castlingRights: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean };
-  lastMove: { from: number; to: number } | null;
-}
-
 export interface LeaderboardEntry {
   player_id: string;
   pseudo: string;

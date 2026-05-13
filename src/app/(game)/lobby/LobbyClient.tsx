@@ -38,15 +38,23 @@ interface LobbyClientProps {
 
 // ── Choose game modal ─────────────────────────────────────────────────────────
 
+const TIME_CONTROLS = [
+  { seconds: 60,  icon: "⚡", label: "Bullet", sub: "1 min" },
+  { seconds: 180, icon: "🔥", label: "Blitz", sub: "3 min" },
+  { seconds: 600, icon: "♟", label: "Rapide", sub: "10 min" },
+  { seconds: null, icon: "∞", label: "Illimité", sub: "sans limite" },
+] as const;
+
 function ChooseGameModal({
   opponent, onClose, onChoose, isPending, error,
 }: {
   opponent: LobbyPlayer;
   onClose: () => void;
-  onChoose: (g: GameType) => void;
+  onChoose: (g: GameType, timeControl?: number | null) => void;
   isPending: boolean;
   error: string | null;
 }) {
+  const [chessStep, setChessStep] = useState(false);
   return (
     <div style={{
       position: "fixed", inset: 0,
@@ -107,6 +115,43 @@ function ChooseGameModal({
           }}>⚠ {error}</div>
         )}
 
+        {/* Chess time-control sub-step */}
+        {chessStep ? (
+          <div style={{ marginTop: 18, position: "relative", zIndex: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <button
+                type="button"
+                onClick={() => setChessStep(false)}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 20, cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
+              >←</button>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+                CADENCE ♟
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {TIME_CONTROLS.map(tc => (
+                <button
+                  key={String(tc.seconds)}
+                  type="button"
+                  onClick={() => !isPending && onChoose("chess", tc.seconds ?? null)}
+                  disabled={isPending}
+                  style={{
+                    background: "#9b8ec4", border: `2.5px solid ${EA.ink}`,
+                    borderRadius: 18, padding: "16px 12px",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                    boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                    cursor: isPending ? "wait" : "pointer",
+                    opacity: isPending ? 0.7 : 1,
+                  }}
+                >
+                  <div style={{ fontSize: 32, lineHeight: 1 }}>{tc.icon}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.ink, transform: "skewX(-4deg)" }}>{tc.label}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.ink, opacity: 0.7, textTransform: "uppercase" }}>{tc.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
         <div style={{ display: "flex", gap: 10, marginTop: 18, position: "relative", zIndex: 2, flexWrap: "wrap" }}>
           {([
             { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
@@ -118,7 +163,11 @@ function ChooseGameModal({
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[]).map((g) => (
             <button
               key={g.type}
-              onClick={() => !isPending && onChoose(g.type)}
+              onClick={() => {
+                if (isPending) return;
+                if (g.type === "chess") { setChessStep(true); return; }
+                onChoose(g.type);
+              }}
               disabled={isPending}
               style={{
                 flex: 1, background: g.color, border: `2.5px solid ${EA.ink}`,
@@ -144,6 +193,7 @@ function ChooseGameModal({
             </button>
           ))}
         </div>
+        )}
       </div>
     </div>
   );
@@ -339,11 +389,11 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
   const offlineWithPushCount = mergedPlayers.filter(p => p.status === "offline" && pushSubscriberIds.includes(p.player_id)).length;
   const hasChallengeable = availableCount > 0 || offlineWithPushCount > 0;
 
-  const handleChooseGame = useCallback((gameType: GameType) => {
+  const handleChooseGame = useCallback((gameType: GameType, timeControl?: number | null) => {
     if (!chooseOpponent) return;
     setChallengeError(null);
     startTransition(async () => {
-      const result = await sendChallenge(chooseOpponent.player_id, gameType);
+      const result = await sendChallenge(chooseOpponent.player_id, gameType, timeControl);
       if (result?.error) setChallengeError(result.error);
     });
   }, [chooseOpponent]);

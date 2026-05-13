@@ -130,9 +130,11 @@ export default async function GamesPage() {
             rules={[
               { icon: "⬜", text: "Blancs (le challenger) jouent en premier — tour par tour jusqu'à l'échec et mat ou la nulle" },
               { icon: "♟", text: "Clique ta pièce pour voir ses coups légaux, puis clique la case destination" },
-              { icon: "⚠", text: "Déplacer le roi en échec est interdit — si tu n'as plus aucun coup légal c'est échec et mat" },
-              { icon: "👑", text: "Pion promu : choisis la pièce de remplacement (Dame, Tour, Fou ou Cavalier)" },
-              { icon: "🏆", text: "Roques et prise en passant sont supportés — la nulle par pat compte comme match nul" },
+              { icon: "⚠", text: "Impossible de se mettre en échec — plus aucun coup légal = mat (défaite) ou pat (nulle)" },
+              { icon: "👑", text: "Pion promu à la dernière rangée : choisis Dame, Tour, Fou ou Cavalier" },
+              { icon: "🏰", text: "Roque et prise en passant supportés — pat = match nul" },
+              { icon: "⏱", text: "Cadences au choix : ⚡ Bullet 1 min · 🔥 Blitz 3 min · ♟ Rapide 10 min · ∞ Illimité" },
+              { icon: "💀", text: "Temps écoulé = défaite — les deux horloges sont affichées en temps réel sur le plateau" },
             ]}
           />
 

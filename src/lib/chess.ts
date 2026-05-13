@@ -9,6 +9,10 @@ export interface ChessState {
   enPassantTarget: number | null;
   castlingRights: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean };
   lastMove: { from: number; to: number } | null;
+  // Time control (null = unlimited)
+  timeControl: number | null;
+  timeLeft: Record<string, number> | null;
+  lastMoveAt: string | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -33,12 +37,21 @@ export function initialBoard(): (string | null)[] {
   return b;
 }
 
-export function initialChessState(): ChessState {
+export function initialChessState(
+  timeControl: number | null = null,
+  p1Id?: string,
+  p2Id?: string,
+): ChessState {
   return {
     board: initialBoard(),
     enPassantTarget: null,
     castlingRights: { wK: true, wQ: true, bK: true, bQ: true },
     lastMove: null,
+    timeControl,
+    timeLeft: (timeControl && p1Id && p2Id)
+      ? { [p1Id]: timeControl, [p2Id]: timeControl }
+      : null,
+    lastMoveAt: timeControl ? new Date().toISOString() : null,
   };
 }
 
@@ -220,7 +233,12 @@ export function applyMove(
     board[to] = `${color}${promotion}`;
   }
 
-  return { board, enPassantTarget, castlingRights: cr, lastMove: { from, to } };
+  return {
+    board, enPassantTarget, castlingRights: cr, lastMove: { from, to },
+    timeControl: state.timeControl,
+    timeLeft: state.timeLeft,
+    lastMoveAt: state.lastMoveAt,
+  };
 }
 
 // ── Legal moves (filters moves that leave own king in check) ──────────────────

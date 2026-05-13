@@ -55,8 +55,10 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "⬜", text: "Blancs (le challenger) jouent en premier — tour par tour" },
       { icon: "♟", text: "Clique ta pièce pour voir ses coups légaux, puis clique la destination" },
       { icon: "⚠", text: "Tu ne peux pas te mettre en échec — si plus aucun coup légal : mat ou pat" },
-      { icon: "👑", text: "Pion promu quand il atteint la dernière rangée : choisis Dame, Tour, Fou ou Cavalier" },
+      { icon: "👑", text: "Pion promu à la dernière rangée : choisis Dame, Tour, Fou ou Cavalier" },
       { icon: "🏰", text: "Roque et prise en passant supportés — pat = match nul" },
+      { icon: "⏱", text: "Cadences : ⚡ Bullet 1 min · 🔥 Blitz 3 min · ♟ Rapide 10 min · ∞ Illimité" },
+      { icon: "💀", text: "Temps écoulé = défaite — les deux horloges sont visibles sur le plateau" },
     ],
   },
   puissance4: {

@@ -17,7 +17,7 @@ const GAME_LABELS: Record<GameType, string> = {
   chess: "Échecs ♟",
 };
 
-export async function sendChallenge(challengedId: string, gameType: GameType) {
+export async function sendChallenge(challengedId: string, gameType: GameType, timeControl?: number | null) {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -61,6 +61,7 @@ export async function sendChallenge(challengedId: string, gameType: GameType) {
       game_type: gameType,
       status: "pending",
       expires_at: expiresAt,
+      metadata: gameType === "chess" ? { timeControl: timeControl ?? null } : {},
     })
     .select()
     .single();
@@ -134,7 +135,7 @@ export async function acceptChallenge(challengeId: string) {
           : challenge.game_type === "naval"
             ? { ships: { [p1]: generateFleet(), [p2]: generateFleet() }, shots: { [p1]: [], [p2]: [] } }
             : challenge.game_type === "chess"
-              ? initialChessState()
+              ? initialChessState((challenge.metadata as { timeControl?: number | null } | null)?.timeControl ?? null, p1, p2)
               : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase

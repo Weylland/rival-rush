@@ -9,7 +9,6 @@ import { SvgBlob } from "@/components/ui/blob";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
-import { submitChessMove } from "./actions";
 import {
   legalMoves,
   applyMove,
@@ -19,6 +18,7 @@ import {
   type ChessState,
   type PieceType,
 } from "@/lib/chess";
+import { submitChessMove, claimChessTimeout } from "./actions";
 import type { GameStatus } from "@/types/database";
 
 // ── Piece rendering ───────────────────────────────────────────────────────────
@@ -29,7 +29,34 @@ const UNICODE: Record<string, string> = {
 };
 
 const PROMO_PIECES: PieceType[] = ["Q", "R", "B", "N"];
-const PROMO_LABELS: Record<PieceType, string> = { Q: "♕ Dame", R: "♖ Tour", B: "♗ Fou", N: "♘ Cavalier", K: "" , P: ""};
+const PROMO_LABELS: Record<PieceType, string> = { Q: "♕ Dame", R: "♖ Tour", B: "♗ Fou", N: "♘ Cavalier", K: "", P: "" };
+
+const TIME_LABEL: Record<number, string> = { 60: "⚡ Bullet", 180: "🔥 Blitz", 600: "♟ Rapide" };
+
+function formatTime(s: number): string {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function Clock({ seconds, active }: { seconds: number | null; active: boolean }) {
+  if (seconds === null) return null;
+  const low = seconds < 30;
+  const danger = seconds < 10;
+  return (
+    <div style={{
+      fontFamily: "var(--font-display)",
+      fontSize: 20,
+      minWidth: 58,
+      textAlign: "right",
+      color: danger ? "#ff1e8c" : low ? "#ffe94a" : "rgba(255,255,255,0.9)",
+      animation: danger && active ? "ea-pulse 0.5s ease-in-out infinite alternate" : "none",
+      flexShrink: 0,
+    }}>
+      {formatTime(seconds)}
+    </div>
+  );
+}
 
 // Light square: warm tan — Dark square: deep purple (EA theme)
 const SQ_LIGHT = "#d4b896";
@@ -85,10 +112,44 @@ export function ChessClient({
 
   const isFinishedRef = useRef(initialStatus === "finished");
   const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutClaimedRef = useRef(false);
+
+  const isFinished = gameStatus === "finished";
+
+  // Running countdown — only for the current player's clock
+  const [runningTime, setRunningTime] = useState<number | null>(null);
 
   useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   const { play } = useGameSounds();
+
+  // Clock countdown
+  useEffect(() => {
+    if (!chessState.timeControl || !chessState.timeLeft || !chessState.lastMoveAt || isFinished) {
+      setRunningTime(null);
+      return;
+    }
+    const baseTime = new Date(chessState.lastMoveAt).getTime();
+    const baseRemaining = chessState.timeLeft[currentTurn ?? ""] ?? chessState.timeControl;
+
+    const update = () => {
+      const elapsed = (Date.now() - baseTime) / 1000;
+      setRunningTime(Math.max(0, baseRemaining - elapsed));
+    };
+    update();
+    const interval = setInterval(update, 200);
+    return () => clearInterval(interval);
+  }, [chessState.lastMoveAt, chessState.timeLeft, currentTurn, isFinished]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Timeout trigger
+  useEffect(() => {
+    if (runningTime !== null && runningTime <= 0 && !isFinished && !timeoutClaimedRef.current) {
+      timeoutClaimedRef.current = true;
+      claimChessTimeout(gameId).then(res => {
+        if (!res.ok) timeoutClaimedRef.current = false;
+      });
+    }
+  }, [runningTime, isFinished, gameId]);
 
   // Presence + forfeit
   useEffect(() => {
@@ -136,6 +197,7 @@ export function ChessClient({
         setWinnerId(updated.winner_id);
         setSelected(null);
         setMoves([]);
+        timeoutClaimedRef.current = false;
         if (updated.status === "finished") {
           isFinishedRef.current = true;
           const iWon = updated.winner_id === myId;
@@ -151,10 +213,20 @@ export function ChessClient({
   }, [gameId, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isMyTurn = currentTurn === myId;
-  const isFinished = gameStatus === "finished";
   const myColor = iAmWhite ? "w" : "b";
   const turnColor = currentTurn === p1Id ? "w" : "b";
   const kingInCheck = isInCheck(chessState.board, turnColor) && !isFinished;
+
+  // Clock display values
+  const myStoredTime = chessState.timeLeft?.[myId] ?? null;
+  const opStoredTime = chessState.timeLeft?.[opponentId] ?? null;
+  const myDisplayTime = chessState.timeControl
+    ? (currentTurn === myId ? runningTime : myStoredTime)
+    : null;
+  const opDisplayTime = chessState.timeControl
+    ? (currentTurn === opponentId ? runningTime : opStoredTime)
+    : null;
+  const timeLabel = chessState.timeControl ? (TIME_LABEL[chessState.timeControl] ?? `${Math.round(chessState.timeControl / 60)} min`) : null;
 
   // Board index from display position
   function displayToBoard(dRow: number, dCol: number): number {
@@ -238,8 +310,15 @@ export function ChessClient({
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
-              ÉCHECS
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
+                ÉCHECS
+              </div>
+              {timeLabel && (
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1 }}>
+                  {timeLabel}
+                </div>
+              )}
             </div>
             {kingInCheck && (
               <div style={{
@@ -257,15 +336,16 @@ export function ChessClient({
         {/* Opponent bar */}
         <div style={playerBarStyle(false)}>
           <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} size={32} />
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>{opPseudo.toUpperCase()}</div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>{opColorLabel}</div>
           </div>
           {!isFinished && currentTurn === opponentId && (
-            <div style={{ marginLeft: "auto", fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.pink, animation: "ea-pulse 1s ease-in-out infinite alternate" }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.pink, animation: "ea-pulse 1s ease-in-out infinite alternate", flexShrink: 0 }}>
               joue…
             </div>
           )}
+          <Clock seconds={opDisplayTime} active={currentTurn === opponentId} />
         </div>
 
         {/* Board */}
@@ -346,15 +426,16 @@ export function ChessClient({
         {/* My bar */}
         <div style={playerBarStyle(true)}>
           <Avatar name={myPseudo} src={myAvatarUrl} color={EA.cyan} size={32} />
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>{myPseudo.toUpperCase()}</div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>{colorLabel}</div>
           </div>
           {!isFinished && isMyTurn && (
-            <div style={{ marginLeft: "auto", fontFamily: "var(--font-display)", fontSize: 13, color: EA.cyan, transform: "skewX(-4deg)" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.cyan, transform: "skewX(-4deg)", flexShrink: 0 }}>
               TON TOUR
             </div>
           )}
+          <Clock seconds={myDisplayTime} active={isMyTurn} />
         </div>
 
         {/* Turn / status info */}
