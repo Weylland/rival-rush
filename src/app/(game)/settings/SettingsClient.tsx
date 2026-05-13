@@ -379,7 +379,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
           Ou choisis un avatar
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, minmax(0, 1fr))", gap: 6 }}>
           {(showAllPresets ? PRESETS : PRESETS.slice(0, 8)).map(emoji => (
             <button
               key={emoji}
@@ -387,7 +387,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
               onClick={() => handlePreset(emoji)}
               disabled={avatarSaving}
               style={{
-                fontSize: 24, padding: "6px 0",
+                fontSize: 22, padding: "5px 0",
                 background: currentEmoji === emoji ? EA.butter : "rgba(255,255,255,0.08)",
                 border: `2px solid ${currentEmoji === emoji ? EA.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 12, cursor: "pointer",
