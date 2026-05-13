@@ -167,55 +167,76 @@ function ChooseGameModal({
               ))}
             </div>
           </div>
-        ) : (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: desktop ? "repeat(3, 1fr)" : "repeat(2, 1fr)",
-          gap: desktop ? 12 : 10,
-          marginTop: 18, position: "relative", zIndex: 2,
-        }}>
-          {([
-            { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
-            { type: "morpion" as GameType, icon: "⨯⭕⨯", title: "MORPION", sub: "Tactique", color: EA.pink, shadow: EA.butter, badge: undefined },
-            { type: "puissance4" as GameType, icon: "🔴🟡🔴", title: "PUISSANCE 4", sub: "Stratégie", color: EA.butter, shadow: EA.cyan, badge: undefined },
-            { type: "reflexe" as GameType, icon: "⚡⚡⚡", title: "RÉFLEXE", sub: "Vitesse", color: EA.pink, shadow: EA.butter, badge: undefined },
-            { type: "naval" as GameType, icon: "🚢⚓🎯", title: "BATAILLE\nNAVALE", sub: "Stratégie", color: EA.cyan, shadow: EA.butter, badge: undefined },
-            { type: "chess" as GameType, icon: "♟♔♛", title: "ÉCHECS", sub: "Réflexion", color: "#9b8ec4", shadow: EA.pink, badge: undefined },
-            { type: "nim" as GameType, icon: "🔥🔥🔥", title: "NIM", sub: "Misère", color: EA.butter, shadow: EA.cyan, badge: "NEW ✨" },
-          ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[]).map((g) => (
-            <button
-              key={g.type}
-              onClick={() => {
-                if (isPending) return;
-                if (g.type === "chess") { setChessStep(true); return; }
-                onChoose(g.type);
-              }}
-              disabled={isPending}
-              style={{
-                background: g.color, border: `2.5px solid ${EA.ink}`,
-                borderRadius: 20, padding: desktop ? "18px 12px" : "16px 14px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: desktop ? 6 : 8,
-                boxShadow: `4px 4px 0 ${g.shadow}, 4px 4px 0 1px ${EA.ink}`,
-                cursor: isPending ? "wait" : "pointer", position: "relative",
-                opacity: isPending ? 0.7 : 1,
-              }}>
-              {g.badge && (
-                <div style={{
-                  position: "absolute", top: -10, right: -8,
-                  background: EA.butter, border: `2px solid ${EA.ink}`,
-                  padding: "3px 8px", borderRadius: 999,
-                  fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink,
-                  letterSpacing: 0.6, transform: "rotate(8deg)",
-                  boxShadow: `2px 2px 0 ${EA.ink}`,
-                }}>{g.badge}</div>
-              )}
-              <div style={{ fontSize: desktop ? 32 : 38, lineHeight: 1 }}>{g.icon}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 13 : 14, color: EA.ink, textAlign: "center", transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: "pre-line" }}>{g.title}</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.ink, opacity: 0.7, textTransform: "uppercase", letterSpacing: 0.8 }}>{g.sub}</div>
-            </button>
-          ))}
-        </div>
-        )}
+        ) : (() => {
+          const games = [
+            { type: "pfc" as GameType,      icon: "✊",  title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes",  color: EA.cyan,    shadow: EA.pink,   badge: "HOT 🔥" },
+            { type: "morpion" as GameType,   icon: "⨯⭕", title: "MORPION",                  sub: "Tactique",  color: EA.pink,    shadow: EA.butter, badge: undefined },
+            { type: "puissance4" as GameType,icon: "🔴",  title: "PUISSANCE 4",              sub: "Stratégie", color: EA.butter,  shadow: EA.cyan,   badge: undefined },
+            { type: "reflexe" as GameType,   icon: "⚡",  title: "RÉFLEXE",                  sub: "Vitesse",   color: EA.pink,    shadow: EA.butter, badge: undefined },
+            { type: "naval" as GameType,     icon: "🚢",  title: "BATAILLE\nNAVALE",         sub: "Stratégie", color: EA.cyan,    shadow: EA.butter, badge: undefined },
+            { type: "chess" as GameType,     icon: "♟",   title: "ÉCHECS",                   sub: "Réflexion", color: "#9b8ec4",  shadow: EA.pink,   badge: undefined },
+            { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Misère · prends la dernière allumette et tu perds", color: EA.butter, shadow: EA.cyan, badge: "NEW ✨" },
+          ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[];
+
+          const cols = 3;
+          const lastIsAlone = games.length % cols === 1;
+
+          return (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+              gap: desktop ? 12 : 8,
+              marginTop: 18, position: "relative", zIndex: 2,
+            }}>
+              {games.map((g, idx) => {
+                const isWide = lastIsAlone && idx === games.length - 1;
+                return (
+                  <button
+                    key={g.type}
+                    onClick={() => {
+                      if (isPending) return;
+                      if (g.type === "chess") { setChessStep(true); return; }
+                      onChoose(g.type);
+                    }}
+                    disabled={isPending}
+                    style={{
+                      gridColumn: isWide ? "1 / -1" : undefined,
+                      background: g.color, border: `2.5px solid ${EA.ink}`,
+                      borderRadius: 20,
+                      padding: isWide
+                        ? (desktop ? "14px 24px" : "12px 18px")
+                        : (desktop ? "18px 12px" : "12px 8px"),
+                      display: "flex",
+                      flexDirection: isWide ? "row" : "column",
+                      alignItems: "center",
+                      justifyContent: isWide ? "flex-start" : "center",
+                      gap: isWide ? 16 : (desktop ? 6 : 5),
+                      boxShadow: `4px 4px 0 ${g.shadow}, 4px 4px 0 1px ${EA.ink}`,
+                      cursor: isPending ? "wait" : "pointer", position: "relative",
+                      opacity: isPending ? 0.7 : 1,
+                      textAlign: isWide ? "left" : "center",
+                    }}>
+                    {g.badge && (
+                      <div style={{
+                        position: "absolute", top: -10, right: -8,
+                        background: EA.violet, border: `2px solid ${EA.ink}`,
+                        padding: "3px 8px", borderRadius: 999,
+                        fontFamily: "var(--font-display)", fontSize: 9, color: EA.white,
+                        letterSpacing: 0.6, transform: "rotate(8deg)",
+                        boxShadow: `2px 2px 0 ${EA.ink}`,
+                      }}>{g.badge}</div>
+                    )}
+                    <div style={{ fontSize: isWide ? (desktop ? 40 : 34) : (desktop ? 30 : 26), lineHeight: 1, flexShrink: 0 }}>{g.icon}</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: isWide ? 3 : 2 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: isWide ? (desktop ? 20 : 16) : (desktop ? 13 : 11), color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: isWide ? "nowrap" : "pre-line" }}>{g.title}</div>
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: isWide ? (desktop ? 11 : 10) : 9, fontWeight: 800, color: EA.ink, opacity: 0.65, textTransform: "uppercase", letterSpacing: 0.6 }}>{g.sub}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
