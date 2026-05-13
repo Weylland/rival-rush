@@ -122,7 +122,7 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
         onClick={handleToggle}
         title={open ? "Fermer le chat" : "Ouvrir le chat"}
         style={{
-          position: "fixed", bottom: 24, right: 20, zIndex: 200,
+          position: "fixed", bottom: 24, left: 20, zIndex: 200,
           width: 52, height: 52, borderRadius: "50%",
           background: open ? EA.violetDeep : EA.cyan,
           border: `2.5px solid ${EA.ink}`,
@@ -150,7 +150,7 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
       {/* Panneau de chat */}
       {open && (
         <div style={{
-          position: "fixed", bottom: 84, right: 16, zIndex: 199,
+          position: "fixed", bottom: 84, left: 16, zIndex: 199,
           width: "min(340px, calc(100vw - 32px))",
           maxHeight: "min(480px, calc(100dvh - 120px))",
           background: EA.violetDeep,
