@@ -57,6 +57,7 @@ create table public.presence (
   player_id  uuid primary key references public.players(id) on delete cascade,
   pseudo     text not null,
   status     text not null default 'online' check (status in ('online', 'in-game')),
+  game_type  text,
   updated_at timestamptz not null default now()
 );
 

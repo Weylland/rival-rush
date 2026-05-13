@@ -93,7 +93,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
 
     const supabase = createClient();
     const updatePresence = () =>
-      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", updated_at: new Date().toISOString() }).then(() => {});
+      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "morpion", updated_at: new Date().toISOString() }).then(() => {});
     updatePresence();
     const heartbeat = setInterval(updatePresence, 30_000);
 

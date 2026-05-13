@@ -15,10 +15,20 @@ import type { GameType } from "@/types/database";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+const GAME_LABELS: Record<string, string> = {
+  pfc: "✊ Pierre Feuille Ciseaux",
+  morpion: "⨯ Morpion",
+  puissance4: "🔴 Puissance 4",
+  reflexe: "⚡ Réflexe",
+  naval: "🚢 Bataille Navale",
+  chess: "♟ Échecs",
+};
+
 interface PresencePlayer {
   player_id: string;
   pseudo: string;
   status: "online" | "in-game";
+  game_type?: string | null;
 }
 
 interface LobbyPlayer {
@@ -26,6 +36,7 @@ interface LobbyPlayer {
   pseudo: string;
   status: "online" | "in-game" | "offline";
   avatar_url?: string | null;
+  game_type?: string | null;
 }
 
 interface LobbyClientProps {
@@ -210,7 +221,7 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean; }) {
+function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean }) {
   const inGame = p.status === "in-game";
   const offline = p.status === "offline";
   const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
@@ -244,7 +255,7 @@ function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; 
             boxShadow: offline || inGame ? "none" : "0 0 6px #1ee29a",
             flexShrink: 0,
           }} />
-          {offline ? "Hors ligne" : inGame ? "En partie" : "En ligne"}
+          {offline ? "Hors ligne" : inGame ? (p.game_type ? `En partie · ${GAME_LABELS[p.game_type] ?? p.game_type}` : "En partie") : "En ligne"}
         </div>
       </div>
       {!inGame && (!offline || hasPush) && (
@@ -376,7 +387,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     .filter(p => p.player_id !== myPlayerId)
     .map(p => {
       const presence = onlinePlayers.find(op => op.player_id === p.player_id);
-      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"], avatar_url: p.avatar_url ?? null };
+      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"], avatar_url: p.avatar_url ?? null, game_type: presence?.game_type ?? null };
     })
     .sort((a, b) => {
       const order = { online: 0, "in-game": 1, offline: 2 };

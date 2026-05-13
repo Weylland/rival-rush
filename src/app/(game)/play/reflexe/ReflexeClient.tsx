@@ -57,7 +57,7 @@ export function ReflexeClient({
     if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
     const supabase = createClient();
     const updatePresence = () =>
-      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", updated_at: new Date().toISOString() }).then(() => {});
+      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "reflexe", updated_at: new Date().toISOString() }).then(() => {});
     updatePresence();
     const heartbeat = setInterval(updatePresence, 30_000);
     return () => {

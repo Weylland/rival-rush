@@ -431,15 +431,34 @@ function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlaced }: P
   const rotateBtn = (
     <button
       onClick={() => setHorizontal(h => !h)}
+      title={horizontal ? "Passer en vertical" : "Passer en horizontal"}
       style={{
-        background: horizontal ? EA.cyan : EA.pink,
-        border: `2px solid ${EA.ink}`, borderRadius: 10,
-        padding: "8px 16px", fontFamily: "var(--font-display)", fontSize: 14,
-        color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
-        fontWeight: 700,
+        background: "rgba(26,15,94,0.7)",
+        border: `2px solid ${horizontal ? EA.cyan : EA.pink}`,
+        borderRadius: 10, padding: "8px 14px",
+        cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
       }}
     >
-      {horizontal ? "↔ H" : "↕ V"}
+      {/* Mini ship preview showing orientation */}
+      <div style={{ display: "flex", flexDirection: horizontal ? "row" : "column", gap: 2 }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            width: 8, height: 8,
+            background: i === 0
+              ? (horizontal ? EA.cyan : EA.pink)
+              : "rgba(255,255,255,0.4)",
+            borderRadius: 2,
+          }} />
+        ))}
+      </div>
+      <span style={{
+        fontFamily: "var(--font-display)", fontSize: 11, fontWeight: 900,
+        color: horizontal ? EA.cyan : EA.pink,
+        letterSpacing: 1, textTransform: "uppercase",
+      }}>
+        {horizontal ? "Horiz." : "Vert."}
+      </span>
     </button>
   );
 
@@ -596,7 +615,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   useEffect(() => {
     if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
     const supabase = createClient();
-    const beat = () => supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", updated_at: new Date().toISOString() }).then(() => {});
+    const beat = () => supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "naval", updated_at: new Date().toISOString() }).then(() => {});
     beat();
     const hb = setInterval(beat, 30_000);
     return () => {
