@@ -1,23 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { subscribePush } from "@/lib/push-client";
 import { EA } from "@/lib/design";
 
 const PROMPTED_KEY = "ea_notif_prompted";
 
+function detectEnv(): { isIOS: boolean; isStandalone: boolean } {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone =
+    ("standalone" in navigator && (navigator as { standalone?: boolean }).standalone === true) ||
+    window.matchMedia("(display-mode: standalone)").matches;
+  return { isIOS, isStandalone };
+}
+
 export function NotifPrompt() {
   const [visible, setVisible] = useState(false);
+  const [iosNotPwa, setIosNotPwa] = useState(false);
   const [requesting, setRequesting] = useState(false);
 
   useEffect(() => {
     if (typeof Notification === "undefined") return;
-    if (Notification.permission !== "default") return;
     if (localStorage.getItem(PROMPTED_KEY)) return;
 
-    // Petit délai pour laisser la page se charger
-    const t = setTimeout(() => setVisible(true), 1500);
-    return () => clearTimeout(t);
+    const { isIOS, isStandalone } = detectEnv();
+
+    // iOS hors PWA : PushManager absent → montrer les instructions
+    if (isIOS && !isStandalone) {
+      setIosNotPwa(true);
+      setTimeout(() => setVisible(true), 1500);
+      return;
+    }
+
+    // Autres navigateurs : permission pas encore demandée
+    if (Notification.permission !== "default") return;
+    setTimeout(() => setVisible(true), 1500);
   }, []);
 
   async function handleActivate() {
@@ -88,16 +106,16 @@ export function NotifPrompt() {
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 40,
               boxShadow: `4px 4px 0 ${EA.butter}`,
-            }}>🔔</div>
+            }}>{iosNotPwa ? "🍎" : "🔔"}</div>
           </div>
 
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 26,
+            fontFamily: "var(--font-display)", fontSize: iosNotPwa ? 22 : 26,
             color: EA.ink, transform: "skewX(-8deg)",
             textShadow: `2px 2px 0 ${EA.white}`,
-            textAlign: "center",
+            textAlign: "center", lineHeight: 1.2,
           }}>
-            RESTE DANS LA PARTIE !
+            {iosNotPwa ? "UNE ÉTAPE SUPPLÉMENTAIRE" : "RESTE DANS LA PARTIE !"}
           </div>
 
           {/* Explication */}
@@ -108,54 +126,104 @@ export function NotifPrompt() {
             transform: "rotate(-0.5deg)",
             width: "100%",
           }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { icon: "📬", text: "Reçois un défi même si tu as fermé l'appli" },
-                { icon: "⚡", text: "Réponds avant que le temps ne s'écoule" },
-                { icon: "🔕", text: "Tu peux les désactiver à tout moment dans les réglages" },
-              ].map(({ icon, text }) => (
-                <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                  <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+            {iosNotPwa ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>📲</span>
                   <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
-                    {text}
+                    Sur iPhone, les notifications nécessitent d&apos;ajouter l&apos;app à ton écran d&apos;accueil.
                   </span>
                 </div>
-              ))}
-            </div>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>⬆️</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                    Appuie sur <strong style={{ color: EA.cyan }}>Partager</strong> puis <strong style={{ color: EA.cyan }}>Sur l&apos;écran d&apos;accueil</strong>, puis rouvre l&apos;app.
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { icon: "📬", text: "Reçois un défi même si tu as fermé l'appli" },
+                  { icon: "⚡", text: "Réponds avant que le temps ne s'écoule" },
+                  { icon: "🔕", text: "Tu peux les désactiver à tout moment dans les réglages" },
+                ].map(({ icon, text }) => (
+                  <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                      {text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Boutons */}
-          <div style={{ display: "flex", gap: 10, marginTop: 8, width: "100%" }}>
-            <button
-              onClick={handleLater}
-              disabled={requesting}
-              style={{
-                flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                color: EA.white, background: EA.violetDeep,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
-                padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
-              }}>
-              Plus tard
-            </button>
-            <button
-              onClick={handleActivate}
-              disabled={requesting}
-              style={{
-                flex: 1.4, fontFamily: "var(--font-display)", fontSize: 16,
-                color: EA.ink, background: EA.butter,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
-                padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                cursor: requesting ? "wait" : "pointer",
-                boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
-                transform: "skewX(-4deg)",
-                opacity: requesting ? 0.7 : 1,
-              }}>
-              <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>
-                {requesting ? "..." : "🔔 Activer !"}
-              </span>
-            </button>
-          </div>
+          {iosNotPwa ? (
+            <div style={{ display: "flex", gap: 10, marginTop: 8, width: "100%" }}>
+              <button
+                onClick={handleLater}
+                style={{
+                  flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
+                  color: EA.white, background: EA.violetDeep,
+                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
+                  cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
+                }}>
+                Plus tard
+              </button>
+              <Link
+                href="/ios-pwa"
+                onClick={() => localStorage.setItem(PROMPTED_KEY, "true")}
+                style={{
+                  flex: 1.4, fontFamily: "var(--font-display)", fontSize: 15,
+                  color: EA.ink, background: EA.butter,
+                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.6,
+                  textDecoration: "none", textAlign: "center",
+                  boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                  transform: "skewX(-4deg)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>
+                  📖 Comment faire
+                </span>
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 10, marginTop: 8, width: "100%" }}>
+              <button
+                onClick={handleLater}
+                disabled={requesting}
+                style={{
+                  flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
+                  color: EA.white, background: EA.violetDeep,
+                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
+                  cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
+                }}>
+                Plus tard
+              </button>
+              <button
+                onClick={handleActivate}
+                disabled={requesting}
+                style={{
+                  flex: 1.4, fontFamily: "var(--font-display)", fontSize: 16,
+                  color: EA.ink, background: EA.butter,
+                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
+                  cursor: requesting ? "wait" : "pointer",
+                  boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                  transform: "skewX(-4deg)",
+                  opacity: requesting ? 0.7 : 1,
+                }}>
+                <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>
+                  {requesting ? "..." : "🔔 Activer !"}
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
