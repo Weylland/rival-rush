@@ -471,15 +471,16 @@ export function ChessClient({
 
         const pColor = piece ? pieceColor(piece) : null;
         const isCanMove = isMyTurn && !isFinished && !submitting && piece && pieceColor(piece) === myColor;
+        // Disque de fond pour garantir lisibilité quelle que soit la couleur de la case
+        const discBg = pColor === "w" ? "rgba(255,250,230,0.96)" : "rgba(8,2,22,0.94)";
         const pieceStyle: React.CSSProperties = {
           fontSize: pieceFs,
           lineHeight: 1,
-          color: pColor === "w" ? "#fffef5" : "#04000f",
-          textShadow: pColor === "w" ? whiteOutline : blackOutline,
+          // Pièces blanches : sombre sur fond clair / Pièces noires : clair sur fond sombre
+          color: pColor === "w" ? "#1a0a2e" : "#f0e8ff",
           pointerEvents: "none",
           cursor: isCanMove ? (isDragging ? "grabbing" : "grab") : "default",
-          opacity: isDragSource ? 0.15 : 1,
-          transition: "opacity 0.1s",
+          position: "relative", zIndex: 1,
         };
 
         return (
@@ -507,7 +508,24 @@ export function ChessClient({
                 pointerEvents: "none",
               }} />
             )}
-            {piece && <span style={pieceStyle}>{UNICODE[piece]}</span>}
+            {piece && (
+              <div style={{
+                position: "relative",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: "82%", height: "82%",
+                borderRadius: "50%",
+                background: isDragSource ? "transparent" : discBg,
+                boxShadow: isDragSource ? "none" : pColor === "w"
+                  ? "0 1px 4px rgba(0,0,0,0.35)"
+                  : "0 1px 4px rgba(0,0,0,0.6)",
+                opacity: isDragSource ? 0.15 : 1,
+                transition: "opacity 0.1s",
+                pointerEvents: "none",
+                flexShrink: 0,
+              }}>
+                <span style={pieceStyle}>{UNICODE[piece]}</span>
+              </div>
+            )}
           </div>
         );
       })}
@@ -517,22 +535,30 @@ export function ChessClient({
   // Pièce fantôme qui suit le curseur pendant le drag
   const floatingPiece = isDragging && dragState && typeof document !== "undefined"
     ? createPortal(
-        <span style={{
+        <div style={{
           position: "fixed",
           left: dragState.x,
           top: dragState.y,
           transform: "translate(-50%, -60%)",
-          fontSize: pieceFs,
-          lineHeight: 1,
-          color: pieceColor(dragState.piece) === "w" ? "#fffef5" : "#160c30",
-          textShadow: pieceColor(dragState.piece) === "w" ? whiteOutline : blackOutline,
+          width: `calc(${pieceFs} * 1.6)`,
+          height: `calc(${pieceFs} * 1.6)`,
+          borderRadius: "50%",
+          background: pieceColor(dragState.piece) === "w" ? "rgba(255,250,230,0.97)" : "rgba(8,2,22,0.95)",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+          display: "flex", alignItems: "center", justifyContent: "center",
           pointerEvents: "none",
           zIndex: 9999,
           userSelect: "none",
-          filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.5))",
         }}>
-          {UNICODE[dragState.piece]}
-        </span>,
+          <span style={{
+            fontSize: pieceFs,
+            lineHeight: 1,
+            color: pieceColor(dragState.piece) === "w" ? "#1a0a2e" : "#f0e8ff",
+            pointerEvents: "none",
+          }}>
+            {UNICODE[dragState.piece]}
+          </span>
+        </div>,
         document.body,
       )
     : null;

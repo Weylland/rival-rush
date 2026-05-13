@@ -81,12 +81,13 @@ function getTip(gameType: GameType): string {
 interface Props {
   challengeId: string;
   myPseudo: string;
+  myAvatarUrl: string | null;
   opponentPseudo: string;
   gameType: GameType;
   opponentIsOffline: boolean;
 }
 
-export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType, opponentIsOffline }: Props) {
+export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, opponentPseudo, gameType, opponentIsOffline }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const [, startTransition] = useTransition();
@@ -162,7 +163,7 @@ export function WaitingClient({ challengeId, myPseudo, opponentPseudo, gameType,
         {/* Players VS */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: desktop ? 40 : 12, width: "100%" }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: desktop ? 10 : 6 }}>
-            <Avatar name={myPseudo} color={EA.butter} ring={EA.cyan} size={desktop ? 96 : 72} />
+            <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 96 : 72} />
             <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 15, color: EA.white, transform: "skewX(-4deg)" }}>
               {myPseudo.toUpperCase()}
             </div>

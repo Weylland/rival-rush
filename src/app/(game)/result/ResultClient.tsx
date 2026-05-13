@@ -19,19 +19,23 @@ interface Props {
   p2Id: string;
   p1Pseudo: string;
   p2Pseudo: string;
+  p1AvatarUrl: string | null;
+  p2AvatarUrl: string | null;
   winnerId: string | null;
-  gameType: "pfc" | "morpion" | "puissance4" | "reflexe";
+  gameType: "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess";
   pfcState: PFCState | null;
   opponentId: string;
   opponentPseudo: string;
 }
 
-export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, winnerId, gameType, pfcState, opponentId, opponentPseudo }: Props) {
+export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const [rematchPending, startRematch] = useTransition();
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
+  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
   const isWin = winnerId === myId;
   const isDraw = winnerId === null;
@@ -110,7 +114,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, winnerId, g
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={isWin ? EA.cyan : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={isWin ? EA.cyan : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: EA.white, transform: "skewX(-4deg)" }}>
                 {myPseudo.toUpperCase()}
               </div>
@@ -135,7 +139,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, winnerId, g
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
-              <Avatar name={opPseudo} color={EA.pink} ring={isLose ? EA.pink : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={isLose ? EA.pink : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: "rgba(255,255,255,0.6)", transform: "skewX(-4deg)" }}>
                 {opPseudo.toUpperCase()}
               </div>

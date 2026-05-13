@@ -20,7 +20,15 @@ export default async function RankingPage() {
     .order("points", { ascending: false })
     .limit(20);
 
-  const entries = (rows ?? []) as LeaderboardEntry[];
+  const leaderboard = (rows ?? []) as LeaderboardEntry[];
+
+  const playerIds = leaderboard.map(r => r.player_id);
+  const { data: avatarRows } = playerIds.length > 0
+    ? await supabase.from("players").select("id, avatar_url").in("id", playerIds)
+    : { data: [] };
+
+  const avatarOf = Object.fromEntries((avatarRows ?? []).map(p => [p.id, p.avatar_url as string | null]));
+  const entries = leaderboard.map(r => ({ ...r, avatar_url: avatarOf[r.player_id] ?? null }));
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>

@@ -17,6 +17,7 @@ interface GameRow {
   challenged_id: string;
   challenger_pseudo: string;
   challenged_pseudo: string;
+  opponent_avatar_url: string | null;
 }
 
 export default async function HistoryPage() {
@@ -56,13 +57,15 @@ export default async function HistoryPage() {
 
   const { data: opPlayers } = await supabase
     .from("players")
-    .select("id, pseudo")
+    .select("id, pseudo, avatar_url")
     .in("id", [...opponentIds]);
 
   const pseudoOf = Object.fromEntries((opPlayers ?? []).map(p => [p.id, p.pseudo as string]));
+  const avatarOf = Object.fromEntries((opPlayers ?? []).map(p => [p.id, p.avatar_url as string | null]));
 
   const rows: GameRow[] = myGames.map(g => {
     const c = g.challenges!;
+    const opId = c.challenger_id === session.playerId ? c.challenged_id : c.challenger_id;
     return {
       id: g.id,
       game_type: g.game_type,
@@ -72,6 +75,7 @@ export default async function HistoryPage() {
       challenged_id: c.challenged_id,
       challenger_pseudo: pseudoOf[c.challenger_id] ?? "?",
       challenged_pseudo: pseudoOf[c.challenged_id] ?? "?",
+      opponent_avatar_url: avatarOf[opId] ?? null,
     };
   });
 
@@ -159,19 +163,19 @@ export default async function HistoryPage() {
                 {/* Opponent info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <Avatar name={opponentPseudo} color={EA.pink} ring="transparent" size={28} />
+                    <Avatar name={opponentPseudo} src={game.opponent_avatar_url} color={EA.pink} ring="transparent" size={28} />
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       vs {opponentPseudo.toUpperCase()}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{
-                      background: game.game_type === "pfc" ? EA.cyan : game.game_type === "puissance4" ? EA.butter : game.game_type === "reflexe" ? EA.pink : game.game_type === "naval" ? "#0ea5e9" : EA.pink,
+                      background: game.game_type === "pfc" ? EA.cyan : game.game_type === "puissance4" ? EA.butter : game.game_type === "reflexe" ? EA.pink : game.game_type === "naval" ? "#0ea5e9" : game.game_type === "chess" ? EA.violetMid : EA.pink,
                       border: `1.5px solid ${EA.ink}`, borderRadius: 999,
                       padding: "2px 8px", fontSize: 10,
                       fontFamily: "var(--font-display)", color: EA.ink, letterSpacing: 0.6,
                     }}>
-                      {game.game_type === "pfc" ? "PFC" : game.game_type === "puissance4" ? "P4" : game.game_type === "reflexe" ? "⚡" : game.game_type === "naval" ? "🚢" : "MORPION"}
+                      {game.game_type === "pfc" ? "PFC" : game.game_type === "puissance4" ? "P4" : game.game_type === "reflexe" ? "⚡" : game.game_type === "naval" ? "🚢" : game.game_type === "chess" ? "♟" : "MORPION"}
                     </div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
                       {dateStr}

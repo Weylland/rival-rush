@@ -37,6 +37,7 @@ export default async function WaitingPage({ searchParams }: Props) {
     <WaitingClient
       challengeId={challenge_id}
       myPseudo={session.pseudo}
+      myAvatarUrl={session.avatarUrl}
       opponentPseudo={opponent?.pseudo ?? "?"}
       gameType={challenge.game_type}
       opponentIsOffline={opponentIsOffline}

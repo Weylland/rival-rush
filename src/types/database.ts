@@ -93,6 +93,7 @@ export interface LeaderboardEntry {
   losses: number;
   draws: number;
   points: number;
+  avatar_url?: string | null;
 }
 
 // Supabase Database types (utilisé pour typer createClient)

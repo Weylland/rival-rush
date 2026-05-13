@@ -17,6 +17,7 @@ interface IncomingChallenge {
   id: string;
   challenger_id: string;
   challenger_pseudo: string;
+  challenger_avatar_url: string | null;
   game_type: GameType;
   expires_at: string;
 }
@@ -110,9 +111,9 @@ export function ChallengeNotifier({ playerId }: Props) {
         if (!c || !c.expires_at) return;
         const remaining = Math.round((new Date(c.expires_at).getTime() - Date.now()) / 1000);
         if (remaining <= 0) return;
-        const { data: challenger } = await supabase.from("players").select("pseudo").eq("id", c.challenger_id).single();
+        const { data: challenger } = await supabase.from("players").select("pseudo, avatar_url").eq("id", c.challenger_id).single();
         if (!challenger) return;
-        setIncoming({ id: c.id, challenger_id: c.challenger_id, challenger_pseudo: challenger.pseudo, game_type: c.game_type as GameType, expires_at: c.expires_at });
+        setIncoming({ id: c.id, challenger_id: c.challenger_id, challenger_pseudo: challenger.pseudo, challenger_avatar_url: challenger.avatar_url as string | null, game_type: c.game_type as GameType, expires_at: c.expires_at });
         setCountdown(remaining);
         play("notify");
       });
@@ -136,7 +137,7 @@ export function ChallengeNotifier({ playerId }: Props) {
           if (c.status !== "pending") return;
           const { data: challenger } = await supabase
             .from("players")
-            .select("pseudo")
+            .select("pseudo, avatar_url")
             .eq("id", c.challenger_id)
             .single();
           if (!challenger) return;
@@ -147,6 +148,7 @@ export function ChallengeNotifier({ playerId }: Props) {
             id: c.id,
             challenger_id: c.challenger_id,
             challenger_pseudo: challenger.pseudo,
+            challenger_avatar_url: challenger.avatar_url as string | null,
             game_type: c.game_type,
             expires_at: c.expires_at,
           };
@@ -282,7 +284,7 @@ export function ChallengeNotifier({ playerId }: Props) {
               border: `3px dashed ${EA.butter}`,
               animation: "ea-spin 6s linear infinite",
             }} />
-            <Avatar name={incoming.challenger_pseudo} color={EA.cyan} ring={EA.butter} size={84} />
+            <Avatar name={incoming.challenger_pseudo} src={incoming.challenger_avatar_url} color={EA.cyan} ring={EA.butter} size={84} />
           </div>
 
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}` }}>

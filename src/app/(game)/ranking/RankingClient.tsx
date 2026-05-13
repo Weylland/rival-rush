@@ -102,15 +102,15 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
       });
   }, []);
 
-  const getTabRows = (): { playerId: string; pseudo: string; wins: number; losses: number; draws: number; pts?: number }[] => {
+  const getTabRows = (): { playerId: string; pseudo: string; avatar_url?: string | null; wins: number; losses: number; draws: number; pts?: number }[] => {
     if (tab === "global") {
-      return entries.map(e => ({ playerId: e.player_id, pseudo: e.pseudo, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }));
+      return entries.map(e => ({ playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }));
     }
     const map = typeStats[tab];
     const rows = entries
       .map(e => {
         const s = map.get(e.player_id) ?? { wins: 0, losses: 0, draws: 0 };
-        return { playerId: e.player_id, pseudo: e.pseudo, ...s };
+        return { playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, ...s };
       })
       .sort((a, b) => b.wins - a.wins || a.losses - b.losses);
     return rows;
@@ -193,7 +193,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 22, minWidth: 28 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                <Avatar name={row.pseudo} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={36} />
+                <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={36} />
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {row.pseudo.toUpperCase()}
                   {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}

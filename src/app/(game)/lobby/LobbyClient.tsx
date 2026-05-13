@@ -92,7 +92,7 @@ function ChooseGameModal({
             borderRadius: 999, padding: "6px 18px 6px 6px",
             boxShadow: `3px 3px 0 ${EA.cyan}`,
           }}>
-            <Avatar name={opponent.pseudo} color={EA.cyan} ring={EA.pink} size={36} />
+            <Avatar name={opponent.pseudo} src={opponent.avatar_url} color={EA.cyan} ring={EA.pink} size={36} />
             <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
               {opponent.pseudo.toUpperCase()}
             </div>

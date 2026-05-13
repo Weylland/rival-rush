@@ -32,10 +32,11 @@ export default async function ResultPage({ searchParams }: Props) {
 
   const { data: players } = await supabase
     .from("players")
-    .select("id, pseudo")
+    .select("id, pseudo, avatar_url")
     .in("id", [p1Id, p2Id]);
 
   const pseudoOf = Object.fromEntries((players ?? []).map(p => [p.id, p.pseudo]));
+  const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, p.avatar_url as string | null]));
 
   const raw = game.state as Record<string, unknown>;
   const pfcState: PFCState | null = raw && "rounds" in raw ? (raw as unknown as PFCState) : null;
@@ -50,8 +51,10 @@ export default async function ResultPage({ searchParams }: Props) {
       p2Id={p2Id}
       p1Pseudo={pseudoOf[p1Id] ?? "?"}
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
+      p1AvatarUrl={avatarOf[p1Id] ?? null}
+      p2AvatarUrl={avatarOf[p2Id] ?? null}
       winnerId={game.winner_id as string | null}
-      gameType={game.game_type as "pfc" | "morpion" | "puissance4" | "reflexe"}
+      gameType={game.game_type as "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess"}
       pfcState={pfcState}
       opponentId={opponentId}
       opponentPseudo={opponentPseudo}
