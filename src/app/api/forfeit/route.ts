@@ -66,6 +66,20 @@ export async function POST(request: NextRequest) {
     let loserId: string;
 
     if (mode === "self") {
+      // Skip forfeit if the player already reconnected to a game (page reload)
+      const { data: myPresence } = await supabase
+        .from("presence")
+        .select("status, updated_at")
+        .eq("player_id", session.playerId)
+        .maybeSingle();
+
+      const reconnected =
+        myPresence?.status === "in-game" &&
+        Date.now() - new Date(myPresence.updated_at).getTime() < 10_000;
+
+      if (reconnected) {
+        return NextResponse.json({ ok: false, reason: "reconnected" });
+      }
       loserId = session.playerId;
     } else {
       // check-opponent: verify the opponent's presence is missing or stale

@@ -627,7 +627,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         forfeitTimerRef.current = setTimeout(() => {
           forfeitTimerRef.current = null;
           fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 500);
+        }, 5000);
       }
     };
   }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps

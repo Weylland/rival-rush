@@ -156,7 +156,7 @@ export function NimClient({
             headers: { "Content-Type": "application/json" },
             keepalive: true,
           });
-        }, 500);
+        }, 5000);
       }
     };
   }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps

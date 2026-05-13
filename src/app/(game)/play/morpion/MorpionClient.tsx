@@ -113,7 +113,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
             headers: { "Content-Type": "application/json" },
             keepalive: true,
           });
-        }, 500);
+        }, 5000);
       }
     };
   }, [myId, gameId]);

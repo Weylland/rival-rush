@@ -176,7 +176,7 @@ export function ChessClient({
         forfeitTimerRef.current = setTimeout(() => {
           forfeitTimerRef.current = null;
           fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 500);
+        }, 5000);
       }
     };
   }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps

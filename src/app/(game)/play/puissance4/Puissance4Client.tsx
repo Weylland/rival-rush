@@ -107,7 +107,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
             headers: { "Content-Type": "application/json" },
             keepalive: true,
           });
-        }, 500);
+        }, 5000);
       }
     };
   }, [myId, gameId]);
