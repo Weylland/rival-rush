@@ -333,6 +333,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
   const onlineCount = onlinePlayers.length;
   const availableCount = onlinePlayers.filter(p => p.status === "online").length;
   const inGameCount = onlinePlayers.filter(p => p.status === "in-game").length;
+  const offlineWithPushCount = mergedPlayers.filter(p => p.status === "offline" && pushSubscriberIds.includes(p.player_id)).length;
+  const hasChallengeable = availableCount > 0 || offlineWithPushCount > 0;
 
   const handleChooseGame = useCallback((gameType: GameType) => {
     if (!chooseOpponent) return;
@@ -589,38 +591,43 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
           </div>
         )}
 
-        <div style={{
-          background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
-          borderRadius: 22, padding: desktop ? "14px 20px" : "10px 14px",
-          display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
-          boxShadow: `4px 4px 0 ${EA.pink}`,
-        }}>
+        <button
+          onClick={handleQuickMatch}
+          style={{
+            width: "100%",
+            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            borderRadius: 22, padding: desktop ? "14px 20px" : "10px 14px",
+            display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
+            boxShadow: `4px 4px 0 ${EA.pink}`,
+            cursor: "pointer",
+            textAlign: "left",
+          }}>
           <div style={{
             width: desktop ? 48 : 36, height: desktop ? 48 : 36, borderRadius: 10,
-            background: availableCount > 0 ? EA.cyan : "rgba(255,255,255,0.12)",
+            background: hasChallengeable ? EA.cyan : "rgba(255,255,255,0.12)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: desktop ? 24 : 18, border: `2px solid ${EA.ink}`,
+            flexShrink: 0,
             transition: "background 0.3s",
           }}>🎲</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 14, color: EA.white, lineHeight: 1 }}>MATCH RAPIDE</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 700, color: availableCount > 0 ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 700, color: hasChallengeable ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginTop: 2 }}>
               {availableCount > 0
                 ? `${availableCount} joueur${availableCount > 1 ? "s" : ""} disponible${availableCount > 1 ? "s" : ""}`
-                : inGameCount > 0 ? "Tous en match en ce moment" : "Personne en ligne"}
+                : offlineWithPushCount > 0
+                  ? `${offlineWithPushCount} joueur${offlineWithPushCount > 1 ? "s" : ""} à notifier`
+                  : inGameCount > 0 ? "Tous en match en ce moment" : "Personne de disponible"}
             </div>
           </div>
-          <button
-            onClick={handleQuickMatch}
-            style={{
-              fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 18,
-              color: availableCount > 0 ? EA.cyan : "rgba(255,255,255,0.2)",
-              background: "none", border: "none",
-              cursor: availableCount > 0 ? "pointer" : "not-allowed",
-              transform: "skewX(-6deg)",
-              transition: "color 0.2s",
-            }}>GO →</button>
-        </div>
+          <div style={{
+            fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 18,
+            color: hasChallengeable ? EA.cyan : "rgba(255,255,255,0.2)",
+            transform: "skewX(-6deg)",
+            flexShrink: 0,
+            transition: "color 0.2s",
+          }}>GO →</div>
+        </button>
       </div>
 
       {/* Challenge modal */}
