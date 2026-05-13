@@ -422,7 +422,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
               <ChoiceButtons vertical />
             </div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1.2 }}>
-              Tu · {myPseudo.toUpperCase()} · {myScore} — {opScore}
+              {myPseudo.toUpperCase()} · {myScore} — {opScore}
             </div>
           </div>
         </div>
@@ -475,7 +475,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
             </div>
             <ChoiceButtons />
             <div style={{ marginTop: 12, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: 1.2 }}>
-              Tu : {myPseudo.toUpperCase()} · {myScore} — {opScore}
+              {myPseudo.toUpperCase()} · {myScore} — {opScore}
             </div>
           </div>
         </>
