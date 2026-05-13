@@ -148,6 +148,24 @@ export async function resetPlayerPassword(playerId: string): Promise<{ tempPassw
   return { tempPassword };
 }
 
+export type ReportStatus = "new" | "reviewed" | "ignored";
+
+export async function updateReportStatus(
+  reportId: string,
+  status: ReportStatus,
+): Promise<{ ok: boolean } | { error: string }> {
+  const store = await cookies();
+  const adminCookie = store.get("ea_admin")?.value;
+  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+    return { error: "Non autorisé" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("reports").update({ status }).eq("id", reportId);
+  if (error) return { error: error.message };
+  return { ok: true };
+}
+
 export type ContactStatus = "new" | "in_progress" | "done" | "spam";
 
 export async function deleteContact(contactId: string): Promise<{ ok: boolean } | { error: string }> {

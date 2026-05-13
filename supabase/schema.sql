@@ -111,6 +111,50 @@ create policy "contacts select" on public.contacts for select using (true);
 create policy "contacts update" on public.contacts for update using (true);
 create policy "contacts delete" on public.contacts for delete using (true);
 
+-- ── Messages (chat in-game) ─────────────────────────────────────
+
+create table public.messages (
+  id         uuid primary key default gen_random_uuid(),
+  game_id    uuid not null references public.games(id) on delete cascade,
+  player_id  uuid not null references public.players(id) on delete cascade,
+  pseudo     text not null,
+  content    text not null check (char_length(content) between 1 and 200),
+  created_at timestamptz not null default now()
+);
+create index messages_game_id_idx on public.messages(game_id, created_at);
+alter table public.messages enable row level security;
+create policy "messages read"   on public.messages for select using (true);
+create policy "messages insert" on public.messages for insert with check (true);
+
+-- ── Blocks ──────────────────────────────────────────────────────
+
+create table public.blocks (
+  blocker_id uuid not null references public.players(id) on delete cascade,
+  blocked_id uuid not null references public.players(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (blocker_id, blocked_id)
+);
+alter table public.blocks enable row level security;
+create policy "blocks read"   on public.blocks for select using (true);
+create policy "blocks insert" on public.blocks for insert with check (true);
+create policy "blocks delete" on public.blocks for delete using (true);
+
+-- ── Reports (signalements) ───────────────────────────────────────
+
+create table public.reports (
+  id                 uuid primary key default gen_random_uuid(),
+  reporter_id        uuid not null references public.players(id) on delete cascade,
+  reported_player_id uuid not null references public.players(id) on delete cascade,
+  game_id            uuid not null,
+  message_content    text not null,
+  status             text not null default 'new' check (status in ('new', 'reviewed', 'ignored')),
+  created_at         timestamptz not null default now()
+);
+alter table public.reports enable row level security;
+create policy "reports read"   on public.reports for select using (true);
+create policy "reports insert" on public.reports for insert with check (true);
+create policy "reports update" on public.reports for update using (true);
+
 -- ── Realtime ────────────────────────────────────────────────────
 -- À activer dans le dashboard Supabase > Database > Replication :
--- tables : presence, challenges, games
+-- tables : presence, challenges, games, messages

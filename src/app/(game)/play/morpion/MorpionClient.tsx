@@ -12,6 +12,7 @@ import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
+import { GameChat } from "@/components/GameChat";
 import type { MorpionState, GameStatus } from "@/types/database";
 
 const WINNING_LINES = [
@@ -401,6 +402,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           <TurnPill />
         </div>
       </div>
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
     </div>
   );
 }

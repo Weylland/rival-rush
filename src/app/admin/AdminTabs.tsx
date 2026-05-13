@@ -5,7 +5,9 @@ import { EA } from "@/lib/design";
 import { createClient } from "@/lib/supabase/client";
 import { AdminClient } from "./AdminClient";
 import { ContactsClient } from "./ContactsClient";
+import { ReportsClient } from "./ReportsClient";
 import type { Contact } from "./ContactsClient";
+import type { Report, ReportStatus } from "./ReportsClient";
 import type { ContactStatus } from "./actions";
 
 interface Player {
@@ -19,11 +21,12 @@ interface Player {
   neverPlayed: boolean;
 }
 
-type Tab = "players" | "contacts";
+type Tab = "players" | "contacts" | "reports";
 
-export function AdminTabs({ players, contacts: initialContacts }: { players: Player[]; contacts: Contact[] }) {
+export function AdminTabs({ players, contacts: initialContacts, reports: initialReports }: { players: Player[]; contacts: Contact[]; reports: Report[] }) {
   const [tab, setTab] = useState<Tab>("players");
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const [reports, setReports] = useState<Report[]>(initialReports);
 
   // Realtime — nouveaux messages entrants
   useEffect(() => {
@@ -50,7 +53,12 @@ export function AdminTabs({ players, contacts: initialContacts }: { players: Pla
     setContacts((prev) => prev.filter((c) => c.id !== id));
   }
 
+  function handleReportStatusChange(id: string, newStatus: ReportStatus) {
+    setReports((prev) => prev.map((r) => r.id === id ? { ...r, status: newStatus } : r));
+  }
+
   const newMessages = contacts.filter((c) => c.status === "new").length;
+  const newReports = reports.filter((r) => r.status === "new").length;
 
   return (
     <div>
@@ -59,6 +67,7 @@ export function AdminTabs({ players, contacts: initialContacts }: { players: Pla
         {([
           { value: "players" as Tab, label: "Joueurs", badge: players.length, badgeColor: undefined as string | undefined },
           { value: "contacts" as Tab, label: "Messages", badge: newMessages, badgeColor: EA.pink as string | undefined },
+          { value: "reports" as Tab, label: "Signalements", badge: newReports, badgeColor: EA.pink as string | undefined },
         ]).map(({ value, label, badge, badgeColor }) => {
           const active = tab === value;
           return (
@@ -95,7 +104,7 @@ export function AdminTabs({ players, contacts: initialContacts }: { players: Pla
         })}
       </div>
 
-      {/* Les deux panels restent montés — display none pour éviter le reset au changement d'onglet */}
+      {/* Les panels restent montés — display none pour éviter le reset au changement d'onglet */}
       <div style={{ display: tab === "players" ? "block" : "none" }}>
         <AdminClient players={players} />
       </div>
@@ -104,6 +113,12 @@ export function AdminTabs({ players, contacts: initialContacts }: { players: Pla
           contacts={contacts}
           onStatusChange={handleStatusChange}
           onDelete={handleDelete}
+        />
+      </div>
+      <div style={{ display: tab === "reports" ? "block" : "none" }}>
+        <ReportsClient
+          reports={reports}
+          onStatusChange={handleReportStatusChange}
         />
       </div>
     </div>

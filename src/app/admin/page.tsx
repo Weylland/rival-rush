@@ -5,6 +5,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { AdminTabs } from "./AdminTabs";
 import type { Contact } from "./ContactsClient";
+import type { Report } from "./ReportsClient";
 export default async function AdminPage() {
   const cookieStore = await cookies();
   const isAuth = cookieStore.get("ea_admin")?.value === process.env.ADMIN_SECRET;
@@ -15,10 +16,11 @@ export default async function AdminPage() {
 
   const supabase = await createClient();
 
-  const [{ data: allPlayers }, { data: lbRows }, { data: contactRows }] = await Promise.all([
+  const [{ data: allPlayers }, { data: lbRows }, { data: contactRows }, { data: reportRows }] = await Promise.all([
     supabase.from("players").select("id, pseudo, avatar_url, created_at").order("pseudo", { ascending: true }),
     supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
     supabase.from("contacts").select("*").order("created_at", { ascending: false }),
+    supabase.from("reports").select("*").order("created_at", { ascending: false }),
   ]);
 
   const lbMap = new Map((lbRows ?? []).map((r) => [r.player_id, r]));
@@ -35,6 +37,20 @@ export default async function AdminPage() {
       neverPlayed: !lb,
     };
   });
+
+  // Enrichir les signalements avec les pseudos
+  const playerMap = new Map((allPlayers ?? []).map((p) => [p.id, p.pseudo as string]));
+  const reports: Report[] = (reportRows ?? []).map((r) => ({
+    id: r.id as string,
+    reporter_id: r.reporter_id as string,
+    reporter_pseudo: playerMap.get(r.reporter_id as string) ?? "?",
+    reported_player_id: r.reported_player_id as string,
+    reported_pseudo: playerMap.get(r.reported_player_id as string) ?? "?",
+    game_id: r.game_id as string,
+    message_content: r.message_content as string,
+    status: (r.status as Report["status"]),
+    created_at: r.created_at as string,
+  }));
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
@@ -88,7 +104,7 @@ export default async function AdminPage() {
           </form>
         </div>
 
-        <AdminTabs players={players} contacts={(contactRows ?? []) as Contact[]} />
+        <AdminTabs players={players} contacts={(contactRows ?? []) as Contact[]} reports={reports} />
       </div>
     </div>
   );

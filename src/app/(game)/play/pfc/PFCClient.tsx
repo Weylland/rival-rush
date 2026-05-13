@@ -12,6 +12,7 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
 import type { PFCState, PFCRound, GameStatus } from "@/types/database";
+import { GameChat } from "@/components/GameChat";
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
 type Phase = "picking" | "waiting" | "revealing";
@@ -517,6 +518,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
           <Star color={EA.white} size={14} style={{ top: 180, right: 30 }} />
         </>
       )}
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
     </div>
   );
 }

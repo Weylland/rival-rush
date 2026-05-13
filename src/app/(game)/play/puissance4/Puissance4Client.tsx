@@ -12,6 +12,7 @@ import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
+import { GameChat } from "@/components/GameChat";
 import type { Puissance4State, GameStatus } from "@/types/database";
 
 const ROWS = 6;
@@ -419,6 +420,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           <TurnPill />
         </div>
       </div>
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
     </div>
   );
 }

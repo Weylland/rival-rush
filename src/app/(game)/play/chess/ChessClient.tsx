@@ -11,6 +11,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
+import { GameChat } from "@/components/GameChat";
 import {
   legalMoves,
   applyMove,
@@ -700,6 +701,7 @@ export function ChessClient({
           </div>
         </div>
       )}
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
     </div>
   );
 }

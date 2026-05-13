@@ -12,6 +12,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { EA } from "@/lib/design";
+import { GameChat } from "@/components/GameChat";
 import { FLEET_DEFS, generateFleet } from "@/lib/battleship";
 import type { NavalState, NavalShip, GameStatus } from "@/types/database";
 
@@ -932,6 +933,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
           <TurnPill isMyTurn={isMyTurn} isFinished={isFinished} iWon={iWon} isDraw={isDraw} opPseudo={opPseudo} shotFeedback={shotFeedback} />
         </div>
       </div>
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
     </div>
   );
 }
