@@ -14,10 +14,13 @@ export default async function LobbyPage() {
   const supabase = await createClient();
 
   const cutoff = new Date(Date.now() - 90_000).toISOString();
-  const [{ data: presenceData }, { data: leaderboardData }] = await Promise.all([
+  const [{ data: presenceData }, { data: leaderboardData }, { data: pushData }] = await Promise.all([
     supabase.from("presence").select("*").neq("player_id", session.playerId).gte("updated_at", cutoff),
     supabase.from("leaderboard").select("points").eq("player_id", session.playerId).maybeSingle(),
+    supabase.from("push_subscriptions").select("player_id"),
   ]);
+
+  const pushSubscriberIds = (pushData ?? []).map((r: { player_id: string }) => r.player_id);
 
   return (
     <LobbyClient
@@ -25,6 +28,7 @@ export default async function LobbyPage() {
       myPseudo={session.pseudo}
       myPoints={leaderboardData?.points ?? 0}
       initialPlayers={(presenceData ?? []) as { player_id: string; pseudo: string; status: "online" | "in-game" }[]}
+      pushSubscriberIds={pushSubscriberIds}
     />
   );
 }

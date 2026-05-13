@@ -32,6 +32,7 @@ interface LobbyClientProps {
   myPseudo: string;
   myPoints: number;
   initialPlayers: PresencePlayer[];
+  pushSubscriberIds: string[];
 }
 
 // ── Choose game modal ─────────────────────────────────────────────────────────
@@ -148,7 +149,7 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean }) {
+function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean }) {
   const inGame = p.status === "in-game";
   const offline = p.status === "offline";
   const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
@@ -184,7 +185,7 @@ function PlayerRow({ p, idx, onChallenge, desktop }: { p: LobbyPlayer; idx: numb
           {offline ? "Hors ligne" : inGame ? "En partie" : "En ligne"}
         </div>
       </div>
-      {!inGame && (
+      {!inGame && (!offline || hasPush) && (
         <button
           onClick={onChallenge}
           style={{
@@ -249,7 +250,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: LobbyClientProps) {
+export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pushSubscriberIds }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
 
@@ -552,7 +553,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers }: 
           <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
         ) : (
           displayPlayers.map((p, i) => (
-            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} desktop={desktop} />
+            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} desktop={desktop} hasPush={pushSubscriberIds.includes(p.player_id)} />
           ))
         )}
       </div>
