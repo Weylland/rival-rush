@@ -2,8 +2,8 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { findHitShip, isShipSunk, isFleetSunk } from "@/lib/battleship";
-import type { NavalState } from "@/types/database";
+import { findHitShip, isShipSunk, isFleetSunk, validateFleet } from "@/lib/battleship";
+import type { NavalState, NavalShip } from "@/types/database";
 
 async function updateLeaderboard(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -26,6 +26,46 @@ async function updateLeaderboard(
       });
     }
   }
+}
+
+export async function submitNavalPlacement(gameId: string, ships: NavalShip[]): Promise<{ ok: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session) return { ok: false, error: "Non authentifié" };
+
+  if (!validateFleet(ships)) return { ok: false, error: "Flotte invalide" };
+
+  const supabase = await createClient();
+
+  const { data: game } = await supabase
+    .from("games")
+    .select("*, challenges(challenger_id, challenged_id)")
+    .eq("id", gameId)
+    .single();
+
+  if (!game || game.game_type !== "naval" || game.status !== "playing") {
+    return { ok: false, error: "Partie invalide" };
+  }
+
+  const challenge = game.challenges as { challenger_id: string; challenged_id: string };
+  const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
+  const myId = session.playerId;
+
+  if (myId !== p1Id && myId !== p2Id) return { ok: false, error: "Non participant" };
+
+  const raw = game.state as Record<string, unknown>;
+  const state = raw as unknown as NavalState;
+
+  const newShips = { ...state.ships, [myId]: ships };
+  const bothReady = newShips[p1Id] !== undefined && newShips[p2Id] !== undefined;
+
+  const newState: NavalState = { ...state, ships: newShips };
+
+  await supabase.from("games").update({
+    state: newState as unknown as Record<string, unknown>,
+    ...(bothReady ? { current_turn: p1Id } : {}),
+  }).eq("id", gameId);
+
+  return { ok: true };
 }
 
 export async function submitNavalShot(gameId: string, cell: number) {

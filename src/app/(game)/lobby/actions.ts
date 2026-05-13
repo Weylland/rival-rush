@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
-import { generateFleet } from "@/lib/battleship";
 import { initialChessState } from "@/lib/chess";
 import { sendPushToSubscriptions } from "@/lib/push";
 import type { GameType } from "@/types/database";
@@ -133,7 +132,7 @@ export async function acceptChallenge(challengeId: string) {
         : challenge.game_type === "reflexe"
           ? { rounds: [], scores: { [p1]: 0, [p2]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] }
           : challenge.game_type === "naval"
-            ? { ships: { [p1]: generateFleet(), [p2]: generateFleet() }, shots: { [p1]: [], [p2]: [] } }
+            ? { ships: {}, shots: { [p1]: [], [p2]: [] } }
             : challenge.game_type === "chess"
               ? initialChessState((challenge.metadata as { timeControl?: number | null } | null)?.timeControl ?? null, p1, p2)
               : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
@@ -144,7 +143,7 @@ export async function acceptChallenge(challengeId: string) {
       challenge_id: challengeId,
       game_type: challenge.game_type,
       state: initialState,
-      current_turn: challenge.challenger_id,
+      current_turn: challenge.game_type === "naval" ? null : challenge.challenger_id,
       status: "playing",
     })
     .select()

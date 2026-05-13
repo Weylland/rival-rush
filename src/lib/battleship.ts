@@ -50,6 +50,50 @@ export function generateFleet(): NavalShip[] {
   return ships;
 }
 
+/** Validates a fleet submitted by a player */
+export function validateFleet(ships: NavalShip[]): boolean {
+  if (ships.length !== FLEET_DEFS.length) return false;
+
+  const allCells: number[] = [];
+
+  for (const def of FLEET_DEFS) {
+    const ship = ships.find(s => s.id === def.id);
+    if (!ship) return false;
+    if (ship.size !== def.size) return false;
+    if (ship.cells.length !== def.size) return false;
+
+    // All cells in range 0-99
+    if (ship.cells.some(c => c < 0 || c > 99)) return false;
+
+    // Cells must be consecutive horizontally or vertically (no diagonal)
+    const rows = ship.cells.map(c => Math.floor(c / GRID));
+    const cols = ship.cells.map(c => c % GRID);
+    const sameRow = rows.every(r => r === rows[0]);
+    const sameCol = cols.every(c => c === cols[0]);
+    if (!sameRow && !sameCol) return false;
+
+    if (sameRow) {
+      const sorted = [...cols].sort((a, b) => a - b);
+      for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i] !== sorted[i - 1] + 1) return false;
+      }
+    } else {
+      const sorted = [...rows].sort((a, b) => a - b);
+      for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i] !== sorted[i - 1] + 1) return false;
+      }
+    }
+
+    allCells.push(...ship.cells);
+  }
+
+  // No duplicated cells between ships
+  const cellSet = new Set(allCells);
+  if (cellSet.size !== allCells.length) return false;
+
+  return true;
+}
+
 /** Returns the ship hit by a cell index, or null */
 export function findHitShip(ships: NavalShip[], cell: number): NavalShip | null {
   return ships.find(s => s.cells.includes(cell)) ?? null;
