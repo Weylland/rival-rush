@@ -31,12 +31,12 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendPending, startSend] = useTransition();
   const [blockPending, startBlock] = useTransition();
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const openRef = useRef(open);
   openRef.current = open;
 
-  // Charger les messages existants + écouter en temps réel
   useEffect(() => {
     const supabase = createClient();
 
@@ -65,7 +65,6 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
     return () => { supabase.removeChannel(channel); };
   }, [gameId, myId]);
 
-  // Scroll en bas + reset unread quand on ouvre ou que les messages changent
   useEffect(() => {
     if (open) {
       setUnread(0);
@@ -73,7 +72,6 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
     }
   }, [messages, open]);
 
-  // Focus input à l'ouverture
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 120);
   }, [open]);
@@ -81,6 +79,7 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
   function handleToggle() {
     setOpen(o => !o);
     setUnread(0);
+    setShowBlockConfirm(false);
   }
 
   function handleSend() {
@@ -99,7 +98,7 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
     if (blocked || blockPending) return;
     startBlock(async () => {
       const res = await blockPlayer(opponentId);
-      if (res.ok) setBlocked(true);
+      if (res.ok) { setBlocked(true); setShowBlockConfirm(false); }
     });
   }
 
@@ -120,94 +119,123 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
       {/* Bouton flottant */}
       <button
         onClick={handleToggle}
-        title={open ? "Fermer le chat" : "Ouvrir le chat"}
+        title={open ? "Fermer le chat" : "Chat"}
         style={{
-          position: "fixed", bottom: 24, left: 20, zIndex: 200,
-          width: 52, height: 52, borderRadius: "50%",
-          background: open ? EA.violetDeep : EA.cyan,
+          position: "fixed", bottom: 20, left: 20, zIndex: 200,
+          width: 44, height: 44, borderRadius: "50%",
+          background: open ? "rgba(26,15,94,0.95)" : EA.white,
           border: `2.5px solid ${EA.ink}`,
-          boxShadow: open ? `3px 3px 0 ${EA.ink}` : `3px 3px 0 ${EA.pink}, 3px 3px 0 1px ${EA.ink}`,
+          boxShadow: open ? "none" : `3px 3px 0 ${EA.cyan}`,
           cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: open ? 20 : 24,
           transition: "all .15s",
+          flexShrink: 0,
         }}
       >
-        {open ? "✕" : "💬"}
+        {open ? (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke={EA.white} strokeWidth="2.5" strokeLinecap="round">
+            <line x1="1" y1="1" x2="13" y2="13" /><line x1="13" y1="1" x2="1" y2="13" />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={EA.ink} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        )}
         {!open && unread > 0 && (
           <span style={{
             position: "absolute", top: -6, right: -6,
             background: EA.pink, color: EA.white,
-            borderRadius: "50%", width: 22, height: 22,
+            borderRadius: "50%", width: 20, height: 20,
             border: `2px solid ${EA.ink}`,
-            fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900,
+            fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900,
             display: "flex", alignItems: "center", justifyContent: "center",
             pointerEvents: "none",
           }}>{unread > 9 ? "9+" : unread}</span>
         )}
       </button>
 
-      {/* Panneau de chat */}
+      {/* Panneau */}
       {open && (
         <div style={{
-          position: "fixed", bottom: 84, left: 16, zIndex: 199,
-          width: "min(340px, calc(100vw - 32px))",
-          maxHeight: "min(480px, calc(100dvh - 120px))",
+          position: "fixed", bottom: 72, left: 16, zIndex: 199,
+          width: "min(320px, calc(100vw - 32px))",
+          maxHeight: "min(420px, calc(100dvh - 100px))",
           background: EA.violetDeep,
           border: `2.5px solid ${EA.ink}`,
           borderRadius: 20,
-          boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
+          boxShadow: `4px 4px 0 ${EA.ink}`,
           display: "flex", flexDirection: "column",
           overflow: "hidden",
         }}>
 
           {/* En-tête */}
           <div style={{
-            padding: "12px 14px",
-            background: "rgba(0,0,0,0.2)",
-            borderBottom: `2px solid rgba(255,255,255,0.08)`,
+            padding: "10px 14px",
+            background: EA.cyan,
             display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
             flexShrink: 0,
           }}>
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white, transform: "skewX(-3deg)" }}>
-                💬 {opponentPseudo}
-              </div>
-              {blocked && (
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: EA.pink, marginTop: 2 }}>
-                  Joueur bloqué — ses messages sont masqués
-                </div>
-              )}
+            <div style={{
+              fontFamily: "var(--font-display)", fontSize: 14, color: EA.ink,
+              transform: "skewX(-4deg)", letterSpacing: 0.5,
+            }}>
+              {blocked ? `${opponentPseudo} — bloqué` : opponentPseudo.toUpperCase()}
             </div>
+
             {!blocked && (
-              <button
-                onClick={handleBlock}
-                disabled={blockPending}
-                title="Bloquer ce joueur"
-                style={{
-                  background: "rgba(255,30,140,0.1)", border: `1.5px solid ${EA.pink}`,
-                  borderRadius: 999, padding: "5px 10px",
-                  fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-                  color: EA.pink, cursor: blockPending ? "wait" : "pointer",
-                  whiteSpace: "nowrap", flexShrink: 0,
-                }}
-              >
-                🚫 Bloquer
-              </button>
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowBlockConfirm(v => !v)}
+                  title="Bloquer / signaler"
+                  style={{
+                    background: "rgba(0,0,0,0.15)", border: `1.5px solid rgba(0,0,0,0.25)`,
+                    borderRadius: 999, padding: "3px 10px",
+                    fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
+                    color: EA.ink, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 4,
+                  }}
+                >
+                  ···
+                </button>
+
+                {showBlockConfirm && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 6px)", right: 0,
+                    background: EA.white, border: `2px solid ${EA.ink}`,
+                    borderRadius: 12, padding: "6px",
+                    boxShadow: `3px 3px 0 ${EA.ink}`,
+                    display: "flex", flexDirection: "column", gap: 4,
+                    zIndex: 10, minWidth: 140,
+                  }}>
+                    <button
+                      onClick={handleBlock}
+                      disabled={blockPending}
+                      style={{
+                        fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+                        color: EA.pink, background: "rgba(255,30,140,0.08)",
+                        border: `1.5px solid ${EA.pink}`, borderRadius: 8,
+                        padding: "7px 12px", cursor: "pointer", textAlign: "left",
+                      }}
+                    >
+                      🚫 Bloquer
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Liste des messages */}
+          {/* Messages */}
           <div style={{
             flex: 1, overflowY: "auto",
-            padding: "12px 10px 4px",
-            display: "flex", flexDirection: "column", gap: 6,
+            padding: "10px 10px 4px",
+            display: "flex", flexDirection: "column", gap: 8,
           }}>
             {visibleMessages.length === 0 && (
               <div style={{
-                textAlign: "center", padding: "28px 0",
-                fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-                color: "rgba(255,255,255,0.25)",
+                textAlign: "center", padding: "24px 0",
+                fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
+                color: "rgba(255,255,255,0.3)",
               }}>
                 Dis quelque chose 👋
               </div>
@@ -219,39 +247,38 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
                 <div key={msg.id} style={{
                   display: "flex", flexDirection: "column",
                   alignItems: isMe ? "flex-end" : "flex-start",
+                  gap: 2,
                 }}>
                   <div style={{
-                    maxWidth: "82%",
+                    maxWidth: "80%",
                     background: isMe ? EA.cyan : "rgba(255,255,255,0.1)",
-                    border: `2px solid ${isMe ? EA.ink : "rgba(255,255,255,0.12)"}`,
-                    borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                    padding: "8px 12px",
+                    border: `2px solid ${isMe ? EA.ink : "rgba(255,255,255,0.1)"}`,
+                    borderRadius: isMe ? "14px 14px 3px 14px" : "14px 14px 14px 3px",
+                    padding: "7px 11px",
                     boxShadow: isMe ? `2px 2px 0 ${EA.ink}` : "none",
                   }}>
-                    <div style={{
-                      fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600,
+                    <span style={{
+                      fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
                       color: isMe ? EA.ink : EA.white,
                       lineHeight: 1.45, wordBreak: "break-word",
                     }}>
                       {msg.content}
-                    </div>
+                    </span>
                   </div>
 
-                  {/* Actions signalement (messages adverse uniquement) */}
                   {!isMe && (
                     <button
                       onClick={() => handleReport(msg)}
-                      disabled={reported.has(msg.id) || blockPending}
+                      disabled={reported.has(msg.id)}
                       style={{
-                        background: "none", border: "none",
-                        cursor: reported.has(msg.id) ? "default" : "pointer",
+                        background: "none", border: "none", padding: "0 2px",
                         fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
-                        color: reported.has(msg.id) ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.3)",
-                        padding: "2px 2px 0",
+                        color: reported.has(msg.id) ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.28)",
+                        cursor: reported.has(msg.id) ? "default" : "pointer",
                         transition: "color .1s",
                       }}
                       onMouseOver={e => { if (!reported.has(msg.id)) e.currentTarget.style.color = EA.pink; }}
-                      onMouseOut={e => { e.currentTarget.style.color = reported.has(msg.id) ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.3)"; }}
+                      onMouseOut={e => { e.currentTarget.style.color = reported.has(msg.id) ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.28)"; }}
                     >
                       {reported.has(msg.id) ? "✓ signalé" : "🚩 signaler"}
                     </button>
@@ -259,17 +286,16 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
                 </div>
               );
             })}
-
             <div ref={bottomRef} />
           </div>
 
-          {/* Message d'erreur */}
+          {/* Erreur */}
           {sendError && (
             <div style={{
-              padding: "6px 14px",
+              padding: "5px 12px",
               background: "rgba(255,30,140,0.12)",
               borderTop: `1px solid rgba(255,30,140,0.2)`,
-              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
               color: EA.pink, flexShrink: 0,
             }}>
               ⚠ {sendError}
@@ -278,10 +304,9 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
 
           {/* Saisie */}
           <div style={{
-            padding: "10px 10px",
-            borderTop: `2px solid rgba(255,255,255,0.08)`,
-            display: "flex", gap: 8, flexShrink: 0,
-            background: "rgba(0,0,0,0.15)",
+            padding: "8px 10px",
+            borderTop: `2px solid rgba(255,255,255,0.07)`,
+            display: "flex", gap: 6, flexShrink: 0,
           }}>
             <input
               ref={inputRef}
@@ -292,30 +317,33 @@ export function GameChat({ gameId, myId, myPseudo: _myPseudo, opponentId, oppone
               placeholder="Message..."
               maxLength={200}
               style={{
-                flex: 1,
-                background: "rgba(255,255,255,0.07)",
-                border: `2px solid rgba(255,255,255,0.12)`,
-                borderRadius: 12, padding: "9px 12px",
-                fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600,
+                flex: 1, minWidth: 0,
+                background: "rgba(255,255,255,0.06)",
+                border: `2px solid rgba(255,255,255,0.1)`,
+                borderRadius: 10, padding: "8px 10px",
+                fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
                 color: EA.white, outline: "none",
-                minWidth: 0,
               }}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || sendPending}
               style={{
-                background: input.trim() && !sendPending ? EA.cyan : "rgba(255,255,255,0.07)",
-                border: `2px solid ${input.trim() && !sendPending ? EA.ink : "rgba(255,255,255,0.12)"}`,
-                borderRadius: 12, padding: "9px 14px",
-                fontFamily: "var(--font-display)", fontSize: 16,
-                color: input.trim() && !sendPending ? EA.ink : "rgba(255,255,255,0.2)",
-                cursor: input.trim() && !sendPending ? "pointer" : "not-allowed",
+                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                background: input.trim() && !sendPending ? EA.cyan : "rgba(255,255,255,0.06)",
+                border: `2px solid ${input.trim() && !sendPending ? EA.ink : "rgba(255,255,255,0.1)"}`,
                 boxShadow: input.trim() && !sendPending ? `2px 2px 0 ${EA.ink}` : "none",
-                transition: "all .1s", flexShrink: 0,
+                cursor: input.trim() && !sendPending ? "pointer" : "not-allowed",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all .1s",
               }}
             >
-              {sendPending ? "…" : "→"}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke={input.trim() && !sendPending ? EA.ink : "rgba(255,255,255,0.2)"}
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
             </button>
           </div>
         </div>
