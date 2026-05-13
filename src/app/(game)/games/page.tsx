@@ -92,10 +92,10 @@ export default async function GamesPage() {
             borderColor={EA.pink}
             shadowColor={EA.butter}
             rules={[
-              { icon: "⚡", text: "Un des deux joueurs arme la manche en appuyant sur ARMER" },
-              { icon: "👀", text: "Attendez le signal — il apparaît après un délai aléatoire (2 à 5 secondes)" },
+              { icon: "✋", text: "Les deux joueurs appuient sur PRÊT ? — la manche s'arme automatiquement" },
+              { icon: "👀", text: "Attendez le signal — il apparaît après un délai aléatoire (2.5 à 5 secondes)" },
               { icon: "🖐", text: "Dès que le signal s'affiche : TAPEZ le plus vite possible !" },
-              { icon: "⚠", text: "Taper avant le signal = faux départ, la manche repart de zéro" },
+              { icon: "⚠", text: "Taper avant le signal = faux départ, le signal repart avec un nouveau délai" },
               { icon: "🏆", text: "Premier à remporter 2 manches gagne le match" },
             ]}
           />
