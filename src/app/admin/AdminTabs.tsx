@@ -11,6 +11,7 @@ import type { ContactStatus } from "./actions";
 interface Player {
   id: string;
   pseudo: string;
+  avatar_url: string | null;
   wins: number;
   losses: number;
   draws: number;

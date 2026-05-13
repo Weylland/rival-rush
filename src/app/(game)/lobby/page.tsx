@@ -26,6 +26,7 @@ export default async function LobbyPage() {
     <LobbyClient
       myPlayerId={session.playerId}
       myPseudo={session.pseudo}
+      myAvatarUrl={session.avatarUrl}
       myPoints={leaderboardData?.points ?? 0}
       initialPlayers={(presenceData ?? []) as { player_id: string; pseudo: string; status: "online" | "in-game" }[]}
       pushSubscriberIds={pushSubscriberIds}

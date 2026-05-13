@@ -31,6 +31,7 @@ interface LobbyPlayer {
 interface LobbyClientProps {
   myPlayerId: string;
   myPseudo: string;
+  myAvatarUrl: string | null;
   myPoints: number;
   initialPlayers: PresencePlayer[];
   pushSubscriberIds: string[];
@@ -305,7 +306,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pushSubscriberIds }: LobbyClientProps) {
+export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
 
@@ -445,12 +446,17 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
       {/* Header */}
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 0" : "8px 20px 0" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
-              Salut {myPseudo}
-            </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
-              LE LOBBY
+          <div style={{ display: "flex", alignItems: "center", gap: desktop ? 14 : 10 }}>
+            <Link href="/settings" title="Mon profil" style={{ textDecoration: "none", flexShrink: 0 }}>
+              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 52 : 40} />
+            </Link>
+            <div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
+                Salut {myPseudo}
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
+                LE LOBBY
+              </div>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: desktop ? 12 : 8 }}>

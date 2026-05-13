@@ -10,6 +10,7 @@ const PAGE_SIZE = 15;
 interface Player {
   id: string;
   pseudo: string;
+  avatar_url: string | null;
   wins: number;
   losses: number;
   draws: number;
@@ -116,7 +117,7 @@ export function AdminClient({ players: initialPlayers }: { players: Player[] }) 
           boxShadow: `2px 2px 0 ${EA.ink}`,
           display: "flex", alignItems: "center", gap: 14,
         }}>
-          <Avatar name={player.pseudo} color={EA.pink} ring="transparent" size={42} />
+          <Avatar name={player.pseudo} src={player.avatar_url} color={EA.pink} ring="transparent" size={42} />
 
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>

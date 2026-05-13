@@ -16,7 +16,7 @@ export default async function AdminPage() {
   const supabase = await createClient();
 
   const [{ data: allPlayers }, { data: lbRows }, { data: contactRows }] = await Promise.all([
-    supabase.from("players").select("id, pseudo, created_at").order("pseudo", { ascending: true }),
+    supabase.from("players").select("id, pseudo, avatar_url, created_at").order("pseudo", { ascending: true }),
     supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
     supabase.from("contacts").select("*").order("created_at", { ascending: false }),
   ]);
@@ -27,6 +27,7 @@ export default async function AdminPage() {
     return {
       id: p.id,
       pseudo: p.pseudo,
+      avatar_url: (p.avatar_url as string | null) ?? null,
       wins: lb?.wins ?? 0,
       losses: lb?.losses ?? 0,
       draws: lb?.draws ?? 0,
