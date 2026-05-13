@@ -29,17 +29,21 @@ interface Props {
   p2Id: string;
   p1Pseudo: string;
   p2Pseudo: string;
+  p1AvatarUrl: string | null;
+  p2AvatarUrl: string | null;
   initialState: PFCState;
   initialStatus: GameStatus;
   initialWinnerId: string | null;
 }
 
-export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initialState, initialStatus }: Props) {
+export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, initialState, initialStatus }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
+  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
   const [pfcState, setPfcState] = useState<PFCState>(initialState);
   const [phase, setPhase] = useState<Phase>(() => {
@@ -381,7 +385,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initia
           {/* LEFT — Opponent */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 28, padding: "32px 56px 32px 0", borderRight: `2px solid rgba(255,255,255,0.08)` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Avatar name={opPseudo} color={EA.cyan} ring={EA.pink} size={72} />
+              <Avatar name={opPseudo} src={opAvatarUrl} color={EA.cyan} ring={EA.pink} size={72} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
@@ -400,7 +404,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initia
           {/* RIGHT — Me */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 28, padding: "32px 0 32px 56px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={EA.cyan} size={72} />
+              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={72} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: EA.cyan, letterSpacing: 1, marginTop: 6 }}>MOI</div>
@@ -440,7 +444,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initia
             <div style={{ background: "rgba(26,15,94,0.55)", border: `2.5px solid ${EA.ink}`, borderRadius: 22, padding: "14px 14px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Avatar name={opPseudo} color={EA.cyan} ring={EA.pink} size={36} />
+                  <Avatar name={opPseudo} src={opAvatarUrl} color={EA.cyan} ring={EA.pink} size={36} />
                   <div>
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>

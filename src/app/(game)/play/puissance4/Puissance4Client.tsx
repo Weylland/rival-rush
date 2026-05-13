@@ -45,18 +45,22 @@ interface Props {
   p2Id: string;
   p1Pseudo: string;
   p2Pseudo: string;
+  p1AvatarUrl: string | null;
+  p2AvatarUrl: string | null;
   initialState: Puissance4State;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
   initialWinnerId: string | null;
 }
 
-export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, initialState, initialStatus, initialCurrentTurn, initialWinnerId }: Props) {
+export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, initialState, initialStatus, initialCurrentTurn, initialWinnerId }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
+  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
   const iAmP1 = myId === p1Id;
 
   const [board, setBoard] = useState<(string | null)[]>(
@@ -302,7 +306,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           </div>
         )}
         <div style={{ background: bgColor, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: rotation, boxShadow: `4px 4px 0 ${shadowColor}`, opacity: !isActive && !isFinished ? 0.6 : 1, transition: "opacity 0.3s", minWidth: 140 }}>
-          <Avatar name={pseudo} color={avatarBg} ring={EA.ink} size={64} />
+          <Avatar name={pseudo} color={avatarBg} ring={EA.ink} size={64} src={isMe ? myAvatarUrl : opAvatarUrl} />
           <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: textColor, transform: "skewX(-4deg)", lineHeight: 1, textAlign: "center" }}>{pseudo.toUpperCase()}</div>
           <div style={{ width: 28, height: 28, borderRadius: "50%", background: discColor, border: `2.5px solid ${EA.ink}`, boxShadow: `2px 2px 0 ${EA.ink}` }} />
         </div>
@@ -381,7 +385,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           <div style={{ flex: 1, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={30} />
+              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={30} src={myAvatarUrl} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ width: 14, height: 14, borderRadius: "50%", background: myColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />
@@ -394,7 +398,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           <div style={{ flex: 1, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
             <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={30} />
+              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={30} src={opAvatarUrl} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ width: 14, height: 14, borderRadius: "50%", background: opColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />

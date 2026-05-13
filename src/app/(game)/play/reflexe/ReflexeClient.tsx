@@ -20,19 +20,23 @@ interface Props {
   p2Id: string;
   p1Pseudo: string;
   p2Pseudo: string;
+  p1AvatarUrl: string | null;
+  p2AvatarUrl: string | null;
   initialState: TapState;
   initialStatus: GameStatus;
   initialWinnerId: string | null;
 }
 
 export function ReflexeClient({
-  gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
+  gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
   initialState, initialStatus, initialWinnerId,
 }: Props) {
   const router = useRouter();
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
+  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
   const [tapState, setTapState] = useState<TapState>(initialState);
   const [gameStatus, setGameStatus] = useState<GameStatus>(initialStatus);
@@ -280,7 +284,7 @@ export function ReflexeClient({
               <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.cyan, border: `2px solid ${EA.ink}`, padding: "2px 8px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>✓ PRÊT</div>
             )}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-0.8deg)", boxShadow: `3px 3px 0 ${EA.cyan}` }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} />
+              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, lineHeight: 1.1 }}>{myScore}</div>
@@ -304,7 +308,7 @@ export function ReflexeClient({
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.ink, lineHeight: 1.1 }}>{opScore}</div>
               </div>
-              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} />
+              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
             </div>
           </div>
         </div>

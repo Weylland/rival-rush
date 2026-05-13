@@ -118,6 +118,6 @@ export async function signin(_prev: AuthState, formData: FormData): Promise<Auth
   const valid = await verifyPassword(password, player.password);
   if (!valid) return { error: "Mot de passe incorrect" };
 
-  await setSession(player.id, player.pseudo);
+  await setSession(player.id, player.pseudo, (player.avatar_url as string | null) ?? null);
   redirect("/lobby");
 }

@@ -25,6 +25,7 @@ interface LobbyPlayer {
   player_id: string;
   pseudo: string;
   status: "online" | "in-game" | "offline";
+  avatar_url?: string | null;
 }
 
 interface LobbyClientProps {
@@ -149,7 +150,7 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean }) {
+function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean; }) {
   const inGame = p.status === "in-game";
   const offline = p.status === "offline";
   const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
@@ -167,6 +168,7 @@ function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; 
     }}>
       <Avatar
         name={p.pseudo}
+        src={p.avatar_url}
         color={offline ? "rgba(255,255,255,0.2)" : idx % 2 === 0 ? EA.cyan : EA.pink}
         ring={offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
         size={desktop ? 56 : 44}
@@ -271,7 +273,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
     initialPlayers.filter(p => p.player_id !== myPlayerId)
   );
   // All registered players (loaded async)
-  const [allPlayers, setAllPlayers] = useState<{ player_id: string; pseudo: string }[]>([]);
+  const [allPlayers, setAllPlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null }[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showOffline, setShowOffline] = useState(false);
@@ -286,8 +288,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
     const supabase = createClient();
 
     // Load all registered players (for search + offline display)
-    supabase.from("players").select("id, pseudo").then(({ data }) => {
-      if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string })));
+    supabase.from("players").select("id, pseudo, avatar_url").then(({ data }) => {
+      if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string, avatar_url: (p.avatar_url as string | null) ?? null })));
     });
 
     // Fresh presence fetch
@@ -314,7 +316,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
     .filter(p => p.player_id !== myPlayerId)
     .map(p => {
       const presence = onlinePlayers.find(op => op.player_id === p.player_id);
-      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"] };
+      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"], avatar_url: p.avatar_url ?? null };
     })
     .sort((a, b) => {
       const order = { online: 0, "in-game": 1, offline: 2 };

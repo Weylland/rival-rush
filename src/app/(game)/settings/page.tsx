@@ -42,7 +42,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <SettingsClient initialPseudo={session.pseudo} />
+        <SettingsClient initialPseudo={session.pseudo} initialAvatarUrl={session.avatarUrl} />
       </div>
     </div>
   );

@@ -32,10 +32,11 @@ export default async function ReflexePage({ searchParams }: Props) {
 
   const { data: players } = await supabase
     .from("players")
-    .select("id, pseudo")
+    .select("id, pseudo, avatar_url")
     .in("id", [p1Id, p2Id]);
 
   const pseudoOf = Object.fromEntries((players ?? []).map(p => [p.id, p.pseudo]));
+  const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_url as string | null) ?? null]));
 
   const raw = game.state as Record<string, unknown>;
   const initialState: TapState =
@@ -51,6 +52,8 @@ export default async function ReflexePage({ searchParams }: Props) {
       p2Id={p2Id}
       p1Pseudo={pseudoOf[p1Id] ?? "?"}
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
+      p1AvatarUrl={avatarOf[p1Id] ?? null}
+      p2AvatarUrl={avatarOf[p2Id] ?? null}
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
       initialWinnerId={game.winner_id as string | null}

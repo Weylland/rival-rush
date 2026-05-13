@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updatePseudo, updatePassword, deleteAccount } from "./actions";
@@ -116,11 +116,14 @@ function SubmitButton({ pending, label, color = EA.cyan }: { pending: boolean; l
   );
 }
 
+const PRESETS = ["🎲","⚡","🔥","💀","👾","🤖","🐉","🦊","🦁","🐺","🦈","🦄","🐸","🎯","🌟","🃏","🦅","🐧","🎮","🍄"];
+
 interface Props {
   initialPseudo: string;
+  initialAvatarUrl: string | null;
 }
 
-export function SettingsClient({ initialPseudo }: Props) {
+export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
   const router = useRouter();
   const [pseudoState, pseudoAction, pseudoPending] = useActionState<SettingsState, FormData>(updatePseudo, null);
   const [pwState, pwAction, pwPending] = useActionState<SettingsState, FormData>(updatePassword, null);
@@ -129,6 +132,10 @@ export function SettingsClient({ initialPseudo }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setSoundEnabled(localStorage.getItem(SOUND_KEY) !== "false");
@@ -160,8 +167,142 @@ export function SettingsClient({ initialPseudo }: Props) {
     if (result === "granted") setNotifEnabled(true);
   }
 
+  async function saveAvatar(formData: FormData) {
+    setAvatarSaving(true);
+    setAvatarError(null);
+    try {
+      const res = await fetch("/api/avatar", { method: "POST", body: formData, credentials: "include" });
+      const json = await res.json();
+      if (!res.ok) { setAvatarError(json.error ?? "Erreur"); return; }
+      setAvatarUrl(json.avatarUrl ?? null);
+    } catch {
+      setAvatarError("Erreur réseau");
+    } finally {
+      setAvatarSaving(false);
+    }
+  }
+
+  async function handlePreset(emoji: string) {
+    const fd = new FormData();
+    fd.append("type", "preset");
+    fd.append("emoji", emoji);
+    await saveAvatar(fd);
+  }
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("type", "upload");
+    fd.append("file", file);
+    await saveAvatar(fd);
+  }
+
+  async function handleRemoveAvatar() {
+    const fd = new FormData();
+    fd.append("type", "remove");
+    await saveAvatar(fd);
+  }
+
+  const currentEmoji = avatarUrl?.startsWith("preset:") ? avatarUrl.slice(7) : null;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* Avatar */}
+      <SectionCard accent={EA.pink}>
+        <SectionTitle>🖼 Photo de profil</SectionTitle>
+
+        {/* Preview + boutons actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            background: avatarUrl && !avatarUrl.startsWith("preset:") ? "transparent" : EA.violetDeep,
+            border: `2.5px solid ${EA.ink}`, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: avatarUrl?.startsWith("preset:") ? 36 : 28,
+            overflow: "hidden", boxShadow: `3px 3px 0 ${EA.cyan}`,
+          }}>
+            {avatarUrl?.startsWith("preset:") ? avatarUrl.slice(7)
+              : avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : <span style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "rgba(255,255,255,0.4)" }}>{initialPseudo.charAt(0).toUpperCase()}</span>}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarSaving}
+              style={{
+                fontFamily: "var(--font-display)", fontSize: 13,
+                color: EA.ink, background: EA.cyan,
+                border: `2px solid ${EA.ink}`, borderRadius: 999,
+                padding: "8px 16px", cursor: "pointer",
+                boxShadow: `2px 2px 0 ${EA.ink}`, textTransform: "uppercase",
+              }}>
+              📷 Uploader
+            </button>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                disabled={avatarSaving}
+                style={{
+                  fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
+                  color: "rgba(255,255,255,0.5)", background: "none",
+                  border: "none", cursor: "pointer", textAlign: "left",
+                }}>
+                Supprimer
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: "none" }}
+          onChange={handleUpload}
+        />
+
+        {/* Preset grid */}
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+          Ou choisis un avatar
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+          {PRESETS.map(emoji => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => handlePreset(emoji)}
+              disabled={avatarSaving}
+              style={{
+                fontSize: 26, padding: "8px 0",
+                background: currentEmoji === emoji ? EA.butter : "rgba(255,255,255,0.08)",
+                border: `2px solid ${currentEmoji === emoji ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                borderRadius: 12, cursor: "pointer",
+                boxShadow: currentEmoji === emoji ? `2px 2px 0 ${EA.ink}` : "none",
+                transition: "all 0.1s",
+              }}>
+              {emoji}
+            </button>
+          ))}
+        </div>
+
+        {avatarSaving && (
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: EA.cyan, marginTop: 10 }}>
+            Sauvegarde...
+          </div>
+        )}
+        {avatarError && (
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: EA.pink, marginTop: 10 }}>
+            {avatarError}
+          </div>
+        )}
+      </SectionCard>
 
       {/* Pseudo */}
       <SectionCard accent={EA.cyan}>
