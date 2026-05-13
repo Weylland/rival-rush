@@ -311,6 +311,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
   }
 
   const currentEmoji = avatarUrl?.startsWith("preset:") ? avatarUrl.slice(7) : null;
+  const [showAllPresets, setShowAllPresets] = useState(false);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -378,15 +379,15 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
           Ou choisis un avatar
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
-          {PRESETS.map(emoji => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8 }}>
+          {(showAllPresets ? PRESETS : PRESETS.slice(0, 8)).map(emoji => (
             <button
               key={emoji}
               type="button"
               onClick={() => handlePreset(emoji)}
               disabled={avatarSaving}
               style={{
-                fontSize: 26, padding: "8px 0",
+                fontSize: 24, padding: "6px 0",
                 background: currentEmoji === emoji ? EA.butter : "rgba(255,255,255,0.08)",
                 border: `2px solid ${currentEmoji === emoji ? EA.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 12, cursor: "pointer",
@@ -397,6 +398,23 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={() => setShowAllPresets(v => !v)}
+          style={{
+            marginTop: 8, width: "100%",
+            fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+            color: "rgba(255,255,255,0.5)", background: "none",
+            border: `1.5px dashed rgba(255,255,255,0.2)`,
+            borderRadius: 10, padding: "7px 0",
+            cursor: "pointer", textTransform: "uppercase", letterSpacing: 1,
+            transition: "color .15s, border-color .15s",
+          }}
+          onMouseOver={e => { e.currentTarget.style.color = EA.cyan; e.currentTarget.style.borderColor = EA.cyan; }}
+          onMouseOut={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+        >
+          {showAllPresets ? "▲ Réduire" : `▼ Voir les ${PRESETS.length} avatars`}
+        </button>
 
         {avatarSaving && (
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: EA.cyan, marginTop: 10 }}>
@@ -684,10 +702,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
             background: "rgba(26,18,58,0.97)",
             border: `2.5px solid ${EA.ink}`,
             borderRadius: 24,
-            padding: "24px 20px",
+            padding: "28px 32px",
             boxShadow: `6px 6px 0 ${EA.cyan}`,
             width: "100%",
-            maxWidth: 340,
+            maxWidth: "min(480px, calc(100vw - 40px))",
           }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-6deg)", marginBottom: 4 }}>
               Cadrer la photo
