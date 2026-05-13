@@ -446,9 +446,14 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       {/* Header */}
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 0" : "8px 20px 0" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          {/* Left: title only */}
-          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, flexShrink: 0 }}>
-            LE LOBBY
+          {/* Left: title */}
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
+              Salut {myPseudo}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
+              LE LOBBY
+            </div>
           </div>
 
           {/* Right: points + actions + avatar→settings */}
