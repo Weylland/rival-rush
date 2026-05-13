@@ -344,18 +344,28 @@ export function LobbyClient({ myPlayerId, myPseudo, myPoints, initialPlayers, pu
   }, [chooseOpponent]);
 
   function handleQuickMatch() {
-    const available = onlinePlayers.filter(p => p.status === "online");
-    if (available.length === 0) {
-      setQuickMatchError(
-        inGameCount > 0
-          ? "Tous les joueurs sont en match en ce moment"
-          : "Personne en ligne — invite un ami !"
-      );
-      if (quickMatchErrorTimer.current) clearTimeout(quickMatchErrorTimer.current);
-      quickMatchErrorTimer.current = setTimeout(() => setQuickMatchError(null), 3500);
+    const online = onlinePlayers.filter(p => p.status === "online");
+    if (online.length > 0) {
+      setChooseOpponent(online[Math.floor(Math.random() * online.length)]);
       return;
     }
-    setChooseOpponent(available[Math.floor(Math.random() * available.length)]);
+
+    // Fallback : offline players with push subscriptions
+    const offlineWithPush = mergedPlayers.filter(
+      p => p.status === "offline" && pushSubscriberIds.includes(p.player_id)
+    );
+    if (offlineWithPush.length > 0) {
+      setChooseOpponent(offlineWithPush[Math.floor(Math.random() * offlineWithPush.length)]);
+      return;
+    }
+
+    setQuickMatchError(
+      inGameCount > 0
+        ? "Tous les joueurs sont en match en ce moment"
+        : "Personne de disponible — invite un ami !"
+    );
+    if (quickMatchErrorTimer.current) clearTimeout(quickMatchErrorTimer.current);
+    quickMatchErrorTimer.current = setTimeout(() => setQuickMatchError(null), 3500);
   }
 
   return (
