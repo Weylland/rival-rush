@@ -71,6 +71,16 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🤝", text: "Grille pleine sans alignement = match nul" },
     ],
   },
+  pig: {
+    title: "Jeu du Cochon 🐷",
+    icon: "🎲🐷🎲",
+    items: [
+      { icon: "🎲", text: "Chacun son tour : lance le dé autant de fois que tu veux" },
+      { icon: "💀", text: "Tu fais 1 → tu perds tous tes points de ce tour et c'est au suivant" },
+      { icon: "🏦", text: "Tu peux \"Banquer\" à tout moment pour sécuriser tes points du tour" },
+      { icon: "🏆", text: "Premier à atteindre 100 points gagne la partie" },
+    ],
+  },
   nim: {
     title: "Nim 🔥",
     icon: "🔥🔥🔥",

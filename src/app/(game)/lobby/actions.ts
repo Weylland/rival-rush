@@ -15,6 +15,7 @@ const GAME_LABELS: Record<GameType, string> = {
   naval: "Bataille Navale",
   chess: "Échecs ♟",
   nim: "Nim 🔥",
+  pig: "Jeu du Cochon 🐷",
 };
 
 export async function sendChallenge(challengedId: string, gameType: GameType, timeControl?: number | null) {
@@ -147,7 +148,9 @@ export async function acceptChallenge(challengeId: string) {
               ? initialChessState((challenge.metadata as { timeControl?: number | null } | null)?.timeControl ?? null, p1, p2)
               : challenge.game_type === "nim"
                 ? (() => { const pile = Math.floor(Math.random() * 11) + 15; return { pile, initial_pile: pile, last_taken: null, last_player_id: null }; })()
-                : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
+                : challenge.game_type === "pig"
+                  ? { scores: { [p1]: 0, [p2]: 0 }, turn_total: 0, last_roll: null }
+                  : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase
     .from("games")

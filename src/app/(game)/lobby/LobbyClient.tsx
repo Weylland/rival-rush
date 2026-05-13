@@ -23,6 +23,7 @@ const GAME_LABELS: Record<string, string> = {
   naval: "🚢 Bataille Navale",
   chess: "♟ Échecs",
   nim: "🔥 Nim",
+  pig: "🐷 Jeu du Cochon",
 };
 
 interface PresencePlayer {
@@ -175,7 +176,8 @@ function ChooseGameModal({
             { type: "reflexe" as GameType,   icon: "⚡",  title: "RÉFLEXE",                  sub: "Vitesse",   color: EA.pink,    shadow: EA.butter, badge: undefined },
             { type: "naval" as GameType,     icon: "🚢",  title: "BATAILLE\nNAVALE",         sub: "Stratégie", color: EA.cyan,    shadow: EA.butter, badge: undefined },
             { type: "chess" as GameType,     icon: "♟",   title: "ÉCHECS",                   sub: "Réflexion", color: "#9b8ec4",  shadow: EA.pink,   badge: undefined },
-            { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Prends la dernière allumette et tu perds", color: EA.butter, shadow: EA.cyan, badge: "NEW ✨" },
+            { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Prends la dernière allumette et tu perds", color: EA.butter, shadow: EA.cyan, badge: undefined },
+            { type: "pig" as GameType,       icon: "🎲",  title: "COCHON",                    sub: "Lance le dé, mais gare au 1 !", color: EA.pink, shadow: EA.butter, badge: "NEW ✨" },
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[];
 
           const cols = 3;

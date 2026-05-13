@@ -66,6 +66,13 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Avant chaque coup, demande-toi : mon adversaire peut-il me faire mat ou capturer une pièce importante ?",
     "La Dame est puissante mais vulnérable au début — ne la joue pas trop tôt sans protection.",
   ],
+  pig: [
+    "Lance le dé autant de fois que tu veux — mais un 1 et tu perds tout ce tour.",
+    "Banquer tôt c'est sûr, banquer tard c'est risqué. Trouve ton équilibre.",
+    "Si tu es loin derrière, prends plus de risques — c'est souvent ton seul espoir.",
+    "En tête ? Banque dès 15-20 points par tour, ne laisse pas l'adversaire revenir.",
+    "Un adversaire qui lance 5 fois de suite finit souvent par faire 1. Regarde-le suer.",
+  ],
   nim: [
     "La stratégie parfaite existe au Nim classique — mais misère change tout. Ne te fie pas à tes calculs habituels.",
     "Le tas est aléatoire : impossible de savoir à l'avance si tu as l'avantage. Réfléchis coup par coup.",

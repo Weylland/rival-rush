@@ -1,4 +1,4 @@
-export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim";
+export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig";
 export type ChallengeStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type GameStatus = "waiting" | "playing" | "finished";
 
@@ -84,6 +84,12 @@ export interface NavalShot {
 export interface NavalState {
   ships: Record<string, NavalShip[]>; // playerId → their fleet (used server-side for validation)
   shots: Record<string, NavalShot[]>; // playerId → shots they fired at opponent
+}
+
+export interface PigState {
+  scores: Record<string, number>;
+  turn_total: number;
+  last_roll: number | null;
 }
 
 export interface NimState {
