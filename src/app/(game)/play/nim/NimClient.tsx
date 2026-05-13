@@ -328,14 +328,6 @@ export function NimClient({
         }}>
           🔥 Qui prend la dernière allumette PERD
         </div>
-        <div style={{
-          background: "rgba(0,212,232,0.15)", border: `2px solid ${EA.cyan}`,
-          borderRadius: 999, padding: "4px 14px",
-          fontFamily: "var(--font-display)", fontSize: 10, color: EA.cyan,
-          transform: "skewX(-4deg)",
-        }}>
-          ANTI-TRICHE ✓
-        </div>
       </div>
 
       {/* Compteur pile */}
