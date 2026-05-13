@@ -91,27 +91,7 @@ export function PushProvider({ playerId }: Props) {
     return () => { cancelled = true; clearInterval(interval); };
   }, [playerId]);
 
-  // Show a debug badge unless ready or no permission yet (which is normal)
-  if (status.kind === "ready" || status.kind === "no-permission" || status.kind === "idle") return null;
-
-  const isError = status.kind === "error" || status.kind === "unsupported" || status.kind === "no-vapid";
-  return (
-    <div style={{
-      position: "fixed", bottom: 60, right: 16, zIndex: 199,
-      maxWidth: 280,
-      background: isError ? "rgba(255,30,140,0.95)" : "rgba(0,212,232,0.95)",
-      border: "2.5px solid #1a0f5e",
-      borderRadius: 12, padding: "8px 12px",
-      fontFamily: "system-ui, sans-serif", fontSize: 11, fontWeight: 700,
-      color: "#1a0f5e",
-      boxShadow: "3px 3px 0 #1a0f5e",
-    }}>
-      <div style={{ fontWeight: 900, marginBottom: 2 }}>Push: {status.kind}</div>
-      {status.kind === "error" && <div style={{ wordBreak: "break-word" }}>{status.message}</div>}
-      {status.kind === "unsupported" && <div>{status.reason}</div>}
-      {status.kind === "no-vapid" && <div>NEXT_PUBLIC_VAPID_PUBLIC_KEY absent du bundle</div>}
-    </div>
-  );
+  return null;
 }
 
 async function syncSubscription(sub: globalThis.PushSubscription): Promise<{ ok: boolean; status: number; text: string }> {
