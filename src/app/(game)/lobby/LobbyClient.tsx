@@ -56,6 +56,7 @@ function ChooseGameModal({
   error: string | null;
 }) {
   const [chessStep, setChessStep] = useState(false);
+  const desktop = useIsDesktop();
   return (
     <div style={{
       position: "fixed", inset: 0,
@@ -64,9 +65,9 @@ function ChooseGameModal({
       padding: "16px 16px 24px", overflowY: "auto",
     }}>
       <div style={{
-        width: "100%", maxWidth: 343,
+        width: "100%", maxWidth: desktop ? 580 : 343,
         background: EA.violet, border: `3px solid ${EA.ink}`,
-        borderRadius: 28, padding: "22px 18px 20px",
+        borderRadius: 28, padding: desktop ? "28px 28px 24px" : "22px 18px 20px",
         boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
         position: "relative", marginTop: "auto", marginBottom: "auto",
         flexShrink: 0,
@@ -131,7 +132,7 @@ function ChooseGameModal({
                 CADENCE ♟
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: desktop ? "repeat(4, 1fr)" : "1fr 1fr", gap: 10 }}>
               {TIME_CONTROLS.map(tc => (
                 <button
                   key={String(tc.seconds)}
@@ -155,7 +156,12 @@ function ChooseGameModal({
             </div>
           </div>
         ) : (
-        <div style={{ display: "flex", gap: 10, marginTop: 18, position: "relative", zIndex: 2, flexWrap: "wrap" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: desktop ? "repeat(3, 1fr)" : "repeat(2, 1fr)",
+          gap: desktop ? 12 : 10,
+          marginTop: 18, position: "relative", zIndex: 2,
+        }}>
           {([
             { type: "pfc" as GameType, icon: "✊✋✌", title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes", color: EA.cyan, shadow: EA.pink, badge: "HOT 🔥" },
             { type: "morpion" as GameType, icon: "⨯⭕⨯", title: "MORPION", sub: "Tactique", color: EA.pink, shadow: EA.butter, badge: undefined },
@@ -173,9 +179,9 @@ function ChooseGameModal({
               }}
               disabled={isPending}
               style={{
-                flex: 1, background: g.color, border: `2.5px solid ${EA.ink}`,
-                borderRadius: 22, padding: "16px 14px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                background: g.color, border: `2.5px solid ${EA.ink}`,
+                borderRadius: 20, padding: desktop ? "18px 12px" : "16px 14px",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: desktop ? 6 : 8,
                 boxShadow: `4px 4px 0 ${g.shadow}, 4px 4px 0 1px ${EA.ink}`,
                 cursor: isPending ? "wait" : "pointer", position: "relative",
                 opacity: isPending ? 0.7 : 1,
@@ -190,8 +196,8 @@ function ChooseGameModal({
                   boxShadow: `2px 2px 0 ${EA.ink}`,
                 }}>{g.badge}</div>
               )}
-              <div style={{ fontSize: 38, lineHeight: 1 }}>{g.icon}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.ink, textAlign: "center", transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: "pre-line" }}>{g.title}</div>
+              <div style={{ fontSize: desktop ? 32 : 38, lineHeight: 1 }}>{g.icon}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 13 : 14, color: EA.ink, textAlign: "center", transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: "pre-line" }}>{g.title}</div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.ink, opacity: 0.7, textTransform: "uppercase", letterSpacing: 0.8 }}>{g.sub}</div>
             </button>
           ))}
