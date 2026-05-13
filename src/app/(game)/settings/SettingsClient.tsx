@@ -116,6 +116,56 @@ function SubmitButton({ pending, label, color = EA.cyan }: { pending: boolean; l
   );
 }
 
+const MAX_PX = 400;
+const MAX_BYTES = 300_000;
+
+function cropAndCompress(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      // Center-crop to square
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      const sx = (img.naturalWidth - side) / 2;
+      const sy = (img.naturalHeight - side) / 2;
+
+      // Target size: cap at MAX_PX
+      const out = Math.min(side, MAX_PX);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = out;
+      canvas.height = out;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, out, out);
+
+      // Try quality from 0.85 down until under MAX_BYTES
+      let quality = 0.85;
+      const tryEncode = () => {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { reject(new Error("Canvas toBlob failed")); return; }
+            if (blob.size <= MAX_BYTES || quality <= 0.3) {
+              resolve(blob);
+            } else {
+              quality = Math.max(quality - 0.1, 0.3);
+              tryEncode();
+            }
+          },
+          "image/jpeg",
+          quality,
+        );
+      };
+      tryEncode();
+    };
+
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };
+    img.src = url;
+  });
+}
+
 const PRESETS = ["🎲","⚡","🔥","💀","👾","🤖","🐉","🦊","🦁","🐺","🦈","🦄","🐸","🎯","🌟","🃏","🦅","🐧","🎮","🍄"];
 
 interface Props {
@@ -192,9 +242,15 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Reset input so the same file can be re-selected after an error
+    e.target.value = "";
+
+    const processedBlob = await cropAndCompress(file);
+
     const fd = new FormData();
     fd.append("type", "upload");
-    fd.append("file", file);
+    fd.append("file", processedBlob, "avatar.jpg");
     await saveAvatar(fd);
   }
 
