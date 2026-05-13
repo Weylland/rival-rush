@@ -445,81 +445,65 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
 
       {/* Header */}
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 0" : "8px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: desktop ? 14 : 10 }}>
-            <Link href="/settings" title="Mon profil" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 52 : 40} />
-            </Link>
-            <div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
-                Salut {myPseudo}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          {/* Left: title only */}
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, flexShrink: 0 }}>
+            LE LOBBY
+          </div>
+
+          {/* Right: points + actions + avatar→settings */}
+          <div style={{ display: "flex", alignItems: "center", gap: desktop ? 10 : 8 }}>
+            {/* Points badge */}
+            <div style={{
+              background: EA.cyan, border: `2px solid ${EA.ink}`,
+              borderRadius: 14, padding: desktop ? "8px 16px" : "5px 10px",
+              transform: "rotate(2deg)", boxShadow: `2px 2px 0 ${EA.ink}`, flexShrink: 0,
+            }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>
+                Pts
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
-                LE LOBBY
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
+                {myPoints.toLocaleString("fr-FR")}
               </div>
             </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: desktop ? 12 : 8 }}>
+
+            {/* Notif bell (conditional) */}
             {notifPermission !== null && notifPermission !== "granted" && (
               <button
                 onClick={requestNotifPermission}
                 title={notifPermission === "denied" ? "Notifications bloquées — autorise-les dans les réglages du navigateur" : "Activer les notifications de défi"}
                 style={{
-                  width: desktop ? 44 : 38, height: desktop ? 44 : 38, borderRadius: "50%",
+                  width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
                   background: notifPermission === "denied" ? "rgba(255,255,255,0.04)" : "rgba(255,233,74,0.15)",
                   border: `2.5px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.15)" : EA.butter}`,
                   color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter,
                   cursor: notifPermission === "denied" ? "not-allowed" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: desktop ? 18 : 15,
+                  fontSize: desktop ? 18 : 14,
                   boxShadow: notifPermission === "denied" ? "none" : `3px 3px 0 ${EA.ink}`,
                   flexShrink: 0,
                 }}
               >🔔</button>
             )}
-            <div style={{
-              background: EA.cyan, border: `2px solid ${EA.ink}`,
-              borderRadius: 14, padding: desktop ? "10px 18px" : "6px 12px",
-              transform: "rotate(3deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
-            }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 13 : 10, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>
-                Mes points
-              </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 32 : 22, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
-                {myPoints.toLocaleString("fr-FR")}
-              </div>
-            </div>
+
+            {/* Rules */}
             <Link href="/games" title="Les jeux & règles" style={{
-              width: desktop ? 44 : 38, height: desktop ? 44 : 38, borderRadius: "50%",
+              width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
               background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`,
-              color: "rgba(255,255,255,0.6)", cursor: "pointer",
+              color: "rgba(255,255,255,0.6)",
               display: "flex", alignItems: "center", justifyContent: "center",
               textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`,
-              fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 15,
+              fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 14,
               transition: "transform .1s, box-shadow .1s", flexShrink: 0,
             }}
               onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
               onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
             >?</Link>
-            <Link href="/settings" title="Paramètres" style={{
-              width: desktop ? 44 : 38, height: desktop ? 44 : 38, borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`,
-              color: "rgba(255,255,255,0.6)", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: `3px 3px 0 ${EA.ink}`, textDecoration: "none",
-              transition: "transform .1s, box-shadow .1s", flexShrink: 0,
-            }}
-              onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-              onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
-            >
-              <svg width={desktop ? 20 : 16} height={desktop ? 20 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </Link>
+
+            {/* Logout */}
             <form action={logout}>
               <button type="submit" title="Se déconnecter" style={{
-                width: desktop ? 44 : 38, height: desktop ? 44 : 38, borderRadius: "50%",
+                width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
                 background: "rgba(255,30,140,0.12)", border: `2.5px solid ${EA.pink}`,
                 color: EA.pink, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -530,11 +514,15 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
                 onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
               >
                 <svg width={desktop ? 20 : 16} height={desktop ? 20 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" />
-                  <line x1="12" y1="2" x2="12" y2="12" />
+                  <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" />
                 </svg>
               </button>
             </form>
+
+            {/* Avatar → settings (remplace le gear) */}
+            <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
+              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 48 : 38} />
+            </Link>
           </div>
         </div>
 
