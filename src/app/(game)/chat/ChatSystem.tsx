@@ -341,7 +341,7 @@ export function ChatProvider({
 
   // ── UI ────────────────────────────────────────────────────────────────────
 
-  const drawerW = 400; // px — desktop width
+  const drawerW = desktop ? 400 : "100dvw";
 
   return (
     <ChatCtx.Provider value={{ openDM, totalUnread }}>
