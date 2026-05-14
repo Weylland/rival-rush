@@ -191,6 +191,33 @@ export async function declineChallenge(challengeId: string) {
     .eq("challenged_id", session.playerId);
 }
 
+export async function blockPlayer(blockedId: string) {
+  const session = await getSession();
+  if (!session) return;
+  const supabase = await createClient();
+  await supabase.from("blocks").insert({ blocker_id: session.playerId, blocked_id: blockedId });
+}
+
+export async function unblockPlayer(blockedId: string) {
+  const session = await getSession();
+  if (!session) return;
+  const supabase = await createClient();
+  await supabase.from("blocks").delete()
+    .eq("blocker_id", session.playerId)
+    .eq("blocked_id", blockedId);
+}
+
+export async function reportPlayer(reportedId: string, reason: string) {
+  const session = await getSession();
+  if (!session) return;
+  const supabase = await createClient();
+  await supabase.from("reports").insert({
+    reporter_id: session.playerId,
+    reported_player_id: reportedId,
+    message_content: reason.trim() || "Signalement depuis le lobby",
+  });
+}
+
 export async function updatePresenceStatus(status: "online" | "in-game") {
   const session = await getSession();
   if (!session) return;

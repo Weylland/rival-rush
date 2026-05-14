@@ -12,6 +12,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useChatOpen } from "@/app/(game)/chat/ChatSystem";
+import { blockPlayer, unblockPlayer, reportPlayer } from "./actions";
 import type { GameType } from "@/types/database";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -239,57 +240,68 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, onChallenge, onDM, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; onDM: () => void; desktop: boolean; hasPush: boolean }) {
-  const inGame = p.status === "in-game";
+function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, onReport, desktop, hasPush }: {
+  p: LobbyPlayer; idx: number; isBlocked: boolean;
+  onChallenge: () => void; onDM: () => void;
+  onBlock: () => void; onUnblock: () => void; onReport: () => void;
+  desktop: boolean; hasPush: boolean;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const inGame  = p.status === "in-game";
   const offline = p.status === "offline";
-  const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
+  const shadowColor = isBlocked ? "transparent" : offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [menuOpen]);
 
   return (
     <div style={{
-      background: offline ? "rgba(255,255,255,0.04)" : EA.white,
-      border: `2.5px solid ${offline ? "rgba(255,255,255,0.12)" : EA.ink}`,
+      background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
+      border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : EA.ink}`,
       borderRadius: 22, padding: desktop ? "16px 20px" : "12px 14px",
       display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
-      boxShadow: offline ? "none" : `4px 4px 0 ${shadowColor}`,
-      transform: offline ? "none" : idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
-      opacity: offline ? 0.6 : 1,
+      boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${shadowColor}`,
+      transform: isBlocked || offline ? "none" : idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
+      opacity: isBlocked ? 0.45 : offline ? 0.6 : 1,
       transition: "opacity 0.2s",
     }}>
       <Avatar
         name={p.pseudo}
         src={p.avatar_url}
-        color={offline ? "rgba(255,255,255,0.2)" : idx % 2 === 0 ? EA.cyan : EA.pink}
-        ring={offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
+        color={isBlocked ? "rgba(255,255,255,0.2)" : offline ? "rgba(255,255,255,0.2)" : idx % 2 === 0 ? EA.cyan : EA.pink}
+        ring={isBlocked || offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
         size={desktop ? 56 : 44}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: offline ? "rgba(255,255,255,0.6)" : EA.ink, transform: "skewX(-4deg)" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: isBlocked || offline ? "rgba(255,255,255,0.5)" : EA.ink, transform: "skewX(-4deg)" }}>
           {p.pseudo}
         </div>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 12, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 6, color: offline ? "rgba(255,255,255,0.35)" : inGame ? EA.pink : EA.violetDeep }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: offline ? "rgba(255,255,255,0.25)" : inGame ? EA.pink : "#1ee29a",
-            boxShadow: offline || inGame ? "none" : "0 0 6px #1ee29a",
-            flexShrink: 0,
-          }} />
-          {offline ? "Hors ligne" : inGame ? (p.game_type ? `En partie · ${GAME_LABELS[p.game_type] ?? p.game_type}` : "En partie") : "En ligne"}
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 12, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 6, color: isBlocked ? "rgba(255,255,255,0.3)" : offline ? "rgba(255,255,255,0.35)" : inGame ? EA.pink : EA.violetDeep }}>
+          {isBlocked ? (
+            <span style={{ color: "rgba(255,255,255,0.3)" }}>🚫 Bloqué</span>
+          ) : (
+            <>
+              <span style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: offline ? "rgba(255,255,255,0.25)" : inGame ? EA.pink : "#1ee29a",
+                boxShadow: offline || inGame ? "none" : "0 0 6px #1ee29a",
+                flexShrink: 0,
+              }} />
+              {offline ? "Hors ligne" : inGame ? (p.game_type ? `En partie · ${GAME_LABELS[p.game_type] ?? p.game_type}` : "En partie") : "En ligne"}
+            </>
+          )}
         </div>
       </div>
-      <button
-        onClick={onDM}
-        title="Envoyer un message"
-        style={{
-          fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13,
-          color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.08)",
-          border: "2px solid rgba(255,255,255,0.15)", borderRadius: 12,
-          padding: desktop ? "8px 12px" : "6px 10px", cursor: "pointer",
-          transition: "background 0.15s, color 0.15s",
-        }}
-        onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,212,232,0.15)"; e.currentTarget.style.color = EA.cyan; }}
-        onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
-      >💬</button>
-      {!inGame && (!offline || hasPush) && (
+
+      {/* Bouton DÉFIER — masqué si bloqué */}
+      {!isBlocked && !inGame && (!offline || hasPush) && (
         <button
           onClick={onChallenge}
           style={{
@@ -298,14 +310,65 @@ function PlayerRow({ p, idx, onChallenge, onDM, desktop, hasPush }: { p: LobbyPl
             background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
             border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
             borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
-            textTransform: "uppercase",
-            cursor: "pointer",
+            textTransform: "uppercase", cursor: "pointer",
             boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
             whiteSpace: "nowrap",
           }}>
           {offline ? "Inviter 📬" : "Défier ⚔"}
         </button>
       )}
+
+      {/* Menu ⋯ */}
+      <div ref={menuRef} style={{ position: "relative", flexShrink: 0 }}>
+        <button
+          onClick={() => setMenuOpen(o => !o)}
+          style={{
+            width: desktop ? 36 : 30, height: desktop ? 36 : 30,
+            borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            background: menuOpen ? EA.violetDeep : "rgba(0,0,0,0.12)",
+            border: `2px solid ${menuOpen ? EA.ink : "rgba(0,0,0,0.15)"}`,
+            color: menuOpen ? EA.white : EA.ink,
+            fontSize: desktop ? 18 : 15, cursor: "pointer",
+            fontWeight: 900, lineHeight: 1,
+            boxShadow: menuOpen ? `2px 2px 0 ${EA.ink}` : "none",
+            transition: "background 0.15s",
+          }}
+        >⋯</button>
+
+        {menuOpen && (
+          <div style={{
+            position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 50,
+            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            borderRadius: 16, overflow: "hidden",
+            boxShadow: `4px 4px 0 ${EA.ink}`,
+            minWidth: 180,
+          }}>
+            {[
+              { label: "💬 Message", action: () => { onDM(); setMenuOpen(false); }, color: EA.cyan },
+              !isBlocked
+                ? { label: "🚫 Bloquer", action: () => { onBlock(); setMenuOpen(false); }, color: EA.butter }
+                : { label: "🔓 Débloquer", action: () => { onUnblock(); setMenuOpen(false); }, color: "#4ADE80" },
+              { label: "⚠️ Signaler", action: () => { onReport(); setMenuOpen(false); }, color: EA.pink },
+            ].map(({ label, action, color }) => (
+              <button
+                key={label}
+                onClick={action}
+                style={{
+                  display: "block", width: "100%", textAlign: "left",
+                  padding: desktop ? "12px 16px" : "10px 14px",
+                  background: "none", border: "none",
+                  fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 13,
+                  color, cursor: "pointer",
+                  borderBottom: label !== "⚠️ Signaler" ? `1px solid rgba(255,255,255,0.08)` : "none",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+              >{label}</button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -386,6 +449,12 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const [quickMatchError, setQuickMatchError] = useState<string | null>(null);
   const quickMatchErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Blocks
+  const [myBlocks, setMyBlocks] = useState<Set<string>>(new Set());
+  const [reportTarget, setReportTarget] = useState<{ id: string; pseudo: string } | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+
   // Fetch all players + subscribe to presence
   useEffect(() => {
     const supabase = createClient();
@@ -393,6 +462,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     // Load all registered players (for search + offline display)
     supabase.from("players").select("id, pseudo, avatar_url").then(({ data }) => {
       if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string, avatar_url: (p.avatar_url as string | null) ?? null })));
+    });
+
+    supabase.from("blocks").select("blocked_id").eq("blocker_id", myPlayerId).then(({ data }) => {
+      if (data) setMyBlocks(new Set(data.map(b => b.blocked_id as string)));
     });
 
     // Fresh presence fetch
@@ -668,7 +741,25 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
         ) : (
           displayPlayers.map((p, i) => (
-            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} onDM={() => openDM(p.player_id, p.pseudo)} desktop={desktop} hasPush={pushSubscriberIds.includes(p.player_id)} />
+            <PlayerRow
+              key={p.player_id}
+              p={p}
+              idx={i}
+              isBlocked={myBlocks.has(p.player_id)}
+              onChallenge={() => setChooseOpponent(p)}
+              onDM={() => openDM(p.player_id, p.pseudo)}
+              onBlock={() => {
+                setMyBlocks(prev => new Set([...prev, p.player_id]));
+                blockPlayer(p.player_id);
+              }}
+              onUnblock={() => {
+                setMyBlocks(prev => { const next = new Set(prev); next.delete(p.player_id); return next; });
+                unblockPlayer(p.player_id);
+              }}
+              onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
+              desktop={desktop}
+              hasPush={pushSubscriberIds.includes(p.player_id)}
+            />
           ))
         )}
       </div>
@@ -732,6 +823,100 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           }}>GO →</div>
         </button>
       </div>
+
+      {/* Report modal */}
+      {reportTarget && (
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "rgba(26,15,94,0.82)", backdropFilter: "blur(4px)",
+          zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "16px",
+        }}>
+          <div style={{
+            width: "100%", maxWidth: 400,
+            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            borderRadius: 24, padding: "24px 22px",
+            boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+            position: "relative",
+          }}>
+            <button onClick={() => setReportTarget(null)} style={{
+              position: "absolute", top: -12, right: -12,
+              width: 34, height: 34, borderRadius: "50%",
+              background: EA.white, border: `2px solid ${EA.ink}`,
+              fontSize: 17, color: EA.ink, cursor: "pointer",
+              boxShadow: `2px 2px 0 ${EA.ink}`,
+            }}>×</button>
+
+            {reportSent ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white }}>Signalement envoyé</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
+                  Merci, nous examinerons la situation.
+                </div>
+                <button
+                  onClick={() => setReportTarget(null)}
+                  style={{
+                    marginTop: 20, padding: "10px 24px", borderRadius: 999,
+                    background: EA.cyan, border: `2px solid ${EA.ink}`,
+                    fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink,
+                    cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
+                  }}>
+                  Fermer
+                </button>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.pink, marginBottom: 4 }}>
+                  ⚠️ Signaler {reportTarget.pseudo}
+                </div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>
+                  Décris le problème rencontré
+                </div>
+                <textarea
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                  placeholder="Ex : comportement toxique, triche..."
+                  maxLength={300}
+                  rows={4}
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    background: "rgba(255,255,255,0.06)", border: `2px solid ${EA.ink}`,
+                    borderRadius: 14, padding: "10px 12px", resize: "none",
+                    fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
+                    color: EA.white, outline: "none",
+                  }}
+                />
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+                  <button
+                    onClick={() => setReportTarget(null)}
+                    style={{
+                      padding: "10px 18px", borderRadius: 999,
+                      background: "rgba(255,255,255,0.07)", border: `2px solid rgba(255,255,255,0.2)`,
+                      fontFamily: "var(--font-display)", fontSize: 14, color: "rgba(255,255,255,0.6)",
+                      cursor: "pointer",
+                    }}>
+                    Annuler
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await reportPlayer(reportTarget.id, reportReason);
+                      setReportSent(true);
+                    }}
+                    style={{
+                      padding: "10px 22px", borderRadius: 999,
+                      background: EA.pink, border: `2px solid ${EA.ink}`,
+                      fontFamily: "var(--font-display)", fontSize: 14, color: EA.white,
+                      cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
+                    }}>
+                    Envoyer ⚠️
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Challenge modal */}
       {chooseOpponent && (
