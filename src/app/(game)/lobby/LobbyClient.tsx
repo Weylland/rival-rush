@@ -56,6 +56,13 @@ interface RoomInvitationInfo {
   expiresAt: string;
 }
 
+interface MyRoom {
+  id: string;
+  name: string;
+  code: string;
+  expiresAt: string | null;
+}
+
 interface LobbyClientProps {
   myPlayerId: string;
   myPseudo: string;
@@ -64,6 +71,7 @@ interface LobbyClientProps {
   initialPlayers: PresencePlayer[];
   pushSubscriberIds: string[];
   roomInvitations?: RoomInvitationInfo[];
+  myRooms?: MyRoom[];
 }
 
 // ── Choose game modal ─────────────────────────────────────────────────────────
@@ -428,7 +436,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds, roomInvitations = [] }: LobbyClientProps) {
+export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds, roomInvitations = [], myRooms = [] }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const { openDM } = useChatOpen();
@@ -459,6 +467,9 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const [challengeError, setChallengeError] = useState<string | null>(null);
   const [quickMatchError, setQuickMatchError] = useState<string | null>(null);
   const quickMatchErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Burger menu (mobile)
+  const [burgerOpen, setBurgerOpen] = useState(false);
 
   // Room invitations
   const [pendingInvitations, setPendingInvitations] = useState<RoomInvitationInfo[]>(roomInvitations);
@@ -593,7 +604,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
             </div>
           </div>
 
-          {/* Right: points + actions + avatar→settings */}
+          {/* Right: points + actions */}
           <div style={{ display: "flex", alignItems: "center", gap: desktop ? 10 : 8 }}>
             {/* Points badge */}
             <div style={{
@@ -601,84 +612,56 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
               borderRadius: 14, padding: desktop ? "8px 16px" : "5px 10px",
               transform: "rotate(2deg)", boxShadow: `2px 2px 0 ${EA.ink}`, flexShrink: 0,
             }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>
-                Pts
-              </div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>Pts</div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
                 {myPoints.toLocaleString("fr-FR")}
               </div>
             </div>
 
-            {/* Notif bell (conditional) */}
-            {notifPermission !== null && notifPermission !== "granted" && (
+            {/* Desktop: icônes complètes */}
+            {desktop && (<>
+              {notifPermission !== null && notifPermission !== "granted" && (
+                <button onClick={requestNotifPermission}
+                  title={notifPermission === "denied" ? "Notifications bloquées" : "Activer les notifications"}
+                  style={{ width: 44, height: 44, borderRadius: "50%", background: notifPermission === "denied" ? "rgba(255,255,255,0.04)" : "rgba(255,233,74,0.15)", border: `2.5px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.15)" : EA.butter}`, color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter, cursor: notifPermission === "denied" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: notifPermission === "denied" ? "none" : `3px 3px 0 ${EA.ink}`, flexShrink: 0 }}>🔔</button>
+              )}
+              <Link href="/room" title="Mes salles" style={{ width: 44, height: 44, borderRadius: "50%", background: myRooms.length > 0 ? "rgba(0,212,232,0.15)" : "rgba(255,255,255,0.08)", border: `2.5px solid ${myRooms.length > 0 ? EA.cyan : EA.ink}`, color: myRooms.length > 0 ? EA.cyan : "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`, fontSize: 18, flexShrink: 0, position: "relative" }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
+                onMouseOut={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}>
+                🏠
+                {myRooms.length > 0 && <span style={{ position: "absolute", top: -4, right: -4, minWidth: 18, height: 18, borderRadius: 9, background: EA.pink, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 10, color: EA.white, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" }}>{myRooms.length}</span>}
+              </Link>
+              <Link href="/games" title="Les jeux & règles" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 18, flexShrink: 0 }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
+                onMouseOut={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}>?</Link>
+              <form action={logout}>
+                <button type="submit" title="Se déconnecter" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,30,140,0.12)", border: `2.5px solid ${EA.pink}`, color: EA.pink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `3px 3px 0 ${EA.ink}`, padding: 0 }}
+                  onMouseOver={e => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}>
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" /></svg>
+                </button>
+              </form>
+              <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
+                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={48} />
+              </Link>
+            </>)}
+
+            {/* Mobile: avatar + burger */}
+            {!desktop && (<>
+              <Link href="/settings" title="Paramètres" style={{ textDecoration: "none", flexShrink: 0 }}>
+                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={36} />
+              </Link>
               <button
-                onClick={requestNotifPermission}
-                title={notifPermission === "denied" ? "Notifications bloquées — autorise-les dans les réglages du navigateur" : "Activer les notifications de défi"}
-                style={{
-                  width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
-                  background: notifPermission === "denied" ? "rgba(255,255,255,0.04)" : "rgba(255,233,74,0.15)",
-                  border: `2.5px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.15)" : EA.butter}`,
-                  color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter,
-                  cursor: notifPermission === "denied" ? "not-allowed" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: desktop ? 18 : 14,
-                  boxShadow: notifPermission === "denied" ? "none" : `3px 3px 0 ${EA.ink}`,
-                  flexShrink: 0,
-                }}
-              >🔔</button>
-            )}
-
-            {/* Rooms */}
-            <Link href="/room" title="Salles privées" style={{
-              width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`,
-              color: "rgba(255,255,255,0.6)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`,
-              fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 14,
-              transition: "transform .1s, box-shadow .1s", flexShrink: 0,
-            }}
-              onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-              onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
-            >🏠</Link>
-
-            {/* Rules */}
-            <Link href="/games" title="Les jeux & règles" style={{
-              width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`,
-              color: "rgba(255,255,255,0.6)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`,
-              fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 14,
-              transition: "transform .1s, box-shadow .1s", flexShrink: 0,
-            }}
-              onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-              onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
-            >?</Link>
-
-            {/* Logout */}
-            <form action={logout}>
-              <button type="submit" title="Se déconnecter" style={{
-                width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
-                background: "rgba(255,30,140,0.12)", border: `2.5px solid ${EA.pink}`,
-                color: EA.pink, cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: `3px 3px 0 ${EA.ink}`, padding: 0,
-                transition: "transform .1s, box-shadow .1s",
-              }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
-              >
-                <svg width={desktop ? 20 : 16} height={desktop ? 20 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" />
+                onClick={() => setBurgerOpen(true)}
+                style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: `2.5px solid ${EA.ink}`, color: EA.white, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `2px 2px 0 ${EA.ink}`, position: "relative" }}>
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                  <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
+                {(myRooms.length > 0 || (notifPermission !== null && notifPermission !== "granted" && notifPermission !== "denied")) && (
+                  <span style={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", background: EA.pink, border: `1.5px solid ${EA.ink}` }} />
+                )}
               </button>
-            </form>
-
-            {/* Avatar → settings (remplace le gear) */}
-            <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 48 : 38} />
-            </Link>
+            </>)}
           </div>
         </div>
 
@@ -1020,6 +1003,191 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           isPending={isPending}
           error={challengeError}
         />
+      )}
+
+      {/* Burger menu overlay (mobile) */}
+      {burgerOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setBurgerOpen(false)}
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(10,6,40,0.72)", backdropFilter: "blur(3px)",
+              zIndex: 80,
+            }}
+          />
+
+          {/* Panel (slides from right) */}
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0,
+            width: "min(88vw, 320px)",
+            background: EA.violetDeep,
+            border: `2.5px solid ${EA.ink}`,
+            borderRight: "none",
+            borderRadius: "24px 0 0 24px",
+            zIndex: 90,
+            display: "flex", flexDirection: "column",
+            boxShadow: `-6px 0 28px rgba(0,0,0,0.5)`,
+            overflowY: "auto",
+          }}>
+            {/* Header */}
+            <div style={{
+              padding: "20px 20px 16px",
+              borderBottom: "1.5px solid rgba(255,255,255,0.1)",
+              display: "flex", alignItems: "center", gap: 14,
+            }}>
+              <Link href="/settings" onClick={() => setBurgerOpen(false)} style={{ textDecoration: "none", flexShrink: 0 }}>
+                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={48} />
+              </Link>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {myPseudo}
+                </div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1 }}>
+                  {myPoints.toLocaleString("fr-FR")} pts
+                </div>
+              </div>
+              <button
+                onClick={() => setBurgerOpen(false)}
+                style={{
+                  width: 32, height: 32, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.08)", border: `2px solid rgba(255,255,255,0.2)`,
+                  color: "rgba(255,255,255,0.6)", fontSize: 18, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >×</button>
+            </div>
+
+            {/* Mes salles */}
+            <div style={{ padding: "18px 20px 8px" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6, marginBottom: 10 }}>
+                🏠 Mes salles
+              </div>
+              {myRooms.length === 0 ? (
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.35)", padding: "4px 0 8px" }}>
+                  Aucune salle rejointe
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {myRooms.map(room => (
+                    <Link
+                      key={room.id}
+                      href={`/room/${room.code}`}
+                      onClick={() => setBurgerOpen(false)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10,
+                        background: "rgba(0,212,232,0.1)", border: `2px solid ${EA.cyan}`,
+                        borderRadius: 14, padding: "10px 14px",
+                        textDecoration: "none",
+                        boxShadow: `2px 2px 0 ${EA.cyan}`,
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {room.name}
+                        </div>
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.cyan, letterSpacing: 1.4, marginTop: 2 }}>
+                          {room.code}
+                        </div>
+                      </div>
+                      <span style={{ color: EA.cyan, fontSize: 14, flexShrink: 0 }}>→</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              <Link
+                href="/room"
+                onClick={() => setBurgerOpen(false)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  background: "none", border: `2px dashed rgba(255,255,255,0.2)`,
+                  borderRadius: 14, padding: "10px 14px",
+                  textDecoration: "none",
+                  marginTop: 8,
+                }}
+              >
+                <span style={{ fontSize: 16 }}>＋</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: "rgba(255,255,255,0.55)" }}>
+                  Rejoindre / Créer une salle
+                </span>
+              </Link>
+            </div>
+
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* Nav links */}
+            <div style={{ padding: "12px 20px", borderTop: "1.5px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", gap: 4 }}>
+              {notifPermission !== null && notifPermission !== "granted" && (
+                <button
+                  onClick={() => { requestNotifPermission(); setBurgerOpen(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: notifPermission === "denied" ? "transparent" : "rgba(255,233,74,0.1)",
+                    border: `2px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.1)" : EA.butter}`,
+                    borderRadius: 14, padding: "12px 14px",
+                    cursor: notifPermission === "denied" ? "not-allowed" : "pointer",
+                    textAlign: "left", width: "100%",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>🔔</span>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter }}>
+                      {notifPermission === "denied" ? "Notifications bloquées" : "Activer les notifications"}
+                    </div>
+                    {notifPermission !== "denied" && (
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+                        Pour recevoir les défis hors-ligne
+                      </div>
+                    )}
+                  </div>
+                </button>
+              )}
+
+              {[
+                { href: "/games", icon: "📖", label: "Les règles des jeux" },
+                { href: "/ranking", icon: "🏆", label: "Classement global" },
+                { href: "/settings", icon: "⚙️", label: "Paramètres" },
+              ].map(({ href, icon, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setBurgerOpen(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "none", border: "none",
+                    borderRadius: 14, padding: "12px 14px",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "none"; }}
+                >
+                  <span style={{ fontSize: 20 }}>{icon}</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: "rgba(255,255,255,0.75)" }}>{label}</span>
+                </Link>
+              ))}
+
+              <form action={logout}>
+                <button
+                  type="submit"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "rgba(255,30,140,0.1)", border: `2px solid ${EA.pink}`,
+                    borderRadius: 14, padding: "12px 14px",
+                    width: "100%", cursor: "pointer", marginTop: 4,
+                  }}
+                >
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={EA.pink} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" />
+                  </svg>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.pink }}>Se déconnecter</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

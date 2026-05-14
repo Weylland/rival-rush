@@ -20,6 +20,7 @@ export default async function LobbyPage() {
     { data: leaderboardData },
     { data: pushData },
     { data: invitationsRaw },
+    { data: myRoomsRaw },
   ] = await Promise.all([
     supabase.from("presence").select("*").neq("player_id", session.playerId).gte("updated_at", cutoff),
     supabase.from("leaderboard").select("points").eq("player_id", session.playerId).maybeSingle(),
@@ -29,6 +30,9 @@ export default async function LobbyPage() {
       .eq("invited_player_id", session.playerId)
       .eq("status", "pending")
       .gt("expires_at", now),
+    supabase.from("room_members")
+      .select("room_id, rooms(id, name, code, expires_at, is_open)")
+      .eq("player_id", session.playerId),
   ]);
 
   const pushSubscriberIds = (pushData ?? []).map((r: { player_id: string }) => r.player_id);
@@ -46,6 +50,16 @@ export default async function LobbyPage() {
     };
   });
 
+  // Filter non-expired rooms and normalize
+  const myRooms = (myRoomsRaw ?? [])
+    .flatMap(m => {
+      const r = Array.isArray(m.rooms) ? m.rooms[0] : m.rooms;
+      if (!r) return [];
+      const room = r as { id: string; name: string; code: string; expires_at: string | null; is_open: boolean };
+      if (room.expires_at && new Date(room.expires_at) < new Date()) return [];
+      return [{ id: room.id, name: room.name, code: room.code, expiresAt: room.expires_at }];
+    });
+
   return (
     <LobbyClient
       myPlayerId={session.playerId}
@@ -55,6 +69,7 @@ export default async function LobbyPage() {
       initialPlayers={(presenceData ?? []) as { player_id: string; pseudo: string; status: "online" | "in-game" }[]}
       pushSubscriberIds={pushSubscriberIds}
       roomInvitations={roomInvitations}
+      myRooms={myRooms}
     />
   );
 }
