@@ -161,6 +161,27 @@ export async function acceptChallenge(challengeId: string) {
                         ? { rounds: [{ rolls: {}, winner_id: null }], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
                         : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
+  // Check if both players are in the same active room → tag game
+  const now = new Date().toISOString();
+  const { data: sharedRoom } = await supabase
+    .from("room_members")
+    .select("room_id, rooms(expires_at)")
+    .eq("player_id", p1)
+    .then(async ({ data }) => {
+      if (!data) return { data: null };
+      const roomIds = data.map(m => m.room_id as string);
+      if (!roomIds.length) return { data: null };
+      const { data: p2Memberships } = await supabase
+        .from("room_members").select("room_id").eq("player_id", p2).in("room_id", roomIds);
+      const shared = (p2Memberships ?? []).find(m => {
+        const rm = data.find(d => d.room_id === m.room_id);
+        const roomsField = rm?.rooms;
+        const exp = (Array.isArray(roomsField) ? (roomsField[0] as unknown as { expires_at: string | null } | undefined)?.expires_at : (roomsField as unknown as { expires_at: string | null } | null)?.expires_at);
+        return !exp || exp > now;
+      });
+      return { data: shared?.room_id ?? null };
+    });
+
   const { data: game } = await supabase
     .from("games")
     .insert({
@@ -169,6 +190,7 @@ export async function acceptChallenge(challengeId: string) {
       state: initialState,
       current_turn: challenge.game_type === "naval" || challenge.game_type === "duel-des" ? null : challenge.challenger_id,
       status: "playing",
+      ...(sharedRoom ? { room_id: sharedRoom } : {}),
     })
     .select()
     .single();

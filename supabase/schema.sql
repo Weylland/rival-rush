@@ -212,6 +212,74 @@ create policy "conv_reads read"   on public.conversation_reads for select using 
 create policy "conv_reads upsert" on public.conversation_reads for insert with check (true);
 create policy "conv_reads update" on public.conversation_reads for update using (true);
 
+-- ── Salles privées ───────────────────────────────────────────────
+
+create table public.rooms (
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null check (char_length(name) between 1 and 40),
+  code          text not null unique check (char_length(code) = 6),
+  host_id       uuid not null references public.players(id) on delete cascade,
+  is_public     bool not null default true,
+  password_hash text,                          -- null = pas de mot de passe
+  max_members   int check (max_members > 1),   -- null = illimité
+  allowed_games text[],                        -- null = tous les jeux
+  expires_at    timestamptz,                   -- null = permanente
+  is_open       bool not null default true,    -- accepter de nouveaux membres
+  created_at    timestamptz not null default now()
+);
+
+create table public.room_members (
+  room_id    uuid not null references public.rooms(id) on delete cascade,
+  player_id  uuid not null references public.players(id) on delete cascade,
+  joined_at  timestamptz not null default now(),
+  primary key (room_id, player_id)
+);
+
+create table public.room_invitations (
+  id               uuid primary key default gen_random_uuid(),
+  room_id          uuid not null references public.rooms(id) on delete cascade,
+  invited_by_id    uuid not null references public.players(id) on delete cascade,
+  invited_player_id uuid not null references public.players(id) on delete cascade,
+  status           text not null default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  expires_at       timestamptz not null,
+  created_at       timestamptz not null default now(),
+  constraint no_self_invite check (invited_by_id <> invited_player_id),
+  unique (room_id, invited_player_id)
+);
+
+create table public.room_chat (
+  id         uuid primary key default gen_random_uuid(),
+  room_id    uuid not null references public.rooms(id) on delete cascade,
+  player_id  uuid not null references public.players(id) on delete cascade,
+  pseudo     text not null,
+  content    text not null check (char_length(content) between 1 and 300),
+  created_at timestamptz not null default now()
+);
+create index room_chat_room_idx on public.room_chat(room_id, created_at);
+
+-- room_id tag sur les parties (nullable — parties hors salle = null)
+alter table public.games add column if not exists room_id uuid references public.rooms(id) on delete set null;
+
+alter table public.rooms         enable row level security;
+alter table public.room_members  enable row level security;
+alter table public.room_invitations enable row level security;
+alter table public.room_chat     enable row level security;
+
+create policy "rooms read"              on public.rooms          for select using (true);
+create policy "rooms insert"            on public.rooms          for insert with check (true);
+create policy "rooms update"            on public.rooms          for update using (true);
+create policy "rooms delete"            on public.rooms          for delete using (true);
+create policy "room_members read"       on public.room_members   for select using (true);
+create policy "room_members insert"     on public.room_members   for insert with check (true);
+create policy "room_members delete"     on public.room_members   for delete using (true);
+create policy "room_invitations read"   on public.room_invitations for select using (true);
+create policy "room_invitations insert" on public.room_invitations for insert with check (true);
+create policy "room_invitations update" on public.room_invitations for update using (true);
+create policy "room_invitations delete" on public.room_invitations for delete using (true);
+create policy "room_chat read"          on public.room_chat      for select using (true);
+create policy "room_chat insert"        on public.room_chat      for insert with check (true);
+create policy "room_chat delete"        on public.room_chat      for delete using (true);
+
 -- ── Realtime ────────────────────────────────────────────────────
 
 alter publication supabase_realtime add table public.presence;
@@ -220,3 +288,6 @@ alter publication supabase_realtime add table public.games;
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.lobby_chat;
 alter publication supabase_realtime add table public.direct_messages;
+alter publication supabase_realtime add table public.room_members;
+alter publication supabase_realtime add table public.room_invitations;
+alter publication supabase_realtime add table public.room_chat;

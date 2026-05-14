@@ -613,6 +613,20 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
               >🔔</button>
             )}
 
+            {/* Rooms */}
+            <Link href="/room" title="Salles privées" style={{
+              width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`,
+              color: "rgba(255,255,255,0.6)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`,
+              fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 14,
+              transition: "transform .1s, box-shadow .1s", flexShrink: 0,
+            }}
+              onMouseOver={(e) => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
+            >🏠</Link>
+
             {/* Rules */}
             <Link href="/games" title="Les jeux & règles" style={{
               width: desktop ? 44 : 36, height: desktop ? 44 : 36, borderRadius: "50%",

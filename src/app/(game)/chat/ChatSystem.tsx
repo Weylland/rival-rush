@@ -12,6 +12,7 @@ import {
   sendLobbyMessage, sendDirectMessage,
   getOrCreateConversation, markConversationRead,
 } from "./actions";
+import { sendRoomMessage } from "@/app/(game)/room/actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -61,8 +62,11 @@ function fmtTime(iso: string) {
 // ── ChatProvider ──────────────────────────────────────────────────────────────
 
 export function ChatProvider({
-  children, myId, myPseudo,
-}: { children: React.ReactNode; myId: string; myPseudo: string }) {
+  children, myId, myPseudo, activeRoomId, activeRoomName,
+}: {
+  children: React.ReactNode; myId: string; myPseudo: string;
+  activeRoomId: string | null; activeRoomName: string | null;
+}) {
   const [isOpen, setIsOpen]               = useState(false);
   const [tab, setTab]                     = useState<"lobby" | "dms">("lobby");
   const [activeConvId, setActiveConvId]   = useState<string | null>(null);
@@ -128,23 +132,21 @@ export function ChatProvider({
 
   const loadLobby = useCallback(async () => {
     const supabase = createClient();
-    const { data: msgs } = await supabase
-      .from("lobby_chat").select("*")
-      .order("created_at", { ascending: true }).limit(100);
+    // If in a room, load room chat; otherwise load global lobby chat
+    const { data: msgs } = activeRoomId
+      ? await supabase.from("room_chat").select("*").eq("room_id", activeRoomId).order("created_at", { ascending: true }).limit(100)
+      : await supabase.from("lobby_chat").select("*").order("created_at", { ascending: true }).limit(100);
     if (!msgs) return;
 
-    // Load avatars for unique players
     const ids = [...new Set(msgs.map(m => m.player_id))];
     if (ids.length > 0) {
-      const { data: players } = await supabase
-        .from("players").select("id, avatar_url").in("id", ids);
+      const { data: players } = await supabase.from("players").select("id, avatar_url").in("id", ids);
       for (const p of players ?? []) {
         avatarCacheRef.current.set(p.id, (p.avatar_url as string | null) ?? null);
       }
     }
-
     setLobbyMessages(msgs.map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null })));
-  }, []);
+  }, [activeRoomId]);
 
   const loadConversations = useCallback(async () => {
     const supabase = createClient();
@@ -229,13 +231,14 @@ export function ChatProvider({
   useEffect(() => {
     const supabase = createClient();
 
+    const lobbyTable = activeRoomId ? "room_chat" : "lobby_chat";
+    const lobbyFilter = activeRoomId ? { event: "INSERT" as const, schema: "public", table: "room_chat", filter: `room_id=eq.${activeRoomId}` } : { event: "INSERT" as const, schema: "public", table: "lobby_chat" };
+
     const lobbyCh = supabase.channel("lobby-chat-sys")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "lobby_chat" }, async (p) => {
+      .on("postgres_changes", lobbyFilter, async (p) => {
         const raw = p.new as LobbyMsg;
-        // Fetch avatar if not cached
         if (!avatarCacheRef.current.has(raw.player_id)) {
-          const { data: player } = await supabase
-            .from("players").select("avatar_url").eq("id", raw.player_id).maybeSingle();
+          const { data: player } = await supabase.from("players").select("avatar_url").eq("id", raw.player_id).maybeSingle();
           avatarCacheRef.current.set(raw.player_id, (player?.avatar_url as string | null) ?? null);
         }
         const msg: LobbyMsg = { ...raw, avatar_url: avatarCacheRef.current.get(raw.player_id) ?? null };
@@ -269,7 +272,7 @@ export function ChatProvider({
       }).subscribe();
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
-  }, [myId, activeConvId, loadConversations]);
+  }, [myId, activeConvId, activeRoomId, loadConversations]);
 
   // ── Scroll to bottom ──────────────────────────────────────────────────────
 
@@ -307,7 +310,10 @@ export function ChatProvider({
     const txt = lobbyInput.trim();
     if (!txt || sendingLobby) return;
     setLobbyInput("");
-    startLobby(async () => { await sendLobbyMessage(txt); });
+    startLobby(async () => {
+      if (activeRoomId) await sendRoomMessage(activeRoomId, txt);
+      else await sendLobbyMessage(txt);
+    });
     lobbyInput$.current?.focus();
   }
 
@@ -452,7 +458,7 @@ export function ChatProvider({
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                 }}
               >
-                {t === "lobby" ? "🌐 LOBBY" : (
+                {t === "lobby" ? (activeRoomId ? `🏠 ${activeRoomName?.toUpperCase() ?? "SALLE"}` : "🌐 LOBBY") : (
                   <>💬 MESSAGES{conversations.reduce((n, c) => n + c.unread, 0) > 0 && (
                     <span style={{
                       background: EA.pink, borderRadius: 8, padding: "1px 5px",

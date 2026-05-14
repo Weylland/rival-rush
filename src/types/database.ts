@@ -137,6 +137,59 @@ export interface DuelDesState {
   current_round: number;
 }
 
+export type RoomExpiration = "6h" | "12h" | "24h" | "7d" | "permanent";
+
+export interface Room {
+  id: string;
+  name: string;
+  code: string;
+  host_id: string;
+  is_public: boolean;
+  password_hash: string | null;
+  max_members: number | null;
+  allowed_games: GameType[] | null;
+  expires_at: string | null;
+  is_open: boolean;
+  created_at: string;
+}
+
+export interface RoomMember {
+  room_id: string;
+  player_id: string;
+  joined_at: string;
+}
+
+export interface RoomInvitation {
+  id: string;
+  room_id: string;
+  invited_by_id: string;
+  invited_player_id: string;
+  status: "pending" | "accepted" | "declined";
+  expires_at: string;
+  created_at: string;
+}
+
+export interface RoomChatMsg {
+  id: string;
+  room_id: string;
+  player_id: string;
+  pseudo: string;
+  content: string;
+  created_at: string;
+  avatar_url?: string | null;
+}
+
+export interface RoomMemberWithPlayer {
+  player_id: string;
+  pseudo: string;
+  avatar_url: string | null;
+  joined_at: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  points: number;
+}
+
 export interface LeaderboardEntry {
   player_id: string;
   pseudo: string;
