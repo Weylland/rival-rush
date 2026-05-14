@@ -32,9 +32,11 @@ export function PresenceClient() {
   const load = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
+    const staleThreshold = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     const { data: presence } = await supabase
       .from("presence")
       .select("player_id, pseudo, status, game_type, updated_at")
+      .gt("updated_at", staleThreshold)
       .order("updated_at", { ascending: false });
 
     if (!presence || presence.length === 0) {

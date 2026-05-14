@@ -111,8 +111,12 @@ export function AdminShell({
     const tick = setInterval(fetchCounts, 30_000);
 
     async function fetchCounts() {
+      const staleThreshold = new Date(Date.now() - 3 * 60 * 1000).toISOString();
       const [r1, r2, r3, r4] = await Promise.all([
-        supabase.from("presence").select("*", { count: "exact", head: true }),
+        supabase
+          .from("presence")
+          .select("*", { count: "exact", head: true })
+          .gt("updated_at", staleThreshold),
         supabase
           .from("player_notifications")
           .select("*", { count: "exact", head: true })
