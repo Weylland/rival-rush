@@ -1,4 +1,4 @@
-export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind";
+export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind" | "plus-ou-moins";
 export type ChallengeStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type GameStatus = "waiting" | "playing" | "finished";
 
@@ -109,6 +109,21 @@ export interface NimState {
   initial_pile: number;
   last_taken: number | null;
   last_player_id: string | null;
+}
+
+export interface PlusOuMoinsGuess {
+  player_id: string;
+  value: number;
+  feedback: "plus" | "moins" | "exact";
+}
+
+export interface PlusOuMoinsState {
+  secret: number;        // 0 = pas encore généré
+  range_min: number;     // 1 initialement
+  range_max: number;     // 100 initialement
+  guesses: PlusOuMoinsGuess[];
+  scores: Record<string, number>;
+  current_round: number; // 1, 2 ou 3
 }
 
 export interface LeaderboardEntry {

@@ -17,6 +17,7 @@ const GAME_LABELS: Record<GameType, string> = {
   nim: "Nim 🔥",
   pig: "Jeu du Cochon 🐷",
   mastermind: "Mastermind 🎨",
+  "plus-ou-moins": "Plus ou Moins 🔢",
 };
 
 export async function sendChallenge(challengedId: string, gameType: GameType, timeControl?: number | null) {

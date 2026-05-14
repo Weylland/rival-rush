@@ -92,6 +92,18 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🏆", text: "Premier à atteindre 100 points gagne la partie" },
     ],
   },
+  "plus-ou-moins": {
+    title: "Plus ou Moins 🔢",
+    icon: "🔢🎯🔥",
+    items: [
+      { icon: "🔢", text: "Un nombre mystère entre 1 et 100 est tiré au sort" },
+      { icon: "🔄", text: "Tour par tour : propose un nombre dans la zone valide" },
+      { icon: "↑", text: "PLUS → ton nombre est trop bas, monte" },
+      { icon: "↓", text: "MOINS → ton nombre est trop haut, descend" },
+      { icon: "🌡️", text: "Le thermomètre montre si tu brûles ou si tu gèles !" },
+      { icon: "🏆", text: "Premier à trouver le nombre gagne la manche — meilleur des 3 manches" },
+    ],
+  },
   nim: {
     title: "Nim 🔥",
     icon: "🔥🔥🔥",

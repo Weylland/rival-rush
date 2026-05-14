@@ -25,6 +25,7 @@ const GAME_LABELS: Record<string, string> = {
   nim: "🔥 Nim",
   pig: "🐷 Jeu du Cochon",
   mastermind: "🎨 Mastermind",
+  "plus-ou-moins": "🔢 Plus ou Moins",
 };
 
 interface PresencePlayer {
@@ -179,7 +180,8 @@ function ChooseGameModal({
             { type: "chess" as GameType,     icon: "♟",   title: "ÉCHECS",                   sub: "Réflexion", color: "#9b8ec4",  shadow: EA.pink,   badge: undefined },
             { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Prends la dernière allumette et tu perds", color: EA.butter, shadow: EA.cyan, badge: undefined },
             { type: "pig" as GameType,        icon: "🎲",  title: "COCHON",                    sub: "Lance le dé, mais gare au 1 !", color: EA.pink,   shadow: EA.butter, badge: undefined },
-            { type: "mastermind" as GameType, icon: "🎨",  title: "MASTER\nMIND",               sub: "Décode la combinaison",         color: "#4ADE80", shadow: EA.pink,   badge: "NEW ✨" },
+            { type: "mastermind" as GameType,     icon: "🎨",  title: "MASTER\nMIND",               sub: "Décode la combinaison",         color: "#4ADE80", shadow: EA.pink,   badge: undefined },
+            { type: "plus-ou-moins" as GameType,  icon: "🔢",  title: "PLUS OU\nMOINS",             sub: "Trouve le nombre mystère",      color: EA.butter, shadow: EA.cyan,   badge: "NEW ✨" },
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[];
 
           return (

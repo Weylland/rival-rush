@@ -87,6 +87,13 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Prendre 3 quand il en reste 4 te laisse gagner si l'adversaire ne prend qu'1. Mais il peut faire pareil…",
     "Misère = celui qui vide le tas PERD. Garde toujours ça en tête avant de prendre.",
   ],
+  "plus-ou-moins": [
+    "Commence toujours par 50 — tu élimines la moitié des nombres d'un coup.",
+    "Après chaque réponse, vise le milieu de la zone restante. C'est la stratégie parfaite.",
+    "10 essais suffisent en théorie pour trouver n'importe quel nombre entre 1 et 100.",
+    "Regarde les coups de l'adversaire — ils te donnent aussi des infos sur le nombre !",
+    "La zone rétrécit à chaque coup. Surveille le thermomètre : BRÛLANT = t'es tout proche.",
+  ],
   global: [
     "Un match nul, c'est mieux qu'une défaite — chaque point au classement compte.",
     "Les meilleures décisions se prennent calme. Prends 2 secondes avant de jouer.",
