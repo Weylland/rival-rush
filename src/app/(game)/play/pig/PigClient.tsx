@@ -17,7 +17,6 @@ import type { PigState, GameStatus } from "@/types/database";
 const WIN_SCORE = 100;
 
 // ── Dot positions for each die face ──────────────────────────────────────────
-// Grid 3×3, positions: [col, row] 0-indexed
 const DOT_POSITIONS: Record<number, [number, number][]> = {
   1: [[1, 1]],
   2: [[0, 0], [2, 2]],
@@ -27,43 +26,36 @@ const DOT_POSITIONS: Record<number, [number, number][]> = {
   6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]],
 };
 
-function DieFace({ value, size = 110, bust = false, rolling = false }: {
-  value: number | null;
-  size?: number;
-  bust?: boolean;
-  rolling?: boolean;
+// ── Die ───────────────────────────────────────────────────────────────────────
+function DieFace({ value, size = 140, bust = false, rolling = false }: {
+  value: number | null; size?: number; bust?: boolean; rolling?: boolean;
 }) {
   const dots = value ? DOT_POSITIONS[value] ?? [] : [];
   const dotSize = size * 0.14;
-  const padding = size * 0.12;
+  const padding = size * 0.14;
   const inner = size - padding * 2;
   const cell = inner / 3;
 
   return (
     <div style={{
       width: size, height: size,
-      background: bust ? EA.pink : EA.white,
-      border: `3px solid ${EA.ink}`,
+      background: bust
+        ? `linear-gradient(145deg, #ff5599 0%, ${EA.pink} 100%)`
+        : `linear-gradient(145deg, #ffffff 0%, #e8e8f0 100%)`,
+      border: `4px solid ${EA.ink}`,
       borderRadius: size * 0.18,
       boxShadow: bust
-        ? `5px 5px 0 ${EA.ink}`
-        : `5px 5px 0 ${EA.cyan}, 5px 5px 0 1px ${EA.ink}`,
-      position: "relative",
-      flexShrink: 0,
+        ? `0 0 40px rgba(255,45,140,0.7), 6px 6px 0 ${EA.ink}, inset 0 -10px 18px rgba(0,0,0,0.18)`
+        : `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}, inset 0 -10px 18px rgba(0,0,0,0.1), 0 0 30px rgba(0,212,232,0.3)`,
+      position: "relative", flexShrink: 0,
       transition: "background 0.2s, box-shadow 0.2s",
-      animation: rolling ? "pig-roll 0.35s ease-in-out" : "none",
+      animation: rolling ? "pig-roll 0.55s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       {value === null ? (
-        <div style={{
-          fontSize: size * 0.35, lineHeight: 1,
-          opacity: 0.25,
-        }}>🎲</div>
+        <div style={{ fontSize: size * 0.45, lineHeight: 1, opacity: 0.3 }}>🎲</div>
       ) : (
-        <div style={{
-          position: "relative",
-          width: inner, height: inner,
-        }}>
+        <div style={{ position: "relative", width: inner, height: inner }}>
           {dots.map(([col, row], i) => (
             <div key={i} style={{
               position: "absolute",
@@ -72,7 +64,7 @@ function DieFace({ value, size = 110, bust = false, rolling = false }: {
               width: dotSize, height: dotSize,
               borderRadius: "50%",
               background: bust ? EA.white : EA.ink,
-              transition: "background 0.2s",
+              boxShadow: bust ? "none" : `inset 0 1px 2px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.25)`,
             }} />
           ))}
         </div>
@@ -81,76 +73,74 @@ function DieFace({ value, size = 110, bust = false, rolling = false }: {
   );
 }
 
-// ── Score bar ─────────────────────────────────────────────────────────────────
-
-function ScoreBar({ score, pseudo, avatarUrl, isMe, isActive, color }: {
-  score: number;
-  pseudo: string;
-  avatarUrl: string | null;
-  isMe: boolean;
-  isActive: boolean;
-  color: string;
+// ── Player card ───────────────────────────────────────────────────────────────
+function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, side }: {
+  score: number; pseudo: string; avatarUrl: string | null;
+  color: string; isActive: boolean; isMe: boolean; side: "left" | "right";
 }) {
   const pct = Math.min(100, (score / WIN_SCORE) * 100);
   return (
     <div style={{
-      flex: 1,
-      display: "flex", flexDirection: "column", gap: 6,
-      opacity: isActive ? 1 : 0.6,
-      transition: "opacity 0.3s",
+      flex: 1, minWidth: 0,
+      background: isActive ? `${color}1f` : EA.violetDeep,
+      border: `2.5px solid ${isActive ? color : EA.ink}`,
+      borderRadius: 18, padding: "12px 14px",
+      boxShadow: isActive ? `3px 3px 0 ${color}` : `2px 2px 0 ${EA.ink}`,
+      transition: "all 0.3s",
+      display: "flex", flexDirection: "column", gap: 8,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{
-          padding: 2, borderRadius: "50%",
-          border: isActive ? `3px solid ${color}` : `3px solid transparent`,
-          boxShadow: isActive ? `0 0 10px ${color}` : "none",
-          transition: "border 0.3s, box-shadow 0.3s",
-        }}>
-          <Avatar name={pseudo} src={avatarUrl} color={color} ring={EA.ink} size={36} />
-        </div>
-        <div style={{
-          fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
-          transform: "skewX(-4deg)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          maxWidth: 80,
-        }}>{pseudo.toUpperCase()}</div>
-        <div style={{
-          fontFamily: "var(--font-display)", fontSize: 22, color: EA.white,
-          transform: "skewX(-6deg)",
-          textShadow: `2px 2px 0 ${color}`,
-          marginLeft: "auto", flexShrink: 0,
-        }}>{score}</div>
-      </div>
-      {/* Progress bar */}
       <div style={{
-        height: 10, borderRadius: 999,
-        background: "rgba(255,255,255,0.1)",
-        border: `1.5px solid rgba(255,255,255,0.15)`,
-        overflow: "hidden",
+        display: "flex",
+        flexDirection: side === "right" ? "row-reverse" : "row",
+        alignItems: "center", gap: 10,
+      }}>
+        <Avatar name={pseudo} src={avatarUrl} color={color} ring={isActive ? color : "transparent"} size={38} />
+        <div style={{ flex: 1, minWidth: 0, textAlign: side }}>
+          <div style={{
+            fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
+            transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {pseudo.toUpperCase()}
+            {isMe && <span style={{ fontSize: 9, fontWeight: 900, color, marginLeft: 5 }}>TOI</span>}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-display)", fontSize: 32,
+            color: EA.white, transform: "skewX(-6deg)",
+            textShadow: `2px 2px 0 ${color}`, lineHeight: 1,
+            marginTop: 2,
+          }}>{score}</div>
+        </div>
+      </div>
+      <div style={{
+        height: 8, borderRadius: 999,
+        background: "rgba(0,0,0,0.35)",
+        border: `1.5px solid rgba(255,255,255,0.08)`,
+        overflow: "hidden", position: "relative",
       }}>
         <div style={{
           height: "100%", width: `${pct}%`,
-          background: color,
+          background: `linear-gradient(90deg, ${color}, ${color}cc)`,
           borderRadius: 999,
-          transition: "width 0.4s ease",
-          boxShadow: `0 0 6px ${color}`,
+          transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+          boxShadow: `0 0 10px ${color}`,
         }} />
+      </div>
+      <div style={{
+        fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.35)",
+        textAlign: side, textTransform: "uppercase", letterSpacing: 1,
+      }}>
+        {WIN_SCORE - score > 0 ? `${WIN_SCORE - score} pts à atteindre` : "🏆 GAGNÉ"}
       </div>
     </div>
   );
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
-
 interface Props {
-  gameId: string;
-  myId: string;
-  p1Id: string;
-  p2Id: string;
-  p1Pseudo: string;
-  p2Pseudo: string;
-  p1AvatarUrl: string | null;
-  p2AvatarUrl: string | null;
+  gameId: string; myId: string;
+  p1Id: string; p2Id: string;
+  p1Pseudo: string; p2Pseudo: string;
+  p1AvatarUrl: string | null; p2AvatarUrl: string | null;
   initialState: PigState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
@@ -158,7 +148,6 @@ interface Props {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-
 export function PigClient({
   gameId, myId, p1Id, p2Id,
   p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
@@ -193,7 +182,6 @@ export function PigClient({
   const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
-
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   const { play } = useGameSounds();
 
@@ -244,9 +232,8 @@ export function PigClient({
           : { scores: {}, turn_total: 0, last_roll: null };
 
         const newRoll = newState.last_roll;
-        const prevRoll = lastRoll;
 
-        // Detect bust from opponent's perspective
+        // Bust déclenché côté adverse
         if (newRoll === 1 && updated.current_turn === myId) {
           setBust(true);
           setBustMsg(`${opPseudo} a fait 1 — tour perdu !`);
@@ -270,13 +257,13 @@ export function PigClient({
       })
       .subscribe();
     return () => { supabase.removeChannel(sub); };
-  }, [gameId, myId, opPseudo, currentTurn, lastRoll]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [gameId, myId, opPseudo, currentTurn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleRoll() {
     if (!isMyTurn || submitting) return;
     setSubmitting(true);
     setRolling(true);
-    setTimeout(() => setRolling(false), 380);
+    setTimeout(() => setRolling(false), 580);
 
     const res = await rollPig(gameId);
     if (res.ok) {
@@ -298,191 +285,230 @@ export function PigClient({
     setSubmitting(false);
   }
 
-  const dieSize = desktop ? 130 : 110;
+  const dieSize = desktop ? 150 : 130;
+
+  // Niveau de "chaleur" de la cagnotte : 0 = vide, 1 = chaud, 2 = brûlant
+  const heat = turnTotal === 0 ? 0 : turnTotal < 20 ? 1 : 2;
+  const cagnotteColor = heat === 2 ? EA.pink : heat === 1 ? EA.butter : "rgba(255,255,255,0.15)";
 
   return (
     <div style={{
       minHeight: "100dvh",
-      background: `linear-gradient(160deg, ${EA.violetDeep} 0%, #1a1050 60%, #0d0826 100%)`,
+      background: `
+        radial-gradient(ellipse at 20% 10%, rgba(0,212,232,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 90%, rgba(255,45,140,0.13) 0%, transparent 50%),
+        linear-gradient(180deg, ${EA.violet} 0%, ${EA.violetDeep} 100%)
+      `,
       display: "flex", flexDirection: "column", alignItems: "center",
-      padding: desktop ? "28px 24px 48px" : "16px 16px 40px",
-      gap: desktop ? 24 : 18,
+      padding: desktop ? "24px 24px 100px" : "14px 14px 100px",
+      gap: desktop ? 18 : 14,
       fontFamily: "var(--font-sans)",
       position: "relative", overflow: "hidden",
     }}>
+
       {/* Dot grid bg */}
-      <div style={{
-        position: "fixed", inset: 0,
-        backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.1) 1px, transparent 1.4px)",
-        backgroundSize: "18px 18px", pointerEvents: "none", zIndex: 0,
+      <div aria-hidden style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.3px, transparent 1.8px)",
+        backgroundSize: "16px 16px", opacity: 0.18,
       }} />
 
-      {/* Score bars */}
-      <div style={{
-        width: "100%", maxWidth: 480,
-        display: "flex", gap: 16, alignItems: "stretch",
-        position: "relative", zIndex: 2,
-      }}>
-        <ScoreBar score={myScore} pseudo={myPseudo} avatarUrl={myAvatarUrl} isMe color={EA.cyan} isActive={isMyTurn && !isFinished} />
-        <div style={{
-          width: 2, background: "rgba(255,255,255,0.15)", borderRadius: 1, flexShrink: 0,
-        }} />
-        <ScoreBar score={opScore} pseudo={opPseudo} avatarUrl={opAvatarUrl} isMe={false} color={EA.pink} isActive={!isMyTurn && !isFinished} />
-      </div>
+      <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
 
-      {/* Objectif */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.35)",
-        textTransform: "uppercase", letterSpacing: 1.4,
-      }}>Objectif : {WIN_SCORE} points</div>
-
-      {/* Tour en cours */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        background: "rgba(255,255,255,0.06)",
-        border: `2px solid rgba(255,255,255,0.12)`,
-        borderRadius: 16, padding: "10px 24px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-      }}>
-        <div style={{
-          fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.4)",
-          textTransform: "uppercase", letterSpacing: 1.2,
-        }}>
-          {isMyTurn ? "Ce tour" : `Tour de ${opPseudo}`}
-        </div>
-        <div style={{
-          fontFamily: "var(--font-display)", fontSize: desktop ? 36 : 30,
-          color: turnTotal > 0 ? EA.butter : "rgba(255,255,255,0.2)",
-          transform: "skewX(-6deg)",
-          textShadow: turnTotal > 0 ? `3px 3px 0 ${EA.ink}` : "none",
-          transition: "color 0.2s",
-          lineHeight: 1,
-        }}>
-          {turnTotal > 0 ? `+${turnTotal}` : "—"}
-        </div>
-        {turnTotal > 0 && isMyTurn && (
+        {/* Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{
-            fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)",
-            textTransform: "uppercase",
+            fontSize: 38, lineHeight: 1,
+            animation: rolling ? "pig-shake 0.55s ease-in-out" : "none",
+            filter: bust ? "grayscale(0.5)" : "none",
+          }}>{bust ? "😵" : "🐷"}</div>
+          <div>
+            <div style={{
+              fontFamily: "var(--font-display)", fontSize: 24, color: EA.white,
+              transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.pink}`,
+              lineHeight: 1,
+            }}>JEU DU COCHON</div>
+            <div style={{ fontSize: 9, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2, marginTop: 4 }}>
+              Premier à 100 gagne
+            </div>
+          </div>
+        </div>
+
+        {/* Player cards */}
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+          <PlayerCard
+            score={myScore} pseudo={myPseudo} avatarUrl={myAvatarUrl}
+            color={EA.cyan} isActive={isMyTurn && !isFinished} isMe side="left"
+          />
+          <PlayerCard
+            score={opScore} pseudo={opPseudo} avatarUrl={opAvatarUrl}
+            color={EA.pink} isActive={!isMyTurn && !isFinished} isMe={false} side="right"
+          />
+        </div>
+
+        {/* CAGNOTTE */}
+        <div style={{
+          width: "100%",
+          background: heat > 0
+            ? `radial-gradient(circle at 50% 50%, ${cagnotteColor}22 0%, ${EA.violetDeep} 75%)`
+            : EA.violetDeep,
+          border: `3px solid ${heat > 0 ? cagnotteColor : EA.ink}`,
+          borderRadius: 22, padding: "14px 20px",
+          boxShadow: heat === 2
+            ? `0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${EA.pink}`
+            : heat === 1
+              ? `0 0 24px rgba(255,233,74,0.3), 3px 3px 0 ${EA.butter}`
+              : `2px 2px 0 ${EA.ink}`,
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+          transition: "all 0.3s",
+          animation: heat === 2 ? "cagnotte-pulse 1s ease-in-out infinite" : "none",
+        }}>
+          <div style={{
+            fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
+            color: heat > 0 ? cagnotteColor : "rgba(255,255,255,0.4)",
+            textTransform: "uppercase", letterSpacing: 2,
+            transition: "color 0.3s",
           }}>
-            → {myScore + turnTotal} pts si tu banques
+            {heat === 2 ? "🔥 CAGNOTTE BRÛLANTE" : heat === 1 ? "🪙 CAGNOTTE EN COURS" : isMyTurn ? "À TOI DE LANCER" : `EN ATTENTE…`}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-display)", fontSize: desktop ? 56 : 48,
+            color: heat > 0 ? cagnotteColor : "rgba(255,255,255,0.18)",
+            textShadow: heat > 0 ? `4px 4px 0 ${EA.ink}` : "none",
+            transform: "skewX(-8deg)", lineHeight: 1,
+            transition: "color 0.3s",
+          }}>
+            {turnTotal > 0 ? `+${turnTotal}` : "—"}
+          </div>
+          {turnTotal > 0 && isMyTurn && (
+            <div style={{
+              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
+              color: "rgba(255,255,255,0.55)", marginTop: 2,
+            }}>
+              🏦 Banque pour <strong style={{ color: EA.cyan }}>{myScore + turnTotal}</strong> pts
+            </div>
+          )}
+        </div>
+
+        {/* Die */}
+        <div style={{
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+          padding: "8px 0",
+        }}>
+          <DieFace value={lastRoll} size={dieSize} bust={bust} rolling={rolling} />
+
+          {bustMsg && (
+            <div style={{
+              background: `rgba(255,30,140,0.25)`, border: `2px solid ${EA.pink}`,
+              borderRadius: 14, padding: "8px 18px",
+              fontFamily: "var(--font-display)", fontSize: 13, color: EA.white,
+              transform: "skewX(-4deg)",
+              boxShadow: `3px 3px 0 ${EA.ink}`,
+              animation: "pig-fadein 0.25s ease",
+            }}>
+              💥 {bustMsg}
+            </div>
+          )}
+        </div>
+
+        {/* Buttons */}
+        {!isFinished && (
+          <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 380 }}>
+            {/* LANCER */}
+            <button
+              type="button"
+              disabled={!isMyTurn || submitting}
+              onClick={handleRoll}
+              style={{
+                flex: 1, height: desktop ? 64 : 58,
+                background: !isMyTurn || submitting ? "rgba(255,255,255,0.06)" : EA.cyan,
+                border: `3px solid ${EA.ink}`,
+                borderRadius: 18,
+                boxShadow: !isMyTurn || submitting
+                  ? `2px 2px 0 ${EA.ink}`
+                  : `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}`,
+                cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
+                fontFamily: "var(--font-display)", fontSize: 16,
+                color: !isMyTurn || submitting ? "rgba(255,255,255,0.3)" : EA.ink,
+                opacity: !isMyTurn || submitting ? 0.55 : 1,
+                transition: "all 0.1s",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                transform: "skewX(-4deg)",
+              }}
+            >
+              <span style={{ display: "inline-block", transform: "skewX(4deg)", fontSize: 22 }}>🎲</span>
+              <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>LANCER</span>
+            </button>
+
+            {/* BANQUER */}
+            <button
+              type="button"
+              disabled={!isMyTurn || submitting || turnTotal === 0}
+              onClick={handleHold}
+              style={{
+                flex: 1, height: desktop ? 64 : 58,
+                background: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.06)" : EA.butter,
+                border: `3px solid ${EA.ink}`,
+                borderRadius: 18,
+                boxShadow: (!isMyTurn || submitting || turnTotal === 0)
+                  ? `2px 2px 0 ${EA.ink}`
+                  : `5px 5px 0 ${EA.cyan}, 5px 5px 0 1px ${EA.ink}`,
+                cursor: (!isMyTurn || submitting || turnTotal === 0) ? "not-allowed" : "pointer",
+                fontFamily: "var(--font-display)", fontSize: 16,
+                color: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.3)" : EA.ink,
+                opacity: (!isMyTurn || submitting || turnTotal === 0) ? 0.55 : 1,
+                transition: "all 0.1s",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                transform: "skewX(-4deg)",
+              }}
+            >
+              <span style={{ display: "inline-block", transform: "skewX(4deg)", fontSize: 22 }}>🏦</span>
+              <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>BANQUER</span>
+            </button>
+          </div>
+        )}
+
+        {/* Status */}
+        {!isFinished && !isMyTurn && !bustMsg && (
+          <div style={{
+            fontFamily: "var(--font-display)", fontSize: 13,
+            color: "rgba(255,255,255,0.5)",
+            transform: "skewX(-4deg)", letterSpacing: 1,
+            animation: "pig-pulse 2s ease-in-out infinite",
+          }}>
+            ⏳ {opPseudo.toUpperCase()} JOUE…
           </div>
         )}
       </div>
-
-      {/* Die */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-      }}>
-        <DieFace value={lastRoll} size={dieSize} bust={bust} rolling={rolling} />
-
-        {/* Bust message */}
-        {bustMsg && (
-          <div style={{
-            background: "rgba(255,30,140,0.2)", border: `2px solid ${EA.pink}`,
-            borderRadius: 12, padding: "8px 18px",
-            fontFamily: "var(--font-display)", fontSize: 13, color: EA.pink,
-            transform: "skewX(-4deg)",
-            animation: "pig-fadein 0.2s ease",
-          }}>
-            💀 {bustMsg}
-          </div>
-        )}
-      </div>
-
-      {/* Buttons */}
-      {!isFinished && (
-        <div style={{
-          display: "flex", gap: 14,
-          position: "relative", zIndex: 2,
-        }}>
-          {/* LANCER */}
-          <button
-            type="button"
-            disabled={!isMyTurn || submitting}
-            onClick={handleRoll}
-            style={{
-              width: desktop ? 140 : 120,
-              height: desktop ? 64 : 56,
-              background: !isMyTurn || submitting ? "rgba(255,255,255,0.07)" : EA.cyan,
-              border: `3px solid ${!isMyTurn || submitting ? "rgba(255,255,255,0.12)" : EA.ink}`,
-              borderRadius: 16,
-              boxShadow: !isMyTurn || submitting ? "none" : `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
-              cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
-              fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14,
-              color: !isMyTurn || submitting ? "rgba(255,255,255,0.2)" : EA.ink,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              transition: "background 0.15s, box-shadow 0.15s",
-            }}
-          >
-            <span style={{ fontSize: desktop ? 22 : 18 }}>🎲</span> LANCER
-          </button>
-
-          {/* BANQUER */}
-          <button
-            type="button"
-            disabled={!isMyTurn || submitting || turnTotal === 0}
-            onClick={handleHold}
-            style={{
-              width: desktop ? 140 : 120,
-              height: desktop ? 64 : 56,
-              background: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.07)" : EA.butter,
-              border: `3px solid ${(!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.12)" : EA.ink}`,
-              borderRadius: 16,
-              boxShadow: (!isMyTurn || submitting || turnTotal === 0) ? "none" : `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
-              cursor: (!isMyTurn || submitting || turnTotal === 0) ? "not-allowed" : "pointer",
-              fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14,
-              color: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.2)" : EA.ink,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              transition: "background 0.15s, box-shadow 0.15s",
-            }}
-          >
-            <span style={{ fontSize: desktop ? 22 : 18 }}>🏦</span> BANQUER
-          </button>
-        </div>
-      )}
-
-      {/* Status message */}
-      {!isFinished && !isMyTurn && !bustMsg && (
-        <div style={{
-          position: "relative", zIndex: 2,
-          fontSize: 12, fontWeight: 800, color: "rgba(255,255,255,0.35)",
-          textTransform: "uppercase", letterSpacing: 1.2,
-          animation: "pulse 2s ease-in-out infinite",
-        }}>
-          En attente de {opPseudo}…
-        </div>
-      )}
 
       <RulesButton gameType="pig" />
-
-      <GameChat
-        gameId={gameId}
-        myId={myId}
-        myPseudo={myPseudo}
-        opponentId={opponentId}
-        opponentPseudo={opPseudo}
-      />
-
+      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`
-        @keyframes pulse {
+        @keyframes pig-pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
         }
         @keyframes pig-roll {
-          0%   { transform: rotate(0deg) scale(1); }
-          25%  { transform: rotate(-12deg) scale(0.92); }
-          50%  { transform: rotate(10deg) scale(0.95); }
-          75%  { transform: rotate(-6deg) scale(0.98); }
-          100% { transform: rotate(0deg) scale(1); }
+          0%   { transform: rotate(0deg) scale(1) translateY(0); }
+          20%  { transform: rotate(-180deg) scale(0.9) translateY(-10px); }
+          50%  { transform: rotate(180deg) scale(0.85) translateY(-14px); }
+          80%  { transform: rotate(-90deg) scale(0.95) translateY(-4px); }
+          100% { transform: rotate(0deg) scale(1) translateY(0); }
+        }
+        @keyframes pig-shake {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-15deg); }
+          75% { transform: rotate(15deg); }
         }
         @keyframes pig-fadein {
           from { opacity: 0; transform: translateY(-6px) skewX(-4deg); }
           to   { opacity: 1; transform: translateY(0) skewX(-4deg); }
+        }
+        @keyframes cagnotte-pulse {
+          0%, 100% { box-shadow: 0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${EA.pink}; }
+          50%      { box-shadow: 0 0 60px rgba(255,45,140,0.7),  6px 6px 0 ${EA.pink}; }
         }
       `}</style>
     </div>
