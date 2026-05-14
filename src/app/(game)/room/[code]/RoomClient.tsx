@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
@@ -147,12 +147,15 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 }) {
   const desktop = useIsDesktop();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { openDM } = useChatOpen();
   const countdown = useCountdown(room.expiresAt);
   const isHost = room.hostId === myPlayerId;
 
   const [members, setMembers] = useState<Member[]>(initialMembers);
-  const [tab, setTab] = useState<"members" | "ranking">("members");
+  const [tab, setTab] = useState<"members" | "ranking">(
+    searchParams.get("tab") === "ranking" ? "ranking" : "members"
+  );
   const [chooseOpponent, setChooseOpponent] = useState<Member | null>(null);
   const [isPending, startTransition] = useTransition();
   const [challengeError, setChallengeError] = useState<string | null>(null);

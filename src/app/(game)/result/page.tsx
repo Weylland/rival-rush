@@ -19,7 +19,7 @@ export default async function ResultPage({ searchParams }: Props) {
 
   const { data: game } = await supabase
     .from("games")
-    .select("*, challenges(challenger_id, challenged_id)")
+    .select("*, challenges(challenger_id, challenged_id), rooms(code, name)")
     .eq("id", game_id)
     .single();
 
@@ -44,6 +44,9 @@ export default async function ResultPage({ searchParams }: Props) {
   const opponentId = session.playerId === p1Id ? p2Id : p1Id;
   const opponentPseudo = pseudoOf[opponentId] ?? "?";
 
+  const roomRaw = game.rooms as { code: string; name: string } | { code: string; name: string }[] | null;
+  const room = Array.isArray(roomRaw) ? roomRaw[0] ?? null : roomRaw;
+
   return (
     <ResultClient
       myId={session.playerId}
@@ -58,6 +61,8 @@ export default async function ResultPage({ searchParams }: Props) {
       pfcState={pfcState}
       opponentId={opponentId}
       opponentPseudo={opponentPseudo}
+      roomCode={room?.code ?? null}
+      roomName={room?.name ?? null}
     />
   );
 }

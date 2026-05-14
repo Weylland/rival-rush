@@ -210,11 +210,13 @@ interface Props {
   pfcState: PFCState | null;
   opponentId: string;
   opponentPseudo: string;
+  roomCode?: string | null;
+  roomName?: string | null;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo }: Props) {
+export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo, roomCode, roomName }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const [rematchPending, startRematch] = useTransition();
@@ -448,7 +450,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
             </span>
           </button>
           <button
-            onClick={() => router.push("/lobby")}
+            onClick={() => router.push(roomCode ? `/room/${roomCode}` : "/lobby")}
             style={{
               background: EA.cyan, border: `2.5px solid ${EA.ink}`,
               borderRadius: d ? 18 : 14, padding: d ? "16px 32px" : "12px 24px",
@@ -461,10 +463,12 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
             onMouseDown={e => { e.currentTarget.style.transform = "skewX(-6deg) translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
             onMouseUp={e => { e.currentTarget.style.transform = "skewX(-6deg)"; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}
           >
-            🏠 RETOUR AU LOBBY
+            <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+              🏠 {roomCode ? `RETOUR À ${(roomName ?? roomCode).toUpperCase()}` : "RETOUR AU LOBBY"}
+            </span>
           </button>
           <button
-            onClick={() => router.push("/ranking")}
+            onClick={() => router.push(roomCode ? `/room/${roomCode}?tab=ranking` : "/ranking")}
             style={{
               background: "transparent", border: `2px solid rgba(255,255,255,0.3)`,
               borderRadius: d ? 18 : 14, padding: d ? "14px 32px" : "10px 24px",
@@ -473,7 +477,9 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
               cursor: "pointer",
             }}
           >
-            📊 CLASSEMENT
+            <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+              📊 {roomCode ? "CLASSEMENT DE LA SALLE" : "CLASSEMENT"}
+            </span>
           </button>
         </div>
       </div>
