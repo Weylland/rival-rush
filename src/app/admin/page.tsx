@@ -46,7 +46,7 @@ export default async function AdminPage() {
     reporter_pseudo: playerMap.get(r.reporter_id as string) ?? "?",
     reported_player_id: r.reported_player_id as string,
     reported_pseudo: playerMap.get(r.reported_player_id as string) ?? "?",
-    game_id: r.game_id as string,
+    game_id: (r.game_id as string | null) ?? null,
     message_content: r.message_content as string,
     status: (r.status as Report["status"]),
     created_at: r.created_at as string,

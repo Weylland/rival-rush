@@ -12,7 +12,7 @@ export interface Report {
   reporter_pseudo: string;
   reported_player_id: string;
   reported_pseudo: string;
-  game_id: string;
+  game_id: string | null;
   message_content: string;
   status: ReportStatus;
   created_at: string;
@@ -76,7 +76,7 @@ function ReportCard({ report, onStatusChange }: { report: Report; onStatusChange
             </span>
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>
-            {formatDate(report.created_at)} · partie {report.game_id.slice(0, 8)}…
+            {formatDate(report.created_at)}{report.game_id ? ` · partie ${report.game_id.slice(0, 8)}…` : " · lobby"}
           </div>
         </div>
       </div>
