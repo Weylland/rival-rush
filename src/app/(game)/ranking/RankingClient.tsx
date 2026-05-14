@@ -167,7 +167,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
       {/* Legend */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: tab === "global" ? "2fr 1fr 1fr 1fr 1fr" : "2fr 1fr 1fr 1fr",
+        gridTemplateColumns: tab === "global" ? "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)" : "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)",
         marginBottom: 10, padding: "0 14px",
       }}>
         {(tab === "global" ? ["JOUEUR", "V", "D", "=", "PTS"] : ["JOUEUR", "V", "D", "="]).map(h => (
@@ -193,15 +193,15 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               borderRadius: 18, padding: "14px 16px",
               boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
               display: "grid",
-              gridTemplateColumns: tab === "global" ? "2fr 1fr 1fr 1fr 1fr" : "2fr 1fr 1fr 1fr",
+              gridTemplateColumns: tab === "global" ? "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)" : "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)",
               alignItems: "center",
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 22, minWidth: 28 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={36} />
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
+                <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={32} />
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
                   {row.pseudo.toUpperCase()}
-                  {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}
+                  {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}
                 </div>
               </div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.cyan, textAlign: "center", transform: "skewX(-4deg)" }}>{row.wins}</div>
