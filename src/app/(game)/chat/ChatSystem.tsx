@@ -17,6 +17,7 @@ import {
 interface LobbyMsg {
   id: string; player_id: string; pseudo: string;
   content: string; created_at: string;
+  avatar_url?: string | null;
 }
 
 interface Conv {
@@ -67,6 +68,7 @@ export function ChatProvider({
   const [activeConvPseudo, setActiveConvPseudo] = useState("");
 
   const [lobbyMessages, setLobbyMessages] = useState<LobbyMsg[]>([]);
+  const avatarCacheRef = useRef<Map<string, string | null>>(new Map());
   const [conversations, setConversations] = useState<Conv[]>([]);
   const [activeMessages, setActiveMessages] = useState<DMsg[]>([]);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
@@ -91,10 +93,22 @@ export function ChatProvider({
 
   const loadLobby = useCallback(async () => {
     const supabase = createClient();
-    const { data } = await supabase
+    const { data: msgs } = await supabase
       .from("lobby_chat").select("*")
       .order("created_at", { ascending: true }).limit(100);
-    if (data) setLobbyMessages(data);
+    if (!msgs) return;
+
+    // Load avatars for unique players
+    const ids = [...new Set(msgs.map(m => m.player_id))];
+    if (ids.length > 0) {
+      const { data: players } = await supabase
+        .from("players").select("id, avatar_url").in("id", ids);
+      for (const p of players ?? []) {
+        avatarCacheRef.current.set(p.id, (p.avatar_url as string | null) ?? null);
+      }
+    }
+
+    setLobbyMessages(msgs.map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null })));
   }, []);
 
   const loadConversations = useCallback(async () => {
@@ -181,8 +195,16 @@ export function ChatProvider({
     const supabase = createClient();
 
     const lobbyCh = supabase.channel("lobby-chat-sys")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "lobby_chat" }, (p) => {
-        setLobbyMessages(prev => [...prev.slice(-99), p.new as LobbyMsg]);
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "lobby_chat" }, async (p) => {
+        const raw = p.new as LobbyMsg;
+        // Fetch avatar if not cached
+        if (!avatarCacheRef.current.has(raw.player_id)) {
+          const { data: player } = await supabase
+            .from("players").select("avatar_url").eq("id", raw.player_id).maybeSingle();
+          avatarCacheRef.current.set(raw.player_id, (player?.avatar_url as string | null) ?? null);
+        }
+        const msg: LobbyMsg = { ...raw, avatar_url: avatarCacheRef.current.get(raw.player_id) ?? null };
+        setLobbyMessages(prev => [...prev.slice(-99), msg]);
       }).subscribe();
 
     const dmCh = supabase.channel("dm-sys")
@@ -406,7 +428,7 @@ export function ChatProvider({
                 return (
                   <div key={m.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
                     {!isMe && (
-                      <Avatar name={m.pseudo} src={null} color={EA.cyan} size={28} />
+                      <Avatar name={m.pseudo} src={m.avatar_url ?? null} color={EA.cyan} size={28} />
                     )}
                     <div style={{ maxWidth: "75%" }}>
                       {!isMe && (
