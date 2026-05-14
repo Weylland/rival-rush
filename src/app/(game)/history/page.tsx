@@ -170,12 +170,29 @@ export default async function HistoryPage() {
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{
-                      background: game.game_type === "pfc" ? EA.cyan : game.game_type === "puissance4" ? EA.butter : game.game_type === "reflexe" ? EA.pink : game.game_type === "naval" ? "#0ea5e9" : game.game_type === "chess" ? EA.violetMid : EA.pink,
+                      background:
+                        game.game_type === "pfc"        ? EA.cyan :
+                        game.game_type === "puissance4" ? EA.butter :
+                        game.game_type === "reflexe"    ? EA.pink :
+                        game.game_type === "naval"      ? "#0ea5e9" :
+                        game.game_type === "chess"      ? "#9b8ec4" :
+                        game.game_type === "nim"        ? EA.butter :
+                        game.game_type === "pig"        ? EA.pink :
+                        game.game_type === "mastermind" ? "#4ADE80" :
+                        EA.pink,
                       border: `1.5px solid ${EA.ink}`, borderRadius: 999,
                       padding: "2px 8px", fontSize: 10,
                       fontFamily: "var(--font-display)", color: EA.ink, letterSpacing: 0.6,
                     }}>
-                      {game.game_type === "pfc" ? "PFC" : game.game_type === "puissance4" ? "P4" : game.game_type === "reflexe" ? "⚡" : game.game_type === "naval" ? "🚢" : game.game_type === "chess" ? "♟" : "MORPION"}
+                      {game.game_type === "pfc"        ? "✊ PFC" :
+                       game.game_type === "puissance4" ? "🔴 P4" :
+                       game.game_type === "reflexe"    ? "⚡ Réflexe" :
+                       game.game_type === "naval"      ? "🚢 Naval" :
+                       game.game_type === "chess"      ? "♟ Échecs" :
+                       game.game_type === "nim"        ? "🔥 Nim" :
+                       game.game_type === "pig"        ? "🐷 Cochon" :
+                       game.game_type === "mastermind" ? "🎨 Mastermind" :
+                       "⨯ Morpion"}
                     </div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
                       {dateStr}

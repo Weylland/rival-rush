@@ -6,7 +6,7 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import type { LeaderboardEntry } from "@/types/database";
 
-type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess";
+type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind";
 
 interface TypeStat {
   wins: number;
@@ -21,13 +21,16 @@ interface Props {
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 const TAB_LABELS: Record<Tab, string> = {
-  global:    "🏆 Classement global",
-  pfc:       "✊ Pierre Feuille Ciseaux",
-  morpion:   "⨯ Morpion",
-  puissance4:"🔴 Puissance 4",
-  reflexe:   "⚡ Réflexe",
-  naval:     "🚢 Bataille Navale",
-  chess:     "♟ Échecs",
+  global:     "🏆 Classement global",
+  pfc:        "✊ Pierre Feuille Ciseaux",
+  morpion:    "⨯ Morpion",
+  puissance4: "🔴 Puissance 4",
+  reflexe:    "⚡ Réflexe",
+  naval:      "🚢 Bataille Navale",
+  chess:      "♟ Échecs",
+  nim:        "🔥 Nim",
+  pig:        "🐷 Jeu du Cochon",
+  mastermind: "🎨 Mastermind",
 };
 
 export function RankingClient({ myPlayerId, initialEntries }: Props) {
@@ -41,6 +44,9 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
     reflexe: new Map(),
     naval: new Map(),
     chess: new Map(),
+    nim: new Map(),
+    pig: new Map(),
+    mastermind: new Map(),
   });
   const [typeLoaded, setTypeLoaded] = useState(false);
 
@@ -74,20 +80,19 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
       .then(({ data: games }) => {
         if (!games) return;
 
-        const pfcMap = new Map<string, TypeStat>();
-        const morpionMap = new Map<string, TypeStat>();
-        const puissance4Map = new Map<string, TypeStat>();
-        const reflexeMap = new Map<string, TypeStat>();
-        const navalMap = new Map<string, TypeStat>();
-        const chessMap = new Map<string, TypeStat>();
+        const maps: Record<Exclude<Tab, "global">, Map<string, TypeStat>> = {
+          pfc: new Map(), morpion: new Map(), puissance4: new Map(),
+          reflexe: new Map(), naval: new Map(), chess: new Map(),
+          nim: new Map(), pig: new Map(), mastermind: new Map(),
+        };
 
         for (const game of games) {
           const challenge = game.challenges as unknown as { challenger_id: string; challenged_id: string } | null;
           if (!challenge) continue;
-
-          const map = game.game_type === "pfc" ? pfcMap : game.game_type === "puissance4" ? puissance4Map : game.game_type === "reflexe" ? reflexeMap : game.game_type === "naval" ? navalMap : game.game_type === "chess" ? chessMap : morpionMap;
+          const gt = game.game_type as Exclude<Tab, "global">;
+          const map = maps[gt];
+          if (!map) continue;
           const players = [challenge.challenger_id, challenge.challenged_id];
-
           for (const pid of players) {
             const s = map.get(pid) ?? { wins: 0, losses: 0, draws: 0 };
             if (game.winner_id === null) s.draws++;
@@ -97,7 +102,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
           }
         }
 
-        setTypeStats({ global: new Map(), pfc: pfcMap, morpion: morpionMap, puissance4: puissance4Map, reflexe: reflexeMap, naval: navalMap, chess: chessMap });
+        setTypeStats({ global: new Map(), ...maps });
         setTypeLoaded(true);
       });
   }, []);

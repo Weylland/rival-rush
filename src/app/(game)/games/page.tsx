@@ -138,6 +138,59 @@ export default async function GamesPage() {
             ]}
           />
 
+          {/* Nim */}
+          <GameCard
+            icon="🔥🔥🔥"
+            title="Nim"
+            tag="Déduction"
+            tagColor={EA.butter}
+            borderColor={EA.butter}
+            shadowColor={EA.cyan}
+            badge="NEW ✨"
+            rules={[
+              { icon: "🎲", text: "Le tas contient entre 15 et 25 allumettes — tiré au sort à chaque partie" },
+              { icon: "✋", text: "Tour par tour : prends 1, 2 ou 3 allumettes" },
+              { icon: "💀", text: "Règle misère : celui qui prend la DERNIÈRE allumette PERD" },
+              { icon: "🧠", text: "Le nombre aléatoire rend la stratégie parfaite impossible à connaître à l'avance" },
+            ]}
+          />
+
+          {/* Cochon */}
+          <GameCard
+            icon="🎲🐷🎲"
+            title="Jeu du Cochon"
+            tag="Prise de risque"
+            tagColor={EA.pink}
+            borderColor={EA.pink}
+            shadowColor={EA.butter}
+            badge="NEW ✨"
+            rules={[
+              { icon: "🎲", text: "Ton tour : lance le dé autant de fois que tu veux" },
+              { icon: "➕", text: "Chaque lancer ajoute sa valeur à ton total du tour" },
+              { icon: "💀", text: "Tu fais 1 → tu perds TOUT ce que tu avais accumulé ce tour, et c'est au suivant" },
+              { icon: "🏦", text: "À tout moment tu peux « Banquer » pour sécuriser tes points du tour" },
+              { icon: "🏆", text: "Premier à atteindre 100 points gagne la partie" },
+            ]}
+          />
+
+          {/* Mastermind */}
+          <GameCard
+            icon="🎨🔴🟡"
+            title="Mastermind"
+            tag="Logique"
+            tagColor="#4ADE80"
+            borderColor="#4ADE80"
+            shadowColor={EA.pink}
+            badge="NEW ✨"
+            rules={[
+              { icon: "🎨", text: "Le serveur génère un code secret de 4 couleurs parmi 6 (répétitions possibles)" },
+              { icon: "🔄", text: "Les deux joueurs tentent de deviner le MÊME code, en alternant les essais" },
+              { icon: "⚫", text: "Peg noir = bonne couleur à la bonne position" },
+              { icon: "⚪", text: "Peg blanc = bonne couleur mais mauvaise position" },
+              { icon: "🏆", text: "Premier à obtenir 4 noirs (code exact) gagne · 12 essais max, puis match nul" },
+            ]}
+          />
+
           {/* Points */}
           <div style={{
             background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
