@@ -304,6 +304,23 @@ export async function setRoomOpen(roomId: string, isOpen: boolean): Promise<{ ok
   return error ? { error: error.message } : { ok: true };
 }
 
+export async function updateRoom(
+  roomId: string,
+  fields: {
+    name?: string;
+    is_open?: boolean;
+    is_public?: boolean;
+    max_members?: number | null;
+    allowed_games?: string[] | null;
+  },
+): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  if (fields.name !== undefined && !fields.name.trim()) return { error: "Nom vide" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("rooms").update(fields).eq("id", roomId);
+  return error ? { error: error.message } : { ok: true };
+}
+
 // ── Configuration jeux ────────────────────────────────────────────────────
 
 export async function updateGameSetting(
