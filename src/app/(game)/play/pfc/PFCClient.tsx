@@ -252,7 +252,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
   // ── Choice buttons ─────────────────────────────────────────────────────────
   function ChoiceButtons({ vertical = false }: { vertical?: boolean }) {
     return (
-      <div style={{ display: "flex", flexDirection: vertical ? "column" : "row", gap: vertical ? 12 : 8 }}>
+      <div style={{ display: "flex", flexDirection: vertical ? "column" : "row", gap: vertical ? 12 : 10 }}>
         {MOVES.map(({ id, emoji, label, color, shadow }) => {
           const picked = phase === "waiting" && myMove === id;
           return (
@@ -265,13 +265,13 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
                 background: picked ? color : EA.white,
                 border: `2.5px solid ${EA.ink}`,
                 borderRadius: 24,
-                padding: vertical ? "20px 36px" : "14px 8px 12px",
+                padding: vertical ? "20px 36px" : "18px 6px 16px",
                 display: "flex",
                 flexDirection: vertical ? "row" : "column",
                 alignItems: "center",
-                gap: vertical ? 14 : 4,
-                boxShadow: picked ? `5px 5px 0 ${shadow}, 5px 5px 0 1px ${EA.ink}` : `3px 3px 0 ${EA.violetDeep}`,
-                transform: picked ? (vertical ? "translateX(4px)" : "translateY(-4px) rotate(-2deg)") : "none",
+                gap: vertical ? 14 : 6,
+                boxShadow: picked ? `5px 5px 0 ${shadow}, 5px 5px 0 1px ${EA.ink}` : `4px 4px 0 ${EA.violetDeep}`,
+                transform: picked ? (vertical ? "translateX(4px)" : "translateY(-5px) rotate(-2deg)") : "skewX(-3deg)",
                 cursor: phase === "picking" ? "pointer" : "default",
                 position: "relative",
                 transition: "transform 0.15s, box-shadow 0.15s",
@@ -280,23 +280,52 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
               {picked && (
                 <div style={{
                   position: "absolute",
-                  top: vertical ? "50%" : -10,
+                  top: vertical ? "50%" : -12,
                   left: vertical ? -10 : "50%",
-                  transform: vertical ? "translateY(-50%) rotate(-6deg)" : "translateX(-50%) rotate(-6deg)",
+                  transform: vertical ? "translateY(-50%) rotate(-6deg)" : "translateX(-50%) skewX(3deg) rotate(-6deg)",
                   background: EA.butter, border: `2px solid ${EA.ink}`,
                   padding: "2px 8px", borderRadius: 999,
                   fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink,
                   letterSpacing: 0.6, boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap",
                 }}>TON CHOIX</div>
               )}
-              <div style={{ fontSize: vertical ? 52 : 38, lineHeight: 1 }}>{emoji}</div>
+              <div style={{ fontSize: vertical ? 52 : 46, lineHeight: 1, transform: "skewX(3deg)" }}>{emoji}</div>
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: vertical ? 22 : 12, color: EA.ink,
-                textTransform: "uppercase", letterSpacing: 0.8, transform: "skewX(-4deg)",
+                fontFamily: "var(--font-display)", fontSize: vertical ? 22 : 13, color: EA.ink,
+                textTransform: "uppercase", letterSpacing: 0.8,
               }}>{label}</div>
             </button>
           );
         })}
+      </div>
+    );
+  }
+
+  // ── Mon choix affiché (phase waiting, mobile) ──────────────────────────────
+  function MyChoiceLocked() {
+    const move = MOVES.find(m => m.id === myMove);
+    if (!move) return null;
+    return (
+      <div style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+        background: move.color, border: `3px solid ${EA.ink}`, borderRadius: 24,
+        padding: "20px 0", width: "100%",
+        boxShadow: `5px 5px 0 ${move.shadow}, 5px 5px 0 1px ${EA.ink}`,
+        transform: "skewX(-3deg)",
+        position: "relative",
+      }}>
+        <div style={{
+          position: "absolute", top: -13, left: "50%",
+          transform: "translateX(-50%) skewX(3deg) rotate(-4deg)",
+          background: EA.butter, border: `2px solid ${EA.ink}`,
+          padding: "3px 12px", borderRadius: 999,
+          fontFamily: "var(--font-display)", fontSize: 10, color: EA.ink,
+          letterSpacing: 0.6, boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap",
+        }}>🔒 CHOIX VERROUILLÉ</div>
+        <div style={{ fontSize: 60, lineHeight: 1, transform: "skewX(3deg)" }}>{move.emoji}</div>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.ink, letterSpacing: 0.8, transform: "skewX(3deg) skewX(-4deg)" }}>
+          {move.label.toUpperCase()}
+        </div>
       </div>
     );
   }
@@ -470,10 +499,10 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
                 {phase === "waiting" ? "EN ATTENTE..." : "À TOI DE JOUER !"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 800, color: EA.cyan, marginTop: 4 }}>
-                {phase === "waiting" ? `${opPseudo} doit encore choisir 🔒` : "tape pour choisir, révélation simultanée 🔒"}
+                {phase === "waiting" ? `${opPseudo} doit encore choisir` : "tape pour choisir — révélation simultanée 🔒"}
               </div>
             </div>
-            <ChoiceButtons />
+            {phase === "waiting" ? <MyChoiceLocked /> : <ChoiceButtons />}
             <div style={{ marginTop: 12, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: 1.2 }}>
               {myPseudo.toUpperCase()} · {myScore} — {opScore}
             </div>
