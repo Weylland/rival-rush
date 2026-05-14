@@ -68,7 +68,8 @@ function Fireworks() {
           100% { transform: translateY(0) scaleY(1); opacity: 0; }
         }
         @keyframes fw-burst {
-          0%   { transform: translate(0,0) scale(2.2); opacity: 1; }
+          0%   { transform: translate(0,0) scale(0); opacity: 0; }
+          8%   { transform: translate(0,0) scale(2.5); opacity: 1; }
           55%  { opacity: 1; }
           100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.1); opacity: 0; }
         }
