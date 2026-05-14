@@ -162,6 +162,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
   const [leavePending, startLeave] = useTransition();
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [expandedRankId, setExpandedRankId] = useState<string | null>(null);
 
   // Invite players panel
   const [showInvite, setShowInvite] = useState(false);
@@ -458,41 +459,57 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 
         {/* ── RANKING TAB ── */}
         {tab === "ranking" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1.4, marginBottom: 4 }}>
-              Classement dans {room.name}
-            </div>
-            {rankedMembers.map((m, i) => {
-              const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
-              const isMe = m.player_id === myPlayerId;
-              return (
-                <div key={m.player_id} style={{
-                  background: isMe ? `rgba(0,212,232,0.12)` : EA.violetDeep,
-                  border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
-                  borderRadius: 18, padding: desktop ? "14px 18px" : "10px 14px",
-                  display: "flex", alignItems: "center", gap: 12,
-                  boxShadow: i === 0 ? `4px 4px 0 ${EA.butter}` : `2px 2px 0 ${EA.ink}`,
-                }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 18, minWidth: 36, textAlign: "center" }}>{medal}</div>
-                  <Avatar name={m.pseudo} src={m.avatar_url} color={EA.pink} ring="transparent" size={desktop ? 40 : 32} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 14, color: EA.white, transform: "skewX(-3deg)" }}>{m.pseudo}</div>
-                    <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>
-                      {m.roomWins}V · {m.roomLosses}D · {m.roomDraws}= · {m.roomPoints} pts
-                    </div>
-                  </div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 20, color: i === 0 ? EA.butter : EA.cyan }}>
-                    {m.roomPoints}
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.4)", marginLeft: 3 }}>pts</span>
-                  </div>
-                </div>
-              );
-            })}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {rankedMembers.every(m => m.roomPoints === 0) && (
               <div style={{ textAlign: "center", padding: "32px 0", color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-sans)", fontSize: 13 }}>
                 Aucune partie jouée dans cette salle pour l'instant.<br />Défiez-vous !
               </div>
             )}
+            {rankedMembers.map((m, i) => {
+              const isMe = m.player_id === myPlayerId;
+              const isExpanded = expandedRankId === m.player_id || (expandedRankId === null && i === 0);
+              const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+              return (
+                <div
+                  key={m.player_id}
+                  onClick={() => setExpandedRankId(isExpanded ? null : m.player_id)}
+                  style={{
+                    background: isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
+                    border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                    borderRadius: 18, padding: desktop ? "12px 16px" : "10px 14px",
+                    boxShadow: i === 0 ? `3px 3px 0 ${EA.butter}` : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
+                    <Avatar name={m.pseudo} src={m.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {m.pseudo.toUpperCase()}
+                        {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: i === 0 ? EA.butter : EA.cyan, flexShrink: 0, transform: "skewX(-4deg)" }}>{m.roomPoints}</div>
+                  </div>
+                  {isExpanded && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1.5px solid rgba(255,255,255,0.1)", display: "flex", gap: 8, justifyContent: "space-around" }}>
+                      {[
+                        { label: "Victoires", val: m.roomWins, color: EA.cyan },
+                        { label: "Défaites", val: m.roomLosses, color: EA.pink },
+                        { label: "Nuls", val: m.roomDraws, color: EA.butter },
+                        { label: "Points", val: m.roomPoints, color: EA.white },
+                      ].map(({ label, val, color }) => (
+                        <div key={label} style={{ textAlign: "center" }}>
+                          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 18, color, transform: "skewX(-4deg)" }}>{val}</div>
+                          <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

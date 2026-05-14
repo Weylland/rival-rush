@@ -468,6 +468,36 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const [quickMatchError, setQuickMatchError] = useState<string | null>(null);
   const quickMatchErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Main tab
+  const [mainTab, setMainTab] = useState<"joueurs" | "classement">("joueurs");
+
+  // Ranking (inline)
+  const [rankEntries, setRankEntries] = useState<{ playerId: string; pseudo: string; avatar_url: string | null; wins: number; losses: number; draws: number; points: number }[]>([]);
+  const [rankLoaded, setRankLoaded] = useState(false);
+  const [expandedRankId, setExpandedRankId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mainTab !== "classement" || rankLoaded) return;
+    const supabase = createClient();
+    supabase.from("leaderboard_with_pseudo").select("*").order("points", { ascending: false }).limit(50)
+      .then(async ({ data: rows }) => {
+        if (!rows) return;
+        const ids = rows.map((r: Record<string, unknown>) => r.player_id as string);
+        const { data: avatars } = await supabase.from("players").select("id, avatar_url").in("id", ids);
+        const avatarOf = Object.fromEntries((avatars ?? []).map(p => [p.id, p.avatar_url as string | null]));
+        setRankEntries(rows.map((r: Record<string, unknown>) => ({
+          playerId: r.player_id as string,
+          pseudo: r.pseudo as string,
+          avatar_url: avatarOf[r.player_id as string] ?? null,
+          wins: r.wins as number,
+          losses: r.losses as number,
+          draws: r.draws as number,
+          points: r.points as number,
+        })).filter(r => r.wins + r.losses + r.draws > 0));
+        setRankLoaded(true);
+      });
+  }, [mainTab, rankLoaded]);
+
   // Burger menu (mobile)
   const [burgerOpen, setBurgerOpen] = useState(false);
 
@@ -652,25 +682,23 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
         }}>
           {(["joueurs", "classement"] as const).map((t) => (
             <button key={t}
-              onClick={() => { if (t === "classement") router.push("/ranking"); }}
+              onClick={() => setMainTab(t)}
               style={{
                 flex: 1, textAlign: "center",
-                background: t === "joueurs" ? EA.pink : "transparent",
+                background: t === mainTab ? EA.pink : "transparent",
                 border: "none", borderRadius: 999, padding: desktop ? "12px 0" : "8px 0",
                 fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 13,
-                color: t === "joueurs" ? EA.white : "rgba(255,255,255,0.65)",
+                color: t === mainTab ? EA.white : "rgba(255,255,255,0.65)",
                 letterSpacing: 0.6, cursor: "pointer",
-                boxShadow: t === "joueurs" ? `2px 2px 0 ${EA.cyan}` : "none",
+                boxShadow: t === mainTab ? `2px 2px 0 ${EA.cyan}` : "none",
               }}>
-              {t === "joueurs"
-                ? `JOUEURS · ${availableCount}`
-                : "CLASSEMENT"}
+              {t === "joueurs" ? `JOUEURS · ${availableCount}` : "🏆 CLASSEMENT"}
             </button>
           ))}
         </div>
 
-        {/* Search + filter */}
-        <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+        {/* Search + filter — onglet joueurs uniquement */}
+        {mainTab === "joueurs" && <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
           {/* Search input */}
           <div style={{
             flex: 1, display: "flex", alignItems: "center", gap: 8,
@@ -717,7 +745,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
             }}>
             {showOffline ? "🌐 Tous" : "🟢 En ligne"}
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* Room invitations */}
@@ -784,42 +812,107 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       )}
 
       {/* Player list */}
-      <div style={{
-        position: "relative", zIndex: 10,
-        maxWidth: desktop ? 680 : "100%", margin: "0 auto",
-        padding: desktop ? "16px 40px 120px" : "0 16px 120px",
-        marginTop: 12,
-        display: "flex", flexDirection: "column", gap: desktop ? 12 : 10,
-      }}>
-        {displayPlayers.length === 0 ? (
-          <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
-        ) : (
-          displayPlayers.map((p, i) => (
-            <PlayerRow
-              key={p.player_id}
-              p={p}
-              idx={i}
-              isBlocked={myBlocks.has(p.player_id)}
-              onChallenge={() => setChooseOpponent(p)}
-              onDM={() => openDM(p.player_id, p.pseudo)}
-              onBlock={() => {
-                setMyBlocks(prev => new Set([...prev, p.player_id]));
-                blockPlayer(p.player_id);
-              }}
-              onUnblock={() => {
-                setMyBlocks(prev => { const next = new Set(prev); next.delete(p.player_id); return next; });
-                unblockPlayer(p.player_id);
-              }}
-              onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
-              desktop={desktop}
-              hasPush={pushSubscriberIds.includes(p.player_id)}
-            />
-          ))
-        )}
-      </div>
+      {mainTab === "joueurs" && (
+        <div style={{
+          position: "relative", zIndex: 10,
+          maxWidth: desktop ? 680 : "100%", margin: "0 auto",
+          padding: desktop ? "16px 40px 120px" : "0 16px 120px",
+          marginTop: 12,
+          display: "flex", flexDirection: "column", gap: desktop ? 12 : 10,
+        }}>
+          {displayPlayers.length === 0 ? (
+            <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
+          ) : (
+            displayPlayers.map((p, i) => (
+              <PlayerRow
+                key={p.player_id}
+                p={p}
+                idx={i}
+                isBlocked={myBlocks.has(p.player_id)}
+                onChallenge={() => setChooseOpponent(p)}
+                onDM={() => openDM(p.player_id, p.pseudo)}
+                onBlock={() => {
+                  setMyBlocks(prev => new Set([...prev, p.player_id]));
+                  blockPlayer(p.player_id);
+                }}
+                onUnblock={() => {
+                  setMyBlocks(prev => { const next = new Set(prev); next.delete(p.player_id); return next; });
+                  unblockPlayer(p.player_id);
+                }}
+                onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
+                desktop={desktop}
+                hasPush={pushSubscriberIds.includes(p.player_id)}
+              />
+            ))
+          )}
+        </div>
+      )}
 
-      {/* Match rapide sticky */}
-      <div style={{
+      {/* Ranking inline */}
+      {mainTab === "classement" && (
+        <div style={{
+          position: "relative", zIndex: 10,
+          maxWidth: desktop ? 680 : "100%", margin: "0 auto",
+          padding: desktop ? "16px 40px 120px" : "12px 16px 120px",
+        }}>
+          {!rankLoaded ? (
+            <div style={{ textAlign: "center", padding: "40px 0", fontFamily: "var(--font-sans)", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Chargement…</div>
+          ) : rankEntries.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0", fontFamily: "var(--font-display)", fontSize: 18, color: "rgba(255,255,255,0.4)", transform: "skewX(-4deg)" }}>Aucun joueur classé pour l'instant</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {rankEntries.map((row, i) => {
+                const isMe = row.playerId === myPlayerId;
+                const isExpanded = expandedRankId === row.playerId || (expandedRankId === null && i === 0);
+                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+                return (
+                  <div
+                    key={row.playerId}
+                    onClick={() => setExpandedRankId(isExpanded ? null : row.playerId)}
+                    style={{
+                      background: isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
+                      border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                      borderRadius: 18, padding: desktop ? "12px 16px" : "10px 14px",
+                      boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
+                      <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {row.pseudo.toUpperCase()}
+                          {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}
+                        </div>
+                      </div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: EA.cyan, transform: "skewX(-4deg)", flexShrink: 0 }}>{row.wins}</div>
+                    </div>
+                    {isExpanded && (
+                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1.5px solid rgba(255,255,255,0.1)", display: "flex", gap: 8, justifyContent: "space-around" }}>
+                        {[
+                          { label: "Victoires", val: row.wins, color: EA.cyan },
+                          { label: "Défaites", val: row.losses, color: EA.pink },
+                          { label: "Nuls", val: row.draws, color: EA.butter },
+                          { label: "Points", val: row.points, color: EA.white },
+                        ].map(({ label, val, color }) => (
+                          <div key={label} style={{ textAlign: "center" }}>
+                            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 18, color, transform: "skewX(-4deg)" }}>{val}</div>
+                            <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Match rapide sticky — masqué sur classement */}
+      {mainTab === "joueurs" && <div style={{
         position: "fixed", bottom: 20,
         left: desktop ? "50%" : 80, right: desktop ? "auto" : 16,
         transform: desktop ? "translateX(-50%)" : "none",
@@ -877,7 +970,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
             transition: "color 0.2s",
           }}>GO →</div>
         </button>
-      </div>
+      </div>}
 
       {/* Report modal */}
       {reportTarget && (
