@@ -12,6 +12,7 @@ import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useChatOpen } from "@/app/(game)/chat/ChatSystem";
 import { sendChallenge } from "@/app/(game)/lobby/actions";
 import { leaveRoom, inviteToRoom, kickMember, transferHost, deleteRoom } from "../actions";
+import { blockPlayer, unblockPlayer, reportPlayer } from "@/app/(game)/lobby/actions";
 import type { GameType } from "@/types/database";
 
 const GAME_LABELS: Record<string, string> = {
@@ -169,6 +170,12 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
   const [memberMenu, setMemberMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Blocks
+  const [myBlocks, setMyBlocks] = useState<Set<string>>(new Set());
+  const [reportTarget, setReportTarget] = useState<{ id: string; pseudo: string } | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+
   // Copied code
   const [copied, setCopied] = useState(false);
 
@@ -180,6 +187,14 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, [memberMenu]);
+
+  // Load my blocks
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from("blocks").select("blocked_id").eq("blocker_id", myPlayerId).then(({ data }) => {
+      if (data) setMyBlocks(new Set(data.map(b => b.blocked_id as string)));
+    });
+  }, [myPlayerId]);
 
   // Realtime: member joins/leaves
   useEffect(() => {
@@ -341,24 +356,30 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
               const offline = m.status === "offline";
               const shadowColor = offline ? "transparent" : i % 2 === 0 ? EA.cyan : EA.pink;
 
-              // Menu items: everyone gets Message; host also gets Transfer + Kick
+              const isBlocked = myBlocks.has(m.player_id);
+
+              // Menu items: everyone gets Message + Block + Report; host also gets Transfer + Kick
               const menuItems = [
                 { label: "💬 Message", action: () => { openDM(m.player_id, m.pseudo); setMemberMenu(null); }, color: EA.cyan },
                 ...(isHost ? [
                   { label: "👑 Passer hôte", action: () => { startTransition(async () => { await transferHost(room.id, m.player_id); router.refresh(); }); setMemberMenu(null); }, color: EA.butter },
                   { label: "🚫 Exclure", action: () => { startTransition(async () => { await kickMember(room.id, m.player_id); setMembers(prev => prev.filter(x => x.player_id !== m.player_id)); }); setMemberMenu(null); }, color: EA.pink },
                 ] : []),
+                isBlocked
+                  ? { label: "🔓 Débloquer", action: () => { setMyBlocks(prev => { const n = new Set(prev); n.delete(m.player_id); return n; }); unblockPlayer(m.player_id); setMemberMenu(null); }, color: "#4ADE80" }
+                  : { label: "🔕 Bloquer", action: () => { setMyBlocks(prev => new Set([...prev, m.player_id])); blockPlayer(m.player_id); setMemberMenu(null); }, color: EA.butter },
+                { label: "⚠️ Signaler", action: () => { setReportTarget({ id: m.player_id, pseudo: m.pseudo }); setReportReason(""); setReportSent(false); setMemberMenu(null); }, color: EA.pink },
               ];
 
               return (
                 <div key={m.player_id} style={{
-                  background: offline ? "rgba(255,255,255,0.04)" : EA.white,
-                  border: `2.5px solid ${offline ? "rgba(255,255,255,0.1)" : EA.ink}`,
+                  background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
+                  border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : EA.ink}`,
                   borderRadius: 20, padding: desktop ? "14px 18px" : "11px 14px",
                   display: "flex", alignItems: "center", gap: 12,
-                  boxShadow: offline ? "none" : `4px 4px 0 ${shadowColor}`,
-                  transform: offline ? "none" : i % 2 === 0 ? "rotate(-0.5deg)" : "rotate(0.4deg)",
-                  opacity: offline ? 0.6 : 1,
+                  boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${shadowColor}`,
+                  transform: isBlocked || offline ? "none" : i % 2 === 0 ? "rotate(-0.5deg)" : "rotate(0.4deg)",
+                  opacity: isBlocked ? 0.4 : offline ? 0.6 : 1,
                 }}>
                   <Avatar
                     name={m.pseudo} src={m.avatar_url}
@@ -557,6 +578,39 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                 {leavePending ? "Sortie…" : "Quitter →"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Report modal ── */}
+      {reportTarget && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.82)", backdropFilter: "blur(4px)", zIndex: 70, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ width: "100%", maxWidth: 400, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "24px 22px", boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
+            <button onClick={() => setReportTarget(null)} style={{ position: "absolute", top: -12, right: -12, width: 34, height: 34, borderRadius: "50%", background: EA.white, border: `2px solid ${EA.ink}`, fontSize: 17, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
+            {reportSent ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white }}>Signalement envoyé</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Merci, nous examinerons la situation.</div>
+                <button onClick={() => setReportTarget(null)} style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: EA.cyan, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>Fermer</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.pink, marginBottom: 4 }}>⚠️ Signaler {reportTarget.pseudo}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>Décris le problème rencontré</div>
+                <textarea
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                  placeholder="Ex : comportement toxique, triche..."
+                  maxLength={300} rows={4}
+                  style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "10px 12px", resize: "none", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: EA.white, outline: "none" }}
+                />
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+                  <button onClick={() => setReportTarget(null)} style={{ padding: "10px 18px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: `2px solid rgba(255,255,255,0.2)`, fontFamily: "var(--font-display)", fontSize: 14, color: "rgba(255,255,255,0.6)", cursor: "pointer" }}>Annuler</button>
+                  <button onClick={async () => { await reportPlayer(reportTarget.id, reportReason); setReportSent(true); }} style={{ padding: "10px 22px", borderRadius: 999, background: EA.pink, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>Envoyer ⚠️</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
