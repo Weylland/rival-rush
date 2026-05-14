@@ -31,7 +31,7 @@ interface Conv {
 
 interface DMsg {
   id: string; conversation_id: string; sender_id: string;
-  pseudo: string; content: string; created_at: string;
+  pseudo: string; content: string; created_at: string; deleted?: boolean;
 }
 
 interface OnlinePlayer {
@@ -207,6 +207,7 @@ export function ChatProvider({
     const { data } = await supabase
       .from("direct_messages").select("*")
       .eq("conversation_id", convId)
+      .eq("deleted", false)
       .order("created_at", { ascending: true }).limit(100);
     if (data) setActiveMessages(data);
   }, []);
@@ -270,9 +271,11 @@ export function ChatProvider({
           return prev;
         });
       })
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "direct_messages" }, (p) => {
-        const deleted = p.old as { id: string };
-        setActiveMessages(prev => prev.filter(m => m.id !== deleted.id));
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, (p) => {
+        const updated = p.new as DMsg;
+        if (updated.deleted) {
+          setActiveMessages(prev => prev.filter(m => m.id !== updated.id));
+        }
       })
       .subscribe();
 

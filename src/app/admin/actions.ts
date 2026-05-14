@@ -243,7 +243,8 @@ export async function deleteRoomChatByPlayer(roomId: string, playerId: string): 
 export async function deleteDMMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
   if (!await isAdmin()) return { error: "Non autorisé" };
   const supabase = await createClient();
-  const { error } = await supabase.from("direct_messages").delete().eq("id", messageId);
+  // Soft delete — UPDATE fires reliably in Realtime, DELETE does not
+  const { error } = await supabase.from("direct_messages").update({ deleted: true }).eq("id", messageId);
   return error ? { error: error.message } : { ok: true };
 }
 
