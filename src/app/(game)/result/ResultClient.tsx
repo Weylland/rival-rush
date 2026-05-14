@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { useMemo, useTransition } from "react";
 import { EA } from "@/lib/design";
@@ -12,36 +13,47 @@ import type { PFCState } from "@/types/database";
 
 // ── Feux d'artifice ───────────────────────────────────────────────────────────
 
-const BURST_POSITIONS = [
-  { x: 10, y: 12 }, { x: 35, y: 6  }, { x: 62, y: 8  }, { x: 88, y: 14 },
-  { x: 20, y: 38 }, { x: 50, y: 30 }, { x: 78, y: 35 },
-  { x: 15, y: 62 }, { x: 45, y: 58 }, { x: 75, y: 65 },
-];
-const FW_COLORS = [EA.cyan, EA.pink, EA.butter, "#FF8C00", EA.white, "#C084FC", "#00FF88", "#FF6B6B"];
+const FW_COLORS = [EA.cyan, EA.pink, EA.butter, "#FF8C00", "#C084FC", "#00FF88", "#FF6B6B", EA.white];
+// Positions de lancement (x%) et hauteur d'explosion (y% depuis le haut)
+const LAUNCH_X  = [8, 18, 30, 46, 60, 74, 86, 93];
+const BURST_Y   = [8, 15, 10, 18, 12, 9, 20, 14];
+
+const ROCKET_DUR = 0.9;  // secondes montée
+const BURST_DUR  = 1.5;  // secondes explosion
+
+interface RocketData {
+  id: string; x: number; burstY: number; delay: number;
+  color: string; trailH: number;
+  particles: { tx: number; ty: number; size: number; color: string; shape: string; pid: string }[];
+}
 
 function Fireworks() {
-  const particles = useMemo(() => {
-    const result: {
-      x: number; y: number; tx: number; ty: number;
-      color: string; delay: number; size: number; shape: string; id: string;
-    }[] = [];
-    const DIRECTIONS = 16;
-    // 4 vagues
-    for (let wave = 0; wave < 4; wave++) {
-      for (let b = 0; b < BURST_POSITIONS.length; b++) {
-        const pos = BURST_POSITIONS[b];
-        for (let d = 0; d < DIRECTIONS; d++) {
-          const angle = (d / DIRECTIONS) * 360 + wave * 8;
+  const rockets = useMemo<RocketData[]>(() => {
+    const result: RocketData[] = [];
+    const DIRS = 20;
+    for (let wave = 0; wave < 3; wave++) {
+      for (let i = 0; i < LAUNCH_X.length; i++) {
+        const color  = FW_COLORS[(i + wave * 3) % FW_COLORS.length];
+        const x      = LAUNCH_X[i] + (Math.random() * 4 - 2);
+        const burstY = BURST_Y[i % BURST_Y.length] + Math.random() * 6;
+        const delay  = wave * 2.2 + i * 0.16 + Math.random() * 0.08;
+        const trailH = 18 + Math.random() * 10;
+        const dist   = 90 + Math.random() * 80;
+        const particles: RocketData["particles"] = [];
+        for (let d = 0; d < DIRS; d++) {
+          const angle = (d / DIRS) * 360 + Math.random() * 7;
           const rad   = (angle * Math.PI) / 180;
-          const dist  = 90 + Math.random() * 130;
-          const tx    = Math.cos(rad) * dist;
-          const ty    = Math.sin(rad) * dist;
-          const color = FW_COLORS[(b * 3 + d + wave * 2) % FW_COLORS.length];
-          const delay = wave * 1.6 + b * 0.08 + Math.random() * 0.12;
-          const size  = 5 + Math.random() * 9;
-          const shape = d % 4 === 0 ? "2px" : "50%";
-          result.push({ x: pos.x, y: pos.y, tx, ty, color, delay, size, shape, id: `${wave}-${b}-${d}` });
+          const pDist = dist + Math.random() * 55;
+          const pColor = Math.random() > 0.35 ? color : FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)];
+          particles.push({
+            tx: Math.cos(rad) * pDist, ty: Math.sin(rad) * pDist,
+            size: 4 + Math.random() * 8,
+            color: pColor,
+            shape: d % 4 === 0 ? "2px" : "50%",
+            pid: `p${wave}-${i}-${d}`,
+          });
         }
+        result.push({ id: `r${wave}-${i}`, x, burstY, delay, color, trailH, particles });
       }
     }
     return result;
@@ -49,30 +61,52 @@ function Fireworks() {
 
   return (
     <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 15, pointerEvents: "none", overflow: "hidden" }}>
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            position: "absolute",
-            left: `${p.x}%`, top: `${p.y}%`,
-            width: p.size, height: p.size,
-            borderRadius: p.shape,
-            background: p.color,
-            boxShadow: `0 0 6px 2px ${p.color}`,
-            willChange: "transform, opacity",
-            animation: `fw-burst 1.6s ease-out ${p.delay}s both`,
-            "--fw-tx": `${p.tx}px`,
-            "--fw-ty": `${p.ty}px`,
-          } as React.CSSProperties}
-        />
-      ))}
       <style>{`
+        @keyframes fw-rocket {
+          0%   { transform: translateY(100vh) scaleY(1); opacity: 0.9; }
+          85%  { opacity: 1; }
+          100% { transform: translateY(0) scaleY(1); opacity: 0; }
+        }
         @keyframes fw-burst {
-          0%   { transform: translate(0,0) scale(1.5); opacity: 1; }
-          65%  { opacity: 1; }
-          100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.2); opacity: 0; }
+          0%   { transform: translate(0,0) scale(2.2); opacity: 1; }
+          55%  { opacity: 1; }
+          100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.1); opacity: 0; }
         }
       `}</style>
+      {rockets.map(r => (
+        <Fragment key={r.id}>
+          {/* Fusée qui monte */}
+          <div style={{
+            position: "absolute",
+            left: `${r.x}%`,
+            top: `${r.burstY}%`,
+            width: 4, height: r.trailH,
+            borderRadius: 2,
+            background: `linear-gradient(to bottom, transparent, ${r.color})`,
+            boxShadow: `0 0 10px 3px ${r.color}`,
+            transformOrigin: "center top",
+            animation: `fw-rocket ${ROCKET_DUR}s ease-in ${r.delay}s both`,
+          }} />
+          {/* Explosion */}
+          {r.particles.map(p => (
+            <div
+              key={p.pid}
+              style={{
+                position: "absolute",
+                left: `${r.x}%`,
+                top: `${r.burstY}%`,
+                width: p.size, height: p.size,
+                borderRadius: p.shape,
+                background: p.color,
+                boxShadow: `0 0 7px 2px ${p.color}`,
+                animation: `fw-burst ${BURST_DUR}s ease-out ${r.delay + ROCKET_DUR}s both`,
+                "--fw-tx": `${p.tx}px`,
+                "--fw-ty": `${p.ty}px`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </Fragment>
+      ))}
     </div>
   );
 }
@@ -206,22 +240,26 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
 
   const d = desktop;
 
-  // Couronne : gauche pour joueur gauche (moi), droite pour joueur droite (adversaire)
+  // Couronne centrée sur le haut du cercle, légèrement inclinée selon le joueur
   function Crown({ side }: { side: "left" | "right" }) {
-    const size = d ? 34 : 26;
+    const size = d ? 38 : 30;
+    const rot  = side === "left" ? -16 : 16;
     return (
       <div style={{
         position: "absolute",
-        top: d ? -18 : -14,
-        ...(side === "left"
-          ? { left: -size * 0.4, transform: "rotate(-25deg)" }
-          : { right: -size * 0.4, transform: "rotate(25deg)" }
-        ),
-        fontSize: size,
+        top: -(size * 0.62),
+        left: "50%",
         zIndex: 5,
-        filter: "drop-shadow(0 2px 8px rgba(255,233,74,0.9)) drop-shadow(0 0 4px #FFE94A)",
         animation: "crown-drop 0.55s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
-      }}>👑</div>
+      }}>
+        <span style={{
+          display: "block",
+          fontSize: size,
+          lineHeight: 1,
+          transform: `rotate(${rot}deg)`,
+          filter: "drop-shadow(0 2px 10px rgba(255,233,74,0.95)) drop-shadow(0 0 6px #FFE94A)",
+        }}>👑</span>
+      </div>
     );
   }
 
@@ -441,9 +479,9 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
 
       <style>{`
         @keyframes crown-drop {
-          0%   { transform: rotate(var(--cr)) translateY(-24px) scale(0); opacity: 0; }
-          55%  { transform: rotate(var(--cr)) translateY(6px) scale(1.25); opacity: 1; }
-          100% { transform: rotate(var(--cr)) translateY(0) scale(1); opacity: 1; }
+          0%   { transform: translateX(-50%) translateY(-28px) scale(0); opacity: 0; }
+          55%  { transform: translateX(-50%) translateY(5px) scale(1.3); opacity: 1; }
+          100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
         }
         @keyframes x-stamp {
           0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
