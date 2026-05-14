@@ -183,7 +183,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         )}
         {rows.map((row, i) => {
           const isMe = row.playerId === myPlayerId;
-          const isExpanded = expandedId === row.playerId;
+          const isExpanded = expandedId === row.playerId || (expandedId === null && i === 0);
           return (
             <div
               key={row.playerId}
