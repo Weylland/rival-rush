@@ -336,11 +336,19 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
         {/* ── MEMBERS TAB ── */}
         {tab === "members" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {members.map((m, i) => {
-              const isMe = m.player_id === myPlayerId;
+            {members.filter(m => m.player_id !== myPlayerId).map((m, i) => {
               const inGame = m.status === "in-game";
               const offline = m.status === "offline";
               const shadowColor = offline ? "transparent" : i % 2 === 0 ? EA.cyan : EA.pink;
+
+              // Menu items: everyone gets Message; host also gets Transfer + Kick
+              const menuItems = [
+                { label: "💬 Message", action: () => { openDM(m.player_id, m.pseudo); setMemberMenu(null); }, color: EA.cyan },
+                ...(isHost ? [
+                  { label: "👑 Passer hôte", action: () => { startTransition(async () => { await transferHost(room.id, m.player_id); router.refresh(); }); setMemberMenu(null); }, color: EA.butter },
+                  { label: "🚫 Exclure", action: () => { startTransition(async () => { await kickMember(room.id, m.player_id); setMembers(prev => prev.filter(x => x.player_id !== m.player_id)); }); setMemberMenu(null); }, color: EA.pink },
+                ] : []),
+              ];
 
               return (
                 <div key={m.player_id} style={{
@@ -366,16 +374,12 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                       {m.player_id === room.hostId && (
                         <span style={{ background: EA.butter, border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "1px 7px", fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.ink, letterSpacing: 0.5 }}>HÔTE</span>
                       )}
-                      {isMe && (
-                        <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.1)", borderRadius: 999, padding: "1px 7px" }}>Toi</span>
-                      )}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 12 : 10, fontWeight: 800, color: offline ? "rgba(255,255,255,0.35)" : inGame ? EA.pink : EA.violetDeep, display: "flex", alignItems: "center", gap: 4 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: offline ? "rgba(255,255,255,0.2)" : inGame ? EA.pink : "#1ee29a", flexShrink: 0 }} />
                         {offline ? "Hors ligne" : inGame ? (m.game_type ? `En partie · ${GAME_LABELS[m.game_type] ?? m.game_type}` : "En partie") : "En ligne"}
                       </div>
-                      {/* Room mini-stats */}
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 800, color: offline ? "rgba(255,255,255,0.25)" : "rgba(26,15,94,0.55)" }}>
                         {m.roomWins}V · {m.roomLosses}D · {m.roomPoints}pts
                       </div>
@@ -383,46 +387,45 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                   </div>
 
                   {/* Actions */}
-                  {!isMe && (
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      {!inGame && (
-                        <button onClick={() => { setChallengeError(null); setChooseOpponent(m); }} style={{
-                          fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 11,
-                          color: offline ? "rgba(255,255,255,0.7)" : EA.white,
-                          background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
-                          border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
-                          borderRadius: 999, padding: desktop ? "9px 18px" : "7px 12px",
-                          cursor: "pointer", whiteSpace: "nowrap",
-                          boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
-                        }}>Défier ⚔</button>
-                      )}
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    {!inGame && (
+                      <button onClick={() => { setChallengeError(null); setChooseOpponent(m); }} style={{
+                        fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 11,
+                        color: offline ? "rgba(255,255,255,0.7)" : EA.white,
+                        background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
+                        border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+                        borderRadius: 999, padding: desktop ? "9px 18px" : "7px 12px",
+                        cursor: "pointer", whiteSpace: "nowrap",
+                        boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
+                      }}>Défier ⚔</button>
+                    )}
 
-                      {/* Host member menu */}
-                      {isHost && (
-                        <div ref={m.player_id === memberMenu ? menuRef : undefined} style={{ position: "relative" }}>
-                          <button onClick={() => setMemberMenu(prev => prev === m.player_id ? null : m.player_id)}
-                            style={{ width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.1)", border: `2px solid rgba(0,0,0,0.15)`, color: EA.ink, fontSize: 16, cursor: "pointer", fontWeight: 900 }}>
-                            ⋯
-                          </button>
-                          {memberMenu === m.player_id && (
-                            <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 60, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, overflow: "hidden", boxShadow: `4px 4px 0 ${EA.ink}`, minWidth: 160 }}>
-                              {[
-                                { label: "💬 Message", action: () => { openDM(m.player_id, m.pseudo); setMemberMenu(null); }, color: EA.cyan },
-                                { label: "👑 Passer hôte", action: () => { startTransition(async () => { await transferHost(room.id, m.player_id); router.refresh(); }); setMemberMenu(null); }, color: EA.butter },
-                                { label: "🚫 Exclure", action: () => { startTransition(async () => { await kickMember(room.id, m.player_id); setMembers(prev => prev.filter(x => x.player_id !== m.player_id)); }); setMemberMenu(null); }, color: EA.pink },
-                              ].map(({ label, action, color }) => (
-                                <button key={label} onClick={action} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: "var(--font-display)", fontSize: 13, color, cursor: "pointer" }}
-                                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
-                                  onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                                  {label}
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                    {/* ⋯ menu — tous les membres */}
+                    <div ref={m.player_id === memberMenu ? menuRef : undefined} style={{ position: "relative" }}>
+                      <button
+                        onClick={() => setMemberMenu(prev => prev === m.player_id ? null : m.player_id)}
+                        style={{
+                          width: desktop ? 34 : 30, height: desktop ? 34 : 30,
+                          borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                          background: memberMenu === m.player_id ? EA.violetDeep : "rgba(0,0,0,0.1)",
+                          border: `2px solid ${memberMenu === m.player_id ? EA.ink : "rgba(0,0,0,0.15)"}`,
+                          color: memberMenu === m.player_id ? EA.white : EA.ink,
+                          fontSize: desktop ? 18 : 15, cursor: "pointer", fontWeight: 900,
+                        }}>⋯</button>
+                      {memberMenu === m.player_id && (
+                        <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 60, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, overflow: "hidden", boxShadow: `4px 4px 0 ${EA.ink}`, minWidth: 170 }}>
+                          {menuItems.map(({ label, action, color }) => (
+                            <button key={label} onClick={action}
+                              style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: "var(--font-display)", fontSize: 13, color, cursor: "pointer", borderBottom: label !== menuItems[menuItems.length - 1].label ? "1px solid rgba(255,255,255,0.07)" : "none" }}
+                              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                              {label}
+                            </button>
+                          ))}
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
