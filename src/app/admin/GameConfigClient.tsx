@@ -10,6 +10,7 @@ interface GameSetting {
   is_active: boolean;
   win_pts: number;
   draw_pts: number;
+  loss_pts: number;
 }
 
 const GAME_META: Record<string, { name: string; emoji: string }> = {
@@ -33,7 +34,7 @@ export function GameConfigClient() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [editing, setEditing] = useState<
-    Record<string, { win_pts: string; draw_pts: string }>
+    Record<string, { win_pts: string; draw_pts: string; loss_pts: string }>
   >({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
@@ -43,7 +44,7 @@ export function GameConfigClient() {
     const supabase = createClient();
     const { data, error: err } = await supabase
       .from("game_settings")
-      .select("game_type, is_active, win_pts, draw_pts")
+      .select("game_type, is_active, win_pts, draw_pts, loss_pts")
       .order("game_type");
 
     if (err) {
@@ -53,12 +54,13 @@ export function GameConfigClient() {
     } else {
       const rows = (data ?? []) as GameSetting[];
       setSettings(rows);
-      const initEdit: Record<string, { win_pts: string; draw_pts: string }> =
+      const initEdit: Record<string, { win_pts: string; draw_pts: string; loss_pts: string }> =
         {};
       for (const s of rows) {
         initEdit[s.game_type] = {
           win_pts: String(s.win_pts),
           draw_pts: String(s.draw_pts),
+          loss_pts: String(s.loss_pts),
         };
       }
       setEditing(initEdit);
@@ -89,35 +91,29 @@ export function GameConfigClient() {
     if (!edit) return;
     const winPts = parseInt(edit.win_pts);
     const drawPts = parseInt(edit.draw_pts);
+    const lossPts = parseInt(edit.loss_pts);
     if (
-      isNaN(winPts) ||
-      isNaN(drawPts) ||
-      winPts < 0 ||
-      drawPts < 0 ||
-      winPts > 99 ||
-      drawPts > 99
+      isNaN(winPts) || isNaN(drawPts) || isNaN(lossPts) ||
+      winPts < 0 || drawPts < 0 || lossPts < 0 ||
+      winPts > 99 || drawPts > 99 || lossPts > 99
     ) {
       setError("Valeurs invalides (entiers entre 0 et 99)");
       return;
     }
     setError(null);
     startTransition(async () => {
-      const [r1, r2] = await Promise.all([
+      const [r1, r2, r3] = await Promise.all([
         updateGameSetting(gameType, "win_pts", winPts),
         updateGameSetting(gameType, "draw_pts", drawPts),
+        updateGameSetting(gameType, "loss_pts", lossPts),
       ]);
-      if ("error" in r1) {
-        setError(r1.error);
-        return;
-      }
-      if ("error" in r2) {
-        setError(r2.error);
-        return;
-      }
+      if ("error" in r1) { setError(r1.error); return; }
+      if ("error" in r2) { setError(r2.error); return; }
+      if ("error" in r3) { setError(r3.error); return; }
       setSettings((prev) =>
         prev.map((s) =>
           s.game_type === gameType
-            ? { ...s, win_pts: winPts, draw_pts: drawPts }
+            ? { ...s, win_pts: winPts, draw_pts: drawPts, loss_pts: lossPts }
             : s,
         ),
       );
@@ -328,10 +324,12 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
           const edit = editing[s.game_type] ?? {
             win_pts: String(s.win_pts),
             draw_pts: String(s.draw_pts),
+            loss_pts: String(s.loss_pts),
           };
           const changed =
             edit.win_pts !== String(s.win_pts) ||
-            edit.draw_pts !== String(s.draw_pts);
+            edit.draw_pts !== String(s.draw_pts) ||
+            edit.loss_pts !== String(s.loss_pts);
 
           return (
             <div
@@ -523,6 +521,65 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                         color: EA.butter,
                         background: "rgba(255,233,74,0.1)",
                         border: `2px solid ${edit.draw_pts !== String(s.draw_pts) ? EA.butter : "rgba(255,233,74,0.25)"}`,
+                        borderRadius: 8,
+                        padding: "4px 0",
+                        textAlign: "center",
+                        outline: "none",
+                        transition: "border-color .15s",
+                      }}
+                    />
+                  </div>
+
+                  <span
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 10,
+                      color: "rgba(255,255,255,0.25)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    pts
+                  </span>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <label
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: 9,
+                        fontWeight: 900,
+                        color: EA.pink,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      Défaite
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="99"
+                      value={edit.loss_pts}
+                      onChange={(e) =>
+                        setEditing((prev) => ({
+                          ...prev,
+                          [s.game_type]: { ...edit, loss_pts: e.target.value },
+                        }))
+                      }
+                      style={{
+                        width: 54,
+                        fontFamily: "var(--font-display)",
+                        fontSize: 20,
+                        fontWeight: 700,
+                        color: EA.pink,
+                        background: "rgba(255,30,140,0.1)",
+                        border: `2px solid ${edit.loss_pts !== String(s.loss_pts) ? EA.pink : "rgba(255,30,140,0.25)"}`,
                         borderRadius: 8,
                         padding: "4px 0",
                         textAlign: "center",

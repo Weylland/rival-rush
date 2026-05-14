@@ -308,7 +308,7 @@ export async function setRoomOpen(roomId: string, isOpen: boolean): Promise<{ ok
 
 export async function updateGameSetting(
   gameType: string,
-  field: "is_active" | "win_pts" | "draw_pts",
+  field: "is_active" | "win_pts" | "draw_pts" | "loss_pts",
   value: boolean | number,
 ): Promise<{ ok: boolean } | { error: string }> {
   if (!await isAdmin()) return { error: "Non autorisé" };
