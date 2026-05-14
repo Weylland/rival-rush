@@ -767,7 +767,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       {/* Match rapide sticky */}
       <div style={{
         position: "fixed", bottom: 20,
-        left: desktop ? "50%" : 76, right: desktop ? "auto" : 16,
+        left: desktop ? "50%" : 80, right: desktop ? "auto" : 16,
         transform: desktop ? "translateX(-50%)" : "none",
         width: desktop ? 640 : "auto",
         zIndex: 20,
@@ -790,7 +790,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           style={{
             width: "100%",
             background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
-            borderRadius: 22, padding: desktop ? "14px 20px" : "10px 14px",
+            borderRadius: 22, padding: desktop ? "14px 20px" : "0 14px",
+            height: desktop ? "auto" : 56,
             display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
             boxShadow: `4px 4px 0 ${EA.pink}`,
             cursor: "pointer",
