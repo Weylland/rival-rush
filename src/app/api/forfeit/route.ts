@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 
 type ForfeitMode = "self" | "check-opponent";
 
-const STALE_THRESHOLD_MS = 60_000;
+const STALE_THRESHOLD_MS = 120_000;
 
 async function updateLeaderboardForForfeit(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -86,11 +86,13 @@ export async function POST(request: NextRequest) {
       const opponentId = session.playerId === p1Id ? p2Id : p1Id;
       const { data: presence } = await supabase
         .from("presence")
-        .select("updated_at")
+        .select("status, updated_at")
         .eq("player_id", opponentId)
         .maybeSingle();
 
-      const isStale = !presence || (Date.now() - new Date(presence.updated_at).getTime() > STALE_THRESHOLD_MS);
+      const isStale = !presence ||
+        presence.status !== "in-game" ||
+        (Date.now() - new Date(presence.updated_at).getTime() > STALE_THRESHOLD_MS);
       if (!isStale) {
         return NextResponse.json({ ok: false, reason: "opponent-alive" });
       }

@@ -173,7 +173,7 @@ export function MastermindClient({
       updated_at: new Date().toISOString(),
     }).then(() => {});
     up();
-    const hb = setInterval(up, 30_000);
+    const hb = setInterval(up, 15_000);
     return () => {
       clearInterval(hb);
       supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});

@@ -168,7 +168,7 @@ export function ChessClient({
     const updatePresence = () =>
       supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "chess", updated_at: new Date().toISOString() }).then(() => {});
     updatePresence();
-    const heartbeat = setInterval(updatePresence, 30_000);
+    const heartbeat = setInterval(updatePresence, 15_000);
     return () => {
       clearInterval(heartbeat);
       supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});

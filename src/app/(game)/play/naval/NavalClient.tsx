@@ -619,7 +619,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
     const supabase = createClient();
     const beat = () => supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "naval", updated_at: new Date().toISOString() }).then(() => {});
     beat();
-    const hb = setInterval(beat, 30_000);
+    const hb = setInterval(beat, 15_000);
     return () => {
       clearInterval(hb);
       supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});

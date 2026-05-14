@@ -93,7 +93,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
     const updatePresence = () =>
       supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "puissance4", updated_at: new Date().toISOString() }).then(() => {});
     updatePresence();
-    const heartbeat = setInterval(updatePresence, 30_000);
+    const heartbeat = setInterval(updatePresence, 15_000);
 
     return () => {
       clearInterval(heartbeat);

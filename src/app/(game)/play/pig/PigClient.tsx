@@ -208,7 +208,7 @@ export function PigClient({
         updated_at: new Date().toISOString(),
       }).then(() => {});
     updatePresence();
-    const heartbeat = setInterval(updatePresence, 30_000);
+    const heartbeat = setInterval(updatePresence, 15_000);
     return () => {
       clearInterval(heartbeat);
       supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});

@@ -7,11 +7,11 @@ interface Options {
   isFinishedRef: React.MutableRefObject<boolean>;
 }
 
-const OPPONENT_GONE_GRACE_MS = 8_000;
-const STALE_CHECK_INTERVAL_MS = 20_000;
-const STALE_THRESHOLD_MS = 60_000;
+const OPPONENT_GONE_GRACE_MS = 45_000;   // 45s pour se reconnecter après un DELETE
+const STALE_CHECK_INTERVAL_MS = 30_000;  // poll toutes les 30s
+const STALE_THRESHOLD_MS = 120_000;      // 2 min sans heartbeat = stale
 // Don't start watching until both players have had time to land on the game page
-const STARTUP_DELAY_MS = 15_000;
+const STARTUP_DELAY_MS = 20_000;
 
 /**
  * Watches the opponent's presence row during a game.
