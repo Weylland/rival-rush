@@ -13,6 +13,7 @@ import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useChatOpen } from "@/app/(game)/chat/ChatSystem";
 import { blockPlayer, unblockPlayer, reportPlayer } from "./actions";
+import { acceptRoomInvitation, declineRoomInvitation } from "@/app/(game)/room/actions";
 import type { GameType } from "@/types/database";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -46,6 +47,15 @@ interface LobbyPlayer {
   game_type?: string | null;
 }
 
+interface RoomInvitationInfo {
+  id: string;
+  roomId: string;
+  roomName: string;
+  roomCode: string;
+  inviterPseudo: string;
+  expiresAt: string;
+}
+
 interface LobbyClientProps {
   myPlayerId: string;
   myPseudo: string;
@@ -53,6 +63,7 @@ interface LobbyClientProps {
   myPoints: number;
   initialPlayers: PresencePlayer[];
   pushSubscriberIds: string[];
+  roomInvitations?: RoomInvitationInfo[];
 }
 
 // ── Choose game modal ─────────────────────────────────────────────────────────
@@ -417,7 +428,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds }: LobbyClientProps) {
+export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds, roomInvitations = [] }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const { openDM } = useChatOpen();
@@ -448,6 +459,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const [challengeError, setChallengeError] = useState<string | null>(null);
   const [quickMatchError, setQuickMatchError] = useState<string | null>(null);
   const quickMatchErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Room invitations
+  const [pendingInvitations, setPendingInvitations] = useState<RoomInvitationInfo[]>(roomInvitations);
+  const [inviteResponding, setInviteResponding] = useState<string | null>(null);
 
   // Blocks
   const [myBlocks, setMyBlocks] = useState<Set<string>>(new Set());
@@ -742,6 +757,69 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           </button>
         </div>
       </div>
+
+      {/* Room invitations */}
+      {pendingInvitations.length > 0 && (
+        <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "0 40px" : "0 16px", display: "flex", flexDirection: "column", gap: 8, marginBottom: 4 }}>
+          {pendingInvitations.map(inv => (
+            <div key={inv.id} style={{
+              background: `linear-gradient(135deg, ${EA.violetDeep}, rgba(26,15,94,0.95))`,
+              border: `2.5px solid ${EA.cyan}`,
+              borderRadius: 20, padding: desktop ? "14px 18px" : "12px 14px",
+              display: "flex", alignItems: "center", gap: 12,
+              boxShadow: `4px 4px 0 ${EA.cyan}`,
+              animation: "ea-float 3s ease-in-out infinite",
+            }}>
+              <div style={{ fontSize: desktop ? 28 : 24, flexShrink: 0 }}>🏠</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: EA.white, lineHeight: 1.2 }}>
+                  <span style={{ color: EA.cyan }}>{inv.inviterPseudo}</span> t'invite dans{" "}
+                  <span style={{ color: EA.butter }}>"{inv.roomName}"</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+                  Code : <strong style={{ letterSpacing: 1.5, color: "rgba(255,255,255,0.65)" }}>{inv.roomCode}</strong>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <button
+                  onClick={async () => {
+                    setInviteResponding(inv.id);
+                    await declineRoomInvitation(inv.id);
+                    setPendingInvitations(prev => prev.filter(i => i.id !== inv.id));
+                    setInviteResponding(null);
+                  }}
+                  disabled={inviteResponding === inv.id}
+                  style={{
+                    background: "rgba(255,255,255,0.08)", border: `2px solid rgba(255,255,255,0.2)`,
+                    borderRadius: 999, padding: desktop ? "9px 16px" : "7px 12px",
+                    fontFamily: "var(--font-display)", fontSize: desktop ? 13 : 11,
+                    color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                  }}>
+                  Refuser
+                </button>
+                <button
+                  onClick={async () => {
+                    setInviteResponding(inv.id);
+                    await acceptRoomInvitation(inv.id);
+                    // redirect happens server-side
+                  }}
+                  disabled={inviteResponding === inv.id}
+                  style={{
+                    background: EA.cyan, border: `2px solid ${EA.ink}`,
+                    borderRadius: 999, padding: desktop ? "9px 18px" : "7px 14px",
+                    fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 12,
+                    color: EA.ink, cursor: inviteResponding === inv.id ? "wait" : "pointer",
+                    boxShadow: `2px 2px 0 ${EA.ink}`,
+                    opacity: inviteResponding === inv.id ? 0.7 : 1,
+                    whiteSpace: "nowrap",
+                  }}>
+                  {inviteResponding === inv.id ? "…" : "Rejoindre →"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Player list */}
       <div style={{
