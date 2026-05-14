@@ -259,11 +259,12 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, onReport, desktop, hasPush }: {
+function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, onReport, desktop, hasPush, stats }: {
   p: LobbyPlayer; idx: number; isBlocked: boolean;
   onChallenge: () => void; onDM: () => void;
   onBlock: () => void; onUnblock: () => void; onReport: () => void;
   desktop: boolean; hasPush: boolean;
+  stats?: { wins: number; losses: number; draws: number; points: number } | null;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -317,6 +318,11 @@ function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, o
             </>
           )}
         </div>
+        {stats && !isBlocked && (
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 800, color: offline ? "rgba(255,255,255,0.25)" : "rgba(26,15,94,0.55)", marginTop: 2 }}>
+            {stats.wins}V · {stats.losses}D · {stats.points}pts
+          </div>
+        )}
       </div>
 
       {/* Bouton DÉFIER — masqué si bloqué */}
@@ -459,6 +465,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   );
   // All registered players (loaded async)
   const [allPlayers, setAllPlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null }[]>([]);
+  // Leaderboard stats par joueur
+  const [lbStats, setLbStats] = useState<Map<string, { wins: number; losses: number; draws: number; points: number }>>(new Map());
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showOffline, setShowOffline] = useState(false);
@@ -518,6 +526,11 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     // Load all registered players (for search + offline display)
     supabase.from("players").select("id, pseudo, avatar_url").then(({ data }) => {
       if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string, avatar_url: (p.avatar_url as string | null) ?? null })));
+    });
+
+    // Load leaderboard stats for all players
+    supabase.from("leaderboard").select("player_id, wins, losses, draws, points").then(({ data }) => {
+      if (data) setLbStats(new Map(data.map(r => [r.player_id as string, { wins: r.wins as number, losses: r.losses as number, draws: r.draws as number, points: r.points as number }])));
     });
 
     supabase.from("blocks").select("blocked_id").eq("blocker_id", myPlayerId).then(({ data }) => {
@@ -842,6 +855,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
                 onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
                 desktop={desktop}
                 hasPush={pushSubscriberIds.includes(p.player_id)}
+                stats={lbStats.get(p.player_id) ?? null}
               />
             ))
           )}
