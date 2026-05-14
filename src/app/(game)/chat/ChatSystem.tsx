@@ -248,6 +248,7 @@ export function ChatProvider({
 
     const dmCh = supabase.channel("dm-sys")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (p) => {
+        console.log("[DM realtime] INSERT", p.new);
         const msg = p.new as DMsg;
         // Active conversation
         setActiveMessages(prev =>
@@ -272,12 +273,15 @@ export function ChatProvider({
         });
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, (p) => {
+        console.log("[DM realtime] UPDATE", p.new);
         const updated = p.new as DMsg;
         if (updated.deleted) {
           setActiveMessages(prev => prev.filter(m => m.id !== updated.id));
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[DM realtime] subscription status:", status);
+      });
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
   }, [myId, activeConvId, activeRoomId, loadConversations]);
