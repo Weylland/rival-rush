@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { EA } from "@/lib/design";
 import { sendChallenge } from "@/app/(game)/lobby/actions";
 import { Avatar } from "@/components/ui/avatar";
@@ -9,6 +9,114 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import type { PFCState } from "@/types/database";
+
+// ── Feux d'artifice ───────────────────────────────────────────────────────────
+
+const BURST_POSITIONS = [
+  { x: 15, y: 20 }, { x: 50, y: 10 }, { x: 82, y: 22 },
+  { x: 28, y: 55 }, { x: 72, y: 48 }, { x: 55, y: 70 },
+];
+const FW_COLORS = [EA.cyan, EA.pink, EA.butter, "#FF8C00", EA.white, "#C084FC"];
+
+function Fireworks() {
+  const particles = useMemo(() => {
+    const result = [];
+    const DIRECTIONS = 10;
+    // 3 vagues décalées dans le temps
+    for (let wave = 0; wave < 3; wave++) {
+      for (let b = 0; b < BURST_POSITIONS.length; b++) {
+        const pos = BURST_POSITIONS[b];
+        for (let d = 0; d < DIRECTIONS; d++) {
+          const angle = (d / DIRECTIONS) * 360;
+          const rad = (angle * Math.PI) / 180;
+          const dist = 55 + Math.random() * 70;
+          const tx = Math.cos(rad) * dist;
+          const ty = Math.sin(rad) * dist;
+          const color = FW_COLORS[(b + d + wave) % FW_COLORS.length];
+          const delay = wave * 1.8 + b * 0.12 + Math.random() * 0.1;
+          const size = 3 + Math.random() * 5;
+          const shape = d % 3 === 0 ? "2px" : "50%";
+          result.push({ x: pos.x, y: pos.y, tx, ty, color, delay, size, shape, id: `${wave}-${b}-${d}` });
+        }
+      }
+    }
+    return result;
+  }, []);
+
+  return (
+    <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 15, pointerEvents: "none", overflow: "hidden" }}>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: `${p.x}%`, top: `${p.y}%`,
+            width: p.size, height: p.size,
+            borderRadius: p.shape,
+            background: p.color,
+            boxShadow: `0 0 4px ${p.color}`,
+            willChange: "transform, opacity",
+            animation: `fw-burst 1.4s ease-out ${p.delay}s both`,
+            "--fw-tx": `${p.tx}px`,
+            "--fw-ty": `${p.ty}px`,
+          } as React.CSSProperties}
+        />
+      ))}
+      <style>{`
+        @keyframes fw-burst {
+          0%   { transform: translate(0,0) scale(1);   opacity: 1; }
+          70%  { opacity: 1; }
+          100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.3); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ── Pluie de défaite ──────────────────────────────────────────────────────────
+
+const LOSE_ITEMS = ["💀","😭","💔","😢","☠️","💀","😭","💔","😢","😭","💀","☠️","😢","💔","😭"];
+
+function LoseRain() {
+  const drops = useMemo(() =>
+    LOSE_ITEMS.map((emoji, i) => ({
+      emoji,
+      x: 3 + (i * 6.5) % 94,
+      delay: i * 0.18 + Math.random() * 0.2,
+      duration: 1.6 + Math.random() * 0.8,
+      size: 18 + Math.random() * 14,
+      rotate: -20 + Math.random() * 40,
+    }))
+  , []);
+
+  return (
+    <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 15, pointerEvents: "none", overflow: "hidden" }}>
+      {drops.map((d, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${d.x}%`,
+            top: -50,
+            fontSize: d.size,
+            transform: `rotate(${d.rotate}deg)`,
+            willChange: "transform",
+            animation: `lose-fall ${d.duration}s ease-in ${d.delay}s both`,
+          }}
+        >
+          {d.emoji}
+        </div>
+      ))}
+      <style>{`
+        @keyframes lose-fall {
+          0%   { top: -50px; opacity: 1; }
+          80%  { opacity: 0.8; }
+          100% { top: 105vh; opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
 const MOVE_EMOJI: Record<PFCMove, string> = { pierre: "✊", feuille: "✋", ciseaux: "✂️" };
@@ -56,6 +164,8 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+      {isWin  && <Fireworks />}
+      {isLose && <LoseRain />}
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.25,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.6) 1.4px, transparent 1.8px)",
@@ -114,7 +224,28 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={isWin ? EA.cyan : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {isWin && (
+                  <div style={{
+                    position: "absolute", top: d ? -26 : -20, left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: d ? 28 : 22,
+                    animation: "crown-drop 0.5s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
+                    zIndex: 2,
+                    filter: "drop-shadow(0 2px 6px rgba(255,233,74,0.8))",
+                  }}>👑</div>
+                )}
+                {isLose && (
+                  <div style={{
+                    position: "absolute", top: d ? -22 : -18, left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: d ? 24 : 18,
+                    animation: "skull-drop 0.5s ease-out 0.5s both",
+                    zIndex: 2,
+                  }}>💀</div>
+                )}
+                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={isWin ? EA.cyan : isLose ? "rgba(255,30,140,0.4)" : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              </div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: EA.white, transform: "skewX(-4deg)" }}>
                 {myPseudo.toUpperCase()}
               </div>
@@ -139,7 +270,28 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
-              <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={isLose ? EA.pink : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {isLose && (
+                  <div style={{
+                    position: "absolute", top: d ? -26 : -20, left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: d ? 28 : 22,
+                    animation: "crown-drop 0.5s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
+                    zIndex: 2,
+                    filter: "drop-shadow(0 2px 6px rgba(255,233,74,0.8))",
+                  }}>👑</div>
+                )}
+                {isWin && (
+                  <div style={{
+                    position: "absolute", top: d ? -22 : -18, left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: d ? 24 : 18,
+                    animation: "skull-drop 0.5s ease-out 0.5s both",
+                    zIndex: 2,
+                  }}>💀</div>
+                )}
+                <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={isLose ? EA.pink : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+              </div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: "rgba(255,255,255,0.6)", transform: "skewX(-4deg)" }}>
                 {opPseudo.toUpperCase()}
               </div>
@@ -251,6 +403,18 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes crown-drop {
+          0%   { transform: translateX(-50%) translateY(-20px) rotate(-15deg) scale(0); opacity: 0; }
+          60%  { transform: translateX(-50%) translateY(4px) rotate(5deg) scale(1.2); opacity: 1; }
+          100% { transform: translateX(-50%) translateY(0) rotate(0deg) scale(1); opacity: 1; }
+        }
+        @keyframes skull-drop {
+          0%   { transform: translateX(-50%) scale(0) rotate(20deg); opacity: 0; }
+          100% { transform: translateX(-50%) scale(1) rotate(-5deg); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
