@@ -170,8 +170,8 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         display: "grid", gridTemplateColumns: "1fr 48px",
         marginBottom: 10, padding: "0 14px",
       }}>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1 }}>JOUEUR</div>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>V</div>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>JOUEUR</div>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>V</div>
       </div>
 
       {/* Rows */}
