@@ -16,22 +16,20 @@ import type { MastermindState, MastermindGuess, GameStatus } from "@/types/datab
 
 const MAX_GUESSES = 12;
 
-// ── Palette bijou ─────────────────────────────────────────────────────────────
 const COLORS = [
-  { bg: "#FF2D78", glow: "rgba(255,45,120,0.7)",  label: "Rubis"    },
-  { bg: "#00D4E8", glow: "rgba(0,212,232,0.7)",   label: "Saphir"   },
-  { bg: "#FFE94A", glow: "rgba(255,233,74,0.7)",  label: "Or"       },
-  { bg: "#4ADE80", glow: "rgba(74,222,128,0.7)",  label: "Émeraude" },
-  { bg: "#C084FC", glow: "rgba(192,132,252,0.7)", label: "Améthyste"},
-  { bg: "#FB923C", glow: "rgba(251,146,60,0.7)",  label: "Ambre"    },
+  { bg: "#FF2D78", glow: "rgba(255,45,120,0.6)",  label: "Rubis"     },
+  { bg: "#00D4E8", glow: "rgba(0,212,232,0.6)",   label: "Saphir"    },
+  { bg: "#FFE94A", glow: "rgba(255,233,74,0.6)",  label: "Or"        },
+  { bg: "#4ADE80", glow: "rgba(74,222,128,0.6)",  label: "Émeraude"  },
+  { bg: "#C084FC", glow: "rgba(192,132,252,0.6)", label: "Améthyste" },
+  { bg: "#FB923C", glow: "rgba(251,146,60,0.6)",  label: "Ambre"     },
 ];
 
-// ── Gem dot ───────────────────────────────────────────────────────────────────
-function Gem({ color, size = 24, glow = false, empty = false, onClick }: {
+// ── Gem ───────────────────────────────────────────────────────────────────────
+function Gem({ color, size = 42, glow = false, onClick }: {
   color: number | null;
   size?: number;
   glow?: boolean;
-  empty?: boolean;
   onClick?: () => void;
 }) {
   const c = color !== null ? COLORS[color] : null;
@@ -39,148 +37,63 @@ function Gem({ color, size = 24, glow = false, empty = false, onClick }: {
     <div
       onClick={onClick}
       style={{
-        width: size, height: size,
-        borderRadius: "50%",
-        flexShrink: 0,
+        width: size, height: size, borderRadius: "50%", flexShrink: 0,
         cursor: onClick ? "pointer" : "default",
         background: c
-          ? `radial-gradient(circle at 35% 35%, ${c.bg}ff, ${c.bg}99)`
-          : empty
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(255,255,255,0.04)",
+          ? `radial-gradient(circle at 35% 35%, ${c.bg}ff, ${c.bg}88)`
+          : "rgba(255,255,255,0.08)",
         border: c
-          ? `2px solid rgba(255,255,255,0.4)`
-          : `2px solid rgba(255,255,255,0.1)`,
+          ? `2.5px solid rgba(255,255,255,0.45)`
+          : `2.5px dashed rgba(255,255,255,0.2)`,
         boxShadow: c && glow
-          ? `0 0 12px 2px ${c.glow}, inset 0 1px 2px rgba(255,255,255,0.4)`
+          ? `0 0 16px 4px ${c.glow}, inset 0 1px 3px rgba(255,255,255,0.5)`
           : c
-            ? `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3)`
+            ? `0 3px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.35)`
             : "none",
-        transition: "box-shadow 0.2s, transform 0.1s",
+        transition: "transform 0.1s, box-shadow 0.15s",
       }}
     />
   );
 }
 
-// ── Pegs 2×2 ─────────────────────────────────────────────────────────────────
-function Pegs({ blacks, whites, size = 8 }: { blacks: number; whites: number; size?: number }) {
+// ── Pegs 2×2 ──────────────────────────────────────────────────────────────────
+function Pegs({ blacks, whites }: { blacks: number; whites: number }) {
   const list = [
     ...Array(blacks).fill("black"),
     ...Array(whites).fill("white"),
     ...Array(4 - blacks - whites).fill("empty"),
   ];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
       {list.map((p, i) => (
         <div key={i} style={{
-          width: size, height: size, borderRadius: "50%",
+          width: 14, height: 14, borderRadius: "50%",
           background:
-            p === "black" ? "#1a0f4e" :
-            p === "white" ? "#f0f0ff" :
-            "rgba(255,255,255,0.08)",
+            p === "black" ? "#0d0d1a" :
+            p === "white" ? "#e8e8f8" :
+            "rgba(255,255,255,0.1)",
           border:
-            p === "empty"
-              ? "1.5px solid rgba(255,255,255,0.1)"
-              : "1.5px solid rgba(0,0,0,0.4)",
-          boxShadow: p === "black" ? "inset 0 1px 2px rgba(255,255,255,0.15)" :
-                     p === "white" ? "0 0 4px rgba(255,255,255,0.5)" : "none",
+            p === "black" ? "2px solid rgba(255,255,255,0.35)" :
+            p === "white" ? "2px solid rgba(0,0,0,0.35)" :
+            "1.5px solid rgba(255,255,255,0.15)",
+          boxShadow: p === "white" ? "0 0 6px rgba(255,255,255,0.5)" : "none",
         }} />
       ))}
     </div>
   );
 }
 
-// ── Board row ─────────────────────────────────────────────────────────────────
-function BoardRow({
-  rowIndex, guess, currentGuess, isActive, isMyTurn, myId,
-  onClearSlot, gemSize, pegSize,
-}: {
-  rowIndex: number;
-  guess: MastermindGuess | null;
-  currentGuess: (number | null)[];
-  isActive: boolean;
-  isMyTurn: boolean;
-  myId: string;
-  onClearSlot: (i: number) => void;
-  gemSize: number;
-  pegSize: number;
-}) {
-  const dots = guess
-    ? guess.guess
-    : isActive
-      ? currentGuess
-      : [null, null, null, null];
-
-  const isPlayed = guess !== null;
-  const isMe = guess ? guess.player_id === myId : isMyTurn;
-
+// ── EmptyPegs ─────────────────────────────────────────────────────────────────
+function EmptyPegs() {
   return (
-    <div style={{
-      display: "flex", alignItems: "center",
-      gap: 10,
-      padding: "6px 10px",
-      borderRadius: 12,
-      background: isActive
-        ? isMyTurn
-          ? "rgba(0,212,232,0.08)"
-          : "rgba(255,45,120,0.06)"
-        : "transparent",
-      border: isActive
-        ? `1.5px solid ${isMyTurn ? "rgba(0,212,232,0.35)" : "rgba(255,45,120,0.2)"}`
-        : "1.5px solid transparent",
-      opacity: !isPlayed && !isActive ? 0.3 : 1,
-      transition: "opacity 0.2s, background 0.3s",
-    }}>
-      {/* Numéro */}
-      <div style={{
-        width: 18, flexShrink: 0, textAlign: "right",
-        fontFamily: "var(--font-display)", fontSize: 10,
-        color: isActive ? (isMyTurn ? EA.cyan : EA.pink) : "rgba(255,255,255,0.25)",
-      }}>
-        {rowIndex + 1}
-      </div>
-
-      {/* Joueur badge */}
-      <div style={{
-        width: 4, height: 28, borderRadius: 2, flexShrink: 0,
-        background: isPlayed
-          ? (isMe ? EA.cyan : EA.pink)
-          : isActive
-            ? (isMyTurn ? EA.cyan : EA.pink)
-            : "rgba(255,255,255,0.1)",
-        opacity: isPlayed || isActive ? 1 : 0.3,
-      }} />
-
-      {/* Gems */}
-      <div style={{ display: "flex", gap: 7, flex: 1, justifyContent: "center" }}>
-        {dots.map((c, i) => (
-          <Gem
-            key={i}
-            color={c}
-            size={gemSize}
-            glow={isActive && c !== null}
-            empty={!isPlayed && !isActive}
-            onClick={isActive && isMyTurn && c !== null ? () => onClearSlot(i) : undefined}
-          />
-        ))}
-      </div>
-
-      {/* Pegs */}
-      <div style={{ width: pegSize * 2 + 3, flexShrink: 0 }}>
-        {isPlayed ? (
-          <Pegs blacks={guess!.blacks} whites={guess!.whites} size={pegSize} />
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
-            {[0,1,2,3].map(i => (
-              <div key={i} style={{
-                width: pegSize, height: pegSize, borderRadius: "50%",
-                background: "rgba(255,255,255,0.05)",
-                border: "1.5px solid rgba(255,255,255,0.08)",
-              }} />
-            ))}
-          </div>
-        )}
-      </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
+      {[0,1,2,3].map(i => (
+        <div key={i} style={{
+          width: 14, height: 14, borderRadius: "50%",
+          background: "rgba(255,255,255,0.06)",
+          border: "1.5px solid rgba(255,255,255,0.12)",
+        }} />
+      ))}
     </div>
   );
 }
@@ -206,48 +119,41 @@ export function MastermindClient({
   const router = useRouter();
   const desktop = useIsDesktop();
   const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myPseudo   = myId === p1Id ? p1Pseudo : p2Pseudo;
+  const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
   const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
   const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
-  const [guesses, setGuesses] = useState<MastermindGuess[]>(initialState.guesses ?? []);
+  const [guesses, setGuesses]           = useState<MastermindGuess[]>(initialState.guesses ?? []);
   const [revealedCode, setRevealedCode] = useState<number[] | null>(
     initialStatus === "finished" ? initialState.code : null
   );
-  const [currentTurn, setCurrentTurn] = useState<string | null>(initialCurrentTurn);
-  const [gameStatus, setGameStatus] = useState<GameStatus>(initialStatus);
+  const [currentTurn, setCurrentTurn]   = useState<string | null>(initialCurrentTurn);
+  const [gameStatus, setGameStatus]     = useState<GameStatus>(initialStatus);
   const [currentGuess, setCurrentGuess] = useState<(number | null)[]>([null, null, null, null]);
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting]     = useState(false);
 
-  const boardRef = useRef<HTMLDivElement>(null);
+  const boardEndRef   = useRef<HTMLDivElement>(null);
   const isFinishedRef = useRef<boolean>(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const forfeitRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isMyTurn = currentTurn === myId;
+  const isMyTurn   = currentTurn === myId;
   const isFinished = gameStatus === "finished";
   const guessReady = currentGuess.every(c => c !== null);
-  const activeRow = guesses.length; // index of current active row
-
-  const gemSize = desktop ? 30 : 26;
-  const pegSize = desktop ? 10 : 9;
+  const activeRow  = guesses.length;
 
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   const { play } = useGameSounds();
 
-  // Auto-scroll board to active row
+  // Auto-scroll to bottom when new guess added
   useEffect(() => {
-    if (boardRef.current) {
-      const rows = boardRef.current.querySelectorAll("[data-row]");
-      const activeEl = rows[activeRow] as HTMLElement | undefined;
-      activeEl?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [guesses.length, activeRow]);
+    boardEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [guesses.length]);
 
   // Presence + forfeit
   useEffect(() => {
-    if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
+    if (forfeitRef.current) { clearTimeout(forfeitRef.current); forfeitRef.current = null; }
     const supabase = createClient();
     const up = () => supabase.from("presence").upsert({
       player_id: myId, pseudo: myPseudo,
@@ -260,8 +166,8 @@ export function MastermindClient({
       clearInterval(hb);
       supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
       if (!isFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
+        forfeitRef.current = setTimeout(() => {
+          forfeitRef.current = null;
           fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
         }, 5000);
       }
@@ -280,10 +186,7 @@ export function MastermindClient({
     const supabase = createClient();
     const sub = supabase
       .channel(`mastermind-${gameId}`)
-      .on("postgres_changes", {
-        event: "UPDATE", schema: "public", table: "games",
-        filter: `id=eq.${gameId}`,
-      }, (payload) => {
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "games", filter: `id=eq.${gameId}` }, (payload) => {
         const updated = payload.new as { state: unknown; status: string; current_turn: string | null; winner_id: string | null };
         const raw = updated.state as Record<string, unknown>;
         const newState: MastermindState = raw && "code" in raw
@@ -304,19 +207,19 @@ export function MastermindClient({
     return () => { supabase.removeChannel(sub); };
   }, [gameId, myId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function pickColor(colorIdx: number) {
+  function pickColor(idx: number) {
     if (!isMyTurn || submitting) return;
     const next = [...currentGuess];
-    const firstEmpty = next.findIndex(v => v === null);
-    if (firstEmpty === -1) return; // already full
-    next[firstEmpty] = colorIdx;
+    const first = next.findIndex(v => v === null);
+    if (first === -1) return;
+    next[first] = idx;
     setCurrentGuess(next);
   }
 
-  function clearSlot(slotIdx: number) {
+  function clearSlot(i: number) {
     if (!isMyTurn || submitting) return;
     const next = [...currentGuess];
-    next[slotIdx] = null;
+    next[i] = null;
     setCurrentGuess(next);
   }
 
@@ -334,303 +237,349 @@ export function MastermindClient({
     setSubmitting(false);
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const myGuessCount = guesses.filter(g => g.player_id === myId).length;
+  const opGuessCount = guesses.filter(g => g.player_id === opponentId).length;
 
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div style={{
       minHeight: "100dvh",
-      background: `
-        radial-gradient(ellipse at 15% 15%, rgba(120,0,200,0.35) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 85%, rgba(0,80,180,0.3) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(0,20,60,0.8) 0%, transparent 70%),
-        #050510
-      `,
+      background: EA.violet,
       display: "flex", flexDirection: "column", alignItems: "center",
-      padding: desktop ? "20px 24px 40px" : "12px 12px 28px",
-      gap: desktop ? 16 : 10,
-      fontFamily: "var(--font-sans)",
+      padding: desktop ? "20px 24px 100px" : "12px 14px 100px",
+      gap: 12,
       position: "relative", overflow: "hidden",
     }}>
 
-      {/* Subtle dot grid */}
+      {/* Dot grid */}
       <div aria-hidden style={{
-        position: "fixed", inset: 0,
-        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
-        backgroundSize: "20px 20px", pointerEvents: "none", zIndex: 0,
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.3px, transparent 1.8px)",
+        backgroundSize: "16px 16px", opacity: 0.22,
       }} />
 
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <div style={{
-        width: "100%", maxWidth: 420,
-        position: "relative", zIndex: 2,
-        display: "flex", alignItems: "center", gap: 8,
-      }}>
-        {/* Moi */}
-        {[
-          { id: myId, pseudo: myPseudo, avatar: myAvatarUrl, color: EA.cyan, align: "left" },
-          { id: opponentId, pseudo: opPseudo, avatar: opAvatarUrl, color: EA.pink, align: "right" },
-        ].map((p, i) => {
-          const active = currentTurn === p.id && !isFinished;
-          const myGuessCount = guesses.filter(g => g.player_id === p.id).length;
-          return (
-            <div key={p.id} style={{
-              flex: 1,
-              display: "flex", flexDirection: i === 1 ? "row-reverse" : "row",
-              alignItems: "center", gap: 8,
-            }}>
-              <div style={{
-                padding: 2, borderRadius: "50%",
-                border: `2.5px solid ${active ? p.color : "transparent"}`,
-                boxShadow: active ? `0 0 14px ${p.color}` : "none",
-                transition: "border 0.3s, box-shadow 0.3s",
-                flexShrink: 0,
-              }}>
-                <Avatar name={p.pseudo} src={p.avatar} color={p.color} ring="transparent" size={38} />
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                <div style={{
-                  fontFamily: "var(--font-display)", fontSize: 11,
-                  color: active ? p.color : "rgba(255,255,255,0.5)",
-                  transform: "skewX(-4deg)",
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  transition: "color 0.3s",
-                }}>{p.pseudo.toUpperCase()}</div>
-                <div style={{
-                  fontSize: 9, fontWeight: 900,
-                  color: "rgba(255,255,255,0.3)",
-                  textTransform: "uppercase", letterSpacing: 0.8,
-                }}>{myGuessCount} essai{myGuessCount !== 1 ? "s" : ""}</div>
-              </div>
-            </div>
-          );
-        })}
+      <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 460, display: "flex", flexDirection: "column", gap: 12 }}>
 
-        {/* Centre — titre */}
+        {/* ── Header ─────────────────────────────────────────────────────── */}
         <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          flexShrink: 0,
+          display: "grid", gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center", gap: 8,
+        }}>
+          {/* Moi */}
+          <PlayerBadge
+            pseudo={myPseudo} avatar={myAvatarUrl}
+            guessCount={myGuessCount} color={EA.cyan}
+            active={currentTurn === myId && !isFinished}
+            align="left"
+          />
+          {/* Titre */}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
+              🎨 MASTER
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
+              MIND
+            </div>
+          </div>
+          {/* Adversaire */}
+          <PlayerBadge
+            pseudo={opPseudo} avatar={opAvatarUrl}
+            guessCount={opGuessCount} color={EA.pink}
+            active={currentTurn === opponentId && !isFinished}
+            align="right"
+          />
+        </div>
+
+        {/* ── Code secret ─────────────────────────────────────────────────── */}
+        <div style={{
+          background: EA.violetDeep,
+          border: `2.5px solid ${revealedCode ? EA.butter : EA.ink}`,
+          borderRadius: 18, padding: "12px 16px",
+          boxShadow: revealedCode ? `3px 3px 0 ${EA.butter}` : `2px 2px 0 ${EA.ink}`,
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
         }}>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: desktop ? 11 : 10,
-            color: "rgba(255,255,255,0.6)", letterSpacing: 2,
-            textTransform: "uppercase", transform: "skewX(-4deg)",
-          }}>MASTER</div>
-          <div style={{
-            fontFamily: "var(--font-display)", fontSize: desktop ? 11 : 10,
-            color: "rgba(255,255,255,0.6)", letterSpacing: 2,
-            textTransform: "uppercase", transform: "skewX(-4deg)",
-          }}>MIND</div>
-        </div>
-      </div>
-
-      {/* ── Code secret ───────────────────────────────────────────────── */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-        background: "rgba(255,255,255,0.04)",
-        border: `1.5px solid rgba(255,255,255,0.1)`,
-        borderRadius: 16, padding: "10px 20px",
-        width: "100%", maxWidth: 420,
-      }}>
-        <div style={{
-          fontSize: 9, fontWeight: 900, color: "rgba(255,255,255,0.35)",
-          textTransform: "uppercase", letterSpacing: 1.6,
-        }}>Code secret</div>
-        <div style={{ display: "flex", gap: 10 }}>
-          {(revealedCode ?? [null, null, null, null]).map((c, i) => (
-            <div key={i} style={{
-              width: gemSize, height: gemSize, borderRadius: "50%",
-              background: revealedCode
-                ? `radial-gradient(circle at 35% 35%, ${COLORS[c!].bg}ff, ${COLORS[c!].bg}88)`
-                : "rgba(255,255,255,0.05)",
-              border: revealedCode
-                ? "2px solid rgba(255,255,255,0.4)"
-                : "2px dashed rgba(255,255,255,0.15)",
-              boxShadow: revealedCode
-                ? `0 0 16px 3px ${COLORS[c!].glow}, inset 0 1px 2px rgba(255,255,255,0.4)`
-                : "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 12,
-              transition: "all 0.5s",
-            }}>
-              {!revealedCode && <span style={{ opacity: 0.3 }}>?</span>}
-            </div>
-          ))}
-        </div>
-        {revealedCode && (
-          <div style={{
-            fontSize: 9, fontWeight: 900, color: EA.butter,
-            textTransform: "uppercase", letterSpacing: 1.2,
-            animation: "mm-fadein 0.4s ease",
-          }}>Révélé !</div>
-        )}
-      </div>
-
-      {/* ── Plateau ───────────────────────────────────────────────────── */}
-      <div
-        ref={boardRef}
-        style={{
-          width: "100%", maxWidth: 420,
-          position: "relative", zIndex: 2,
-          background: "rgba(255,255,255,0.025)",
-          border: "1.5px solid rgba(255,255,255,0.08)",
-          borderRadius: 20,
-          padding: "8px 6px",
-          overflowY: "auto",
-          maxHeight: desktop ? 420 : 320,
-          display: "flex", flexDirection: "column", gap: 2,
-        }}
-      >
-        {Array.from({ length: MAX_GUESSES }).map((_, i) => (
-          <div key={i} data-row={i}>
-            <BoardRow
-              rowIndex={i}
-              guess={guesses[i] ?? null}
-              currentGuess={currentGuess}
-              isActive={i === activeRow && !isFinished}
-              isMyTurn={isMyTurn}
-              myId={myId}
-              onClearSlot={clearSlot}
-              gemSize={gemSize}
-              pegSize={pegSize}
-            />
+            fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
+            color: revealedCode ? EA.butter : "rgba(255,255,255,0.4)",
+            textTransform: "uppercase", letterSpacing: 2,
+          }}>
+            {revealedCode ? "🔓 CODE RÉVÉLÉ !" : "🔒 CODE SECRET"}
           </div>
-        ))}
-      </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            {(revealedCode ?? [null, null, null, null]).map((c, i) => (
+              <Gem
+                key={i}
+                color={c}
+                size={revealedCode ? 44 : 36}
+                glow={!!revealedCode}
+              />
+            ))}
+          </div>
+        </div>
 
-      {/* ── Zone saisie ───────────────────────────────────────────────── */}
-      {!isFinished && (
+        {/* ── Plateau — seulement les essais joués + ligne active ─────────── */}
         <div style={{
-          width: "100%", maxWidth: 420,
-          position: "relative", zIndex: 2,
-          display: "flex", flexDirection: "column", gap: 10,
+          background: EA.violetDeep,
+          border: `2.5px solid ${EA.ink}`,
+          borderRadius: 18,
+          boxShadow: `2px 2px 0 ${EA.ink}`,
+          overflow: "hidden",
         }}>
-          {/* Status */}
+          {/* Sous-titre / compteur */}
           <div style={{
-            textAlign: "center",
-            fontSize: 11, fontWeight: 900,
-            color: isMyTurn ? EA.cyan : "rgba(255,255,255,0.3)",
-            textTransform: "uppercase", letterSpacing: 1.4,
-            animation: !isMyTurn ? "none" : "none",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "10px 16px 8px",
+            borderBottom: `1.5px solid rgba(255,255,255,0.08)`,
           }}>
-            {isMyTurn ? "🎯 À toi de jouer" : `⏳ En attente de ${opPseudo}…`}
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.5 }}>
+              Plateau
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: "rgba(255,255,255,0.4)", transform: "skewX(-4deg)" }}>
+              {activeRow} / {MAX_GUESSES} essais
+            </div>
           </div>
 
-          {/* Palette de couleurs */}
-          <div style={{
-            display: "flex", gap: desktop ? 10 : 8,
-            justifyContent: "center",
-            opacity: isMyTurn && !submitting ? 1 : 0.3,
-            transition: "opacity 0.3s",
-          }}>
-            {COLORS.map((col, idx) => {
-              const usedCount = currentGuess.filter(c => c === idx).length;
+          <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
+            {/* Lignes jouées */}
+            {guesses.map((g, i) => {
+              const isMe = g.player_id === myId;
+              const playerColor = isMe ? EA.cyan : EA.pink;
               return (
-                <button
-                  key={idx}
-                  type="button"
-                  disabled={!isMyTurn || submitting}
-                  onClick={() => pickColor(idx)}
-                  title={col.label}
-                  style={{
-                    width: desktop ? 44 : 38, height: desktop ? 44 : 38,
-                    borderRadius: "50%",
-                    background: `radial-gradient(circle at 35% 35%, ${col.bg}ff, ${col.bg}99)`,
-                    border: `2.5px solid rgba(255,255,255,0.35)`,
-                    cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
-                    boxShadow: isMyTurn && !submitting
-                      ? `0 0 14px 3px ${col.glow}, 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.4)`
-                      : "none",
-                    position: "relative",
-                    transition: "transform 0.1s, box-shadow 0.15s",
-                    flexShrink: 0,
-                  }}
-                >
-                  {usedCount > 0 && (
-                    <div style={{
-                      position: "absolute", top: -4, right: -4,
-                      width: 14, height: 14, borderRadius: "50%",
-                      background: EA.white, border: `1.5px solid ${EA.ink}`,
-                      fontFamily: "var(--font-display)", fontSize: 8,
-                      color: EA.ink, lineHeight: "12px", textAlign: "center",
-                    }}>{usedCount}</div>
-                  )}
-                </button>
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "8px 10px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: `1.5px solid rgba(255,255,255,0.08)`,
+                  borderRadius: 12,
+                }}>
+                  {/* Barre joueur */}
+                  <div style={{ width: 4, height: 36, borderRadius: 2, background: playerColor, flexShrink: 0 }} />
+                  {/* Numéro */}
+                  <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "right", flexShrink: 0 }}>
+                    {i + 1}
+                  </div>
+                  {/* Gems */}
+                  <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
+                    {g.guess.map((c, j) => <Gem key={j} color={c} size={36} />)}
+                  </div>
+                  {/* Pegs */}
+                  <Pegs blacks={g.blacks} whites={g.whites} />
+                </div>
               );
             })}
-          </div>
 
-          {/* Boutons action */}
-          <div style={{ display: "flex", gap: 8 }}>
-            {/* Effacer */}
-            <button
-              type="button"
-              disabled={!isMyTurn || submitting || currentGuess.every(c => c === null)}
-              onClick={clearAll}
-              style={{
-                flex: "0 0 auto",
-                height: 48,
-                paddingInline: 16,
-                background: "rgba(255,255,255,0.06)",
-                border: "2px solid rgba(255,255,255,0.12)",
-                borderRadius: 14,
-                cursor: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? "not-allowed" : "pointer",
-                fontFamily: "var(--font-display)", fontSize: 12,
-                color: "rgba(255,255,255,0.4)",
-                transition: "opacity 0.15s",
-                opacity: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? 0.4 : 1,
-              }}
-            >⌫</button>
+            {/* Ligne active */}
+            {!isFinished && activeRow < MAX_GUESSES && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "10px 10px",
+                background: isMyTurn ? "rgba(0,212,232,0.08)" : "rgba(255,45,120,0.06)",
+                border: `2px solid ${isMyTurn ? EA.cyan : EA.pink}`,
+                borderRadius: 12,
+                boxShadow: isMyTurn ? `0 0 12px rgba(0,212,232,0.2)` : "none",
+              }}>
+                {/* Barre joueur */}
+                <div style={{ width: 4, height: 40, borderRadius: 2, background: isMyTurn ? EA.cyan : EA.pink, flexShrink: 0 }} />
+                {/* Numéro */}
+                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: isMyTurn ? EA.cyan : EA.pink, textAlign: "right", flexShrink: 0 }}>
+                  {activeRow + 1}
+                </div>
+                {/* Slots */}
+                <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
+                  {currentGuess.map((c, i) => (
+                    <Gem
+                      key={i}
+                      color={c}
+                      size={40}
+                      glow={c !== null && isMyTurn}
+                      onClick={isMyTurn && c !== null ? () => clearSlot(i) : undefined}
+                    />
+                  ))}
+                </div>
+                {/* Empty pegs */}
+                <EmptyPegs />
+              </div>
+            )}
 
-            {/* Confirmer */}
-            <button
-              type="button"
-              disabled={!isMyTurn || !guessReady || submitting}
-              onClick={handleSubmit}
-              style={{
-                flex: 1,
-                height: 48,
-                background: (!isMyTurn || !guessReady || submitting)
-                  ? "rgba(255,255,255,0.05)"
-                  : `linear-gradient(135deg, #00D4E8, #7B4FFF)`,
-                border: `2.5px solid ${(!isMyTurn || !guessReady || submitting) ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.3)"}`,
-                borderRadius: 14,
-                boxShadow: (!isMyTurn || !guessReady || submitting)
-                  ? "none"
-                  : "0 0 20px rgba(0,212,232,0.4), 0 4px 12px rgba(0,0,0,0.4)",
-                cursor: (!isMyTurn || !guessReady || submitting) ? "not-allowed" : "pointer",
-                fontFamily: "var(--font-display)", fontSize: desktop ? 15 : 13,
-                color: (!isMyTurn || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : EA.white,
-                letterSpacing: 1,
-                transition: "all 0.2s",
-              }}
-            >
-              {submitting ? "…" : guessReady ? "✓ CONFIRMER" : "CHOISIS 4 COULEURS"}
-            </button>
-          </div>
-
-          {/* Légende pegs */}
-          <div style={{
-            display: "flex", gap: 16, justifyContent: "center",
-            fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.25)",
-            textTransform: "uppercase", letterSpacing: 0.8,
-          }}>
-            <span>⚫ Bonne place</span>
-            <span>⚪ Mauvaise place</span>
+            {/* Sentinel pour auto-scroll */}
+            <div ref={boardEndRef} />
           </div>
         </div>
-      )}
+
+        {/* ── Zone de saisie ──────────────────────────────────────────────── */}
+        {!isFinished && (
+          <div style={{
+            background: EA.violetDeep,
+            border: `2.5px solid ${EA.ink}`,
+            borderRadius: 18,
+            boxShadow: `2px 2px 0 ${EA.ink}`,
+            padding: "14px 16px",
+            display: "flex", flexDirection: "column", gap: 14,
+          }}>
+            {/* Status */}
+            <div style={{
+              textAlign: "center",
+              fontFamily: "var(--font-display)", fontSize: 14,
+              color: isMyTurn ? EA.cyan : "rgba(255,255,255,0.4)",
+              transform: "skewX(-4deg)",
+              letterSpacing: 0.8,
+            }}>
+              {isMyTurn ? "🎯 À TOI DE JOUER" : `⏳ ${opPseudo.toUpperCase()} RÉFLÉCHIT…`}
+            </div>
+
+            {/* Palette */}
+            <div style={{
+              display: "flex", gap: desktop ? 10 : 7,
+              justifyContent: "center",
+              opacity: isMyTurn && !submitting ? 1 : 0.35,
+              transition: "opacity 0.3s",
+            }}>
+              {COLORS.map((col, idx) => {
+                const usedCount = currentGuess.filter(c => c === idx).length;
+                return (
+                  <div key={idx} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <button
+                      type="button"
+                      disabled={!isMyTurn || submitting}
+                      onClick={() => pickColor(idx)}
+                      title={col.label}
+                      style={{
+                        width: desktop ? 50 : 44, height: desktop ? 50 : 44,
+                        borderRadius: "50%",
+                        background: `radial-gradient(circle at 35% 35%, ${col.bg}ff, ${col.bg}88)`,
+                        border: `3px solid rgba(255,255,255,0.4)`,
+                        cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
+                        boxShadow: isMyTurn && !submitting
+                          ? `0 0 16px 4px ${col.glow}, 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.45)`
+                          : "none",
+                        position: "relative",
+                        transition: "transform 0.1s",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {/* Compteur d'usage */}
+                    {usedCount > 0 && (
+                      <div style={{
+                        position: "absolute", top: -5, right: -5,
+                        width: 16, height: 16, borderRadius: "50%",
+                        background: EA.white, border: `2px solid ${EA.ink}`,
+                        fontFamily: "var(--font-display)", fontSize: 9,
+                        color: EA.ink, lineHeight: "13px", textAlign: "center",
+                        zIndex: 1,
+                      }}>{usedCount}</div>
+                    )}
+                    {/* Label */}
+                    <div style={{ fontSize: 8, fontWeight: 900, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                      {col.label.slice(0, 3)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Boutons */}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                disabled={!isMyTurn || submitting || currentGuess.every(c => c === null)}
+                onClick={clearAll}
+                style={{
+                  flexShrink: 0, width: 52, height: 52,
+                  background: "rgba(255,255,255,0.07)",
+                  border: `2.5px solid ${EA.ink}`,
+                  borderRadius: 14,
+                  boxShadow: `2px 2px 0 ${EA.ink}`,
+                  cursor: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? "not-allowed" : "pointer",
+                  fontFamily: "var(--font-display)", fontSize: 18,
+                  color: EA.white,
+                  opacity: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? 0.3 : 1,
+                  transition: "opacity 0.15s",
+                }}
+              >⌫</button>
+
+              <button
+                type="button"
+                disabled={!isMyTurn || !guessReady || submitting}
+                onClick={handleSubmit}
+                style={{
+                  flex: 1, height: 52,
+                  background: (!isMyTurn || !guessReady || submitting)
+                    ? "rgba(255,255,255,0.06)"
+                    : EA.cyan,
+                  border: `2.5px solid ${EA.ink}`,
+                  borderRadius: 14,
+                  boxShadow: (!isMyTurn || !guessReady || submitting)
+                    ? `2px 2px 0 ${EA.ink}`
+                    : `3px 3px 0 ${EA.ink}`,
+                  cursor: (!isMyTurn || !guessReady || submitting) ? "not-allowed" : "pointer",
+                  fontFamily: "var(--font-display)", fontSize: 15,
+                  color: (!isMyTurn || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : EA.ink,
+                  letterSpacing: 1,
+                  transition: "all 0.15s",
+                }}
+              >
+                {submitting ? "…" : guessReady ? "✓ CONFIRMER" : "CHOISIS 4 COULEURS"}
+              </button>
+            </div>
+
+            {/* Légende */}
+            <div style={{
+              display: "flex", gap: 20, justifyContent: "center", alignItems: "center",
+              fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)",
+              textTransform: "uppercase", letterSpacing: 0.8,
+            }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: "#0d0d1a", border: "2px solid rgba(255,255,255,0.35)", verticalAlign: "middle" }} />
+                Bonne place
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: "#e8e8f8", border: "2px solid rgba(0,0,0,0.35)", boxShadow: "0 0 5px rgba(255,255,255,0.4)", verticalAlign: "middle" }} />
+                Mauvaise place
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
 
       <RulesButton gameType="mastermind" />
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} />
+    </div>
+  );
+}
 
-      <style>{`
-        @keyframes mm-fadein {
-          from { opacity: 0; transform: translateY(-4px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+// ── PlayerBadge ───────────────────────────────────────────────────────────────
+function PlayerBadge({ pseudo, avatar, guessCount, color, active, align }: {
+  pseudo: string; avatar: string | null;
+  guessCount: number; color: string;
+  active: boolean; align: "left" | "right";
+}) {
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: align === "right" ? "row-reverse" : "row",
+      alignItems: "center", gap: 8,
+    }}>
+      <div style={{
+        padding: 2, borderRadius: "50%", flexShrink: 0,
+        border: `2.5px solid ${active ? color : "transparent"}`,
+        boxShadow: active ? `0 0 12px ${color}` : "none",
+        transition: "border 0.3s, box-shadow 0.3s",
+      }}>
+        <Avatar name={pseudo} src={avatar} color={color} ring="transparent" size={36} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, textAlign: align }}>
+        <div style={{
+          fontFamily: "var(--font-display)", fontSize: 11,
+          color: active ? color : "rgba(255,255,255,0.5)",
+          transform: "skewX(-4deg)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          transition: "color 0.3s",
+        }}>{pseudo.toUpperCase()}</div>
+        <div style={{ fontSize: 9, fontWeight: 900, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 0.8 }}>
+          {guessCount} essai{guessCount !== 1 ? "s" : ""}
+        </div>
+      </div>
     </div>
   );
 }
