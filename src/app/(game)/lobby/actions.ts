@@ -155,9 +155,11 @@ export async function acceptChallenge(challengeId: string) {
                   ? { scores: { [p1]: 0, [p2]: 0 }, turn_total: 0, last_roll: null }
                   : challenge.game_type === "mastermind"
                     ? { code: Array.from({ length: 4 }, () => Math.floor(Math.random() * 6)), guesses: [] }
-                    : challenge.game_type === "duel-des"
-                  ? { rounds: [{ rolls: {}, winner_id: null }], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
-                  : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
+                    : challenge.game_type === "plus-ou-moins"
+                      ? { secret: 0, range_min: 1, range_max: 100, guesses: [], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
+                      : challenge.game_type === "duel-des"
+                        ? { rounds: [{ rolls: {}, winner_id: null }], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
+                        : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase
     .from("games")
