@@ -17,12 +17,12 @@ import type { MastermindState, MastermindGuess, GameStatus } from "@/types/datab
 const MAX_GUESSES = 12;
 
 const COLORS = [
-  { bg: "#FF2D78", glow: "rgba(255,45,120,0.6)",  label: "Rubis"     },
-  { bg: "#00D4E8", glow: "rgba(0,212,232,0.6)",   label: "Saphir"    },
-  { bg: "#FFE94A", glow: "rgba(255,233,74,0.6)",  label: "Or"        },
-  { bg: "#4ADE80", glow: "rgba(74,222,128,0.6)",  label: "Émeraude"  },
-  { bg: "#C084FC", glow: "rgba(192,132,252,0.6)", label: "Améthyste" },
-  { bg: "#FB923C", glow: "rgba(251,146,60,0.6)",  label: "Ambre"     },
+  { bg: "#FF2D78", glow: "rgba(255,45,120,0.6)",  label: "Rubis",     symbol: "♦" },
+  { bg: "#00D4E8", glow: "rgba(0,212,232,0.6)",   label: "Saphir",    symbol: "★" },
+  { bg: "#FFE94A", glow: "rgba(255,233,74,0.6)",  label: "Or",        symbol: "▲" },
+  { bg: "#4ADE80", glow: "rgba(74,222,128,0.6)",  label: "Émeraude",  symbol: "●" },
+  { bg: "#C084FC", glow: "rgba(192,132,252,0.6)", label: "Améthyste", symbol: "■" },
+  { bg: "#FB923C", glow: "rgba(251,146,60,0.6)",  label: "Ambre",     symbol: "✕" },
 ];
 
 // ── Gem ───────────────────────────────────────────────────────────────────────
@@ -33,6 +33,7 @@ function Gem({ color, size = 42, glow = false, onClick }: {
   onClick?: () => void;
 }) {
   const c = color !== null ? COLORS[color] : null;
+  const symbolSize = Math.round(size * 0.42);
   return (
     <div
       onClick={onClick}
@@ -51,8 +52,19 @@ function Gem({ color, size = 42, glow = false, onClick }: {
             ? `0 3px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.35)`
             : "none",
         transition: "transform 0.1s, box-shadow 0.15s",
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}
-    />
+    >
+      {c && (
+        <span style={{
+          fontSize: symbolSize,
+          color: "rgba(0,0,0,0.45)",
+          lineHeight: 1,
+          userSelect: "none",
+          pointerEvents: "none",
+        }}>{c.symbol}</span>
+      )}
+    </div>
   );
 }
 
@@ -455,8 +467,13 @@ export function MastermindClient({
                         position: "relative",
                         transition: "transform 0.1s",
                         flexShrink: 0,
+                        display: "flex", alignItems: "center", justifyContent: "center",
                       }}
-                    />
+                    >
+                      <span style={{ fontSize: desktop ? 20 : 17, color: "rgba(0,0,0,0.45)", lineHeight: 1, pointerEvents: "none", userSelect: "none" }}>
+                        {col.symbol}
+                      </span>
+                    </button>
                     {/* Compteur d'usage */}
                     {usedCount > 0 && (
                       <div style={{
