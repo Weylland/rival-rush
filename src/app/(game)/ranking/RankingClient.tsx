@@ -167,7 +167,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
       {/* Legend */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: tab === "global" ? "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)" : "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)",
+        gridTemplateColumns: tab === "global" ? "1fr 40px 40px 40px 50px" : "1fr 40px 40px 40px",
         marginBottom: 10, padding: "0 14px",
       }}>
         {(tab === "global" ? ["JOUEUR", "V", "D", "=", "PTS"] : ["JOUEUR", "V", "D", "="]).map(h => (
@@ -193,7 +193,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               borderRadius: 18, padding: "14px 16px",
               boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
               display: "grid",
-              gridTemplateColumns: tab === "global" ? "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)" : "minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)",
+              gridTemplateColumns: tab === "global" ? "1fr 40px 40px 40px 50px" : "1fr 40px 40px 40px",
               alignItems: "center",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
