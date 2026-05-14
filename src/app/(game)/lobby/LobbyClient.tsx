@@ -618,24 +618,6 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
               </div>
             </div>
 
-            {/* Desktop only: notif + rules + logout */}
-            {desktop && (<>
-              {notifPermission !== null && notifPermission !== "granted" && (
-                <button onClick={requestNotifPermission}
-                  title={notifPermission === "denied" ? "Notifications bloquées" : "Activer les notifications"}
-                  style={{ width: 44, height: 44, borderRadius: "50%", background: notifPermission === "denied" ? "rgba(255,255,255,0.04)" : "rgba(255,233,74,0.15)", border: `2.5px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.15)" : EA.butter}`, color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter, cursor: notifPermission === "denied" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: notifPermission === "denied" ? "none" : `3px 3px 0 ${EA.ink}`, flexShrink: 0 }}>🔔</button>
-              )}
-              <Link href="/games" title="Les jeux & règles" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: `2.5px solid ${EA.ink}`, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", boxShadow: `3px 3px 0 ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 18, flexShrink: 0 }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-                onMouseOut={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}>?</Link>
-              <form action={logout}>
-                <button type="submit" title="Se déconnecter" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,30,140,0.12)", border: `2.5px solid ${EA.pink}`, color: EA.pink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `3px 3px 0 ${EA.ink}`, padding: 0 }}
-                  onMouseOver={e => { e.currentTarget.style.transform = "translate(3px,3px)"; e.currentTarget.style.boxShadow = "none"; }}
-                  onMouseOut={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `3px 3px 0 ${EA.ink}`; }}>
-                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" /></svg>
-                </button>
-              </form>
-            </>)}
 
             {/* Avatar → settings (toujours visible) */}
             <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
@@ -655,7 +637,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
               <svg width={desktop ? 18 : 16} height={desktop ? 18 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
                 <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
-              {(myRooms.length > 0 || (notifPermission !== null && notifPermission !== "granted" && notifPermission !== "denied")) && (
+              {notifPermission === "default" && (
                 <span style={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", background: EA.pink, border: `1.5px solid ${EA.ink}` }} />
               )}
             </button>
