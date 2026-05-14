@@ -321,7 +321,7 @@ export function ChallengeNotifier({ playerId }: Props) {
               borderRadius: 10, padding: "2px 8px",
               fontFamily: "var(--font-display)", fontSize: 16, color: countdown <= 5 ? EA.pink : EA.ink,
               transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.cyan}`,
-            }}>0:{String(countdown).padStart(2, "0")}</div>
+            }}>{String(Math.floor(countdown / 60)).padStart(1, "0")}:{String(countdown % 60).padStart(2, "0")}</div>
           </div>
 
           <div style={{ display: "flex", gap: 10, marginTop: 18, width: "100%" }}>
