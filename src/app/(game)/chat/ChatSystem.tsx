@@ -83,10 +83,42 @@ export function ChatProvider({
 
   const desktop = useIsDesktop();
 
+  const pushedHistoryRef = useRef(false);
+
   const lobbyRef    = useRef<HTMLDivElement>(null);
   const dmRef       = useRef<HTMLDivElement>(null);
   const lobbyInput$ = useRef<HTMLInputElement>(null);
   const dmInput$    = useRef<HTMLInputElement>(null);
+
+  // ── Back-gesture interception ─────────────────────────────────────────────
+
+  // Push a fake history entry when chat opens so the back gesture closes it.
+  useEffect(() => {
+    if (isOpen) {
+      window.history.pushState({ chatOpen: true }, "");
+      pushedHistoryRef.current = true;
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handlePop = () => {
+      if (pushedHistoryRef.current) {
+        pushedHistoryRef.current = false;
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, []);
+
+  // Close chat and clean up the fake history entry when closed programmatically.
+  const closeChat = useCallback(() => {
+    setIsOpen(false);
+    if (pushedHistoryRef.current) {
+      pushedHistoryRef.current = false;
+      window.history.back();
+    }
+  }, []);
 
   // ── Derived ──────────────────────────────────────────────────────────────
 
@@ -312,7 +344,7 @@ export function ChatProvider({
       {/* Floating chat button — bas-gauche mobile, bas-droite desktop */}
       <button
         aria-label="Ouvrir le chat"
-        onClick={() => setIsOpen(o => !o)}
+        onClick={() => { if (isOpen) closeChat(); else setIsOpen(true); }}
         style={{
           position: "fixed",
           bottom: 20,
@@ -358,7 +390,7 @@ export function ChatProvider({
       {isOpen && (
         <div
           aria-hidden
-          onClick={() => setIsOpen(false)}
+          onClick={closeChat}
           style={{
             position: "fixed", inset: 0, zIndex: 215,
             background: "rgba(15,8,60,0.55)",
@@ -398,7 +430,7 @@ export function ChatProvider({
             </span>
           </div>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={closeChat}
             style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 24, cursor: "pointer", lineHeight: 1, padding: "0 4px" }}
           >×</button>
         </div>
