@@ -251,6 +251,9 @@ export async function deleteDMMessage(messageId: string): Promise<{ ok: boolean 
 export async function deleteConversation(conversationId: string): Promise<{ ok: boolean } | { error: string }> {
   if (!await isAdmin()) return { error: "Non autorisé" };
   const supabase = await createClient();
+  // Soft-delete all messages first so chat clients see them disappear via reliable UPDATE realtime events
+  // (DELETE realtime is unreliable, and cascade DELETE doesn't fire postgres_changes properly)
+  await supabase.from("direct_messages").update({ deleted: true }).eq("conversation_id", conversationId);
   const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
   return error ? { error: error.message } : { ok: true };
 }

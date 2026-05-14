@@ -165,7 +165,7 @@ export function ChatProvider({
       supabase.from("players").select("id, pseudo, avatar_url").in("id", partnerIds),
       supabase.from("conversation_reads").select("conversation_id, read_at").eq("player_id", myId),
       supabase.from("direct_messages").select("conversation_id, sender_id, content, created_at")
-        .in("conversation_id", convIds).order("created_at", { ascending: false }).limit(convIds.length * 3),
+        .in("conversation_id", convIds).eq("deleted", false).order("created_at", { ascending: false }).limit(convIds.length * 3),
     ]);
 
     const playerMap = new Map((players ?? []).map(p => [p.id, p]));

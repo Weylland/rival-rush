@@ -681,6 +681,7 @@ function DMsTab() {
             .from("direct_messages")
             .select("conversation_id, content, created_at")
             .in("conversation_id", convIds)
+            .eq("deleted", false)
             .order("created_at", { ascending: false }),
         ]);
 
@@ -724,6 +725,7 @@ function DMsTab() {
       .from("direct_messages")
       .select("id, sender_id, pseudo, content, created_at")
       .eq("conversation_id", conv.id)
+      .eq("deleted", false)
       .order("created_at", { ascending: false })
       .limit(300);
     setMessages((data as DMMsg[]) ?? []);
