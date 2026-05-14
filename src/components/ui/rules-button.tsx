@@ -71,6 +71,17 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🤝", text: "Grille pleine sans alignement = match nul" },
     ],
   },
+  mastermind: {
+    title: "Mastermind 🎨",
+    icon: "🎨🔴🟡",
+    items: [
+      { icon: "🎨", text: "Le serveur génère un code secret de 4 couleurs (répétitions possibles)" },
+      { icon: "🔄", text: "Tour par tour : propose une combinaison de 4 couleurs" },
+      { icon: "⚫", text: "Peg noir = bonne couleur à la bonne place" },
+      { icon: "⚪", text: "Peg blanc = bonne couleur mais mauvaise place" },
+      { icon: "🏆", text: "Premier à trouver le code (4 noirs) gagne · 12 essais max puis nul" },
+    ],
+  },
   pig: {
     title: "Jeu du Cochon 🐷",
     icon: "🎲🐷🎲",

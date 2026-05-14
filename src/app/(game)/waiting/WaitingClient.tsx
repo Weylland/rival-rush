@@ -66,6 +66,13 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Avant chaque coup, demande-toi : mon adversaire peut-il me faire mat ou capturer une pièce importante ?",
     "La Dame est puissante mais vulnérable au début — ne la joue pas trop tôt sans protection.",
   ],
+  mastermind: [
+    "Commence par un guess avec 4 couleurs toutes différentes — tu élimines un max d'un coup.",
+    "Les pegs noirs = bonne couleur, bonne place. Les blancs = bonne couleur, mauvaise place.",
+    "Si tu as 0 pegs sur un guess, aucune de ces 4 couleurs n'est dans le code.",
+    "Utilise les infos de l'adversaire aussi — ses résultats t'aident à réduire les possibilités.",
+    "Il existe toujours une stratégie pour trouver en 5 coups max — mais il faut y réfléchir.",
+  ],
   pig: [
     "Lance le dé autant de fois que tu veux — mais un 1 et tu perds tout ce tour.",
     "Banquer tôt c'est sûr, banquer tard c'est risqué. Trouve ton équilibre.",

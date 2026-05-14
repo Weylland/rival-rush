@@ -171,7 +171,8 @@ export function ChallengeNotifier({ playerId }: Props) {
               c.game_type === "naval" ? "Bataille Navale" :
               c.game_type === "chess" ? "Échecs" :
               c.game_type === "nim" ? "Nim 🔥" :
-              c.game_type === "pig" ? "Jeu du Cochon 🐷" : "Morpion";
+              c.game_type === "pig" ? "Jeu du Cochon 🐷" :
+              c.game_type === "mastermind" ? "Mastermind 🎨" : "Morpion";
             const notif = new Notification(`⚔ Défi de ${challenger.pseudo} !`, {
               body: `${challenger.pseudo} te défie sur ${gameLabel}. Tu as 2 minutes pour accepter !`,
               tag: `challenge-${c.id}`,
@@ -251,8 +252,8 @@ export function ChallengeNotifier({ playerId }: Props) {
 
   if (!incoming || suppress) return null;
 
-  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : incoming.game_type === "puissance4" ? "PUISSANCE 4" : incoming.game_type === "reflexe" ? "RÉFLEXE" : incoming.game_type === "naval" ? "BATAILLE NAVALE" : incoming.game_type === "chess" ? "ÉCHECS" : incoming.game_type === "nim" ? "NIM 🔥" : incoming.game_type === "pig" ? "COCHON 🐷" : "MORPION";
-  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : incoming.game_type === "puissance4" ? "🔴🟡🔴" : incoming.game_type === "reflexe" ? "⚡⚡⚡" : incoming.game_type === "naval" ? "🚢⚓🎯" : incoming.game_type === "chess" ? "♟♔♛" : incoming.game_type === "nim" ? "🔥🔥🔥" : incoming.game_type === "pig" ? "🎲🐷🎲" : "⨯⭕⨯";
+  const gameLabel = incoming.game_type === "pfc" ? "PIERRE FEUILLE CISEAUX" : incoming.game_type === "puissance4" ? "PUISSANCE 4" : incoming.game_type === "reflexe" ? "RÉFLEXE" : incoming.game_type === "naval" ? "BATAILLE NAVALE" : incoming.game_type === "chess" ? "ÉCHECS" : incoming.game_type === "nim" ? "NIM 🔥" : incoming.game_type === "pig" ? "COCHON 🐷" : incoming.game_type === "mastermind" ? "MASTERMIND 🎨" : "MORPION";
+  const gameIcon = incoming.game_type === "pfc" ? "✊✋✌" : incoming.game_type === "puissance4" ? "🔴🟡🔴" : incoming.game_type === "reflexe" ? "⚡⚡⚡" : incoming.game_type === "naval" ? "🚢⚓🎯" : incoming.game_type === "chess" ? "♟♔♛" : incoming.game_type === "nim" ? "🔥🔥🔥" : incoming.game_type === "pig" ? "🎲🐷🎲" : incoming.game_type === "mastermind" ? "🎨🔴🟡" : "⨯⭕⨯";
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.7)", zIndex: 100 }}>
