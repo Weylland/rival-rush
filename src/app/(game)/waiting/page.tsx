@@ -24,6 +24,7 @@ export default async function WaitingPage({ searchParams }: Props) {
     .single();
 
   if (!challenge) redirect("/lobby");
+  if (challenge.status !== "pending") redirect("/lobby");
 
   const [{ data: opponent }, { data: presence }] = await Promise.all([
     supabase.from("players").select("pseudo").eq("id", challenge.challenged_id).single(),

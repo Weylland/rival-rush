@@ -450,7 +450,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
             </span>
           </button>
           <button
-            onClick={() => router.push(roomCode ? `/room/${roomCode}` : "/lobby")}
+            onClick={() => router.replace(roomCode ? `/room/${roomCode}` : "/lobby")}
             style={{
               background: EA.cyan, border: `2.5px solid ${EA.ink}`,
               borderRadius: d ? 18 : 14, padding: d ? "16px 32px" : "12px 24px",
@@ -468,7 +468,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
             </span>
           </button>
           <button
-            onClick={() => router.push(roomCode ? `/room/${roomCode}?tab=ranking` : "/ranking")}
+            onClick={() => router.replace(roomCode ? `/room/${roomCode}?tab=ranking` : "/ranking")}
             style={{
               background: "transparent", border: `2px solid rgba(255,255,255,0.3)`,
               borderRadius: d ? 18 : 14, padding: d ? "14px 32px" : "10px 24px",

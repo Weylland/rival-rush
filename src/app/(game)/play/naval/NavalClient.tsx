@@ -634,7 +634,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
 
   // Redirect if already finished on load
   useEffect(() => {
-    if (initialStatus === "finished") { isFinishedRef.current = true; router.push(`/result?game_id=${gameId}`); }
+    if (initialStatus === "finished") { isFinishedRef.current = true; router.replace(`/result?game_id=${gameId}`); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime
@@ -651,7 +651,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         if (u.status === "finished") {
           isFinishedRef.current = true;
           play(u.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.push(`/result?game_id=${gameId}`), 2000);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2000);
         } else if (u.current_turn === myId) {
           // Opponent just fired at me — switch to fleet view briefly
           const opShots = ns.shots?.[opponentId] ?? [];

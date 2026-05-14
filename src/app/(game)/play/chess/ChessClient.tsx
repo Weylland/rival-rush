@@ -185,7 +185,7 @@ export function ChessClient({
   useEffect(() => {
     if (initialStatus === "finished") {
       isFinishedRef.current = true;
-      router.push(`/result?game_id=${gameId}`);
+      router.replace(`/result?game_id=${gameId}`);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -213,7 +213,7 @@ export function ChessClient({
           const iWon = updated.winner_id === myId;
           const isDraw = updated.winner_id === null;
           play(isDraw ? "reveal" : iWon ? "win" : "lose");
-          setTimeout(() => router.push(`/result?game_id=${gameId}`), 1800);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 1800);
         } else if (updated.current_turn === myId) {
           play("tick");
         }

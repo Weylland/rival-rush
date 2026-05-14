@@ -189,7 +189,7 @@ export function MastermindClient({
   useEffect(() => {
     if (initialStatus === "finished") {
       isFinishedRef.current = true;
-      router.push(`/result?game_id=${gameId}`);
+      router.replace(`/result?game_id=${gameId}`);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -212,7 +212,7 @@ export function MastermindClient({
           isFinishedRef.current = true;
           setRevealedCode(newState.code);
           play(updated.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.push(`/result?game_id=${gameId}`), 2200);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2200);
         }
       })
       .subscribe();

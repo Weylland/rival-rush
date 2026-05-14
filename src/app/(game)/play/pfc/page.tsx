@@ -24,6 +24,7 @@ export default async function PFCPage({ searchParams }: Props) {
     .single();
 
   if (!game || game.game_type !== "pfc") redirect("/lobby");
+  if (game.status === "finished") redirect(`/result?game_id=${game_id}`);
 
   const challenge = game.challenges as { challenger_id: string; challenged_id: string };
   const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
