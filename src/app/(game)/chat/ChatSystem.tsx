@@ -131,6 +131,8 @@ export function ChatProvider({
   // ── Data loading ─────────────────────────────────────────────────────────
 
   const loadLobby = useCallback(async () => {
+    // Clear immediately so we never show stale messages from the previous room/lobby
+    setLobbyMessages([]);
     const supabase = createClient();
     // If in a room, load room chat; otherwise load global lobby chat
     const { data: msgs } = activeRoomId
