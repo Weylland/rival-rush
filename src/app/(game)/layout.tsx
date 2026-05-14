@@ -7,31 +7,31 @@ export default async function GameLayout({ children }: { children: ReactNode }) 
   const session = await getSession();
   if (!session) return <>{children}</>;
 
-  // Detect active room membership
+  // Fetch all non-expired room memberships; the client decides which one is
+  // "active" based on the current pathname (only when on /room/[code]/*).
   const supabase = await createClient();
   const { data: membership } = await supabase
     .from("room_members")
     .select("room_id, rooms(id, name, code, expires_at)")
     .eq("player_id", session.playerId)
-    .limit(5);
+    .limit(20);
 
   type RoomRow = { id: string; name: string; code: string; expires_at: string | null };
-  // Pick first non-expired room
-  const activeRoom = (membership ?? [])
+  const roomMemberships = (membership ?? [])
     .flatMap(m => {
       const r = m.rooms;
       if (!r) return [];
       if (Array.isArray(r)) return r as RoomRow[];
       return [r as RoomRow];
     })
-    .find(r => !r.expires_at || new Date(r.expires_at) > new Date()) ?? null;
+    .filter(r => !r.expires_at || new Date(r.expires_at) > new Date())
+    .map(r => ({ id: r.id, name: r.name, code: r.code }));
 
   return (
     <ChatProvider
       myId={session.playerId}
       myPseudo={session.pseudo}
-      activeRoomId={activeRoom?.id ?? null}
-      activeRoomName={activeRoom?.name ?? null}
+      roomMemberships={roomMemberships}
     >
       {children}
     </ChatProvider>

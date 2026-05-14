@@ -2,8 +2,9 @@
 
 import {
   createContext, useCallback, useContext, useEffect,
-  useRef, useState, useTransition,
+  useMemo, useRef, useState, useTransition,
 } from "react";
+import { usePathname } from "next/navigation";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
@@ -61,12 +62,26 @@ function fmtTime(iso: string) {
 
 // ── ChatProvider ──────────────────────────────────────────────────────────────
 
+interface RoomMembership { id: string; name: string; code: string }
+
 export function ChatProvider({
-  children, myId, myPseudo, activeRoomId, activeRoomName,
+  children, myId, myPseudo, roomMemberships,
 }: {
   children: React.ReactNode; myId: string; myPseudo: string;
-  activeRoomId: string | null; activeRoomName: string | null;
+  roomMemberships: RoomMembership[];
 }) {
+  // Derive the active room from the current URL — only when actually inside /room/[code]/...
+  const pathname = usePathname();
+  const { activeRoomId, activeRoomName } = useMemo(() => {
+    const match = pathname?.match(/^\/room\/([^/?#]+)/);
+    if (!match) return { activeRoomId: null, activeRoomName: null };
+    const code = decodeURIComponent(match[1]).toLowerCase();
+    const room = roomMemberships.find(r => r.code.toLowerCase() === code);
+    return room
+      ? { activeRoomId: room.id, activeRoomName: room.name }
+      : { activeRoomId: null, activeRoomName: null };
+  }, [pathname, roomMemberships]);
+
   const [isOpen, setIsOpen]               = useState(false);
   const [tab, setTab]                     = useState<"lobby" | "dms">("lobby");
   const [activeConvId, setActiveConvId]   = useState<string | null>(null);
