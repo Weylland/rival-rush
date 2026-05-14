@@ -248,13 +248,16 @@ export function ChatProvider({
 
     const dmCh = supabase.channel("dm-sys")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (p) => {
-        console.log("[DM realtime] INSERT", p.new);
         const msg = p.new as DMsg;
-        // Active conversation
-        setActiveMessages(prev =>
-          prev.length > 0 && prev[0].conversation_id === msg.conversation_id
-            ? [...prev, msg] : prev
-        );
+        // Active conversation — replace any matching optimistic message instead of duplicating
+        setActiveMessages(prev => {
+          if (prev.length === 0 || prev[0].conversation_id !== msg.conversation_id) return prev;
+          if (prev.some(m => m.id === msg.id)) return prev; // already added
+          const withoutOptimistic = prev.filter(m =>
+            !(m.id.startsWith("opt-") && m.sender_id === msg.sender_id && m.content === msg.content)
+          );
+          return [...withoutOptimistic, msg];
+        });
         // Update conversation list
         setConversations(prev => {
           const exists = prev.find(c => c.id === msg.conversation_id);
@@ -273,15 +276,12 @@ export function ChatProvider({
         });
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, (p) => {
-        console.log("[DM realtime] UPDATE", p.new);
         const updated = p.new as DMsg;
         if (updated.deleted) {
           setActiveMessages(prev => prev.filter(m => m.id !== updated.id));
         }
       })
-      .subscribe((status) => {
-        console.log("[DM realtime] subscription status:", status);
-      });
+      .subscribe();
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
   }, [myId, activeConvId, activeRoomId, loadConversations]);
