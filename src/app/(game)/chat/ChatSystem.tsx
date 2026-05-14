@@ -4,6 +4,7 @@ import {
   createContext, useCallback, useContext, useEffect,
   useRef, useState, useTransition,
 } from "react";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
@@ -79,6 +80,8 @@ export function ChatProvider({
   const [sendingLobby, startLobby]        = useTransition();
   const [sendingDm, startDm]              = useTransition();
   const [pendingDm, startPendingDm]       = useTransition();
+
+  const desktop = useIsDesktop();
 
   const lobbyRef    = useRef<HTMLDivElement>(null);
   const dmRef       = useRef<HTMLDivElement>(null);
@@ -306,31 +309,47 @@ export function ChatProvider({
     <ChatCtx.Provider value={{ openDM, totalUnread }}>
       {children}
 
-      {/* Floating button */}
+      {/* Floating chat button — bas-gauche mobile, bas-droite desktop */}
       <button
         aria-label="Ouvrir le chat"
         onClick={() => setIsOpen(o => !o)}
         style={{
-          position: "fixed", bottom: 64, right: 16, zIndex: 210,
-          width: 48, height: 48, borderRadius: "50%",
-          background: isOpen ? EA.cyan : EA.violetDeep,
+          position: "fixed",
+          bottom: 20,
+          left: desktop ? "auto" : 16,
+          right: desktop ? 16 : "auto",
+          zIndex: 210,
+          height: 52,
+          width: desktop ? "auto" : 52,
+          padding: desktop ? "0 20px 0 14px" : 0,
+          borderRadius: desktop ? 999 : "50%",
+          background: isOpen ? EA.cyan : EA.pink,
           border: `2.5px solid ${EA.ink}`,
           color: EA.white, cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 22,
-          boxShadow: `3px 3px 0 ${EA.ink}`,
-          transition: "background 0.2s",
+          gap: desktop ? 8 : 0,
+          boxShadow: `4px 4px 0 ${EA.ink}`,
+          transition: "background 0.2s, transform 0.1s",
         }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translate(2px,2px)"; e.currentTarget.style.boxShadow = `2px 2px 0 ${EA.ink}`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `4px 4px 0 ${EA.ink}`; }}
       >
-        💬
+        <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        {desktop && (
+          <span style={{ fontFamily: "var(--font-display)", fontSize: 15, letterSpacing: 0.5 }}>
+            {isOpen ? "FERMER" : "CHAT"}
+          </span>
+        )}
         {totalUnread > 0 && !isOpen && (
           <span style={{
-            position: "absolute", top: -4, right: -4,
-            minWidth: 18, height: 18, borderRadius: 9,
-            background: EA.pink, border: `2px solid ${EA.ink}`,
+            position: "absolute", top: -5, right: desktop ? -5 : -5,
+            minWidth: 20, height: 20, borderRadius: 10,
+            background: EA.butter, border: `2px solid ${EA.ink}`,
             fontFamily: "var(--font-display)", fontSize: 11,
-            color: EA.white, display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "0 4px",
+            color: EA.ink, display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "0 4px", fontWeight: 900,
           }}>{totalUnread > 9 ? "9+" : totalUnread}</span>
         )}
       </button>

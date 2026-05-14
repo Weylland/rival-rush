@@ -767,7 +767,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       {/* Match rapide sticky */}
       <div style={{
         position: "fixed", bottom: 20,
-        left: desktop ? "50%" : 16, right: desktop ? "auto" : 16,
+        left: desktop ? "50%" : 76, right: desktop ? "auto" : 16,
         transform: desktop ? "translateX(-50%)" : "none",
         width: desktop ? 640 : "auto",
         zIndex: 20,
