@@ -213,5 +213,10 @@ create policy "conv_reads upsert" on public.conversation_reads for insert with c
 create policy "conv_reads update" on public.conversation_reads for update using (true);
 
 -- ── Realtime ────────────────────────────────────────────────────
--- À activer dans le dashboard Supabase > Database > Replication :
--- tables : presence, challenges, games, messages, lobby_chat, direct_messages
+
+alter publication supabase_realtime add table public.presence;
+alter publication supabase_realtime add table public.challenges;
+alter publication supabase_realtime add table public.games;
+alter publication supabase_realtime add table public.messages;
+alter publication supabase_realtime add table public.lobby_chat;
+alter publication supabase_realtime add table public.direct_messages;
