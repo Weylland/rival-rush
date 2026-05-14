@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { blockPlayer, reportMessage } from "@/app/(game)/play/chat/actions";
 import { EA } from "@/lib/design";
+import { useGameSounds } from "@/hooks/useGameSounds";
 
 interface Message {
   id: string;
@@ -43,6 +44,7 @@ function useRateLimit() {
 export function GameChat({ gameId, myId, myPseudo, opponentId, opponentPseudo }: Props) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const { play } = useGameSounds();
   const [input, setInput] = useState("");
   const [unread, setUnread] = useState(0);
   const [blocked, setBlocked] = useState(false);
@@ -75,8 +77,9 @@ export function GameChat({ gameId, myId, myPseudo, opponentId, opponentPseudo }:
         (payload) => {
           const msg = payload.new as Message;
           setMessages(prev => [...prev, msg]);
-          if (msg.player_id !== myId && !openRef.current) {
-            setUnread(u => u + 1);
+          if (msg.player_id !== myId) {
+            play("notify");
+            if (!openRef.current) setUnread(u => u + 1);
           }
         },
       )
