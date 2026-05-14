@@ -13,29 +13,33 @@ import type { PFCState } from "@/types/database";
 // ── Feux d'artifice ───────────────────────────────────────────────────────────
 
 const BURST_POSITIONS = [
-  { x: 15, y: 20 }, { x: 50, y: 10 }, { x: 82, y: 22 },
-  { x: 28, y: 55 }, { x: 72, y: 48 }, { x: 55, y: 70 },
+  { x: 10, y: 12 }, { x: 35, y: 6  }, { x: 62, y: 8  }, { x: 88, y: 14 },
+  { x: 20, y: 38 }, { x: 50, y: 30 }, { x: 78, y: 35 },
+  { x: 15, y: 62 }, { x: 45, y: 58 }, { x: 75, y: 65 },
 ];
-const FW_COLORS = [EA.cyan, EA.pink, EA.butter, "#FF8C00", EA.white, "#C084FC"];
+const FW_COLORS = [EA.cyan, EA.pink, EA.butter, "#FF8C00", EA.white, "#C084FC", "#00FF88", "#FF6B6B"];
 
 function Fireworks() {
   const particles = useMemo(() => {
-    const result = [];
-    const DIRECTIONS = 10;
-    // 3 vagues décalées dans le temps
-    for (let wave = 0; wave < 3; wave++) {
+    const result: {
+      x: number; y: number; tx: number; ty: number;
+      color: string; delay: number; size: number; shape: string; id: string;
+    }[] = [];
+    const DIRECTIONS = 16;
+    // 4 vagues
+    for (let wave = 0; wave < 4; wave++) {
       for (let b = 0; b < BURST_POSITIONS.length; b++) {
         const pos = BURST_POSITIONS[b];
         for (let d = 0; d < DIRECTIONS; d++) {
-          const angle = (d / DIRECTIONS) * 360;
-          const rad = (angle * Math.PI) / 180;
-          const dist = 55 + Math.random() * 70;
-          const tx = Math.cos(rad) * dist;
-          const ty = Math.sin(rad) * dist;
-          const color = FW_COLORS[(b + d + wave) % FW_COLORS.length];
-          const delay = wave * 1.8 + b * 0.12 + Math.random() * 0.1;
-          const size = 3 + Math.random() * 5;
-          const shape = d % 3 === 0 ? "2px" : "50%";
+          const angle = (d / DIRECTIONS) * 360 + wave * 8;
+          const rad   = (angle * Math.PI) / 180;
+          const dist  = 90 + Math.random() * 130;
+          const tx    = Math.cos(rad) * dist;
+          const ty    = Math.sin(rad) * dist;
+          const color = FW_COLORS[(b * 3 + d + wave * 2) % FW_COLORS.length];
+          const delay = wave * 1.6 + b * 0.08 + Math.random() * 0.12;
+          const size  = 5 + Math.random() * 9;
+          const shape = d % 4 === 0 ? "2px" : "50%";
           result.push({ x: pos.x, y: pos.y, tx, ty, color, delay, size, shape, id: `${wave}-${b}-${d}` });
         }
       }
@@ -54,9 +58,9 @@ function Fireworks() {
             width: p.size, height: p.size,
             borderRadius: p.shape,
             background: p.color,
-            boxShadow: `0 0 4px ${p.color}`,
+            boxShadow: `0 0 6px 2px ${p.color}`,
             willChange: "transform, opacity",
-            animation: `fw-burst 1.4s ease-out ${p.delay}s both`,
+            animation: `fw-burst 1.6s ease-out ${p.delay}s both`,
             "--fw-tx": `${p.tx}px`,
             "--fw-ty": `${p.ty}px`,
           } as React.CSSProperties}
@@ -64,9 +68,9 @@ function Fireworks() {
       ))}
       <style>{`
         @keyframes fw-burst {
-          0%   { transform: translate(0,0) scale(1);   opacity: 1; }
-          70%  { opacity: 1; }
-          100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.3); opacity: 0; }
+          0%   { transform: translate(0,0) scale(1.5); opacity: 1; }
+          65%  { opacity: 1; }
+          100% { transform: translate(var(--fw-tx), var(--fw-ty)) scale(0.2); opacity: 0; }
         }
       `}</style>
     </div>
@@ -75,17 +79,17 @@ function Fireworks() {
 
 // ── Pluie de défaite ──────────────────────────────────────────────────────────
 
-const LOSE_ITEMS = ["💀","😭","💔","😢","☠️","💀","😭","💔","😢","😭","💀","☠️","😢","💔","😭"];
+const LOSE_EMOJIS = ["😭","😭","😭","😢","😢","💔","💔","😭","😢","😭","💔","😭","😢","😭","💔","😭","😢","😢","💔","😭","😢","😭","💔","😢","😭"];
 
 function LoseRain() {
   const drops = useMemo(() =>
-    LOSE_ITEMS.map((emoji, i) => ({
+    LOSE_EMOJIS.map((emoji, i) => ({
       emoji,
-      x: 3 + (i * 6.5) % 94,
-      delay: i * 0.18 + Math.random() * 0.2,
-      duration: 1.6 + Math.random() * 0.8,
-      size: 18 + Math.random() * 14,
-      rotate: -20 + Math.random() * 40,
+      x: 1 + (i * 3.9) % 97,
+      delay: i * 0.12 + Math.random() * 0.15,
+      duration: 1.4 + Math.random() * 1.0,
+      size: 28 + Math.random() * 24,
+      rotate: -30 + Math.random() * 60,
     }))
   , []);
 
@@ -97,11 +101,11 @@ function LoseRain() {
           style={{
             position: "absolute",
             left: `${d.x}%`,
-            top: -50,
+            top: -60,
             fontSize: d.size,
-            transform: `rotate(${d.rotate}deg)`,
-            willChange: "transform",
+            willChange: "top, opacity",
             animation: `lose-fall ${d.duration}s ease-in ${d.delay}s both`,
+            transform: `rotate(${d.rotate}deg)`,
           }}
         >
           {d.emoji}
@@ -109,14 +113,51 @@ function LoseRain() {
       ))}
       <style>{`
         @keyframes lose-fall {
-          0%   { top: -50px; opacity: 1; }
-          80%  { opacity: 0.8; }
-          100% { top: 105vh; opacity: 0; }
+          0%   { top: -60px; opacity: 1; }
+          75%  { opacity: 0.9; }
+          100% { top: 108vh;  opacity: 0; }
         }
       `}</style>
     </div>
   );
 }
+
+// ── Croix rouge perdant ───────────────────────────────────────────────────────
+
+function RedX({ size }: { size: number }) {
+  const thickness = Math.round(size * 0.14);
+  const len       = Math.round(size * 0.72);
+  return (
+    <div style={{
+      position: "absolute", inset: 0, zIndex: 4,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      animation: "x-stamp 0.35s cubic-bezier(0.175,0.885,0.32,1.6) 0.45s both",
+    }}>
+      <div style={{ position: "relative", width: len, height: len }}>
+        {/* Barre \ */}
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          width: len, height: thickness,
+          background: "#FF1515",
+          borderRadius: thickness,
+          boxShadow: `0 0 12px rgba(255,21,21,0.9), 0 0 24px rgba(255,21,21,0.5)`,
+          transform: "translate(-50%,-50%) rotate(45deg)",
+        }} />
+        {/* Barre / */}
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          width: len, height: thickness,
+          background: "#FF1515",
+          borderRadius: thickness,
+          boxShadow: `0 0 12px rgba(255,21,21,0.9), 0 0 24px rgba(255,21,21,0.5)`,
+          transform: "translate(-50%,-50%) rotate(-45deg)",
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
 const MOVE_EMOJI: Record<PFCMove, string> = { pierre: "✊", feuille: "✋", ciseaux: "✂️" };
@@ -136,20 +177,22 @@ interface Props {
   opponentPseudo: string;
 }
 
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const [rematchPending, startRematch] = useTransition();
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
+  const myPseudo   = myId === p1Id ? p1Pseudo : p2Pseudo;
+  const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
   const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
   const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
-  const isWin = winnerId === myId;
+  const isWin  = winnerId === myId;
   const isDraw = winnerId === null;
   const isLose = !isWin && !isDraw;
 
-  const outcome = isDraw ? "ÉGALITÉ !" : isWin ? "VICTOIRE !" : "DÉFAITE !";
+  const outcome      = isDraw ? "ÉGALITÉ !" : isWin ? "VICTOIRE !" : "DÉFAITE !";
   const outcomeColor = isDraw ? EA.butter : isWin ? EA.cyan : EA.pink;
   const outcomeSubtitle = isDraw
     ? "Personne ne capitule ici"
@@ -159,13 +202,34 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
 
   const myScore = pfcState?.scores?.[myId] ?? 0;
   const opScore = pfcState?.scores?.[opponentId] ?? 0;
+  const avatarSize = desktop ? 84 : 60;
 
   const d = desktop;
+
+  // Couronne : gauche pour joueur gauche (moi), droite pour joueur droite (adversaire)
+  function Crown({ side }: { side: "left" | "right" }) {
+    const size = d ? 34 : 26;
+    return (
+      <div style={{
+        position: "absolute",
+        top: d ? -18 : -14,
+        ...(side === "left"
+          ? { left: -size * 0.4, transform: "rotate(-25deg)" }
+          : { right: -size * 0.4, transform: "rotate(25deg)" }
+        ),
+        fontSize: size,
+        zIndex: 5,
+        filter: "drop-shadow(0 2px 8px rgba(255,233,74,0.9)) drop-shadow(0 0 4px #FFE94A)",
+        animation: "crown-drop 0.55s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
+      }}>👑</div>
+    );
+  }
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
       {isWin  && <Fireworks />}
       {isLose && <LoseRain />}
+
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.25,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.6) 1.4px, transparent 1.8px)",
@@ -185,7 +249,6 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
       <Star color={EA.butter} size={d ? 14 : 10} style={{ bottom: "10%", left: "8%", transform: "rotate(-15deg)" }} />
       <Star color={EA.white} size={d ? 12 : 9} style={{ top: "55%", left: "5%", animation: "ea-float 6s ease-in-out infinite reverse" }} />
 
-      {/* Centered content wrapper */}
       <div style={{
         position: "relative", zIndex: 10,
         maxWidth: d ? 640 : "100%",
@@ -204,7 +267,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
           animation: "ea-pulse 1.5s ease-in-out 3",
           marginBottom: d ? 16 : 12,
         }}>
-          {isWin ? "🏆 " : isDraw ? "🤝 " : "💀 "}{outcome}
+          {isWin ? "🏆 " : isDraw ? "🤝 " : "❌ "}{outcome}
         </div>
 
         <div style={{
@@ -218,33 +281,23 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
         {/* Score card */}
         <div style={{
           width: "100%", background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
-          borderRadius: d ? 28 : 20, padding: d ? "28px 24px" : "20px 16px",
+          borderRadius: d ? 28 : 20, padding: d ? "32px 24px 24px" : "24px 16px 16px",
           boxShadow: `5px 5px 0 ${EA.ink}`,
           marginBottom: d ? 24 : 20,
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+            {/* ── MOI (gauche) ── */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
               <div style={{ position: "relative", display: "inline-block" }}>
-                {isWin && (
-                  <div style={{
-                    position: "absolute", top: d ? -26 : -20, left: "50%",
-                    transform: "translateX(-50%)",
-                    fontSize: d ? 28 : 22,
-                    animation: "crown-drop 0.5s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
-                    zIndex: 2,
-                    filter: "drop-shadow(0 2px 6px rgba(255,233,74,0.8))",
-                  }}>👑</div>
-                )}
-                {isLose && (
-                  <div style={{
-                    position: "absolute", top: d ? -22 : -18, left: "50%",
-                    transform: "translateX(-50%)",
-                    fontSize: d ? 24 : 18,
-                    animation: "skull-drop 0.5s ease-out 0.5s both",
-                    zIndex: 2,
-                  }}>💀</div>
-                )}
-                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={isWin ? EA.cyan : isLose ? "rgba(255,30,140,0.4)" : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+                {isWin  && <Crown side="left" />}
+                {isLose && <RedX size={avatarSize} />}
+                <Avatar
+                  name={myPseudo} src={myAvatarUrl}
+                  color={EA.butter}
+                  ring={isWin ? EA.cyan : isLose ? "#FF1515" : "rgba(255,255,255,0.3)"}
+                  size={avatarSize}
+                />
               </div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: EA.white, transform: "skewX(-4deg)" }}>
                 {myPseudo.toUpperCase()}
@@ -256,6 +309,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
               )}
             </div>
 
+            {/* VS */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 8 : 4 }}>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: d ? 26 : 20, color: EA.pink,
@@ -269,28 +323,17 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
               </div>
             </div>
 
+            {/* ── ADVERSAIRE (droite) ── */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 12 : 8 }}>
               <div style={{ position: "relative", display: "inline-block" }}>
-                {isLose && (
-                  <div style={{
-                    position: "absolute", top: d ? -26 : -20, left: "50%",
-                    transform: "translateX(-50%)",
-                    fontSize: d ? 28 : 22,
-                    animation: "crown-drop 0.5s cubic-bezier(0.175,0.885,0.32,1.6) 0.3s both",
-                    zIndex: 2,
-                    filter: "drop-shadow(0 2px 6px rgba(255,233,74,0.8))",
-                  }}>👑</div>
-                )}
-                {isWin && (
-                  <div style={{
-                    position: "absolute", top: d ? -22 : -18, left: "50%",
-                    transform: "translateX(-50%)",
-                    fontSize: d ? 24 : 18,
-                    animation: "skull-drop 0.5s ease-out 0.5s both",
-                    zIndex: 2,
-                  }}>💀</div>
-                )}
-                <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={isLose ? EA.pink : "rgba(255,255,255,0.3)"} size={d ? 84 : 60} />
+                {isLose && <Crown side="right" />}
+                {isWin  && <RedX size={avatarSize} />}
+                <Avatar
+                  name={opPseudo} src={opAvatarUrl}
+                  color={EA.pink}
+                  ring={isLose ? EA.cyan : isWin ? "#FF1515" : "rgba(255,255,255,0.3)"}
+                  size={avatarSize}
+                />
               </div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 20 : 13, color: "rgba(255,255,255,0.6)", transform: "skewX(-4deg)" }}>
                 {opPseudo.toUpperCase()}
@@ -316,9 +359,9 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
               Détail des manches
             </div>
             {pfcState.rounds.filter(r => Object.keys(r.moves).length === 2).map(r => {
-              const myM = r.moves[myId] as PFCMove | undefined;
-              const opM = r.moves[opponentId] as PFCMove | undefined;
-              const rWin = r.winner_id === myId;
+              const myM  = r.moves[myId] as PFCMove | undefined;
+              const opM  = r.moves[opponentId] as PFCMove | undefined;
+              const rWin  = r.winner_id === myId;
               const rDraw = !r.winner_id;
               return (
                 <div key={r.round} style={{
@@ -331,11 +374,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
                     <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 13 : 9, color: "rgba(255,255,255,0.3)", width: d ? 24 : 16 }}>M{r.round}</span>
                     <span style={{ fontSize: d ? 32 : 22 }}>{myM ? MOVE_EMOJI[myM] : "?"}</span>
                   </div>
-                  <div style={{
-                    fontFamily: "var(--font-display)", fontSize: d ? 16 : 10,
-                    color: rDraw ? EA.butter : rWin ? EA.cyan : EA.pink,
-                    letterSpacing: 1,
-                  }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: d ? 16 : 10, color: rDraw ? EA.butter : rWin ? EA.cyan : EA.pink, letterSpacing: 1 }}>
                     {rDraw ? "ÉGAL" : rWin ? "WIN" : "LOSE"}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: d ? 10 : 6, justifyContent: "flex-end" }}>
@@ -350,11 +389,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
         {/* Actions */}
         <div style={{ display: "flex", flexDirection: "column", gap: d ? 14 : 10, width: "100%" }}>
           <button
-            onClick={() => {
-              startRematch(async () => {
-                await sendChallenge(opponentId, gameType);
-              });
-            }}
+            onClick={() => { startRematch(async () => { await sendChallenge(opponentId, gameType); }); }}
             disabled={rematchPending}
             style={{
               background: EA.butter, border: `2.5px solid ${EA.ink}`,
@@ -406,13 +441,14 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
 
       <style>{`
         @keyframes crown-drop {
-          0%   { transform: translateX(-50%) translateY(-20px) rotate(-15deg) scale(0); opacity: 0; }
-          60%  { transform: translateX(-50%) translateY(4px) rotate(5deg) scale(1.2); opacity: 1; }
-          100% { transform: translateX(-50%) translateY(0) rotate(0deg) scale(1); opacity: 1; }
+          0%   { transform: rotate(var(--cr)) translateY(-24px) scale(0); opacity: 0; }
+          55%  { transform: rotate(var(--cr)) translateY(6px) scale(1.25); opacity: 1; }
+          100% { transform: rotate(var(--cr)) translateY(0) scale(1); opacity: 1; }
         }
-        @keyframes skull-drop {
-          0%   { transform: translateX(-50%) scale(0) rotate(20deg); opacity: 0; }
-          100% { transform: translateX(-50%) scale(1) rotate(-5deg); opacity: 1; }
+        @keyframes x-stamp {
+          0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+          60%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
       `}</style>
     </div>
