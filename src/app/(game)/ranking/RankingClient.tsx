@@ -36,6 +36,7 @@ const TAB_LABELS: Record<Tab, string> = {
 export function RankingClient({ myPlayerId, initialEntries }: Props) {
   const [tab, setTab] = useState<Tab>("global");
   const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [typeStats, setTypeStats] = useState<Record<Tab, Map<string, TypeStat>>>({
     global: new Map(),
     pfc: new Map(),
@@ -166,15 +167,11 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
 
       {/* Legend */}
       <div style={{
-        display: "grid",
-        gridTemplateColumns: tab === "global" ? "1fr 40px 40px 40px 50px" : "1fr 40px 40px 40px",
+        display: "grid", gridTemplateColumns: "1fr 48px",
         marginBottom: 10, padding: "0 14px",
       }}>
-        {(tab === "global" ? ["JOUEUR", "V", "D", "=", "PTS"] : ["JOUEUR", "V", "D", "="]).map(h => (
-          <div key={h} style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, textAlign: h === "JOUEUR" ? "left" : "center" }}>
-            {h}
-          </div>
-        ))}
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1 }}>JOUEUR</div>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>V</div>
       </div>
 
       {/* Rows */}
@@ -186,30 +183,51 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         )}
         {rows.map((row, i) => {
           const isMe = row.playerId === myPlayerId;
+          const isExpanded = expandedId === row.playerId;
           return (
-            <div key={row.playerId} style={{
-              background: isMe ? `rgba(0,212,232,0.12)` : EA.violetDeep,
-              border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
-              borderRadius: 18, padding: "14px 16px",
-              boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
-              display: "grid",
-              gridTemplateColumns: tab === "global" ? "1fr 40px 40px 40px 50px" : "1fr 40px 40px 40px",
-              alignItems: "center",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={32} />
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
-                  {row.pseudo.toUpperCase()}
-                  {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}
+            <div
+              key={row.playerId}
+              onClick={() => setExpandedId(isExpanded ? null : row.playerId)}
+              style={{
+                background: isMe ? `rgba(0,212,232,0.12)` : EA.violetDeep,
+                border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                borderRadius: 18, padding: "12px 16px",
+                boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                cursor: "pointer",
+                transition: "box-shadow 0.15s",
+              }}
+            >
+              {/* Ligne principale */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 48px", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                  <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
+                  <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={34} />
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
+                    {row.pseudo.toUpperCase()}
+                    {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}
+                  </div>
                 </div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.cyan, textAlign: "center", transform: "skewX(-4deg)" }}>{row.wins}</div>
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.cyan, textAlign: "center", transform: "skewX(-4deg)" }}>{row.wins}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.pink, textAlign: "center", transform: "skewX(-4deg)" }}>{row.losses}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.butter, textAlign: "center", transform: "skewX(-4deg)" }}>{row.draws}</div>
-              {tab === "global" && (
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, textAlign: "center", transform: "skewX(-6deg)" }}>
-                  {row.pts}
+
+              {/* Détails (expandable) */}
+              {isExpanded && (
+                <div style={{
+                  marginTop: 12, paddingTop: 12,
+                  borderTop: `1.5px solid rgba(255,255,255,0.1)`,
+                  display: "flex", gap: 8, justifyContent: "space-around",
+                }}>
+                  {[
+                    { label: "Victoires", val: row.wins, color: EA.cyan },
+                    { label: "Défaites",  val: row.losses, color: EA.pink },
+                    { label: "Nuls",      val: row.draws, color: EA.butter },
+                    ...(tab === "global" ? [{ label: "Points", val: row.pts ?? 0, color: EA.white }] : []),
+                  ].map(({ label, val, color }) => (
+                    <div key={label} style={{ textAlign: "center" }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color, transform: "skewX(-4deg)" }}>{val}</div>
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
