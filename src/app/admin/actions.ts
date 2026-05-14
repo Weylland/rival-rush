@@ -198,3 +198,121 @@ export async function updateContactStatus(
 
   return { ok: true };
 }
+
+// ── Auth helper (nouveaux actions) ────────────────────────────────────────
+
+async function isAdmin(): Promise<boolean> {
+  const store = await cookies();
+  return store.get("ea_admin")?.value === process.env.ADMIN_SECRET;
+}
+
+// ── Chat modération — Lobby ───────────────────────────────────────────────
+
+export async function deleteLobbyChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("lobby_chat").delete().eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteLobbyChatByPlayer(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("lobby_chat").delete().eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Chat modération — Salles ──────────────────────────────────────────────
+
+export async function deleteRoomChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("room_chat").delete().eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteRoomChatByPlayer(roomId: string, playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("room_chat").delete().eq("room_id", roomId).eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Chat modération — DMs ─────────────────────────────────────────────────
+
+export async function deleteDMMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("direct_messages").delete().eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteConversation(conversationId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Gestion joueurs ───────────────────────────────────────────────────────
+
+export async function updatePlayerPseudo(playerId: string, newPseudo: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const trimmed = newPseudo.trim();
+  if (!trimmed || trimmed.length < 2 || trimmed.length > 20) return { error: "Pseudo invalide (2–20 caractères)" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("players").update({ pseudo: trimmed }).eq("id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function setPlayerStats(
+  playerId: string,
+  wins: number,
+  losses: number,
+  draws: number,
+): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const points = wins * WIN_PTS + draws * DRAW_PTS;
+  const supabase = await createClient();
+  const { error } = await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function sendPlayerWarning(playerId: string, message: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  if (!message.trim()) return { error: "Message vide" };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("player_notifications")
+    .insert({ player_id: playerId, type: "warning", message: message.trim() });
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Gestion salles ────────────────────────────────────────────────────────
+
+export async function deleteRoom(roomId: string): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("rooms").delete().eq("id", roomId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function setRoomOpen(roomId: string, isOpen: boolean): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("rooms").update({ is_open: isOpen }).eq("id", roomId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Configuration jeux ────────────────────────────────────────────────────
+
+export async function updateGameSetting(
+  gameType: string,
+  field: "is_active" | "win_pts" | "draw_pts",
+  value: boolean | number,
+): Promise<{ ok: boolean } | { error: string }> {
+  if (!await isAdmin()) return { error: "Non autorisé" };
+  const supabase = await createClient();
+  const { error } = await supabase.from("game_settings").update({ [field]: value }).eq("game_type", gameType);
+  return error ? { error: error.message } : { ok: true };
+}

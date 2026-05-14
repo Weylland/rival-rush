@@ -280,6 +280,56 @@ create policy "room_chat read"          on public.room_chat      for select usin
 create policy "room_chat insert"        on public.room_chat      for insert with check (true);
 create policy "room_chat delete"        on public.room_chat      for delete using (true);
 
+-- ── Configuration des jeux (admin) ──────────────────────────────
+
+create table public.game_settings (
+  game_type  text primary key check (game_type in (
+    'pfc', 'morpion', 'puissance4', 'reflexe', 'naval', 'chess',
+    'nim', 'pig', 'mastermind', 'plus-ou-moins', 'duel-des'
+  )),
+  is_active  bool not null default true,
+  win_pts    int  not null default 3,
+  draw_pts   int  not null default 1,
+  loss_pts   int  not null default 0
+);
+
+alter table public.game_settings enable row level security;
+create policy "game_settings read"   on public.game_settings for select using (true);
+create policy "game_settings insert" on public.game_settings for insert with check (true);
+create policy "game_settings update" on public.game_settings for update using (true);
+create policy "game_settings delete" on public.game_settings for delete using (true);
+
+insert into public.game_settings (game_type, is_active, win_pts, draw_pts) values
+  ('pfc',           true, 3, 1),
+  ('morpion',       true, 3, 1),
+  ('puissance4',    true, 3, 1),
+  ('reflexe',       true, 3, 1),
+  ('naval',         true, 3, 1),
+  ('chess',         true, 3, 1),
+  ('nim',           true, 3, 1),
+  ('pig',           true, 3, 1),
+  ('mastermind',    true, 3, 1),
+  ('plus-ou-moins', true, 3, 1),
+  ('duel-des',      true, 3, 1)
+on conflict (game_type) do nothing;
+
+-- ── Notifications joueurs (avertissements admin) ─────────────────
+
+create table public.player_notifications (
+  id         uuid primary key default gen_random_uuid(),
+  player_id  uuid not null references public.players(id) on delete cascade,
+  type       text not null default 'warning',
+  message    text not null,
+  seen       bool not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.player_notifications enable row level security;
+create policy "player_notifications read"   on public.player_notifications for select using (true);
+create policy "player_notifications insert" on public.player_notifications for insert with check (true);
+create policy "player_notifications update" on public.player_notifications for update using (true);
+create policy "player_notifications delete" on public.player_notifications for delete using (true);
+
 -- ── Realtime ────────────────────────────────────────────────────
 
 alter publication supabase_realtime add table public.presence;
