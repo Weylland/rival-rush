@@ -110,16 +110,18 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
 
   const getTabRows = (): { playerId: string; pseudo: string; avatar_url?: string | null; wins: number; losses: number; draws: number; pts?: number }[] => {
     if (tab === "global") {
-      return entries.map(e => ({ playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }));
+      return entries
+        .map(e => ({ playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }))
+        .filter(r => r.wins + r.losses + r.draws > 0);
     }
     const map = typeStats[tab];
-    const rows = entries
+    return entries
       .map(e => {
         const s = map.get(e.player_id) ?? { wins: 0, losses: 0, draws: 0 };
         return { playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, ...s };
       })
+      .filter(r => r.wins + r.losses + r.draws > 0)
       .sort((a, b) => b.wins - a.wins || a.losses - b.losses);
-    return rows;
   };
 
   const rows = getTabRows();
