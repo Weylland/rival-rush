@@ -269,7 +269,12 @@ export function ChatProvider({
           loadConversations();
           return prev;
         });
-      }).subscribe();
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "direct_messages" }, (p) => {
+        const deleted = p.old as { id: string };
+        setActiveMessages(prev => prev.filter(m => m.id !== deleted.id));
+      })
+      .subscribe();
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
   }, [myId, activeConvId, activeRoomId, loadConversations]);

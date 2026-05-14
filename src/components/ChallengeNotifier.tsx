@@ -94,8 +94,8 @@ export function ChallengeNotifier({ playerId }: Props) {
   const [countdown, setCountdown] = useState(20);
   const { play } = useGameSounds();
 
-  // Don't pop the modal while in a game / on the result page
-  const suppress = pathname?.startsWith("/play/");
+  // Don't pop the modal while in a game, on the result page, or in the admin
+  const suppress = pathname?.startsWith("/play/") || pathname?.startsWith("/admin");
 
   // On mount: fetch any already-pending challenge (e.g. opened via push notification)
   useEffect(() => {
