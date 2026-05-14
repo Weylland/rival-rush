@@ -1,4 +1,4 @@
-export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind" | "plus-ou-moins";
+export type GameType = "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind" | "plus-ou-moins" | "duel-des";
 export type ChallengeStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type GameStatus = "waiting" | "playing" | "finished";
 
@@ -124,6 +124,17 @@ export interface PlusOuMoinsState {
   guesses: PlusOuMoinsGuess[];
   scores: Record<string, number>;
   current_round: number; // 1, 2 ou 3
+}
+
+export interface DuelDesRound {
+  rolls: Record<string, number>; // playerId -> 1-6
+  winner_id: string | null;      // null = tie
+}
+
+export interface DuelDesState {
+  rounds: DuelDesRound[];
+  scores: Record<string, number>;
+  current_round: number;
 }
 
 export interface LeaderboardEntry {

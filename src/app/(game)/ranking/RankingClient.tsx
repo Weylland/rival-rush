@@ -6,7 +6,7 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import type { LeaderboardEntry } from "@/types/database";
 
-type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind" | "plus-ou-moins";
+type Tab = "global" | "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess" | "nim" | "pig" | "mastermind" | "plus-ou-moins" | "duel-des";
 
 interface TypeStat {
   wins: number;
@@ -32,6 +32,7 @@ const TAB_LABELS: Record<Tab, string> = {
   pig:             "🐷 Jeu du Cochon",
   mastermind:      "🎨 Mastermind",
   "plus-ou-moins": "🔢 Plus ou Moins",
+  "duel-des":      "🎲 Duel de Dés",
 };
 
 export function RankingClient({ myPlayerId, initialEntries }: Props) {
@@ -50,6 +51,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
     pig: new Map(),
     mastermind: new Map(),
     "plus-ou-moins": new Map(),
+    "duel-des":      new Map(),
   });
   const [typeLoaded, setTypeLoaded] = useState(false);
 
@@ -86,7 +88,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         const maps: Record<Exclude<Tab, "global">, Map<string, TypeStat>> = {
           pfc: new Map(), morpion: new Map(), puissance4: new Map(),
           reflexe: new Map(), naval: new Map(), chess: new Map(),
-          nim: new Map(), pig: new Map(), mastermind: new Map(), "plus-ou-moins": new Map(),
+          nim: new Map(), pig: new Map(), mastermind: new Map(), "plus-ou-moins": new Map(), "duel-des": new Map(),
         };
 
         for (const game of games) {

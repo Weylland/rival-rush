@@ -18,6 +18,7 @@ const GAME_LABELS: Record<GameType, string> = {
   pig: "Jeu du Cochon 🐷",
   mastermind: "Mastermind 🎨",
   "plus-ou-moins": "Plus ou Moins 🔢",
+  "duel-des": "Duel de Dés 🎲",
 };
 
 export async function sendChallenge(challengedId: string, gameType: GameType, timeControl?: number | null) {
@@ -154,7 +155,9 @@ export async function acceptChallenge(challengeId: string) {
                   ? { scores: { [p1]: 0, [p2]: 0 }, turn_total: 0, last_roll: null }
                   : challenge.game_type === "mastermind"
                     ? { code: Array.from({ length: 4 }, () => Math.floor(Math.random() * 6)), guesses: [] }
-                    : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
+                    : challenge.game_type === "duel-des"
+                  ? { rounds: [{ rolls: {}, winner_id: null }], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
+                  : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
 
   const { data: game } = await supabase
     .from("games")
@@ -162,7 +165,7 @@ export async function acceptChallenge(challengeId: string) {
       challenge_id: challengeId,
       game_type: challenge.game_type,
       state: initialState,
-      current_turn: challenge.game_type === "naval" ? null : challenge.challenger_id,
+      current_turn: challenge.game_type === "naval" || challenge.game_type === "duel-des" ? null : challenge.challenger_id,
       status: "playing",
     })
     .select()

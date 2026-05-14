@@ -94,6 +94,13 @@ const TIPS: Record<GameType | "global", string[]> = {
     "Regarde les coups de l'adversaire — ils te donnent aussi des infos sur le nombre !",
     "La zone rétrécit à chaque coup. Surveille le thermomètre : BRÛLANT = t'es tout proche.",
   ],
+  "duel-des": [
+    "Pur hasard — personne n'a d'avantage. Profite juste du stress de l'attente !",
+    "Première à 3 victoires de manche. Chaque round compte, surtout les égalités !",
+    "L'adversaire a lancé mais tu ne vois pas son dé — l'inconnu, c'est tout le sel du jeu.",
+    "Égalité de manche = personne ne marque. Ça peut se jouer en 3 manches… ou en 10.",
+    "La pression monte à 2-2. C'est là que le jeu commence vraiment.",
+  ],
   global: [
     "Un match nul, c'est mieux qu'une défaite — chaque point au classement compte.",
     "Les meilleures décisions se prennent calme. Prends 2 secondes avant de jouer.",

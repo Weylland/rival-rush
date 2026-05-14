@@ -104,6 +104,16 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
       { icon: "🏆", text: "Premier à trouver le nombre gagne la manche — meilleur des 3 manches" },
     ],
   },
+  "duel-des": {
+    title: "Duel de Dés 🎲",
+    icon: "🎲🎲🎲",
+    items: [
+      { icon: "🎲", text: "Chaque manche : les deux joueurs lancent leur dé simultanément" },
+      { icon: "🏆", text: "Le plus haut l'emporte — égalité ? Personne ne marque, on passe à la suivante" },
+      { icon: "👁️", text: "Tu vois si l'adversaire a lancé, mais pas sa valeur — suspens garanti !" },
+      { icon: "🥇", text: "Premier à remporter 3 manches gagne le match" },
+    ],
+  },
   nim: {
     title: "Nim 🔥",
     icon: "🔥🔥🔥",
