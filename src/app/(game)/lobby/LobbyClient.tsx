@@ -11,6 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
+import { useChatOpen } from "@/app/(game)/chat/ChatSystem";
 import type { GameType } from "@/types/database";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -238,7 +239,7 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; desktop: boolean; hasPush: boolean }) {
+function PlayerRow({ p, idx, onChallenge, onDM, desktop, hasPush }: { p: LobbyPlayer; idx: number; onChallenge: () => void; onDM: () => void; desktop: boolean; hasPush: boolean }) {
   const inGame = p.status === "in-game";
   const offline = p.status === "offline";
   const shadowColor = offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
@@ -275,6 +276,19 @@ function PlayerRow({ p, idx, onChallenge, desktop, hasPush }: { p: LobbyPlayer; 
           {offline ? "Hors ligne" : inGame ? (p.game_type ? `En partie · ${GAME_LABELS[p.game_type] ?? p.game_type}` : "En partie") : "En ligne"}
         </div>
       </div>
+      <button
+        onClick={onDM}
+        title="Envoyer un message"
+        style={{
+          fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13,
+          color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.08)",
+          border: "2px solid rgba(255,255,255,0.15)", borderRadius: 12,
+          padding: desktop ? "8px 12px" : "6px 10px", cursor: "pointer",
+          transition: "background 0.15s, color 0.15s",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,212,232,0.15)"; e.currentTarget.style.color = EA.cyan; }}
+        onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
+      >💬</button>
       {!inGame && (!offline || hasPush) && (
         <button
           onClick={onChallenge}
@@ -343,6 +357,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
+  const { openDM } = useChatOpen();
 
   // Notification permission
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
@@ -653,7 +668,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
           <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
         ) : (
           displayPlayers.map((p, i) => (
-            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} desktop={desktop} hasPush={pushSubscriberIds.includes(p.player_id)} />
+            <PlayerRow key={p.player_id} p={p} idx={i} onChallenge={() => setChooseOpponent(p)} onDM={() => openDM(p.player_id, p.pseudo)} desktop={desktop} hasPush={pushSubscriberIds.includes(p.player_id)} />
           ))
         )}
       </div>

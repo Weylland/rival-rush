@@ -155,6 +155,63 @@ create policy "reports read"   on public.reports for select using (true);
 create policy "reports insert" on public.reports for insert with check (true);
 create policy "reports update" on public.reports for update using (true);
 
+-- ── Chat global de lobby ─────────────────────────────────────────
+
+create table public.lobby_chat (
+  id         uuid primary key default gen_random_uuid(),
+  player_id  uuid not null references public.players(id) on delete cascade,
+  pseudo     text not null,
+  content    text not null check (char_length(content) between 1 and 300),
+  created_at timestamptz not null default now()
+);
+create index lobby_chat_created_at_idx on public.lobby_chat(created_at desc);
+alter table public.lobby_chat enable row level security;
+create policy "lobby_chat read"   on public.lobby_chat for select using (true);
+create policy "lobby_chat insert" on public.lobby_chat for insert with check (true);
+create policy "lobby_chat delete" on public.lobby_chat for delete using (true);
+
+-- ── Conversations DM ─────────────────────────────────────────────
+
+create table public.conversations (
+  id         uuid primary key default gen_random_uuid(),
+  p1_id      uuid not null references public.players(id) on delete cascade,
+  p2_id      uuid not null references public.players(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  constraint conversations_ordered check (p1_id < p2_id),
+  unique (p1_id, p2_id)
+);
+alter table public.conversations enable row level security;
+create policy "conversations read"   on public.conversations for select using (true);
+create policy "conversations insert" on public.conversations for insert with check (true);
+
+-- ── Messages directs ─────────────────────────────────────────────
+
+create table public.direct_messages (
+  id              uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  sender_id       uuid not null references public.players(id) on delete cascade,
+  pseudo          text not null,
+  content         text not null check (char_length(content) between 1 and 500),
+  created_at      timestamptz not null default now()
+);
+create index direct_messages_conv_idx on public.direct_messages(conversation_id, created_at);
+alter table public.direct_messages enable row level security;
+create policy "direct_messages read"   on public.direct_messages for select using (true);
+create policy "direct_messages insert" on public.direct_messages for insert with check (true);
+
+-- ── Lecture des conversations (badge unread) ──────────────────────
+
+create table public.conversation_reads (
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  player_id       uuid not null references public.players(id) on delete cascade,
+  read_at         timestamptz not null default now(),
+  primary key (conversation_id, player_id)
+);
+alter table public.conversation_reads enable row level security;
+create policy "conv_reads read"   on public.conversation_reads for select using (true);
+create policy "conv_reads upsert" on public.conversation_reads for insert with check (true);
+create policy "conv_reads update" on public.conversation_reads for update using (true);
+
 -- ── Realtime ────────────────────────────────────────────────────
 -- À activer dans le dashboard Supabase > Database > Replication :
--- tables : presence, challenges, games, messages
+-- tables : presence, challenges, games, messages, lobby_chat, direct_messages
