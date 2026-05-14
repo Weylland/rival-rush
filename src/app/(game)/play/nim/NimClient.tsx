@@ -459,7 +459,7 @@ export function NimClient({
         opponentPseudo={opPseudo}
       />
 
-      <PreventLeave enabled={!isFinished} />
+      <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`
         @keyframes pulse {

@@ -466,7 +466,7 @@ export function PigClient({
         opponentPseudo={opPseudo}
       />
 
-      <PreventLeave enabled={!isFinished} />
+      <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`
         @keyframes pulse {

@@ -935,7 +935,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         </div>
       </div>
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
-      <PreventLeave enabled={!isFinished} />
+      <PreventLeave enabled={!isFinished} gameId={gameId} />
     </div>
   );
 }

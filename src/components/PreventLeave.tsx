@@ -5,39 +5,38 @@ import { useRouter } from "next/navigation";
 import { EA } from "@/lib/design";
 
 interface Props {
-  /** Actif seulement pendant la partie — désactiver quand isFinished */
   enabled: boolean;
+  gameId: string;
 }
 
-export function PreventLeave({ enabled }: Props) {
+export function PreventLeave({ enabled, gameId }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [abandoning, setAbandoning] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
 
-    // Bloque refresh / fermeture d'onglet
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-
-    // Bloque le bouton retour : on repousse un état dans l'historique,
-    // puis on intercepte le popstate pour afficher notre modal
+    // Bloque le bouton retour uniquement (pas beforeunload — évite la popup native du navigateur)
     history.pushState(null, "", window.location.href);
     const handlePopState = () => {
       history.pushState(null, "", window.location.href);
       setShowModal(true);
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
     window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-    };
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [enabled]);
+
+  async function handleAbandon() {
+    setAbandoning(true);
+    await fetch("/api/forfeit", {
+      method: "POST",
+      body: JSON.stringify({ gameId, mode: "self" }),
+      headers: { "Content-Type": "application/json" },
+    });
+    router.push("/lobby");
+  }
 
   if (!showModal) return null;
 
@@ -57,7 +56,6 @@ export function PreventLeave({ enabled }: Props) {
         boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
         position: "relative",
       }}>
-        {/* Dot bg */}
         <div aria-hidden style={{
           position: "absolute", inset: 4, borderRadius: 20,
           backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.3) 1px, transparent 1.4px)",
@@ -99,16 +97,20 @@ export function PreventLeave({ enabled }: Props) {
             </button>
 
             <button
-              onClick={() => router.push("/lobby")}
+              onClick={handleAbandon}
+              disabled={abandoning}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 14,
-                color: "rgba(255,255,255,0.5)", background: "none",
-                border: `2px solid rgba(255,255,255,0.2)`, borderRadius: 999,
-                padding: "11px 0", cursor: "pointer",
+                color: abandoning ? "rgba(255,255,255,0.3)" : EA.pink,
+                background: "none",
+                border: `2px solid ${abandoning ? "rgba(255,255,255,0.15)" : EA.pink}`,
+                borderRadius: 999,
+                padding: "11px 0", cursor: abandoning ? "not-allowed" : "pointer",
                 width: "100%", textTransform: "uppercase",
+                transition: "all 0.2s",
               }}
             >
-              <span>Abandonner</span>
+              {abandoning ? "Abandon en cours…" : "Abandonner la partie"}
             </button>
           </div>
         </div>

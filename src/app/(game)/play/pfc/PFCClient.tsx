@@ -520,7 +520,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
         </>
       )}
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
-      <PreventLeave enabled={initialStatus !== "finished"} />
+      <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />
     </div>
   );
 }

@@ -703,7 +703,7 @@ export function ChessClient({
         </div>
       )}
       <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
-      <PreventLeave enabled={!isFinished} />
+      <PreventLeave enabled={!isFinished} gameId={gameId} />
     </div>
   );
 }
