@@ -1,13 +1,20 @@
 import { cookies } from "next/headers";
+import { createHmac } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { AdminShell } from "./AdminShell";
 import type { Contact } from "./ContactsClient";
 import type { Report } from "./ReportsClient";
 
+function isValidAdminCookie(value: string | undefined): boolean {
+  const secret = process.env.ADMIN_SECRET;
+  if (!value || !secret) return false;
+  return value === createHmac("sha256", secret).update("ea_admin_session").digest("hex");
+}
+
 export default async function AdminPage() {
   const cookieStore = await cookies();
-  const isAuth = cookieStore.get("ea_admin")?.value === process.env.ADMIN_SECRET;
+  const isAuth = isValidAdminCookie(cookieStore.get("ea_admin")?.value);
 
   if (!isAuth) {
     return <AdminLoginForm />;

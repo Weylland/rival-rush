@@ -6,6 +6,20 @@ import { createClient } from "@/lib/supabase/server";
 import { hashPassword } from "@/lib/auth";
 import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
 
+// ── Admin token helper ────────────────────────────────────────────────────────
+
+import { createHmac } from "crypto";
+
+function computeAdminToken(secret: string): string {
+  return createHmac("sha256", secret).update("ea_admin_session").digest("hex");
+}
+
+function isValidAdminCookie(cookieValue: string | undefined): boolean {
+  const secret = process.env.ADMIN_SECRET;
+  if (!cookieValue || !secret) return false;
+  return cookieValue === computeAdminToken(secret);
+}
+
 // ── Admin login rate limiting (5 attempts / 10 min per IP) ───────────────────
 interface RateEntry { count: number; resetAt: number }
 const adminBucket = new Map<string, RateEntry>();
@@ -32,7 +46,14 @@ export async function adminLogin(_prev: string | null, formData: FormData): Prom
     return "Mot de passe incorrect";
   }
   const store = await cookies();
-  store.set("ea_admin", secret, { httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 8, path: "/" });
+  const token = computeAdminToken(secret);
+  store.set("ea_admin", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 8,
+    path: "/",
+  });
   redirect("/admin");
 }
 
@@ -40,7 +61,7 @@ export async function adminLogin(_prev: string | null, formData: FormData): Prom
 export async function deletePlayer(playerId: string) {
   const store = await cookies();
   const adminCookie = store.get("ea_admin")?.value;
-  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminCookie(adminCookie)) {
     return { error: "Non autorisé" };
   }
 
@@ -145,7 +166,7 @@ export async function deletePlayer(playerId: string) {
 export async function resetPlayerPassword(playerId: string): Promise<{ tempPassword: string } | { error: string }> {
   const store = await cookies();
   const adminCookie = store.get("ea_admin")?.value;
-  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminCookie(adminCookie)) {
     return { error: "Non autorisé" };
   }
 
@@ -168,7 +189,7 @@ export async function updateReportStatus(
 ): Promise<{ ok: boolean } | { error: string }> {
   const store = await cookies();
   const adminCookie = store.get("ea_admin")?.value;
-  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminCookie(adminCookie)) {
     return { error: "Non autorisé" };
   }
 
@@ -183,7 +204,7 @@ export type ContactStatus = "new" | "in_progress" | "done" | "spam";
 export async function deleteContact(contactId: string): Promise<{ ok: boolean } | { error: string }> {
   const store = await cookies();
   const adminCookie = store.get("ea_admin")?.value;
-  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminCookie(adminCookie)) {
     return { error: "Non autorisé" };
   }
 
@@ -200,7 +221,7 @@ export async function updateContactStatus(
 ): Promise<{ ok: boolean } | { error: string }> {
   const store = await cookies();
   const adminCookie = store.get("ea_admin")?.value;
-  if (!adminCookie || adminCookie !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminCookie(adminCookie)) {
     return { error: "Non autorisé" };
   }
 
@@ -215,7 +236,7 @@ export async function updateContactStatus(
 
 async function isAdmin(): Promise<boolean> {
   const store = await cookies();
-  return store.get("ea_admin")?.value === process.env.ADMIN_SECRET;
+  return isValidAdminCookie(store.get("ea_admin")?.value);
 }
 
 // ── Chat modération — Lobby ───────────────────────────────────────────────
