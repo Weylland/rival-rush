@@ -176,9 +176,10 @@ export function ChatProvider({
     setLobbyMessages([]);
     const supabase = createClient();
     // If in a room, load room chat; otherwise load global lobby chat
-    const { data: msgs } = activeRoomId
+    const chatResult = activeRoomId
       ? await supabase.from("room_chat").select("*").eq("room_id", activeRoomId).order("created_at", { ascending: true }).limit(100)
       : await supabase.from("lobby_chat").select("*").order("created_at", { ascending: true }).limit(100);
+    const msgs = chatResult.data as LobbyMsg[] | null;
     if (!msgs) return;
 
     const ids = [...new Set(msgs.map(m => m.player_id))];
