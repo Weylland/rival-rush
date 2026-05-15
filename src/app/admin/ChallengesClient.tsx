@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { cancelChallenge, deleteChallenge } from "./actions";
+import { GAME_LABELS } from "@/lib/game-labels";
 
 interface Challenge {
   id: string;
@@ -15,20 +16,6 @@ interface Challenge {
   challenger_pseudo: string;
   challenged_pseudo: string;
 }
-
-const GAME_LABELS: Record<string, string> = {
-  pfc: "PFC",
-  morpion: "Morpion",
-  puissance4: "P4",
-  reflexe: "Réflexe",
-  naval: "Naval",
-  chess: "Échecs",
-  nim: "Nim",
-  pig: "Pig",
-  mastermind: "Mastermind",
-  "plus-ou-moins": "±",
-  "duel-des": "Dés",
-};
 
 const STATUS_META: Record<
   Challenge["status"],

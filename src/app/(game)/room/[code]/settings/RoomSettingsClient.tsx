@@ -8,14 +8,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { updateRoomSettings, deleteRoom } from "../../actions";
 import type { GameType } from "@/types/database";
-
-const GAME_LABELS: Record<GameType, string> = {
-  pfc: "✊ PFC", morpion: "⨯ Morpion", puissance4: "🔴 Puissance 4",
-  reflexe: "⚡ Réflexe", naval: "🚢 Bataille Navale", chess: "♟ Échecs",
-  nim: "🔥 Nim", pig: "🐷 Cochon", mastermind: "🎨 Mastermind",
-  "plus-ou-moins": "🔢 Plus ou Moins", "duel-des": "🎲 Duel de Dés",
-};
-const ALL_GAMES = Object.keys(GAME_LABELS) as GameType[];
+import { GAME_LABELS, ALL_GAME_TYPES } from "@/lib/game-labels";
 
 interface RoomInfo {
   id: string; name: string; code: string;
@@ -169,7 +162,7 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
           >
             {useGameFilter && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-                {ALL_GAMES.map(g => {
+                {ALL_GAME_TYPES.map(g => {
                   const selected = allowedGames.includes(g);
                   return (
                     <button key={g} type="button" onClick={() => toggleGame(g)} style={{

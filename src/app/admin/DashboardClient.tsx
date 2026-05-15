@@ -3,22 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
+import { GAME_LABELS } from "@/lib/game-labels";
 
 /* ─── constants ─────────────────────────────────────────────────── */
-
-const GAME_LABELS: Record<string, string> = {
-  pfc: "PFC",
-  morpion: "Morpion",
-  puissance4: "Puissance 4",
-  reflexe: "Réflexe",
-  naval: "Naval",
-  chess: "Échecs",
-  nim: "Nim",
-  pig: "Pig",
-  mastermind: "Mastermind",
-  "plus-ou-moins": "±",
-  "duel-des": "Dés",
-};
 
 const PALETTE = [
   EA.cyan, EA.pink, EA.butter, "#4ade80", "#a78bfa",

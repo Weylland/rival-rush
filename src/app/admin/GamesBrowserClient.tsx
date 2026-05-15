@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { forceEndGame, deleteGame } from "./actions";
+import { GAME_LABELS } from "@/lib/game-labels";
 
 interface Game {
   id: string;
@@ -18,20 +19,6 @@ interface Game {
   room_id: string | null;
   room_name?: string;
 }
-
-const GAME_LABELS: Record<string, string> = {
-  pfc: "PFC",
-  morpion: "Morpion",
-  puissance4: "P4",
-  reflexe: "Réflexe",
-  naval: "Naval",
-  chess: "Échecs",
-  nim: "Nim",
-  pig: "Pig",
-  mastermind: "Mastermind",
-  "plus-ou-moins": "±",
-  "duel-des": "Dés",
-};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", {

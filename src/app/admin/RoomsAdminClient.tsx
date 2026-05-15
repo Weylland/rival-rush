@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { deleteRoom, updateRoom } from "./actions";
+import { GAME_LABELS } from "@/lib/game-labels";
 
 interface RoomEntry {
   id: string;
@@ -39,10 +40,6 @@ const ALL_GAMES = [
   { key: "plus-ou-moins", label: "Plus ou Moins 🔢" },
   { key: "duel-des", label: "Duel des Dés 🎲" },
 ];
-
-const GAME_LABELS: Record<string, string> = Object.fromEntries(
-  ALL_GAMES.map(({ key, label }) => [key, label.split(" ")[0]]),
-);
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", {

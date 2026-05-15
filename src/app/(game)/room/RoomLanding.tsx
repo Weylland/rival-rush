@@ -8,17 +8,7 @@ import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createRoom, joinRoom } from "./actions";
 import type { GameType, RoomExpiration } from "@/types/database";
-
-const GAME_LABELS: Record<GameType, string> = {
-  pfc: "✊ Pierre Feuille Ciseaux", morpion: "⨯ Morpion",
-  puissance4: "🔴 Puissance 4", reflexe: "⚡ Réflexe",
-  naval: "🚢 Bataille Navale", chess: "♟ Échecs",
-  nim: "🔥 Nim", pig: "🐷 Cochon",
-  mastermind: "🎨 Mastermind", "plus-ou-moins": "🔢 Plus ou Moins",
-  "duel-des": "🎲 Duel de Dés",
-};
-
-const ALL_GAMES = Object.keys(GAME_LABELS) as GameType[];
+import { GAME_LABELS, ALL_GAME_TYPES } from "@/lib/game-labels";
 
 const EXPIRATION_OPTIONS: { value: RoomExpiration; label: string }[] = [
   { value: "6h",       label: "6 heures" },
@@ -364,7 +354,7 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
             >
               {useGameFilter && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-                  {ALL_GAMES.map(g => {
+                  {ALL_GAME_TYPES.map(g => {
                     const selected = allowedGames.includes(g);
                     return (
                       <button key={g} type="button" onClick={() => toggleGame(g)}

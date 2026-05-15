@@ -6,20 +6,7 @@ import { getSession } from "@/lib/auth";
 import { initialChessState } from "@/lib/chess";
 import { sendPushToSubscriptions } from "@/lib/push";
 import type { GameType } from "@/types/database";
-
-const GAME_LABELS: Record<GameType, string> = {
-  pfc: "Pierre Feuille Ciseaux",
-  morpion: "Morpion",
-  puissance4: "Puissance 4",
-  reflexe: "Réflexe ⚡",
-  naval: "Bataille Navale",
-  chess: "Échecs ♟",
-  nim: "Nim 🔥",
-  pig: "Jeu du Cochon 🐷",
-  mastermind: "Mastermind 🎨",
-  "plus-ou-moins": "Plus ou Moins 🔢",
-  "duel-des": "Duel de Dés 🎲",
-};
+import { GAME_LABELS } from "@/lib/game-labels";
 
 export async function sendChallenge(challengedId: string, gameType: GameType, timeControl?: number | null) {
   const session = await getSession();

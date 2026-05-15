@@ -14,13 +14,7 @@ import { sendChallenge } from "@/app/(game)/lobby/actions";
 import { leaveRoom, inviteToRoom, kickMember, transferHost, deleteRoom } from "../actions";
 import { blockPlayer, unblockPlayer, reportPlayer } from "@/app/(game)/lobby/actions";
 import type { GameType } from "@/types/database";
-
-const GAME_LABELS: Record<string, string> = {
-  pfc: "✊ PFC", morpion: "⨯ Morpion", puissance4: "🔴 P4",
-  reflexe: "⚡ Réflexe", naval: "🚢 Naval", chess: "♟ Échecs",
-  nim: "🔥 Nim", pig: "🐷 Cochon", mastermind: "🎨 Mastermind",
-  "plus-ou-moins": "🔢 +/-", "duel-des": "🎲 Dés",
-};
+import { GAME_LABELS } from "@/lib/game-labels";
 
 interface RoomInfo {
   id: string; name: string; code: string; hostId: string;
