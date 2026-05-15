@@ -30,13 +30,24 @@ export async function POST(req: Request) {
     if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });
     if (file.size > 3 * 1024 * 1024) return NextResponse.json({ error: "Fichier trop lourd (max 3 MB)" }, { status: 400 });
 
-    const ext = file.type === "image/png" ? "png" : "jpg";
-    const path = `${session.playerId}.${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Validate magic bytes — reject anything that isn't a real JPEG or PNG
+    const isJpeg = buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+    const isPng  = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e &&
+                   buffer[3] === 0x47 && buffer[4] === 0x0d && buffer[5] === 0x0a &&
+                   buffer[6] === 0x1a && buffer[7] === 0x0a;
+    if (!isJpeg && !isPng) {
+      return NextResponse.json({ error: "Format invalide. JPG ou PNG uniquement." }, { status: 400 });
+    }
+
+    const ext  = isPng ? "png" : "jpg";
+    const mime = isPng ? "image/png" : "image/jpeg";
+    const path = `${session.playerId}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(path, buffer, { contentType: file.type, upsert: true });
+      .upload(path, buffer, { contentType: mime, upsert: true });
 
     if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
