@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hashPassword, verifyPassword, setSession, getSession, clearSession } from "@/lib/auth";
+import { updateLeaderboard } from "@/lib/leaderboard";
 
 export type AuthState = { error: string } | null;
 
@@ -85,44 +86,35 @@ export async function logout() {
   const supabase = await createClient();
 
   // Forfeit any active games this player is in
-  const { data: activeGames } = await supabase
-    .from("games")
-    .select("id, challenges(challenger_id, challenged_id)")
-    .eq("status", "playing");
+  const { data: activeChallenges } = await supabase
+    .from("challenges")
+    .select("id, challenger_id, challenged_id, game_type")
+    .or(`challenger_id.eq.${session.playerId},challenged_id.eq.${session.playerId}`)
+    .eq("status", "accepted");
 
-  for (const game of activeGames ?? []) {
-    const challenge = game.challenges as unknown as { challenger_id: string; challenged_id: string };
-    if (challenge.challenger_id !== session.playerId && challenge.challenged_id !== session.playerId) continue;
-    const opponentId = session.playerId === challenge.challenger_id ? challenge.challenged_id : challenge.challenger_id;
+  const activeIds = (activeChallenges ?? []).map((c) => c.id);
 
-    await supabase
+  if (activeIds.length > 0) {
+    const { data: activeGames } = await supabase
       .from("games")
-      .update({ status: "finished", winner_id: opponentId })
-      .eq("id", game.id)
+      .select("id, challenge_id, game_type")
+      .in("challenge_id", activeIds)
       .eq("status", "playing");
 
-    for (const player_id of [opponentId, session.playerId]) {
-      const isWinner = player_id === opponentId;
-      const { data: existing } = await supabase
-        .from("leaderboard")
-        .select("*")
-        .eq("player_id", player_id)
-        .single();
+    for (const game of activeGames ?? []) {
+      const challenge = (activeChallenges ?? []).find((c) => c.id === game.challenge_id);
+      if (!challenge) continue;
+      const { challenger_id: p1Id, challenged_id: p2Id } = challenge;
+      const opponentId = session.playerId === p1Id ? p2Id : p1Id;
 
-      if (existing) {
-        await supabase.from("leaderboard").update({
-          wins: existing.wins + (isWinner ? 1 : 0),
-          losses: existing.losses + (isWinner ? 0 : 1),
-          points: existing.points + (isWinner ? 3 : 0),
-        }).eq("player_id", player_id);
-      } else {
-        await supabase.from("leaderboard").insert({
-          player_id,
-          wins: isWinner ? 1 : 0,
-          losses: isWinner ? 0 : 1,
-          draws: 0,
-          points: isWinner ? 3 : 0,
-        });
+      const { error } = await supabase
+        .from("games")
+        .update({ status: "finished", winner_id: opponentId })
+        .eq("id", game.id)
+        .eq("status", "playing");
+
+      if (!error) {
+        await updateLeaderboard(supabase, opponentId, p1Id, p2Id, game.game_type as string);
       }
     }
   }

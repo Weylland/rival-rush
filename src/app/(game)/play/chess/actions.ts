@@ -142,6 +142,6 @@ export async function claimChessTimeout(gameId: string) {
 
   if (error) return { ok: false };
 
-  await updateLeaderboard(supabase, winnerId, p1Id, p2Id);
+  await updateLeaderboard(supabase, winnerId, p1Id, p2Id, "chess");
   return { ok: true };
 }

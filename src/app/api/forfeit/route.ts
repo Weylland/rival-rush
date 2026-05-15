@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (error) return NextResponse.json({ ok: false });
 
-    await updateLeaderboard(supabase, winnerId, winnerId, loserId, game.game_type as string);
+    await updateLeaderboard(supabase, winnerId, p1Id, p2Id, game.game_type as string);
 
     return NextResponse.json({ ok: true, winnerId, loserId });
   } catch {

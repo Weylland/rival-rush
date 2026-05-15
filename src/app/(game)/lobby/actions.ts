@@ -116,6 +116,10 @@ export async function acceptChallenge(challengeId: string) {
     .single();
 
   if (!challenge) return { error: "Défi introuvable" };
+  if (challenge.expires_at && new Date(challenge.expires_at) < new Date()) {
+    await supabase.from("challenges").update({ status: "cancelled" }).eq("id", challengeId);
+    return { error: "Ce défi a expiré" };
+  }
 
   await supabase
     .from("challenges")
@@ -206,7 +210,7 @@ export async function blockPlayer(blockedId: string) {
   const session = await getSession();
   if (!session) return;
   const supabase = await createClient();
-  await supabase.from("blocks").insert({ blocker_id: session.playerId, blocked_id: blockedId });
+  await supabase.from("blocks").upsert({ blocker_id: session.playerId, blocked_id: blockedId });
 }
 
 export async function unblockPlayer(blockedId: string) {

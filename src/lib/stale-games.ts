@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateLeaderboard } from "@/lib/leaderboard";
 
-const STALE_THRESHOLD_MS = 60_000;
+const STALE_THRESHOLD_MS = 120_000;
 
 /**
  * Server-side safety net: finds all playing games and forfeits any where at

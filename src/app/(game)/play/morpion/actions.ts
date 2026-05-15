@@ -59,8 +59,6 @@ export async function submitMorpionMove(gameId: string, cellIndex: number) {
     return { ok: false, error: "Invalid cell" };
   }
 
-  // Place mark (p1 = X, p2 = O)
-  const myMark = myId === p1Id ? myId : myId;
   state.board[cellIndex] = myId;
 
   const winner = checkWinner(state.board);

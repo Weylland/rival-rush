@@ -72,17 +72,40 @@ export function ChatProvider({
   blockedUserIds?: string[];
 }) {
   const blockedSet = useMemo(() => new Set(blockedUserIds), [blockedUserIds]);
+
+  // Local memberships — seeded from server prop, enriched client-side when needed
+  const [localMemberships, setLocalMemberships] = useState<RoomMembership[]>(roomMemberships);
+  useEffect(() => { setLocalMemberships(roomMemberships); }, [roomMemberships]);
+
   // Derive the active room from the current URL — only when actually inside /room/[code]/...
   const pathname = usePathname();
   const { activeRoomId, activeRoomName } = useMemo(() => {
     const match = pathname?.match(/^\/room\/([^/?#]+)/);
     if (!match) return { activeRoomId: null, activeRoomName: null };
     const code = decodeURIComponent(match[1]).toLowerCase();
-    const room = roomMemberships.find(r => r.code.toLowerCase() === code);
+    const room = localMemberships.find(r => r.code.toLowerCase() === code);
     return room
       ? { activeRoomId: room.id, activeRoomName: room.name }
       : { activeRoomId: null, activeRoomName: null };
-  }, [pathname, roomMemberships]);
+  }, [pathname, localMemberships]);
+
+  // When on /room/CODE but the room isn't in our membership list yet (just joined,
+  // layout server re-render not propagated yet), fetch it directly from the client.
+  useEffect(() => {
+    const match = pathname?.match(/^\/room\/([^/?#]+)/);
+    if (!match) return;
+    const code = decodeURIComponent(match[1]).toUpperCase();
+    if (localMemberships.some(r => r.code.toUpperCase() === code)) return;
+    const supabase = createClient();
+    supabase.from("rooms").select("id, name, code").eq("code", code).maybeSingle()
+      .then(({ data: room }) => {
+        if (!room) return;
+        setLocalMemberships(prev => {
+          if (prev.some(r => r.id === room.id)) return prev;
+          return [...prev, { id: room.id as string, name: room.name as string, code: room.code as string }];
+        });
+      });
+  }, [pathname, localMemberships]);
 
   const [isOpen, setIsOpen]               = useState(false);
   const [tab, setTab]                     = useState<"lobby" | "dms">("lobby");

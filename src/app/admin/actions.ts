@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hashPassword } from "@/lib/auth";
+import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
 
 // ── Admin login rate limiting (5 attempts / 10 min per IP) ───────────────────
 interface RateEntry { count: number; resetAt: number }
@@ -35,40 +36,6 @@ export async function adminLogin(_prev: string | null, formData: FormData): Prom
   redirect("/admin");
 }
 
-// Default point values matching game_settings defaults — used only for leaderboard recalculation
-const WIN_PTS = 3;
-const DRAW_PTS = 1;
-
-async function recalculateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  playerId: string,
-) {
-  const { data: challenges } = await supabase
-    .from("challenges")
-    .select("id, challenger_id, challenged_id")
-    .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`);
-
-  const challengeIds = (challenges ?? []).map((c) => c.id);
-
-  let wins = 0, losses = 0, draws = 0;
-
-  if (challengeIds.length > 0) {
-    const { data: games } = await supabase
-      .from("games")
-      .select("winner_id")
-      .eq("status", "finished")
-      .in("challenge_id", challengeIds);
-
-    for (const game of games ?? []) {
-      if (game.winner_id === null) draws++;
-      else if (game.winner_id === playerId) wins++;
-      else losses++;
-    }
-  }
-
-  const points = wins * WIN_PTS + draws * DRAW_PTS;
-  await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
-}
 
 export async function deletePlayer(playerId: string) {
   const store = await cookies();
@@ -90,14 +57,12 @@ export async function deletePlayer(playerId: string) {
     const activeIds = activeChallenges.map((c) => c.id);
     const { data: activeGames } = await supabase
       .from("games")
-      .select("id, winner_id")
+      .select("id, challenge_id, winner_id")
       .in("challenge_id", activeIds)
       .eq("status", "playing");
 
     for (const game of activeGames ?? []) {
-      const challenge = activeChallenges.find((c) =>
-        activeIds.includes(c.id)
-      );
+      const challenge = activeChallenges.find((c) => c.id === game.challenge_id);
       if (!challenge) continue;
       const winnerId =
         challenge.challenger_id === playerId
@@ -143,7 +108,7 @@ export async function deletePlayer(playerId: string) {
 
   // 4. Recalculate leaderboard for all affected opponents
   for (const opId of opponentIds) {
-    await recalculateLeaderboard(supabase, opId);
+    await recalculatePlayerLeaderboard(supabase, opId);
   }
 
   // 5. Delete chat messages (lobby + rooms)
@@ -323,7 +288,7 @@ export async function setPlayerStats(
   draws: number,
 ): Promise<{ ok: boolean } | { error: string }> {
   if (!await isAdmin()) return { error: "Non autorisé" };
-  const points = wins * WIN_PTS + draws * DRAW_PTS;
+  const points = wins * 3 + draws * 1;
   const supabase = await createClient();
   const { error } = await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
   return error ? { error: error.message } : { ok: true };
@@ -443,8 +408,8 @@ export async function forceEndGame(
   const challenge = Array.isArray(ch) ? ch[0] : ch;
   if (challenge) {
     await Promise.all([
-      recalculateLeaderboard(supabase, challenge.challenger_id),
-      recalculateLeaderboard(supabase, challenge.challenged_id),
+      recalculatePlayerLeaderboard(supabase, challenge.challenger_id),
+      recalculatePlayerLeaderboard(supabase, challenge.challenged_id),
     ]);
   }
   return { ok: true };

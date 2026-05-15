@@ -160,7 +160,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 
   // Invite players panel
   const [showInvite, setShowInvite] = useState(false);
-  const [onlinePlayers, setOnlinePlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null }[]>([]);
+  const [onlinePlayers, setOnlinePlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null; offline?: boolean }[]>([]);
   const [invitePending, setInvitePending] = useState<Set<string>>(new Set());
   const [inviteSent, setInviteSent] = useState<Set<string>>(new Set());
 
@@ -204,15 +204,27 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
     return () => { supabase.removeChannel(ch); };
   }, [room.id, router]);
 
-  // Fetch online players for invite
+  // Fetch all players for invite (online + offline)
   useEffect(() => {
     if (!showInvite) return;
     const supabase = createClient();
     const memberIds = new Set(members.map(m => m.player_id));
-    supabase.from("presence").select("player_id, pseudo").neq("player_id", myPlayerId).then(({ data }) => {
-      if (data) {
-        setOnlinePlayers(data.filter(p => !memberIds.has(p.player_id as string)).map(p => ({ player_id: p.player_id as string, pseudo: p.pseudo as string })));
-      }
+    Promise.all([
+      supabase.from("players").select("id, pseudo, avatar_url").neq("id", myPlayerId),
+      supabase.from("presence").select("player_id"),
+    ]).then(([{ data: allPlayers }, { data: presence }]) => {
+      if (!allPlayers) return;
+      const onlineIds = new Set((presence ?? []).map(p => p.player_id as string));
+      const invitable = allPlayers
+        .filter(p => !memberIds.has(p.id as string))
+        .map(p => ({
+          player_id: p.id as string,
+          pseudo: p.pseudo as string,
+          avatar_url: (p.avatar_url as string | null) ?? null,
+          offline: !onlineIds.has(p.id as string),
+        }))
+        .sort((a, b) => Number(a.offline) - Number(b.offline) || a.pseudo.localeCompare(b.pseudo));
+      setOnlinePlayers(invitable);
     });
   }, [showInvite, members, myPlayerId]);
 
@@ -545,27 +557,34 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 14 }}>Code de la salle : <strong style={{ color: EA.butter, letterSpacing: 2 }}>{room.code}</strong></div>
             {onlinePlayers.length === 0 && (
               <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px 0" }}>
-                Aucun joueur en ligne disponible
+                Aucun autre joueur inscrit
               </div>
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 320, overflowY: "auto" }}>
               {onlinePlayers.map(p => (
-                <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Avatar name={p.pseudo} src={null} color={EA.cyan} size={34} />
-                  <div style={{ flex: 1, fontFamily: "var(--font-display)", fontSize: 14, color: EA.white }}>{p.pseudo}</div>
+                <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10, opacity: p.offline ? 0.65 : 1 }}>
+                  <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : EA.cyan} size={34} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
+                    {p.offline && (
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Hors ligne</div>
+                    )}
+                  </div>
                   <button
                     onClick={() => handleInvite(p.player_id)}
                     disabled={invitePending.has(p.player_id) || inviteSent.has(p.player_id)}
                     style={{
-                      background: inviteSent.has(p.player_id) ? "#4ADE80" : EA.pink,
-                      border: `2px solid ${EA.ink}`, borderRadius: 999,
+                      background: inviteSent.has(p.player_id) ? "#4ADE80" : p.offline ? "rgba(255,255,255,0.1)" : EA.pink,
+                      border: `2px solid ${inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+                      borderRadius: 999,
                       padding: "7px 14px", fontFamily: "var(--font-display)", fontSize: 12,
-                      color: inviteSent.has(p.player_id) ? EA.ink : EA.white,
+                      color: inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.6)" : EA.white,
                       cursor: invitePending.has(p.player_id) || inviteSent.has(p.player_id) ? "default" : "pointer",
                       opacity: invitePending.has(p.player_id) ? 0.6 : 1,
-                      boxShadow: `2px 2px 0 ${EA.ink}`,
+                      boxShadow: inviteSent.has(p.player_id) || p.offline ? "none" : `2px 2px 0 ${EA.ink}`,
+                      whiteSpace: "nowrap",
                     }}>
-                    {inviteSent.has(p.player_id) ? "✓ Envoyé" : invitePending.has(p.player_id) ? "…" : "Inviter"}
+                    {inviteSent.has(p.player_id) ? "✓ Envoyé" : invitePending.has(p.player_id) ? "…" : p.offline ? "📬 Inviter" : "Inviter"}
                   </button>
                 </div>
               ))}

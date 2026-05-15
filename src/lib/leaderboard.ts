@@ -22,6 +22,41 @@ async function getPoints(supabase: SupabaseClient, gameType?: string): Promise<P
 }
 
 /**
+ * Recalculates a single player's leaderboard row from their full game history.
+ * Uses default 3/1/0 points — per-game config not applied since history mixes game types.
+ * Called after account deletion to fix affected opponents, and by admin on manual recalc.
+ */
+export async function recalculatePlayerLeaderboard(
+  supabase: SupabaseClient,
+  playerId: string,
+) {
+  const { data: challenges } = await supabase
+    .from("challenges")
+    .select("id")
+    .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`);
+
+  const challengeIds = (challenges ?? []).map((c) => c.id);
+  let wins = 0, losses = 0, draws = 0;
+
+  if (challengeIds.length > 0) {
+    const { data: games } = await supabase
+      .from("games")
+      .select("winner_id")
+      .eq("status", "finished")
+      .in("challenge_id", challengeIds);
+
+    for (const g of games ?? []) {
+      if (g.winner_id === null) draws++;
+      else if (g.winner_id === playerId) wins++;
+      else losses++;
+    }
+  }
+
+  const points = wins * DEFAULTS.win + draws * DEFAULTS.draw;
+  await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
+}
+
+/**
  * Updates the leaderboard for both players after a game ends.
  * @param winnerId - null means draw
  * @param gameType - used to fetch dynamic point values from game_settings

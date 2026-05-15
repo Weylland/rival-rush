@@ -23,8 +23,9 @@ function expiresAt(exp: RoomExpiration): string | null {
 
 async function hashPassword(password: string): Promise<string> {
   const supabase = await createClient();
-  const { data } = await supabase.rpc("crypt_password", { pass: password }).single();
-  return (data as string) ?? password;
+  const { data, error } = await supabase.rpc("crypt_password", { pass: password });
+  if (error || !data) throw new Error("Impossible de hacher le mot de passe");
+  return data as string;
 }
 
 // ── Create room ───────────────────────────────────────────────────────────────

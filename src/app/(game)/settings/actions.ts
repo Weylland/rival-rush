@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession, setSession, clearSession, verifyPassword, hashPassword } from "@/lib/auth";
+import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
 
 export type SettingsState = { error?: string; success?: string } | null;
 
@@ -67,36 +68,6 @@ export async function updatePassword(_prev: SettingsState, formData: FormData): 
   return { success: "Mot de passe mis à jour !" };
 }
 
-async function recalculateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  playerId: string,
-) {
-  const { data: challenges } = await supabase
-    .from("challenges")
-    .select("id, challenger_id, challenged_id")
-    .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`);
-
-  const challengeIds = (challenges ?? []).map((c) => c.id);
-  let wins = 0, losses = 0, draws = 0;
-
-  if (challengeIds.length > 0) {
-    const { data: games } = await supabase
-      .from("games")
-      .select("winner_id")
-      .eq("status", "finished")
-      .in("challenge_id", challengeIds);
-
-    for (const g of games ?? []) {
-      if (g.winner_id === null) draws++;
-      else if (g.winner_id === playerId) wins++;
-      else losses++;
-    }
-  }
-
-  // Uses default 3/1/0 — recalculation after account deletion, game_type mix not worth per-game lookup
-  const points = wins * 3 + draws * 1;
-  await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
-}
 
 export async function deleteAccount(): Promise<SettingsState> {
   const session = await getSession();
@@ -114,11 +85,11 @@ export async function deleteAccount(): Promise<SettingsState> {
   if (activeChallenges && activeChallenges.length > 0) {
     const activeIds = activeChallenges.map((c) => c.id);
     const { data: activeGames } = await supabase
-      .from("games").select("id")
+      .from("games").select("id, challenge_id")
       .in("challenge_id", activeIds).eq("status", "playing");
 
     for (const game of activeGames ?? []) {
-      const challenge = activeChallenges.find((c) => activeIds.includes(c.id));
+      const challenge = activeChallenges.find((c) => c.id === game.challenge_id);
       if (!challenge) continue;
       const winnerId = challenge.challenger_id === playerId ? challenge.challenged_id : challenge.challenger_id;
       await supabase.from("games").update({ status: "finished", winner_id: winnerId }).eq("id", game.id);
@@ -150,7 +121,7 @@ export async function deleteAccount(): Promise<SettingsState> {
   }
 
   for (const opId of opponentIds) {
-    await recalculateLeaderboard(supabase, opId);
+    await recalculatePlayerLeaderboard(supabase, opId);
   }
 
   // Delete chat messages (lobby + rooms)

@@ -497,9 +497,47 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   // Burger menu (mobile)
   const [burgerOpen, setBurgerOpen] = useState(false);
 
-  // Room invitations
+  // Room invitations — seeded from server, updated via Realtime
   const [pendingInvitations, setPendingInvitations] = useState<RoomInvitationInfo[]>(roomInvitations);
   const [inviteResponding, setInviteResponding] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const sub = supabase
+      .channel(`room-invitations-${myPlayerId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "room_invitations",
+          filter: `invited_player_id=eq.${myPlayerId}`,
+        },
+        async (payload) => {
+          const inv = payload.new as { id: string; room_id: string; invited_by_id: string; expires_at: string };
+          if (!inv.expires_at || new Date(inv.expires_at) < new Date()) return;
+          // Fetch room + inviter details
+          const [{ data: room }, { data: inviter }] = await Promise.all([
+            supabase.from("rooms").select("name, code").eq("id", inv.room_id).maybeSingle(),
+            supabase.from("players").select("pseudo").eq("id", inv.invited_by_id).maybeSingle(),
+          ]);
+          if (!room) return;
+          setPendingInvitations(prev => {
+            if (prev.some(i => i.id === inv.id)) return prev;
+            return [...prev, {
+              id: inv.id,
+              roomId: inv.room_id,
+              roomName: (room as { name: string; code: string }).name,
+              roomCode: (room as { name: string; code: string }).code,
+              inviterPseudo: (inviter as { pseudo: string } | null)?.pseudo ?? "?",
+              expiresAt: inv.expires_at,
+            }];
+          });
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(sub); };
+  }, [myPlayerId]);
 
   // Blocks
   const [myBlocks, setMyBlocks] = useState<Set<string>>(new Set());
