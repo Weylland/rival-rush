@@ -16,7 +16,6 @@ export function createClient() {
   if (_client) return _client;
 
   const token = getToken();
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
   _client = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,16 +27,12 @@ export function createClient() {
         detectSessionInUrl: false,
       },
       global: {
-        headers: authHeader,
-      },
-      realtime: {
-        headers: authHeader,
-        params: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
     },
   );
 
-  // Synchronise l'auth realtime avec le JWT player
+  // Passe le JWT au client Realtime pour que RLS filtre aussi les subscriptions
   if (token) _client.realtime.setAuth(token);
 
   return _client;
