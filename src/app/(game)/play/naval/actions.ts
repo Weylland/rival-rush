@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { findHitShip, isShipSunk, isFleetSunk, validateFleet } from "@/lib/battleship";
 import type { NavalState, NavalShip } from "@/types/database";
 
@@ -52,13 +53,24 @@ export async function submitNavalPlacement(gameId: string, ships: NavalShip[]): 
 
   if (myId !== p1Id && myId !== p2Id) return { ok: false, error: "Non participant" };
 
+  // Store ships privately in game_secrets (never in broadcast state)
+  const secrets = await readSecrets(gameId);
+  await writeSecrets(gameId, {
+    ships: { ...(secrets.ships ?? {}), [myId]: ships },
+  });
+
+  // Update only fleets_placed in public state — no ship positions
   const raw = game.state as Record<string, unknown>;
-  const state = raw as unknown as NavalState;
+  const state = raw as unknown as Partial<NavalState>;
 
-  const newShips = { ...state.ships, [myId]: ships };
-  const bothReady = newShips[p1Id] !== undefined && newShips[p2Id] !== undefined;
+  const fleetsPlaced = { ...(state.fleets_placed ?? {}), [myId]: true };
+  const bothReady = fleetsPlaced[p1Id] && fleetsPlaced[p2Id];
 
-  const newState: NavalState = { ...state, ships: newShips };
+  const newState: NavalState = {
+    fleets_placed: fleetsPlaced,
+    shots: state.shots ?? { [p1Id]: [], [p2Id]: [] },
+    sunk_ships: state.sunk_ships ?? {},
+  };
 
   await supabase.from("games").update({
     state: newState as unknown as Record<string, unknown>,
@@ -97,14 +109,16 @@ export async function submitNavalShot(gameId: string, cell: number) {
   const raw = game.state as Record<string, unknown>;
   const state = raw as unknown as NavalState;
 
-  const myShots = state.shots[myId] ?? [];
+  const myShots = state.shots?.[myId] ?? [];
 
-  // Already shot this cell?
   if (myShots.some(s => s.cell === cell)) {
     return { ok: false, error: "Case déjà jouée" };
   }
 
-  const opponentShips = state.ships[opponentId] ?? [];
+  // Read opponent ships from game_secrets (never from public state)
+  const secrets = await readSecrets(gameId);
+  const opponentShips = secrets.ships?.[opponentId] ?? [];
+
   const hitShip = findHitShip(opponentShips, cell);
 
   let result: "miss" | "hit" | "sunk" = "miss";
@@ -115,13 +129,23 @@ export async function submitNavalShot(gameId: string, cell: number) {
   }
 
   const newShots = [...myShots, { cell, result }];
-  const newState: NavalState = {
-    ...state,
-    shots: { ...state.shots, [myId]: newShots },
-  };
+
+  // Track sunk ships (reveal them once destroyed — they're no longer secret)
+  const newSunkShips = { ...(state.sunk_ships ?? {}) };
+  if (result === "sunk" && hitShip) {
+    newSunkShips[opponentId] = [...(newSunkShips[opponentId] ?? []), hitShip];
+  }
 
   const hitCells = newShots.filter(s => s.result !== "miss").map(s => s.cell);
   const finished = isFleetSunk(opponentShips, hitCells);
+
+  const newState: NavalState = {
+    fleets_placed: state.fleets_placed ?? {},
+    shots: { ...(state.shots ?? {}), [myId]: newShots },
+    sunk_ships: newSunkShips,
+    // Reveal all ship positions once game is over (post-game analysis)
+    ...(finished ? { revealed_ships: secrets.ships ?? {} } : {}),
+  };
 
   await supabase.from("games").update({
     state: newState as unknown as Record<string, unknown>,

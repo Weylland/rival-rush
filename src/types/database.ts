@@ -82,8 +82,14 @@ export interface NavalShot {
 }
 
 export interface NavalState {
-  ships: Record<string, NavalShip[]>; // playerId → their fleet (used server-side for validation)
-  shots: Record<string, NavalShot[]>; // playerId → shots they fired at opponent
+  /** Which players have submitted their fleet placement */
+  fleets_placed: Record<string, boolean>;
+  /** Shots fired by each player */
+  shots: Record<string, NavalShot[]>;
+  /** Ships that have been fully sunk (revealed to both players) keyed by the defending player */
+  sunk_ships: Record<string, NavalShip[]>;
+  /** Full fleets revealed once the game is finished */
+  revealed_ships?: Record<string, NavalShip[]>;
 }
 
 export interface MastermindGuess {
@@ -94,8 +100,10 @@ export interface MastermindGuess {
 }
 
 export interface MastermindState {
-  code: number[];
+  /** code is server-side only (game_secrets table) — never in broadcast state */
   guesses: MastermindGuess[];
+  /** Only populated once the game is finished */
+  revealed_code?: number[];
 }
 
 export interface PigState {
@@ -118,7 +126,7 @@ export interface PlusOuMoinsGuess {
 }
 
 export interface PlusOuMoinsState {
-  secret: number;        // 0 = pas encore généré
+  /** secret is server-side only (game_secrets table) — never in broadcast state */
   range_min: number;     // 1 initialement
   range_max: number;     // 100 initialement
   guesses: PlusOuMoinsGuess[];

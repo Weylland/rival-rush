@@ -174,11 +174,10 @@ export function PlusOuMoinsClient({
   const lastOpGuess: PlusOuMoinsGuess | undefined = [...guesses].reverse().find(g => g.player_id === opponentId && g.feedback !== "exact");
   const lastMyGuess: PlusOuMoinsGuess | undefined = [...guesses].reverse().find(g => g.player_id === myId && g.feedback !== "exact");
   const lastAnyGuess = guesses[guesses.length - 1];
-  const heatDistance = lastAnyGuess
-    ? Math.abs(lastAnyGuess.value - (state.secret || 50))
-    : 50;
+  // Proxy de chaleur : la moitié du range restant (plus le range est étroit, plus on est proche)
+  const heatDistance = lastAnyGuess ? Math.floor(rangeSize / 2) : 50;
   const heat = getHeat(heatDistance);
-  const showHeat = state.secret > 0 && lastAnyGuess && lastAnyGuess.feedback !== "exact";
+  const showHeat = rangeSize < 99 && lastAnyGuess && lastAnyGuess.feedback !== "exact";
 
   // Barre de range
   const barStart  = (range_min - 1) / 99;  // 0 à 1

@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import type { MastermindState, MastermindGuess } from "@/types/database";
 
 const MAX_GUESSES = 12;
@@ -59,6 +60,24 @@ async function updateLeaderboard(
   }
 }
 
+/** Returns the secret code from game_secrets, migrating from state if needed. */
+async function getOrCreateCode(gameId: string, stateCode: number[] | undefined): Promise<number[]> {
+  const secrets = await readSecrets(gameId);
+
+  if (secrets.code?.length === 4) return secrets.code;
+
+  // Migration path: code was previously stored in games.state
+  if (stateCode && stateCode.length === 4) {
+    await writeSecrets(gameId, { code: stateCode });
+    return stateCode;
+  }
+
+  // First game ever: generate a fresh code
+  const code = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6));
+  await writeSecrets(gameId, { code });
+  return code;
+}
+
 export async function submitMastermindGuess(gameId: string, guess: number[]) {
   const session = await getSession();
   if (!session) return { ok: false, error: "Not authenticated" };
@@ -87,11 +106,16 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
   if (game.current_turn !== myId) return { ok: false, error: "Not your turn" };
 
   const raw = game.state as Record<string, unknown>;
-  const state: MastermindState = raw && "code" in raw
+  // Legacy: state may still have `code` from old games — used for migration only
+  const legacyCode = (raw as { code?: number[] }).code;
+  const state: MastermindState = raw && "guesses" in raw
     ? (raw as unknown as MastermindState)
-    : { code: [], guesses: [] };
+    : { guesses: [] };
 
-  const { blacks, whites } = calcFeedback(state.code, guess);
+  // Get code from secrets (server-only) — never from broadcast state
+  const code = await getOrCreateCode(gameId, legacyCode);
+
+  const { blacks, whites } = calcFeedback(code, guess);
 
   const newGuess: MastermindGuess = { player_id: myId, guess, blacks, whites };
   const newGuesses = [...(state.guesses ?? []), newGuess];
@@ -101,7 +125,11 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
   const isDraw = !isWin && newGuesses.length >= MAX_GUESSES;
   const isFinished = isWin || isDraw;
 
-  const newState: MastermindState = { code: state.code, guesses: newGuesses };
+  const newState: MastermindState = {
+    guesses: newGuesses,
+    // Reveal code only when game ends
+    ...(isFinished ? { revealed_code: code } : {}),
+  };
 
   await supabase.from("games").update({
     state: newState as unknown as Record<string, unknown>,

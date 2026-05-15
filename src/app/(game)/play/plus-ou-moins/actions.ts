@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import type { PlusOuMoinsState } from "@/types/database";
 
 async function updateLeaderboard(
@@ -38,6 +39,32 @@ async function updateLeaderboard(
   }
 }
 
+/** Returns the secret for the given round from game_secrets, migrating legacy state if needed. */
+async function getOrCreateSecret(
+  gameId: string,
+  round: number,
+  legacySecret?: number,
+): Promise<number> {
+  const secrets = await readSecrets(gameId);
+  const key = `round_${round}`;
+  const existing = secrets.secret_rounds?.[key];
+  if (existing && existing !== 0) return existing;
+
+  // Migration: secret was in games.state.secret (old format)
+  if (legacySecret && legacySecret !== 0) {
+    await writeSecrets(gameId, {
+      secret_rounds: { ...(secrets.secret_rounds ?? {}), [key]: legacySecret },
+    });
+    return legacySecret;
+  }
+
+  const newSecret = Math.floor(Math.random() * 100) + 1;
+  await writeSecrets(gameId, {
+    secret_rounds: { ...(secrets.secret_rounds ?? {}), [key]: newSecret },
+  });
+  return newSecret;
+}
+
 export async function submitGuess(gameId: string, value: number) {
   const session = await getSession();
   if (!session) return { ok: false, error: "Not authenticated" };
@@ -64,10 +91,11 @@ export async function submitGuess(gameId: string, value: number) {
   const clampedValue = Math.max(1, Math.min(100, Math.round(value)));
 
   const raw = game.state as Record<string, unknown>;
+  // Legacy: state may still have `secret` from old games — used for migration only
+  const legacySecret = (raw as { secret?: number }).secret;
   const state: PlusOuMoinsState = raw && "guesses" in raw
     ? (raw as unknown as PlusOuMoinsState)
     : {
-        secret: 0,
         range_min: 1,
         range_max: 100,
         guesses: [],
@@ -75,21 +103,14 @@ export async function submitGuess(gameId: string, value: number) {
         current_round: 1,
       };
 
-  // Génère le secret si c'est le premier coup du round
-  const roundGuesses = state.guesses.filter(g => g.feedback !== "exact" || state.guesses.indexOf(g) < state.guesses.length);
-  const currentRoundStart = state.guesses.filter(g => g.feedback === "exact").length;
-  const _ = currentRoundStart; // suppress unused warning
-
-  let secret = state.secret;
-  if (secret === 0) {
-    secret = Math.floor(Math.random() * 100) + 1;
-  }
-  // Check if this is a new round (last guess was "exact")
+  // Determine if this is the start of a new round
   const lastGuess = state.guesses[state.guesses.length - 1];
-  if (lastGuess?.feedback === "exact") {
-    // New round started — generate new secret
-    secret = Math.floor(Math.random() * 100) + 1;
-  }
+  const isNewRound = lastGuess?.feedback === "exact";
+
+  const currentRound = isNewRound ? state.current_round + 1 : state.current_round;
+
+  // Get secret from game_secrets (server-only) — never from broadcast state
+  const secret = await getOrCreateSecret(gameId, currentRound, isNewRound ? undefined : legacySecret);
 
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const feedback: "plus" | "moins" | "exact" =
@@ -98,9 +119,8 @@ export async function submitGuess(gameId: string, value: number) {
 
   const newGuess = { player_id: myId, value: clampedValue, feedback };
 
-  // Met à jour le range
-  let newMin = state.range_min;
-  let newMax = state.range_max;
+  let newMin = isNewRound ? 1 : state.range_min;
+  let newMax = isNewRound ? 100 : state.range_max;
   if (feedback === "plus")  newMin = Math.max(newMin, clampedValue + 1);
   if (feedback === "moins") newMax = Math.min(newMax, clampedValue - 1);
   if (feedback === "exact") { newMin = secret; newMax = secret; }
@@ -108,37 +128,24 @@ export async function submitGuess(gameId: string, value: number) {
   const newScores = { ...state.scores };
   let gameFinished = false;
   let roundWinnerId: string | null = null;
-  let newRound = state.current_round;
-  let nextSecret = secret;
-  let nextMin = newMin;
-  let nextMax = newMax;
   let nextCurrentTurn: string = opponentId;
 
   if (feedback === "exact") {
-    // Round gagné
     roundWinnerId = myId;
     newScores[myId] = (newScores[myId] ?? 0) + 1;
-
-    // 2 rounds gagnés = victoire finale
     if (newScores[myId] >= 2) {
       gameFinished = true;
     } else {
-      // Nouveau round : l'adversaire commence
-      newRound = state.current_round + 1;
-      nextSecret = 0; // sera généré au prochain guess
-      nextMin = 1;
-      nextMax = 100;
       nextCurrentTurn = opponentId;
     }
   }
 
   const newState: PlusOuMoinsState = {
-    secret: feedback === "exact" && !gameFinished ? nextSecret : secret,
-    range_min: feedback === "exact" && !gameFinished ? nextMin : newMin,
-    range_max: feedback === "exact" && !gameFinished ? nextMax : newMax,
+    range_min: feedback === "exact" && !gameFinished ? 1 : newMin,
+    range_max: feedback === "exact" && !gameFinished ? 100 : newMax,
     guesses: [...state.guesses, newGuess],
     scores: newScores,
-    current_round: newRound,
+    current_round: gameFinished ? state.current_round : currentRound,
   };
 
   await supabase.from("games").update({

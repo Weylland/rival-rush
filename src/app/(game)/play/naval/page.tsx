@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { readSecrets } from "@/lib/game-secrets";
 import { NavalClient } from "./NavalClient";
-import type { NavalState } from "@/types/database";
+import type { NavalState, NavalShip } from "@/types/database";
 
 interface Props {
   searchParams: Promise<{ game_id?: string }>;
@@ -40,10 +41,24 @@ export default async function NavalPage({ searchParams }: Props) {
   const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_url as string | null) ?? null]));
 
   const raw = game.state as Record<string, unknown>;
-  const initialState: NavalState =
-    raw && "ships" in raw
-      ? (raw as unknown as NavalState)
-      : { ships: {}, shots: { [p1Id]: [], [p2Id]: [] } };
+
+  // Support both new format (fleets_placed) and legacy format (ships in state)
+  const legacyShips = raw?.ships as Record<string, NavalShip[]> | undefined;
+  const initialState: NavalState = {
+    fleets_placed: (raw?.fleets_placed as Record<string, boolean>) ?? (legacyShips
+      ? { [p1Id]: !!legacyShips[p1Id]?.length, [p2Id]: !!legacyShips[p2Id]?.length }
+      : {}),
+    shots: (raw?.shots as Record<string, import("@/types/database").NavalShot[]>) ?? { [p1Id]: [], [p2Id]: [] },
+    sunk_ships: (raw?.sunk_ships as Record<string, NavalShip[]>) ?? {},
+    revealed_ships: raw?.revealed_ships as Record<string, NavalShip[]> | undefined,
+  };
+
+  // Read MY ships from game_secrets (not from public state) — fall back to legacy state for in-progress games
+  const secrets = await readSecrets(game_id);
+  const myInitialShips: NavalShip[] | null =
+    secrets.ships?.[session.playerId] ??
+    legacyShips?.[session.playerId] ??
+    null;
 
   return (
     <NavalClient
@@ -55,6 +70,7 @@ export default async function NavalPage({ searchParams }: Props) {
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
       p1AvatarUrl={avatarOf[p1Id] ?? null}
       p2AvatarUrl={avatarOf[p2Id] ?? null}
+      myInitialShips={myInitialShips}
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
       initialWinnerId={game.winner_id as string | null}

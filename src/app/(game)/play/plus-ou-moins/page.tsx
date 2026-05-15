@@ -43,7 +43,6 @@ export default async function PlusOuMoinsPage({ searchParams }: Props) {
   const initialState: PlusOuMoinsState = raw && "guesses" in raw
     ? (raw as unknown as PlusOuMoinsState)
     : {
-        secret: 0,
         range_min: 1,
         range_max: 100,
         guesses: [],

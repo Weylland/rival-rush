@@ -138,7 +138,7 @@ export function MastermindClient({
 
   const [guesses, setGuesses]           = useState<MastermindGuess[]>(initialState.guesses ?? []);
   const [revealedCode, setRevealedCode] = useState<number[] | null>(
-    initialStatus === "finished" ? initialState.code : null
+    initialStatus === "finished" ? (initialState.revealed_code ?? null) : null
   );
   const [currentTurn, setCurrentTurn]   = useState<string | null>(initialCurrentTurn);
   const [gameStatus, setGameStatus]     = useState<GameStatus>(initialStatus);
@@ -201,16 +201,16 @@ export function MastermindClient({
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "games", filter: `id=eq.${gameId}` }, (payload) => {
         const updated = payload.new as { state: unknown; status: string; current_turn: string | null; winner_id: string | null };
         const raw = updated.state as Record<string, unknown>;
-        const newState: MastermindState = raw && "code" in raw
+        const newState: MastermindState = raw && "guesses" in raw
           ? (raw as unknown as MastermindState)
-          : { code: [], guesses: [] };
+          : { guesses: [] };
         setGuesses(newState.guesses ?? []);
         setCurrentTurn(updated.current_turn);
         setGameStatus(updated.status as GameStatus);
         if (updated.current_turn === myId) play("notify");
         if (updated.status === "finished") {
           isFinishedRef.current = true;
-          setRevealedCode(newState.code);
+          setRevealedCode(newState.revealed_code ?? null);
           play(updated.winner_id === myId ? "win" : "lose");
           setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2200);
         }

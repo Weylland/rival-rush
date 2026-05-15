@@ -32,13 +32,12 @@ function computeMyGrid(myShips: NavalShip[], opShots: { cell: number; result: st
   return grid;
 }
 
-function computeAttackGrid(myShots: { cell: number; result: string }[], opShips: NavalShip[]): CellKind[] {
+function computeAttackGrid(myShots: { cell: number; result: string }[], opponentSunkShips: NavalShip[]): CellKind[] {
   const grid: CellKind[] = Array(100).fill("water");
   const sunkCells = new Set<number>();
-  for (const ship of opShips) {
-    if (ship.cells.every(c => myShots.find(s => s.cell === c && s.result !== "miss"))) {
-      ship.cells.forEach(c => sunkCells.add(c));
-    }
+  // Only use ships that have been fully sunk (publicly revealed)
+  for (const ship of opponentSunkShips) {
+    ship.cells.forEach(c => sunkCells.add(c));
   }
   for (const s of myShots) {
     grid[s.cell] = sunkCells.has(s.cell) ? "sunk" : s.result === "miss" ? "miss" : "hit";
@@ -586,11 +585,12 @@ interface Props {
   p1Pseudo: string; p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  myInitialShips: NavalShip[] | null;
   initialState: NavalState; initialStatus: GameStatus;
   initialWinnerId: string | null; initialTurn: string | null;
 }
 
-export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, initialState, initialStatus, initialWinnerId, initialTurn }: Props) {
+export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, myInitialShips, initialState, initialStatus, initialWinnerId, initialTurn }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const { play } = useGameSounds();
@@ -607,6 +607,8 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   const [shooting, setShooting]       = useState(false);
   const [activeTab, setActiveTab]     = useState<"fleet" | "attack">("attack");
   const [shotFeedback, setShotFeedback] = useState<string | null>(null);
+  // My ships are kept in local state (not broadcast in Realtime — private)
+  const [myShips, setMyShips]         = useState<NavalShip[]>(myInitialShips ?? []);
 
   const isFinishedRef = useRef(initialStatus === "finished");
   const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -672,16 +674,23 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   const iWon = winnerId === myId;
   const isDraw = isFinished && !winnerId;
 
-  const myShips  = navalState.ships?.[myId]       ?? [];
-  const opShips  = navalState.ships?.[opponentId] ?? [];
+  // myShips lives in local state (set from prop or after placement — never from Realtime)
+  // opponentSunkShips are publicly revealed once a ship is destroyed
+  const opponentSunkShips = navalState.sunk_ships?.[opponentId] ?? [];
+  // On game over, full fleets are revealed
+  const revealedOpShips = navalState.revealed_ships?.[opponentId] ?? opponentSunkShips;
 
-  const inPlacementPhase = myShips.length === 0;
-  const waitingForOpponent = myShips.length > 0 && opShips.length === 0;
+  const inPlacementPhase = myShips.length === 0 && !navalState.fleets_placed?.[myId];
+  const waitingForOpponent = (myShips.length > 0 || navalState.fleets_placed?.[myId]) &&
+    !navalState.fleets_placed?.[opponentId];
+
   const myShots  = navalState.shots?.[myId]       ?? [];
   const opShots  = navalState.shots?.[opponentId] ?? [];
 
   const myGrid     = computeMyGrid(myShips, opShots);
-  const attackGrid = computeAttackGrid(myShots, opShips);
+  const attackGrid = isFinished
+    ? computeAttackGrid(myShots, revealedOpShips)
+    : computeAttackGrid(myShots, opponentSunkShips);
   const myShotCells = new Set(myShots.map(s => s.cell));
   const opShotCells = new Set(opShots.map(s => s.cell));
 
@@ -713,7 +722,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         myPseudo={myPseudo}
         opPseudo={opPseudo}
         onPlaced={(ships) => {
-          setNavalState(prev => ({ ...prev, ships: { ...prev.ships, [myId]: ships } }));
+          setMyShips(ships);
         }}
       />
     );
@@ -823,7 +832,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
               </div>
               <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "14px 18px" }}>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 10 }}>Flotte ennemie</div>
-                <FleetTracker ships={opShips} shotCells={myShotCells} accent={EA.pink} />
+                <FleetTracker ships={isFinished ? revealedOpShips : opponentSunkShips} shotCells={myShotCells} accent={EA.pink} />
               </div>
             </div>
           </div>
@@ -925,7 +934,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
           <div style={{ width: 1, background: "rgba(255,255,255,0.08)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Flotte ennemie</div>
-            <FleetTracker ships={opShips} shotCells={myShotCells} accent={EA.pink} />
+            <FleetTracker ships={isFinished ? revealedOpShips : opponentSunkShips} shotCells={myShotCells} accent={EA.pink} />
           </div>
         </div>
 
