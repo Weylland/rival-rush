@@ -13,7 +13,7 @@ function getSbSecret(): Uint8Array {
 
 async function signSupabaseToken(playerId: string): Promise<string> {
   return new SignJWT({ role: "authenticated" })
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: "HS256", kid: "ABD2B0FE-6D69-4C9D-811B-B169E34CB6B8" })
     .setSubject(playerId)
     .setIssuer("supabase")
     .setAudience("authenticated")
