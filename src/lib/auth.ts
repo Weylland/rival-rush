@@ -7,7 +7,8 @@ import { SignJWT, jwtVerify } from "jose";
 function getSbSecret(): Uint8Array {
   const secret = process.env.SUPABASE_JWT_SECRET;
   if (!secret) throw new Error("SUPABASE_JWT_SECRET must be set");
-  return new TextEncoder().encode(secret);
+  // Supabase stocke le secret en base64 — il faut le décoder avant de signer
+  return Buffer.from(secret, "base64");
 }
 
 async function signSupabaseToken(playerId: string): Promise<string> {
