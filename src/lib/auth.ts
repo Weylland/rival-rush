@@ -2,6 +2,34 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 
+// ── Supabase JWT (Option B — custom JWT compatible Supabase Auth) ─────────────
+
+function getSbSecret(): Uint8Array {
+  const secret = process.env.SUPABASE_JWT_SECRET;
+  if (!secret) throw new Error("SUPABASE_JWT_SECRET must be set");
+  return new TextEncoder().encode(secret);
+}
+
+async function signSupabaseToken(playerId: string): Promise<string> {
+  return new SignJWT({ role: "authenticated" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(playerId)
+    .setIssuer("supabase")
+    .setAudience("authenticated")
+    .setIssuedAt()
+    .setExpirationTime("30d")
+    .sign(getSbSecret());
+}
+
+const SB_COOKIE_NAME = "ea_sb_token";
+const SB_COOKIE_OPTS = {
+  httpOnly: false, // le browser doit pouvoir le lire pour le client Supabase
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 60 * 60 * 24 * 30,
+  path: "/",
+};
+
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
@@ -72,13 +100,13 @@ export async function setSession(
   pseudo: string,
   avatarUrl?: string | null,
 ) {
-  const token = await signSession({
-    playerId,
-    pseudo,
-    avatarUrl: avatarUrl ?? null,
-  });
+  const [token, sbToken] = await Promise.all([
+    signSession({ playerId, pseudo, avatarUrl: avatarUrl ?? null }),
+    signSupabaseToken(playerId),
+  ]);
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, COOKIE_OPTS);
+  cookieStore.set(SB_COOKIE_NAME, sbToken, SB_COOKIE_OPTS);
 }
 
 export async function setAvatarUrl(avatarUrl: string | null) {
@@ -90,4 +118,5 @@ export async function setAvatarUrl(avatarUrl: string | null) {
 export async function clearSession() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete(SB_COOKIE_NAME);
 }

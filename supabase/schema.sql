@@ -62,6 +62,9 @@ create table public.presence (
 );
 
 -- ── RLS (Row Level Security) ─────────────────────────────────────
+-- Architecture : le client serveur utilise service_role (bypasse RLS).
+-- Le client browser passe un JWT signé SUPABASE_JWT_SECRET → auth.uid() = player UUID.
+-- Les policies protègent l'accès direct à l'API PostgREST depuis le browser.
 
 alter table public.players    enable row level security;
 alter table public.challenges enable row level security;
@@ -69,29 +72,32 @@ alter table public.games      enable row level security;
 alter table public.leaderboard enable row level security;
 alter table public.presence   enable row level security;
 
--- Policies : accès public en lecture (soirée en réseau local, pas d'auth Supabase)
-create policy "players public read"     on public.players    for select using (true);
-create policy "challenges public read"  on public.challenges for select using (true);
-create policy "games public read"       on public.games      for select using (true);
-create policy "leaderboard public read" on public.leaderboard for select using (true);
-create policy "presence public read"    on public.presence   for select using (true);
+-- players : cacher le mot de passe via les privilèges colonne
+revoke select on public.players from anon, authenticated;
+grant select (id, pseudo, avatar_url, created_at) on public.players to anon, authenticated;
+create policy "players_select" on public.players for select using (true);
+create policy "players_insert" on public.players for insert with check (true);
+-- UPDATE/DELETE : service_role uniquement
 
--- Écriture permissive (on gère l'auth côté app avec le mot de passe hashé)
-create policy "players insert"     on public.players    for insert with check (true);
-create policy "players update"     on public.players    for update using (true);
-create policy "players delete"     on public.players    for delete using (true);
-create policy "challenges insert"  on public.challenges for insert with check (true);
-create policy "challenges update"  on public.challenges for update using (true);
-create policy "challenges delete"  on public.challenges for delete using (true);
-create policy "games insert"       on public.games      for insert with check (true);
-create policy "games update"       on public.games      for update using (true);
-create policy "games delete"       on public.games      for delete using (true);
-create policy "leaderboard insert" on public.leaderboard for insert with check (true);
-create policy "leaderboard update" on public.leaderboard for update using (true);
-create policy "leaderboard delete" on public.leaderboard for delete using (true);
-create policy "presence upsert"    on public.presence   for insert with check (true);
-create policy "presence update"    on public.presence   for update using (true);
-create policy "presence delete"    on public.presence   for delete using (true);
+-- challenges : uniquement les défis où tu es impliqué
+create policy "challenges_select" on public.challenges for select
+  using (auth.uid() = challenger_id or auth.uid() = challenged_id);
+
+-- games : uniquement les parties où tu es joueur
+create policy "games_select" on public.games for select
+  using (
+    exists (
+      select 1 from public.challenges c
+      where c.id = games.challenge_id
+        and (c.challenger_id = auth.uid() or c.challenged_id = auth.uid())
+    )
+  );
+
+-- leaderboard : public
+create policy "leaderboard_select" on public.leaderboard for select using (true);
+
+-- presence : public
+create policy "presence_select" on public.presence for select using (true);
 
 -- ── Contacts (formulaire de contact) ────────────────────────────
 
@@ -106,10 +112,8 @@ create table public.contacts (
 );
 
 alter table public.contacts enable row level security;
-create policy "contacts insert" on public.contacts for insert with check (true);
-create policy "contacts select" on public.contacts for select using (true);
-create policy "contacts update" on public.contacts for update using (true);
-create policy "contacts delete" on public.contacts for delete using (true);
+create policy "contacts_insert" on public.contacts for insert with check (true);
+-- SELECT/UPDATE/DELETE : service_role uniquement (admin)
 
 -- ── Messages (chat in-game) ─────────────────────────────────────
 
@@ -123,8 +127,16 @@ create table public.messages (
 );
 create index messages_game_id_idx on public.messages(game_id, created_at);
 alter table public.messages enable row level security;
-create policy "messages read"   on public.messages for select using (true);
-create policy "messages insert" on public.messages for insert with check (true);
+create policy "messages_select" on public.messages for select
+  using (
+    exists (
+      select 1 from public.challenges c
+      join public.games g on g.challenge_id = c.id
+      where g.id = messages.game_id
+        and (c.challenger_id = auth.uid() or c.challenged_id = auth.uid())
+    )
+  );
+-- INSERT/DELETE : service_role uniquement
 
 -- ── Blocks ──────────────────────────────────────────────────────
 
@@ -135,9 +147,9 @@ create table public.blocks (
   primary key (blocker_id, blocked_id)
 );
 alter table public.blocks enable row level security;
-create policy "blocks read"   on public.blocks for select using (true);
-create policy "blocks insert" on public.blocks for insert with check (true);
-create policy "blocks delete" on public.blocks for delete using (true);
+create policy "blocks_select" on public.blocks for select
+  using (blocker_id = auth.uid() or blocked_id = auth.uid());
+-- INSERT/DELETE : service_role uniquement
 
 -- ── Reports (signalements) ───────────────────────────────────────
 
@@ -151,9 +163,9 @@ create table public.reports (
   created_at         timestamptz not null default now()
 );
 alter table public.reports enable row level security;
-create policy "reports read"   on public.reports for select using (true);
-create policy "reports insert" on public.reports for insert with check (true);
-create policy "reports update" on public.reports for update using (true);
+create policy "reports_insert" on public.reports for insert
+  with check (auth.uid() is not null and auth.uid() = reporter_id);
+-- SELECT/UPDATE/DELETE : service_role uniquement (admin)
 
 -- ── Chat global de lobby ─────────────────────────────────────────
 
@@ -166,9 +178,9 @@ create table public.lobby_chat (
 );
 create index lobby_chat_created_at_idx on public.lobby_chat(created_at desc);
 alter table public.lobby_chat enable row level security;
-create policy "lobby_chat read"   on public.lobby_chat for select using (true);
-create policy "lobby_chat insert" on public.lobby_chat for insert with check (true);
-create policy "lobby_chat delete" on public.lobby_chat for delete using (true);
+create policy "lobby_chat_select" on public.lobby_chat for select
+  using (auth.uid() is not null);
+-- INSERT/DELETE : service_role uniquement
 
 -- ── Conversations DM ─────────────────────────────────────────────
 
@@ -181,8 +193,9 @@ create table public.conversations (
   unique (p1_id, p2_id)
 );
 alter table public.conversations enable row level security;
-create policy "conversations read"   on public.conversations for select using (true);
-create policy "conversations insert" on public.conversations for insert with check (true);
+create policy "conversations_select" on public.conversations for select
+  using (auth.uid() = p1_id or auth.uid() = p2_id);
+-- INSERT/DELETE : service_role uniquement
 
 -- ── Messages directs ─────────────────────────────────────────────
 
@@ -196,8 +209,15 @@ create table public.direct_messages (
 );
 create index direct_messages_conv_idx on public.direct_messages(conversation_id, created_at);
 alter table public.direct_messages enable row level security;
-create policy "direct_messages read"   on public.direct_messages for select using (true);
-create policy "direct_messages insert" on public.direct_messages for insert with check (true);
+create policy "direct_messages_select" on public.direct_messages for select
+  using (
+    exists (
+      select 1 from public.conversations c
+      where c.id = direct_messages.conversation_id
+        and (c.p1_id = auth.uid() or c.p2_id = auth.uid())
+    )
+  );
+-- INSERT/DELETE : service_role uniquement
 
 -- ── Lecture des conversations (badge unread) ──────────────────────
 
@@ -208,9 +228,9 @@ create table public.conversation_reads (
   primary key (conversation_id, player_id)
 );
 alter table public.conversation_reads enable row level security;
-create policy "conv_reads read"   on public.conversation_reads for select using (true);
-create policy "conv_reads upsert" on public.conversation_reads for insert with check (true);
-create policy "conv_reads update" on public.conversation_reads for update using (true);
+create policy "conv_reads_select" on public.conversation_reads for select
+  using (player_id = auth.uid());
+-- INSERT/UPDATE : service_role uniquement
 
 -- ── Salles privées ───────────────────────────────────────────────
 
@@ -260,25 +280,44 @@ create index room_chat_room_idx on public.room_chat(room_id, created_at);
 -- room_id tag sur les parties (nullable — parties hors salle = null)
 alter table public.games add column if not exists room_id uuid references public.rooms(id) on delete set null;
 
-alter table public.rooms         enable row level security;
-alter table public.room_members  enable row level security;
+alter table public.rooms            enable row level security;
+alter table public.room_members     enable row level security;
 alter table public.room_invitations enable row level security;
-alter table public.room_chat     enable row level security;
+alter table public.room_chat        enable row level security;
 
-create policy "rooms read"              on public.rooms          for select using (true);
-create policy "rooms insert"            on public.rooms          for insert with check (true);
-create policy "rooms update"            on public.rooms          for update using (true);
-create policy "rooms delete"            on public.rooms          for delete using (true);
-create policy "room_members read"       on public.room_members   for select using (true);
-create policy "room_members insert"     on public.room_members   for insert with check (true);
-create policy "room_members delete"     on public.room_members   for delete using (true);
-create policy "room_invitations read"   on public.room_invitations for select using (true);
-create policy "room_invitations insert" on public.room_invitations for insert with check (true);
-create policy "room_invitations update" on public.room_invitations for update using (true);
-create policy "room_invitations delete" on public.room_invitations for delete using (true);
-create policy "room_chat read"          on public.room_chat      for select using (true);
-create policy "room_chat insert"        on public.room_chat      for insert with check (true);
-create policy "room_chat delete"        on public.room_chat      for delete using (true);
+-- rooms : cacher password_hash
+revoke select on public.rooms from anon, authenticated;
+grant select (id, name, code, host_id, is_public, max_members, allowed_games, expires_at, is_open, created_at)
+  on public.rooms to anon, authenticated;
+
+-- rooms : salles publiques visibles par tous ; privées par membres/hôte
+create policy "rooms_select" on public.rooms for select
+  using (
+    is_public = true
+    or host_id = auth.uid()
+    or exists (
+      select 1 from public.room_members rm
+      where rm.room_id = rooms.id and rm.player_id = auth.uid()
+    )
+  );
+
+-- room_members : public
+create policy "room_members_select" on public.room_members for select using (true);
+
+-- room_invitations : inviteur ou invité
+create policy "room_invitations_select" on public.room_invitations for select
+  using (invited_by_id = auth.uid() or invited_player_id = auth.uid());
+
+-- room_chat : membres de la salle uniquement
+create policy "room_chat_select" on public.room_chat for select
+  using (
+    exists (
+      select 1 from public.room_members rm
+      where rm.room_id = room_chat.room_id and rm.player_id = auth.uid()
+    )
+  );
+
+-- INSERT/UPDATE/DELETE sur tous : service_role uniquement
 
 -- ── Configuration des jeux (admin) ──────────────────────────────
 
@@ -294,10 +333,8 @@ create table public.game_settings (
 );
 
 alter table public.game_settings enable row level security;
-create policy "game_settings read"   on public.game_settings for select using (true);
-create policy "game_settings insert" on public.game_settings for insert with check (true);
-create policy "game_settings update" on public.game_settings for update using (true);
-create policy "game_settings delete" on public.game_settings for delete using (true);
+create policy "game_settings_select" on public.game_settings for select using (true);
+-- INSERT/UPDATE/DELETE : service_role uniquement (admin)
 
 insert into public.game_settings (game_type, is_active, win_pts, draw_pts) values
   ('pfc',           true, 3, 1),
@@ -325,10 +362,9 @@ create table public.player_notifications (
 );
 
 alter table public.player_notifications enable row level security;
-create policy "player_notifications read"   on public.player_notifications for select using (true);
-create policy "player_notifications insert" on public.player_notifications for insert with check (true);
-create policy "player_notifications update" on public.player_notifications for update using (true);
-create policy "player_notifications delete" on public.player_notifications for delete using (true);
+create policy "player_notifications_select" on public.player_notifications for select
+  using (player_id = auth.uid());
+-- INSERT/UPDATE/DELETE : service_role uniquement (admin)
 
 -- ── Realtime ────────────────────────────────────────────────────
 
