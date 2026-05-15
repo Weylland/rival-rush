@@ -5,13 +5,14 @@ const PUBLIC_PATHS = ["/login", "/admin", "/legal", "/contact", "/ios-pwa"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const playerId = request.cookies.get("ea_player_id")?.value;
+  // Check for the signed session cookie (ea_session replaces the old ea_player_id)
+  const session = request.cookies.get("ea_session")?.value;
 
-  if (!playerId && !PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  if (!session && !PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (playerId && pathname === "/login") {
+  if (session && pathname === "/login") {
     return NextResponse.redirect(new URL("/lobby", request.url));
   }
 
