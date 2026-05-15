@@ -96,8 +96,15 @@ create policy "games_select" on public.games for select
 -- leaderboard : public
 create policy "leaderboard_select" on public.leaderboard for select using (true);
 
--- presence : public
+-- presence : lecture publique, écriture uniquement sur sa propre ligne
 create policy "presence_select" on public.presence for select using (true);
+create policy "presence_insert" on public.presence for insert
+  with check (auth.uid() = player_id);
+create policy "presence_update" on public.presence for update
+  using (auth.uid() = player_id)
+  with check (auth.uid() = player_id);
+create policy "presence_delete" on public.presence for delete
+  using (auth.uid() = player_id);
 
 -- ── Contacts (formulaire de contact) ────────────────────────────
 
