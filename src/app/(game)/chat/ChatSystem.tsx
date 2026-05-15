@@ -98,11 +98,12 @@ export function ChatProvider({
     if (localMemberships.some(r => r.code.toUpperCase() === code)) return;
     const supabase = createClient();
     supabase.from("rooms").select("id, name, code").eq("code", code).maybeSingle()
-      .then(({ data: room }) => {
-        if (!room) return;
+      .then(({ data }) => {
+        if (!data) return;
+        const room = data as { id: string; name: string; code: string };
         setLocalMemberships(prev => {
           if (prev.some(r => r.id === room.id)) return prev;
-          return [...prev, { id: room.id as string, name: room.name as string, code: room.code as string }];
+          return [...prev, { id: room.id, name: room.name, code: room.code }];
         });
       });
   }, [pathname, localMemberships]);
