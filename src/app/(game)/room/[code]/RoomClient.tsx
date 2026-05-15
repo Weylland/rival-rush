@@ -161,6 +161,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
   // Invite players panel
   const [showInvite, setShowInvite] = useState(false);
   const [onlinePlayers, setOnlinePlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null; offline?: boolean }[]>([]);
+  const [inviteSearch, setInviteSearch] = useState("");
   const [invitePending, setInvitePending] = useState<Set<string>>(new Set());
   const [inviteSent, setInviteSent] = useState<Set<string>>(new Set());
 
@@ -549,49 +550,90 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
       </div>
 
       {/* ── Invite panel ── */}
-      {showInvite && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.8)", backdropFilter: "blur(4px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ width: "100%", maxWidth: 400, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "22px 20px", boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
-            <button onClick={() => setShowInvite(false)} style={{ position: "absolute", top: -12, right: -12, width: 32, height: 32, borderRadius: "50%", background: EA.white, border: `2px solid ${EA.ink}`, fontSize: 16, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, marginBottom: 4 }}>👥 Inviter des joueurs</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 14 }}>Code de la salle : <strong style={{ color: EA.butter, letterSpacing: 2 }}>{room.code}</strong></div>
-            {onlinePlayers.length === 0 && (
-              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px 0" }}>
-                Aucun autre joueur inscrit
+      {showInvite && (() => {
+        const q = inviteSearch.trim().toLowerCase();
+        const filtered = q
+          ? onlinePlayers.filter(p => p.pseudo.toLowerCase().includes(q))
+          : onlinePlayers;
+        return (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.8)", backdropFilter: "blur(4px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <div style={{ width: "100%", maxWidth: 400, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "22px 20px", boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
+              <button onClick={() => { setShowInvite(false); setInviteSearch(""); }} style={{ position: "absolute", top: -12, right: -12, width: 32, height: 32, borderRadius: "50%", background: EA.white, border: `2px solid ${EA.ink}`, fontSize: 16, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
+
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, marginBottom: 4 }}>👥 Inviter des joueurs</div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>Code : <strong style={{ color: EA.butter, letterSpacing: 2 }}>{room.code}</strong></div>
+
+              {/* Search input */}
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                background: "rgba(255,255,255,0.07)",
+                border: `2px solid ${inviteSearch ? EA.cyan : "rgba(255,255,255,0.15)"}`,
+                borderRadius: 12, padding: "8px 12px", marginBottom: 12,
+                transition: "border-color 0.15s",
+              }}>
+                <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Rechercher un joueur…"
+                  value={inviteSearch}
+                  onChange={e => setInviteSearch(e.target.value)}
+                  style={{
+                    flex: 1, background: "none", border: "none", outline: "none",
+                    fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
+                    color: EA.white,
+                  }}
+                />
+                {inviteSearch && (
+                  <button onClick={() => setInviteSearch("")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: 15, lineHeight: 1, padding: 0 }}>×</button>
+                )}
               </div>
-            )}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 320, overflowY: "auto" }}>
-              {onlinePlayers.map(p => (
-                <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10, opacity: p.offline ? 0.65 : 1 }}>
-                  <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : EA.cyan} size={34} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
-                    {p.offline && (
-                      <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Hors ligne</div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleInvite(p.player_id)}
-                    disabled={invitePending.has(p.player_id) || inviteSent.has(p.player_id)}
-                    style={{
-                      background: inviteSent.has(p.player_id) ? "#4ADE80" : p.offline ? "rgba(255,255,255,0.1)" : EA.pink,
-                      border: `2px solid ${inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
-                      borderRadius: 999,
-                      padding: "7px 14px", fontFamily: "var(--font-display)", fontSize: 12,
-                      color: inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.6)" : EA.white,
-                      cursor: invitePending.has(p.player_id) || inviteSent.has(p.player_id) ? "default" : "pointer",
-                      opacity: invitePending.has(p.player_id) ? 0.6 : 1,
-                      boxShadow: inviteSent.has(p.player_id) || p.offline ? "none" : `2px 2px 0 ${EA.ink}`,
-                      whiteSpace: "nowrap",
-                    }}>
-                    {inviteSent.has(p.player_id) ? "✓ Envoyé" : invitePending.has(p.player_id) ? "…" : p.offline ? "📬 Inviter" : "Inviter"}
-                  </button>
+
+              {onlinePlayers.length === 0 ? (
+                <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px 0" }}>
+                  Aucun autre joueur inscrit
                 </div>
-              ))}
+              ) : filtered.length === 0 ? (
+                <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "20px 0" }}>
+                  Aucun résultat pour &quot;{inviteSearch}&quot;
+                </div>
+              ) : null}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
+                {filtered.map(p => (
+                  <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10, opacity: p.offline ? 0.65 : 1 }}>
+                    <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : EA.cyan} size={34} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
+                      {p.offline && (
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Hors ligne</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleInvite(p.player_id)}
+                      disabled={invitePending.has(p.player_id) || inviteSent.has(p.player_id)}
+                      style={{
+                        background: inviteSent.has(p.player_id) ? "#4ADE80" : p.offline ? "rgba(255,255,255,0.1)" : EA.pink,
+                        border: `2px solid ${inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+                        borderRadius: 999,
+                        padding: "7px 14px", fontFamily: "var(--font-display)", fontSize: 12,
+                        color: inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.6)" : EA.white,
+                        cursor: invitePending.has(p.player_id) || inviteSent.has(p.player_id) ? "default" : "pointer",
+                        opacity: invitePending.has(p.player_id) ? 0.6 : 1,
+                        boxShadow: inviteSent.has(p.player_id) || p.offline ? "none" : `2px 2px 0 ${EA.ink}`,
+                        whiteSpace: "nowrap",
+                      }}>
+                      {inviteSent.has(p.player_id) ? "✓ Envoyé" : invitePending.has(p.player_id) ? "…" : p.offline ? "📬 Inviter" : "Inviter"}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Confirm leave ── */}
       {confirmLeave && (
