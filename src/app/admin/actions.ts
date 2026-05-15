@@ -1,11 +1,31 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hashPassword } from "@/lib/auth";
 
+// ── Admin login rate limiting (5 attempts / 10 min per IP) ───────────────────
+interface RateEntry { count: number; resetAt: number }
+const adminBucket = new Map<string, RateEntry>();
+
+function checkAdminRate(ip: string): boolean {
+  const now = Date.now();
+  const entry = adminBucket.get(ip);
+  if (!entry || now > entry.resetAt) {
+    adminBucket.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
+    return true;
+  }
+  if (entry.count >= 5) return false;
+  entry.count++;
+  return true;
+}
+
 export async function adminLogin(_prev: string | null, formData: FormData): Promise<string | null> {
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (!checkAdminRate(ip)) return "Trop de tentatives. Réessaie dans 10 minutes.";
+
   const secret = formData.get("secret") as string;
   if (!secret || secret !== process.env.ADMIN_SECRET) {
     return "Mot de passe incorrect";
@@ -15,6 +35,7 @@ export async function adminLogin(_prev: string | null, formData: FormData): Prom
   redirect("/admin");
 }
 
+// Default point values matching game_settings defaults — used only for leaderboard recalculation
 const WIN_PTS = 3;
 const DRAW_PTS = 1;
 
@@ -107,8 +128,13 @@ export async function deletePlayer(playerId: string) {
     opponentIds.add(opId);
   }
 
-  // 3. Delete games then challenges
+  // 3. Delete game_secrets + games + challenges
   if (challengeIds.length > 0) {
+    const { data: gameRows } = await supabase.from("games").select("id").in("challenge_id", challengeIds);
+    const gameIds = (gameRows ?? []).map(g => g.id);
+    if (gameIds.length > 0) {
+      await supabase.from("game_secrets").delete().in("game_id", gameIds);
+    }
     const { error: gamesErr } = await supabase.from("games").delete().in("challenge_id", challengeIds);
     if (gamesErr) return { error: `Erreur suppression games: ${gamesErr.message}` };
     const { error: chalErr } = await supabase.from("challenges").delete().in("id", challengeIds);
@@ -120,7 +146,28 @@ export async function deletePlayer(playerId: string) {
     await recalculateLeaderboard(supabase, opId);
   }
 
-  // 5. Clean up player's own records
+  // 5. Delete chat messages (lobby + rooms)
+  await supabase.from("lobby_chat").delete().eq("player_id", playerId);
+  await supabase.from("room_chat").delete().eq("player_id", playerId);
+
+  // 6. Delete DMs and conversations
+  const { data: convs } = await supabase
+    .from("conversations").select("id")
+    .or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
+  const convIds = (convs ?? []).map(c => c.id);
+  if (convIds.length > 0) {
+    await supabase.from("direct_messages").delete().in("conversation_id", convIds);
+    await supabase.from("conversation_reads").delete().in("conversation_id", convIds);
+    await supabase.from("conversations").delete().or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
+  }
+
+  // 7. Delete blocks, reports, room memberships, push subscriptions
+  await supabase.from("blocks").delete().or(`blocker_id.eq.${playerId},blocked_id.eq.${playerId}`);
+  await supabase.from("reports").delete().eq("reporter_id", playerId);
+  await supabase.from("room_members").delete().eq("player_id", playerId);
+  await supabase.from("push_subscriptions").delete().eq("player_id", playerId);
+
+  // 8. Clean up player's own records
   const { error: lbErr } = await supabase.from("leaderboard").delete().eq("player_id", playerId);
   if (lbErr) return { error: `Erreur suppression leaderboard: ${lbErr.message}` };
   await supabase.from("presence").delete().eq("player_id", playerId);

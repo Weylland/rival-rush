@@ -93,6 +93,7 @@ async function recalculateLeaderboard(
     }
   }
 
+  // Uses default 3/1/0 — recalculation after account deletion, game_type mix not worth per-game lookup
   const points = wins * 3 + draws * 1;
   await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
 }

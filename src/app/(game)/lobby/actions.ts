@@ -133,7 +133,7 @@ export async function acceptChallenge(challengeId: string) {
         : challenge.game_type === "reflexe"
           ? { rounds: [], scores: { [p1]: 0, [p2]: 0 }, phase: "idle", signal_at: null, current_round: 1, ready: [] }
           : challenge.game_type === "naval"
-            ? { ships: {}, shots: { [p1]: [], [p2]: [] } }
+            ? { fleets_placed: {}, shots: { [p1]: [], [p2]: [] }, sunk_ships: {} }
             : challenge.game_type === "chess"
               ? initialChessState((challenge.metadata as { timeControl?: number | null } | null)?.timeControl ?? null, p1, p2)
               : challenge.game_type === "nim"
@@ -141,9 +141,11 @@ export async function acceptChallenge(challengeId: string) {
                 : challenge.game_type === "pig"
                   ? { scores: { [p1]: 0, [p2]: 0 }, turn_total: 0, last_roll: null }
                   : challenge.game_type === "mastermind"
-                    ? { code: Array.from({ length: 4 }, () => Math.floor(Math.random() * 6)), guesses: [] }
+                    // code is server-only — stored in game_secrets on first guess, never in public state
+                    ? { guesses: [] }
                     : challenge.game_type === "plus-ou-moins"
-                      ? { secret: 0, range_min: 1, range_max: 100, guesses: [], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
+                      // secret is server-only — stored in game_secrets on first guess, never in public state
+                      ? { range_min: 1, range_max: 100, guesses: [], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
                       : challenge.game_type === "duel-des"
                         ? { rounds: [{ rolls: {}, winner_id: null }], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
                         : { board: Array(9).fill(null), scores: { [p1]: 0, [p2]: 0 } };
