@@ -36,7 +36,9 @@ export default function PrivacyPage() {
       <ul style={{ ...p, paddingLeft: 20, marginTop: 8 }}>
         <li><strong>Pseudo</strong> — nom d'affichage choisi librement, sans lien avec votre identité réelle.</li>
         <li><strong>Mot de passe</strong> — stocké sous forme hachée (bcrypt), jamais en clair.</li>
+        <li><strong>Photo de profil</strong> — optionnelle, stockée dans Supabase Storage (supprimée avec le compte).</li>
         <li><strong>Scores et parties</strong> — historique de jeu (victoires, défaites, égalités).</li>
+        <li><strong>Messages</strong> — messages du lobby, des salles et messages privés entre joueurs.</li>
         <li><strong>Présence</strong> — statut en ligne ou en partie, mis à jour en temps réel et supprimé à la déconnexion.</li>
       </ul>
 
@@ -49,13 +51,13 @@ export default function PrivacyPage() {
       <h2 style={h2}>Stockage</h2>
       <p style={p}>
         Les données sont stockées dans une base PostgreSQL hébergée par Supabase (Union européenne).
-        Un cookie httpOnly <code style={{ background: "rgba(255,255,255,0.1)", padding: "1px 4px", borderRadius: 4 }}>ea_player_id</code> est déposé dans votre navigateur pour maintenir la session (durée 24h).
+        Un cookie httpOnly <code style={{ background: "rgba(255,255,255,0.1)", padding: "1px 4px", borderRadius: 4 }}>ea_session</code> est déposé dans votre navigateur pour maintenir la session (durée 30 jours, JWT signé).
       </p>
 
       <h2 style={h2}>Durée de conservation</h2>
       <p style={p}>
         Les données sont conservées jusqu'à suppression du compte. Vous pouvez supprimer votre compte à tout moment depuis la page <strong>Settings</strong>.
-        La suppression est immédiate et irréversible.
+        La suppression entraîne l'effacement immédiat et irréversible de toutes vos données : compte, parties, scores, messages, photo de profil et préférences.
       </p>
 
       <h2 style={h2}>Vos droits (RGPD)</h2>

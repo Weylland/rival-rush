@@ -263,6 +263,22 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               ? "🎉 Créer mon compte"
               : "🎮 Se connecter"}
           </EAButton>
+
+          {tab === "signup" && (
+            <p style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 11, fontWeight: 700,
+              color: "rgba(255,255,255,0.4)",
+              textAlign: "center",
+              margin: 0,
+              lineHeight: 1.5,
+            }}>
+              En créant un compte, tu acceptes nos{" "}
+              <a href="/legal/cgu" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "underline" }}>CGU</a>
+              {" "}et notre{" "}
+              <a href="/legal/privacy" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "underline" }}>politique de confidentialité</a>.
+            </p>
+          )}
         </form>
 
         <div style={{
@@ -301,6 +317,26 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           >
             Un problème ? Contacte-moi →
           </a>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap", paddingBottom: 24 }}>
+          {[
+            { href: "/legal/mentions", label: "Mentions légales" },
+            { href: "/legal/privacy", label: "Confidentialité" },
+            { href: "/legal/cgu", label: "CGU" },
+          ].map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              style={{
+                fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
+                color: "rgba(255,255,255,0.25)", textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              {label}
+            </a>
+          ))}
         </div>
 
         {qrSvg && (

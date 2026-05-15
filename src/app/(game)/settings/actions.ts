@@ -136,6 +136,12 @@ export async function deleteAccount(): Promise<SettingsState> {
   }
 
   if (challengeIds.length > 0) {
+    // Delete game secrets for all games of this player
+    const { data: gameRows } = await supabase.from("games").select("id").in("challenge_id", challengeIds);
+    const gameIds = (gameRows ?? []).map(g => g.id);
+    if (gameIds.length > 0) {
+      await supabase.from("game_secrets").delete().in("game_id", gameIds);
+    }
     const { error: gErr } = await supabase.from("games").delete().in("challenge_id", challengeIds);
     if (gErr) return { error: `Erreur: ${gErr.message}` };
     const { error: cErr } = await supabase.from("challenges").delete().in("id", challengeIds);
@@ -145,6 +151,30 @@ export async function deleteAccount(): Promise<SettingsState> {
   for (const opId of opponentIds) {
     await recalculateLeaderboard(supabase, opId);
   }
+
+  // Delete chat messages (lobby + rooms)
+  await supabase.from("lobby_chat").delete().eq("player_id", playerId);
+  await supabase.from("room_chat").delete().eq("player_id", playerId);
+
+  // Delete direct messages and conversations
+  const { data: convs } = await supabase
+    .from("conversations")
+    .select("id")
+    .or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
+  const convIds = (convs ?? []).map(c => c.id);
+  if (convIds.length > 0) {
+    await supabase.from("direct_messages").delete().in("conversation_id", convIds);
+    await supabase.from("conversation_reads").delete().in("conversation_id", convIds);
+    await supabase.from("conversations").delete().or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
+  }
+
+  // Delete blocks and reports initiated by this player
+  await supabase.from("blocks").delete().or(`blocker_id.eq.${playerId},blocked_id.eq.${playerId}`);
+  await supabase.from("reports").delete().eq("reporter_id", playerId);
+
+  // Delete room memberships and push subscriptions
+  await supabase.from("room_members").delete().eq("player_id", playerId);
+  await supabase.from("push_subscriptions").delete().eq("player_id", playerId);
 
   await supabase.from("leaderboard").delete().eq("player_id", playerId);
   await supabase.from("presence").delete().eq("player_id", playerId);
