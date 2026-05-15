@@ -27,11 +27,24 @@ export default async function GameLayout({ children }: { children: ReactNode }) 
     .filter(r => !r.expires_at || new Date(r.expires_at) > new Date())
     .map(r => ({ id: r.id, name: r.name, code: r.code }));
 
+  // Fetch all block relationships involving me (bidirectional)
+  const { data: blocksData } = await supabase
+    .from("blocks")
+    .select("blocker_id, blocked_id")
+    .or(`blocker_id.eq.${session.playerId},blocked_id.eq.${session.playerId}`);
+
+  const blockedUserIds = [...new Set(
+    (blocksData ?? []).flatMap(b =>
+      b.blocker_id === session.playerId ? [b.blocked_id] : [b.blocker_id]
+    )
+  )];
+
   return (
     <ChatProvider
       myId={session.playerId}
       myPseudo={session.pseudo}
       roomMemberships={roomMemberships}
+      blockedUserIds={blockedUserIds}
     >
       {children}
     </ChatProvider>

@@ -65,11 +65,13 @@ function fmtTime(iso: string) {
 interface RoomMembership { id: string; name: string; code: string }
 
 export function ChatProvider({
-  children, myId, myPseudo, roomMemberships,
+  children, myId, myPseudo, roomMemberships, blockedUserIds = [],
 }: {
   children: React.ReactNode; myId: string; myPseudo: string;
   roomMemberships: RoomMembership[];
+  blockedUserIds?: string[];
 }) {
+  const blockedSet = useMemo(() => new Set(blockedUserIds), [blockedUserIds]);
   // Derive the active room from the current URL — only when actually inside /room/[code]/...
   const pathname = usePathname();
   const { activeRoomId, activeRoomName } = useMemo(() => {
@@ -162,8 +164,12 @@ export function ChatProvider({
         avatarCacheRef.current.set(p.id, (p.avatar_url as string | null) ?? null);
       }
     }
-    setLobbyMessages(msgs.map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null })));
-  }, [activeRoomId]);
+    setLobbyMessages(
+      msgs
+        .filter(m => !blockedSet.has(m.player_id))
+        .map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null }))
+    );
+  }, [activeRoomId, blockedSet]);
 
   const loadConversations = useCallback(async () => {
     const supabase = createClient();
@@ -194,27 +200,32 @@ export function ChatProvider({
       if (!lastMsgMap.has(m.conversation_id)) lastMsgMap.set(m.conversation_id, m);
     }
 
-    const convs: Conv[] = rawConvs.map(c => {
-      const partnerId = c.p1_id === myId ? c.p2_id : c.p1_id;
-      const partner   = playerMap.get(partnerId);
-      const readAt    = readMap.get(c.id);
-      const lastMsg   = lastMsgMap.get(c.id);
+    const convs: Conv[] = rawConvs
+      .filter(c => {
+        const partnerId = c.p1_id === myId ? c.p2_id : c.p1_id;
+        return !blockedSet.has(partnerId);
+      })
+      .map(c => {
+        const partnerId = c.p1_id === myId ? c.p2_id : c.p1_id;
+        const partner   = playerMap.get(partnerId);
+        const readAt    = readMap.get(c.id);
+        const lastMsg   = lastMsgMap.get(c.id);
 
-      // Unread = last message is from partner AND is newer than my read_at
-      const unread =
-        lastMsg && lastMsg.sender_id !== myId &&
-        (!readAt || lastMsg.created_at > readAt) ? 1 : 0;
+        // Unread = last message is from partner AND is newer than my read_at
+        const unread =
+          lastMsg && lastMsg.sender_id !== myId &&
+          (!readAt || lastMsg.created_at > readAt) ? 1 : 0;
 
-      return {
-        id: c.id, p1_id: c.p1_id, p2_id: c.p2_id,
-        otherPseudo: partner?.pseudo ?? "?",
-        otherAvatarUrl: (partner?.avatar_url as string | null) ?? null,
-        lastContent: lastMsg?.content ?? null,
-        lastAt: lastMsg?.created_at ?? null,
-        lastSenderId: lastMsg?.sender_id ?? null,
-        unread,
-      };
-    }).sort((a, b) => (b.lastAt ?? "").localeCompare(a.lastAt ?? ""));
+        return {
+          id: c.id, p1_id: c.p1_id, p2_id: c.p2_id,
+          otherPseudo: partner?.pseudo ?? "?",
+          otherAvatarUrl: (partner?.avatar_url as string | null) ?? null,
+          lastContent: lastMsg?.content ?? null,
+          lastAt: lastMsg?.created_at ?? null,
+          lastSenderId: lastMsg?.sender_id ?? null,
+          unread,
+        };
+      }).sort((a, b) => (b.lastAt ?? "").localeCompare(a.lastAt ?? ""));
 
     setConversations(convs);
   }, [myId]);
@@ -234,8 +245,8 @@ export function ChatProvider({
     const { data } = await supabase
       .from("presence").select("player_id, pseudo")
       .neq("player_id", myId);
-    if (data) setOnlinePlayers(data);
-  }, [myId]);
+    if (data) setOnlinePlayers(data.filter(p => !blockedSet.has(p.player_id)));
+  }, [myId, blockedSet]);
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -255,6 +266,7 @@ export function ChatProvider({
     const lobbyCh = supabase.channel("lobby-chat-sys")
       .on("postgres_changes", lobbyFilter, async (p) => {
         const raw = p.new as LobbyMsg;
+        if (blockedSet.has(raw.player_id)) return;
         if (!avatarCacheRef.current.has(raw.player_id)) {
           const { data: player } = await supabase.from("players").select("avatar_url").eq("id", raw.player_id).maybeSingle();
           avatarCacheRef.current.set(raw.player_id, (player?.avatar_url as string | null) ?? null);
@@ -266,6 +278,7 @@ export function ChatProvider({
     const dmCh = supabase.channel("dm-sys")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (p) => {
         const msg = p.new as DMsg;
+        if (msg.sender_id !== myId && blockedSet.has(msg.sender_id)) return;
         // Active conversation — replace any matching optimistic message instead of duplicating
         setActiveMessages(prev => {
           if (prev.length === 0 || prev[0].conversation_id !== msg.conversation_id) return prev;
@@ -301,7 +314,7 @@ export function ChatProvider({
       .subscribe();
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
-  }, [myId, activeConvId, activeRoomId, loadConversations]);
+  }, [myId, activeConvId, activeRoomId, loadConversations, blockedSet]);
 
   // ── Scroll to bottom ──────────────────────────────────────────────────────
 
