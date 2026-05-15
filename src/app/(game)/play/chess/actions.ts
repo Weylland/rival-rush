@@ -9,41 +9,8 @@ import {
   isCheckmate,
   isStalemate,
 } from "@/lib/chess";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { ChessState, PieceType } from "@/lib/chess";
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  p1Id: string,
-  p2Id: string,
-) {
-  for (const player_id of [p1Id, p2Id]) {
-    const isWinner = winnerId === player_id;
-    const isDraw = winnerId === null;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins:   existing.wins   + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-        draws:  existing.draws  + (isDraw ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins:   isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws:  isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
-}
 
 export async function submitChessMove(
   gameId: string,
@@ -105,7 +72,7 @@ export async function submitChessMove(
         status: "finished",
         winner_id: opponentId,
       }).eq("id", gameId);
-      await updateLeaderboard(supabase, opponentId, p1Id, p2Id);
+      await updateLeaderboard(supabase, opponentId, p1Id, p2Id, "chess");
       return { ok: true };
     }
 
@@ -130,7 +97,7 @@ export async function submitChessMove(
   }).eq("id", gameId);
 
   if (finished) {
-    await updateLeaderboard(supabase, winnerId, p1Id, p2Id);
+    await updateLeaderboard(supabase, winnerId, p1Id, p2Id, "chess");
   }
 
   return { ok: true };

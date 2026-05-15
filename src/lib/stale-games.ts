@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { updateLeaderboard } from "@/lib/leaderboard";
 
 const STALE_THRESHOLD_MS = 60_000;
 
@@ -12,7 +13,7 @@ export async function cleanupStaleGames() {
 
   const { data: games } = await supabase
     .from("games")
-    .select("id, challenges(challenger_id, challenged_id)")
+    .select("id, game_type, challenges(challenger_id, challenged_id)")
     .eq("status", "playing");
 
   if (!games || games.length === 0) return;
@@ -57,29 +58,6 @@ export async function cleanupStaleGames() {
 
     if (error || !winnerId || !loserId) continue;
 
-    for (const player_id of [winnerId, loserId]) {
-      const isWinner = player_id === winnerId;
-      const { data: existing } = await supabase
-        .from("leaderboard")
-        .select("*")
-        .eq("player_id", player_id)
-        .single();
-
-      if (existing) {
-        await supabase.from("leaderboard").update({
-          wins: existing.wins + (isWinner ? 1 : 0),
-          losses: existing.losses + (isWinner ? 0 : 1),
-          points: existing.points + (isWinner ? 3 : 0),
-        }).eq("player_id", player_id);
-      } else {
-        await supabase.from("leaderboard").insert({
-          player_id,
-          wins: isWinner ? 1 : 0,
-          losses: isWinner ? 0 : 1,
-          draws: 0,
-          points: isWinner ? 3 : 0,
-        });
-      }
-    }
+    await updateLeaderboard(supabase, winnerId, challenge.challenger_id, challenge.challenged_id, game.game_type as string);
   }
 }

@@ -3,6 +3,7 @@
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { MastermindState, MastermindGuess } from "@/types/database";
 
 const MAX_GUESSES = 12;
@@ -27,37 +28,6 @@ function calcFeedback(code: number[], guess: number[]): { blacks: number; whites
   }
 
   return { blacks, whites };
-}
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  player1Id: string,
-  player2Id: string,
-) {
-  for (const player_id of [player1Id, player2Id]) {
-    const isWinner = winnerId === player_id;
-    const isDraw = winnerId === null;
-    const { data: existing } = await supabase
-      .from("leaderboard").select("*").eq("player_id", player_id).single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-        draws: existing.draws + (isDraw ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws: isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
 }
 
 /** Returns the secret code from game_secrets, migrating from state if needed. */
@@ -139,7 +109,7 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, isWin ? myId : null, p1Id, p2Id);
+    await updateLeaderboard(supabase, isWin ? myId : null, p1Id, p2Id, "mastermind");
   }
 
   return { ok: true, blacks, whites };

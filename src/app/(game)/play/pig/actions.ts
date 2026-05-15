@@ -2,41 +2,10 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PigState } from "@/types/database";
 
 const WIN_SCORE = 100;
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string,
-  player1Id: string,
-  player2Id: string,
-) {
-  for (const player_id of [player1Id, player2Id]) {
-    const isWinner = player_id === winnerId;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (isWinner ? 0 : 1),
-        points: existing.points + (isWinner ? 3 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: isWinner ? 0 : 1,
-        draws: 0,
-        points: isWinner ? 3 : 0,
-      });
-    }
-  }
-}
 
 async function getGame(supabase: Awaited<ReturnType<typeof createClient>>, gameId: string, playerId: string) {
   const { data: game } = await supabase
@@ -138,7 +107,7 @@ export async function holdPig(gameId: string) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, myId, p1Id, p2Id);
+    await updateLeaderboard(supabase, myId, p1Id, p2Id, "pig");
   }
 
   return { ok: true };

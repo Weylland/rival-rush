@@ -3,41 +3,8 @@
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PlusOuMoinsState } from "@/types/database";
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  player1Id: string,
-  player2Id: string,
-) {
-  for (const player_id of [player1Id, player2Id]) {
-    const isWinner = winnerId === player_id;
-    const isDraw = winnerId === null;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-        draws: existing.draws + (isDraw ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws: isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
-}
 
 /** Returns the secret for the given round from game_secrets, migrating legacy state if needed. */
 async function getOrCreateSecret(
@@ -156,7 +123,7 @@ export async function submitGuess(gameId: string, value: number) {
   }).eq("id", gameId);
 
   if (gameFinished) {
-    await updateLeaderboard(supabase, roundWinnerId, p1Id, p2Id);
+    await updateLeaderboard(supabase, roundWinnerId, p1Id, p2Id, "plus-ou-moins");
   }
 
   return { ok: true };

@@ -1,41 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
+import { updateLeaderboard } from "@/lib/leaderboard";
 
 type ForfeitMode = "self" | "check-opponent";
 
 const STALE_THRESHOLD_MS = 120_000;
-
-async function updateLeaderboardForForfeit(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string,
-  loserId: string,
-) {
-  for (const player_id of [winnerId, loserId]) {
-    const isWinner = player_id === winnerId;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (isWinner ? 0 : 1),
-        points: existing.points + (isWinner ? 3 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: isWinner ? 0 : 1,
-        draws: 0,
-        points: isWinner ? 3 : 0,
-      });
-    }
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     const { data: game } = await supabase
       .from("games")
-      .select("*, challenges(challenger_id, challenged_id)")
+      .select("*, game_type, challenges(challenger_id, challenged_id)")
       .eq("id", gameId)
       .eq("status", "playing")
       .single();
@@ -109,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (error) return NextResponse.json({ ok: false });
 
-    await updateLeaderboardForForfeit(supabase, winnerId, loserId);
+    await updateLeaderboard(supabase, winnerId, winnerId, loserId, game.game_type as string);
 
     return NextResponse.json({ ok: true, winnerId, loserId });
   } catch {

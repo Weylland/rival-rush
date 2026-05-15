@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { Puissance4State } from "@/types/database";
 
 const ROWS = 6;
@@ -23,40 +24,6 @@ function checkWinner(board: (string | null)[]): string | null {
     }
   }
   return null;
-}
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  player1Id: string,
-  player2Id: string,
-) {
-  for (const player_id of [player1Id, player2Id]) {
-    const isWinner = winnerId === player_id;
-    const isDraw = winnerId === null;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-        draws: existing.draws + (isDraw ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws: isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
 }
 
 export async function submitPuissance4Move(gameId: string, col: number) {
@@ -120,7 +87,7 @@ export async function submitPuissance4Move(gameId: string, col: number) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, winner, p1Id, p2Id);
+    await updateLeaderboard(supabase, winner, p1Id, p2Id, "puissance4");
   }
 
   return { ok: true };

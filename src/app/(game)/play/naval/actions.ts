@@ -4,30 +4,8 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { findHitShip, isShipSunk, isFleetSunk, validateFleet } from "@/lib/battleship";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { NavalState, NavalShip } from "@/types/database";
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  p1Id: string,
-  p2Id: string,
-) {
-  for (const player_id of [p1Id, p2Id]) {
-    const isWinner = winnerId === player_id;
-    const { data: existing } = await supabase.from("leaderboard").select("*").eq("player_id", player_id).single();
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id, wins: isWinner ? 1 : 0, losses: isWinner ? 0 : 1, draws: 0, points: isWinner ? 3 : 0,
-      });
-    }
-  }
-}
 
 export async function submitNavalPlacement(gameId: string, ships: NavalShip[]): Promise<{ ok: boolean; error?: string }> {
   const session = await getSession();
@@ -155,7 +133,7 @@ export async function submitNavalShot(gameId: string, cell: number) {
   }).eq("id", gameId);
 
   if (finished) {
-    await updateLeaderboard(supabase, myId, p1Id, p2Id);
+    await updateLeaderboard(supabase, myId, p1Id, p2Id, "naval");
   }
 
   return { ok: true, result };

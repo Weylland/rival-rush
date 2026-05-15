@@ -2,41 +2,8 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { TapState } from "@/types/database";
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  player1Id: string,
-  player2Id: string,
-) {
-  for (const player_id of [player1Id, player2Id]) {
-    const isWinner = winnerId === player_id;
-    const isDraw = winnerId === null;
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase.from("leaderboard").update({
-        wins: existing.wins + (isWinner ? 1 : 0),
-        losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-        draws: existing.draws + (isDraw ? 1 : 0),
-        points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-      }).eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws: isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
-}
 
 // Called when a player clicks "Prêt". Arms automatically once both are ready.
 export async function setReflexeReady(gameId: string) {
@@ -143,7 +110,7 @@ export async function submitReflexeTap(gameId: string) {
       winner_id: myId,
       current_turn: null,
     }).eq("id", gameId);
-    await updateLeaderboard(supabase, myId, p1Id, p2Id);
+    await updateLeaderboard(supabase, myId, p1Id, p2Id, "reflexe");
   } else {
     await supabase.from("games").update({
       state: {

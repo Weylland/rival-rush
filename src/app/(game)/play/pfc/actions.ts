@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PFCState, PFCRound } from "@/types/database";
 
 type PFCMove = "pierre" | "feuille" | "ciseaux";
@@ -10,54 +11,6 @@ function resolveRound(p1Id: string, p1Move: PFCMove, p2Id: string, p2Move: PFCMo
   if (p1Move === p2Move) return null; // draw
   const wins: Record<PFCMove, PFCMove> = { pierre: "ciseaux", ciseaux: "feuille", feuille: "pierre" };
   return wins[p1Move] === p2Move ? p1Id : p2Id;
-}
-
-async function updateLeaderboard(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  winnerId: string | null,
-  player1Id: string,
-  player2Id: string,
-) {
-  const updates = [
-    {
-      player_id: player1Id,
-      isWinner: winnerId === player1Id,
-      isDraw: winnerId === null,
-    },
-    {
-      player_id: player2Id,
-      isWinner: winnerId === player2Id,
-      isDraw: winnerId === null,
-    },
-  ];
-
-  for (const { player_id, isWinner, isDraw } of updates) {
-    const { data: existing } = await supabase
-      .from("leaderboard")
-      .select("*")
-      .eq("player_id", player_id)
-      .single();
-
-    if (existing) {
-      await supabase
-        .from("leaderboard")
-        .update({
-          wins: existing.wins + (isWinner ? 1 : 0),
-          losses: existing.losses + (!isWinner && !isDraw ? 1 : 0),
-          draws: existing.draws + (isDraw ? 1 : 0),
-          points: existing.points + (isWinner ? 3 : isDraw ? 1 : 0),
-        })
-        .eq("player_id", player_id);
-    } else {
-      await supabase.from("leaderboard").insert({
-        player_id,
-        wins: isWinner ? 1 : 0,
-        losses: !isWinner && !isDraw ? 1 : 0,
-        draws: isDraw ? 1 : 0,
-        points: isWinner ? 3 : isDraw ? 1 : 0,
-      });
-    }
-  }
 }
 
 export async function submitPFCMove(gameId: string, move: PFCMove) {
@@ -133,7 +86,7 @@ export async function submitPFCMove(gameId: string, move: PFCMove) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, gameWinnerId, p1Id, p2Id);
+    await updateLeaderboard(supabase, gameWinnerId, p1Id, p2Id, "pfc");
   }
 
   return { ok: true };
