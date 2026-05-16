@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanupStaleGames } from "@/lib/stale-games";
 import { LobbyClient } from "./LobbyClient";
 
@@ -24,7 +25,7 @@ export default async function LobbyPage() {
   ] = await Promise.all([
     supabase.from("presence").select("*").neq("player_id", session.playerId).gte("updated_at", cutoff),
     supabase.from("leaderboard").select("points").eq("player_id", session.playerId).maybeSingle(),
-    supabase.from("push_subscriptions").select("player_id"),
+    createAdminClient().from("push_subscriptions").select("player_id"),
     supabase.from("room_invitations")
       .select("id, room_id, invited_by_id, expires_at, rooms(name, code), players!room_invitations_invited_by_id_fkey(pseudo)")
       .eq("invited_player_id", session.playerId)
