@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { signup, signin, type AuthState } from "./actions";
+import { signup, signin, signinAsGuest, type AuthState } from "./actions";
 import { EAButton } from "@/components/ui/ea-button";
 import { EA } from "@/lib/design";
 
@@ -144,6 +144,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
   const [tab, setTab] = useState<"signup" | "signin">("signup");
   const [signupState, signupAction, signupPending] = useActionState<AuthState, FormData>(signup, null);
   const [signinState, signinAction, signinPending] = useActionState<AuthState, FormData>(signin, null);
+  const [guestState, guestAction, guestPending]   = useActionState<AuthState, FormData>(signinAsGuest, null);
 
   const state = tab === "signup" ? signupState : signinState;
   const action = tab === "signup" ? signupAction : signinAction;
@@ -220,11 +221,19 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
         <TabSwitch active={tab} onSwitch={setTab} />
 
         <form action={action} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {tab === "signup" && (
+            <FieldY2K
+              label="Choisis ton pseudo"
+              name="pseudo"
+              placeholder="DJ Nadia..."
+              hint="visible au lobby"
+            />
+          )}
           <FieldY2K
-            label="Choisis ton pseudo"
-            name="pseudo"
-            placeholder="DJ Nadia..."
-            hint="visible au lobby"
+            label="Email"
+            name="email"
+            placeholder="toi@exemple.com"
+            type="email"
           />
           <FieldY2K
             label="Mot de passe"
@@ -278,6 +287,40 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               {" "}et notre{" "}
               <a href="/legal/privacy" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "underline" }}>politique de confidentialité</a>.
             </p>
+          )}
+        </form>
+
+        {/* Mode invité */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          margin: "4px 0",
+        }}>
+          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
+            ou pour ce soir seulement
+          </span>
+          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
+        </div>
+        <form action={guestAction}>
+          <EAButton
+            type="submit"
+            full
+            size="md"
+            color={EA.violet}
+            shadow={EA.cyan}
+            disabled={guestPending}
+            style={{ opacity: guestPending ? 0.7 : 1 }}
+          >
+            {guestPending ? "..." : "👻 Jouer en invité (sans compte)"}
+          </EAButton>
+          {guestState?.error && (
+            <div style={{
+              marginTop: 8,
+              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
+              color: EA.pink, textAlign: "center",
+            }}>
+              {guestState.error}
+            </div>
           )}
         </form>
 

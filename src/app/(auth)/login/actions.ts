@@ -108,7 +108,7 @@ export async function signin(_prev: AuthState, formData: FormData): Promise<Auth
 
 // ── Login invité ──────────────────────────────────────────────────────────────
 
-export async function signinAsGuest(_prev: AuthState): Promise<AuthState> {
+export async function signinAsGuest(_prev: AuthState, _formData: FormData): Promise<AuthState> {
   const ip = await getIp();
   if (!checkRate(guestBucket, ip, 5, 10 * 60_000)) {
     return { error: "Trop de connexions invité depuis cette IP. Réessaie dans 10 minutes." };
