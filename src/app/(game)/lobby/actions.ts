@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/auth";
 import { initialChessState } from "@/lib/chess";
 import { sendPushToSubscriptions } from "@/lib/push";
@@ -53,7 +54,8 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
   const expiresInMs = isOffline ? 5 * 60 * 1000 : 2 * 60 * 1000;
   const expiresAt = new Date(Date.now() + expiresInMs).toISOString();
 
-  const { data: challenge, error } = await supabase
+  const admin = createAdminClient();
+  const { data: challenge, error } = await admin
     .from("challenges")
     .insert({
       challenger_id: session.playerId,
@@ -92,9 +94,7 @@ export async function cancelChallenge(challengeId: string) {
   const session = await getSession();
   if (!session) return;
 
-  const supabase = await createClient();
-
-  await supabase
+  await createAdminClient()
     .from("challenges")
     .update({ status: "cancelled" })
     .eq("id", challengeId)
@@ -116,12 +116,14 @@ export async function acceptChallenge(challengeId: string) {
     .single();
 
   if (!challenge) return { error: "Défi introuvable" };
+  const admin = createAdminClient();
+
   if (challenge.expires_at && new Date(challenge.expires_at) < new Date()) {
-    await supabase.from("challenges").update({ status: "cancelled" }).eq("id", challengeId);
+    await admin.from("challenges").update({ status: "cancelled" }).eq("id", challengeId);
     return { error: "Ce défi a expiré" };
   }
 
-  await supabase
+  await admin
     .from("challenges")
     .update({ status: "accepted" })
     .eq("id", challengeId);
@@ -175,7 +177,7 @@ export async function acceptChallenge(challengeId: string) {
       return { data: shared?.room_id ?? null };
     });
 
-  const { data: game } = await supabase
+  const { data: game } = await admin
     .from("games")
     .insert({
       challenge_id: challengeId,
@@ -197,9 +199,7 @@ export async function declineChallenge(challengeId: string) {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const supabase = await createClient();
-
-  await supabase
+  await createAdminClient()
     .from("challenges")
     .update({ status: "declined" })
     .eq("id", challengeId)
@@ -209,15 +209,13 @@ export async function declineChallenge(challengeId: string) {
 export async function blockPlayer(blockedId: string) {
   const session = await getSession();
   if (!session) return;
-  const supabase = await createClient();
-  await supabase.from("blocks").upsert({ blocker_id: session.playerId, blocked_id: blockedId });
+  await createAdminClient().from("blocks").upsert({ blocker_id: session.playerId, blocked_id: blockedId });
 }
 
 export async function unblockPlayer(blockedId: string) {
   const session = await getSession();
   if (!session) return;
-  const supabase = await createClient();
-  await supabase.from("blocks").delete()
+  await createAdminClient().from("blocks").delete()
     .eq("blocker_id", session.playerId)
     .eq("blocked_id", blockedId);
 }
@@ -225,8 +223,7 @@ export async function unblockPlayer(blockedId: string) {
 export async function reportPlayer(reportedId: string, reason: string) {
   const session = await getSession();
   if (!session) return;
-  const supabase = await createClient();
-  await supabase.from("reports").insert({
+  await createAdminClient().from("reports").insert({
     reporter_id: session.playerId,
     reported_player_id: reportedId,
     message_content: reason.trim() || "Signalement depuis le lobby",

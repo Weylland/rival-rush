@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/auth";
 import { sendPushToSubscriptions } from "@/lib/push";
 import type { GameType, RoomExpiration } from "@/types/database";
@@ -57,7 +58,8 @@ export async function createRoom(input: CreateRoomInput) {
 
   const passwordHash = input.password ? await hashPassword(input.password) : null;
 
-  const { data: room, error } = await supabase
+  const admin = createAdminClient();
+  const { data: room, error } = await admin
     .from("rooms")
     .insert({
       name: input.name.trim(),
@@ -76,7 +78,7 @@ export async function createRoom(input: CreateRoomInput) {
   if (error || !room) return { error: error?.message ?? "Impossible de créer la salle" };
 
   // Host auto-joins
-  await supabase.from("room_members").insert({ room_id: room.id, player_id: session.playerId });
+  await admin.from("room_members").insert({ room_id: room.id, player_id: session.playerId });
 
   redirect(`/room/${code}`);
 }
@@ -124,7 +126,7 @@ export async function joinRoom(code: string, password?: string) {
     .select("player_id").eq("room_id", room.id).eq("player_id", session.playerId).maybeSingle();
 
   if (!existing) {
-    await supabase.from("room_members").insert({ room_id: room.id, player_id: session.playerId });
+    await createAdminClient().from("room_members").insert({ room_id: room.id, player_id: session.playerId });
   }
 
   redirect(`/room/${room.code}`);
@@ -137,7 +139,8 @@ export async function leaveRoom(roomId: string) {
   if (!session) return;
 
   const supabase = await createClient();
-  await supabase.from("room_members")
+  const admin = createAdminClient();
+  await admin.from("room_members")
     .delete().eq("room_id", roomId).eq("player_id", session.playerId);
 
   // If host leaves, transfer to next member or delete
@@ -146,9 +149,9 @@ export async function leaveRoom(roomId: string) {
     const { data: others } = await supabase
       .from("room_members").select("player_id").eq("room_id", roomId).limit(1);
     if (others && others.length > 0) {
-      await supabase.from("rooms").update({ host_id: others[0].player_id }).eq("id", roomId);
+      await admin.from("rooms").update({ host_id: others[0].player_id }).eq("id", roomId);
     } else {
-      await supabase.from("rooms").delete().eq("id", roomId);
+      await admin.from("rooms").delete().eq("id", roomId);
     }
   }
 
@@ -170,7 +173,7 @@ export async function inviteToRoom(roomId: string, playerId: string) {
 
   // Upsert invitation (overwrite declined/pending)
   const expires = new Date(Date.now() + 10 * 60_000).toISOString();
-  await supabase.from("room_invitations").upsert({
+  await createAdminClient().from("room_invitations").upsert({
     room_id: roomId,
     invited_by_id: session.playerId,
     invited_player_id: playerId,
@@ -215,8 +218,9 @@ export async function acceptRoomInvitation(invitationId: string) {
   if (!room) return { error: "Salle introuvable" };
   if (!room.is_open) return { error: "Les inscriptions sont fermées" };
 
-  await supabase.from("room_invitations").update({ status: "accepted" }).eq("id", invitationId);
-  await supabase.from("room_members").upsert({ room_id: inv.room_id, player_id: session.playerId });
+  const admin = createAdminClient();
+  await admin.from("room_invitations").update({ status: "accepted" }).eq("id", invitationId);
+  await admin.from("room_members").upsert({ room_id: inv.room_id, player_id: session.playerId });
 
   redirect(`/room/${room.code}`);
 }
@@ -224,8 +228,7 @@ export async function acceptRoomInvitation(invitationId: string) {
 export async function declineRoomInvitation(invitationId: string) {
   const session = await getSession();
   if (!session) return;
-  const supabase = await createClient();
-  await supabase.from("room_invitations").update({ status: "declined" })
+  await createAdminClient().from("room_invitations").update({ status: "declined" })
     .eq("id", invitationId).eq("invited_player_id", session.playerId);
 }
 
@@ -256,7 +259,7 @@ export async function updateRoomSettings(roomId: string, input: Partial<{
   if (input.allowedGames !== undefined) update.allowed_games = input.allowedGames;
   if (input.isOpen !== undefined) update.is_open = input.isOpen;
 
-  const { error } = await supabase.from("rooms").update(update).eq("id", roomId);
+  const { error } = await createAdminClient().from("rooms").update(update).eq("id", roomId);
   if (error) return { error: error.message };
   return { ok: true };
 }
@@ -270,7 +273,7 @@ export async function kickMember(roomId: string, playerId: string) {
   if (room?.host_id !== session.playerId) return { error: "Accès refusé" };
   if (playerId === session.playerId) return { error: "Tu ne peux pas te kicker toi-même" };
 
-  await supabase.from("room_members").delete().eq("room_id", roomId).eq("player_id", playerId);
+  await createAdminClient().from("room_members").delete().eq("room_id", roomId).eq("player_id", playerId);
   return { ok: true };
 }
 
@@ -282,7 +285,7 @@ export async function transferHost(roomId: string, newHostId: string) {
   const { data: room } = await supabase.from("rooms").select("host_id").eq("id", roomId).maybeSingle();
   if (room?.host_id !== session.playerId) return { error: "Accès refusé" };
 
-  await supabase.from("rooms").update({ host_id: newHostId }).eq("id", roomId);
+  await createAdminClient().from("rooms").update({ host_id: newHostId }).eq("id", roomId);
   return { ok: true };
 }
 
@@ -294,7 +297,7 @@ export async function deleteRoom(roomId: string) {
   const { data: room } = await supabase.from("rooms").select("host_id").eq("id", roomId).maybeSingle();
   if (room?.host_id !== session.playerId) return { error: "Accès refusé" };
 
-  await supabase.from("rooms").delete().eq("id", roomId);
+  await createAdminClient().from("rooms").delete().eq("id", roomId);
   redirect("/lobby");
 }
 
@@ -303,8 +306,7 @@ export async function deleteRoom(roomId: string) {
 export async function sendRoomMessage(roomId: string, content: string) {
   const session = await getSession();
   if (!session) return;
-  const supabase = await createClient();
-  await supabase.from("room_chat").insert({
+  await createAdminClient().from("room_chat").insert({
     room_id: roomId,
     player_id: session.playerId,
     pseudo: session.pseudo,
