@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { findHitShip, isShipSunk, isFleetSunk, validateFleet } from "@/lib/battleship";
 import { updateLeaderboard } from "@/lib/leaderboard";
@@ -14,6 +15,7 @@ export async function submitNavalPlacement(gameId: string, ships: NavalShip[]): 
   if (!validateFleet(ships)) return { ok: false, error: "Flotte invalide" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -50,7 +52,7 @@ export async function submitNavalPlacement(gameId: string, ships: NavalShip[]): 
     sunk_ships: state.sunk_ships ?? {},
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     ...(bothReady ? { current_turn: p1Id } : {}),
   }).eq("id", gameId);
@@ -65,6 +67,7 @@ export async function submitNavalShot(gameId: string, cell: number) {
   if (cell < 0 || cell > 99) return { ok: false, error: "Case invalide" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -125,7 +128,7 @@ export async function submitNavalShot(gameId: string, cell: number) {
     ...(finished ? { revealed_ships: secrets.ships ?? {} } : {}),
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: finished ? null : opponentId,
     status: finished ? "finished" : "playing",
@@ -133,7 +136,7 @@ export async function submitNavalShot(gameId: string, cell: number) {
   }).eq("id", gameId);
 
   if (finished) {
-    await updateLeaderboard(supabase, myId, p1Id, p2Id, "naval");
+    await updateLeaderboard(admin, myId, p1Id, p2Id, "naval");
   }
 
   return { ok: true, result };

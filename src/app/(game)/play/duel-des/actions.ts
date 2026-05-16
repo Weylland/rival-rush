@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { DuelDesState } from "@/types/database";
 
@@ -11,6 +12,7 @@ export async function rollDice(gameId: string) {
   if (!session) return { ok: false, error: "Non connecté" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -75,18 +77,18 @@ export async function rollDice(gameId: string) {
   }
 
   if (gameFinished) {
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: newState as unknown as Record<string, unknown>,
       status: "finished",
       winner_id: finalWinnerId,
       current_turn: null,
     }).eq("id", gameId);
 
-    await updateLeaderboard(supabase, finalWinnerId, p1Id, p2Id, "duel-des");
+    await updateLeaderboard(admin, finalWinnerId, p1Id, p2Id, "duel-des");
     redirect(`/result?game_id=${gameId}`);
   }
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
   }).eq("id", gameId);
 

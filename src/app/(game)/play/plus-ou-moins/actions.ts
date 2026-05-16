@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PlusOuMoinsState } from "@/types/database";
@@ -37,6 +38,7 @@ export async function submitGuess(gameId: string, value: number) {
   if (!session) return { ok: false, error: "Not authenticated" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -115,7 +117,7 @@ export async function submitGuess(gameId: string, value: number) {
     current_round: gameFinished ? state.current_round : currentRound,
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: gameFinished ? null : nextCurrentTurn,
     status: gameFinished ? "finished" : "playing",
@@ -123,7 +125,7 @@ export async function submitGuess(gameId: string, value: number) {
   }).eq("id", gameId);
 
   if (gameFinished) {
-    await updateLeaderboard(supabase, roundWinnerId, p1Id, p2Id, "plus-ou-moins");
+    await updateLeaderboard(admin, roundWinnerId, p1Id, p2Id, "plus-ou-moins");
   }
 
   return { ok: true };

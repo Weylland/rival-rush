@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { TapState } from "@/types/database";
 
@@ -11,6 +12,7 @@ export async function setReflexeReady(gameId: string) {
   if (!session) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -39,12 +41,12 @@ export async function setReflexeReady(gameId: string) {
     // Both ready → arm immediately
     const delayMs = 2500 + Math.floor(Math.random() * 2500);
     const signal_at = new Date(Date.now() + delayMs).toISOString();
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: { ...state, phase: "armed", signal_at, ready: [] } as unknown as Record<string, unknown>,
     }).eq("id", gameId);
   } else {
     // Only one ready so far
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: { ...state, ready: newReady } as unknown as Record<string, unknown>,
     }).eq("id", gameId);
   }
@@ -57,6 +59,7 @@ export async function submitReflexeTap(gameId: string) {
   if (!session) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -87,7 +90,7 @@ export async function submitReflexeTap(gameId: string) {
     // False start — re-arm with new delay, reset ready
     const delayMs = 2500 + Math.floor(Math.random() * 2500);
     const newSignalAt = new Date(Date.now() + delayMs).toISOString();
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: { ...state, signal_at: newSignalAt } as unknown as Record<string, unknown>,
     }).eq("id", gameId);
     return { ok: true };
@@ -104,15 +107,15 @@ export async function submitReflexeTap(gameId: string) {
   const isMatchOver = newScores[myId] >= 2;
 
   if (isMatchOver) {
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: { ...state, rounds: newRounds, scores: newScores, phase: "idle", signal_at: null, ready: [] } as unknown as Record<string, unknown>,
       status: "finished",
       winner_id: myId,
       current_turn: null,
     }).eq("id", gameId);
-    await updateLeaderboard(supabase, myId, p1Id, p2Id, "reflexe");
+    await updateLeaderboard(admin, myId, p1Id, p2Id, "reflexe");
   } else {
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: {
         ...state,
         rounds: newRounds,

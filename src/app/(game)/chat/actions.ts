@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function sendLobbyMessage(content: string) {
   const session = await getSession();
@@ -10,8 +11,8 @@ export async function sendLobbyMessage(content: string) {
   const trimmed = content.trim().slice(0, 300);
   if (!trimmed) return { error: "Message vide" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("lobby_chat").insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("lobby_chat").insert({
     player_id: session.playerId,
     pseudo: session.pseudo,
     content: trimmed,
@@ -20,7 +21,7 @@ export async function sendLobbyMessage(content: string) {
   if (error) return { error: error.message };
 
   // Garde les 200 derniers messages
-  await supabase
+  await admin
     .from("lobby_chat")
     .delete()
     .lt("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
@@ -33,6 +34,7 @@ export async function getOrCreateConversation(recipientId: string) {
   if (!session) return { error: "Non connecté" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
   const myId = session.playerId;
 
   if (myId === recipientId) return { error: "Impossible de se DM soi-même" };
@@ -49,7 +51,7 @@ export async function getOrCreateConversation(recipientId: string) {
 
   if (existing) return { conversationId: existing.id };
 
-  const { data: created, error } = await supabase
+  const { data: created, error } = await admin
     .from("conversations")
     .insert({ p1_id: p1, p2_id: p2 })
     .select("id")
@@ -66,8 +68,8 @@ export async function sendDirectMessage(conversationId: string, content: string)
   const trimmed = content.trim().slice(0, 500);
   if (!trimmed) return { error: "Message vide" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("direct_messages").insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("direct_messages").insert({
     conversation_id: conversationId,
     sender_id: session.playerId,
     pseudo: session.pseudo,
@@ -82,8 +84,8 @@ export async function markConversationRead(conversationId: string) {
   const session = await getSession();
   if (!session) return;
 
-  const supabase = await createClient();
-  await supabase.from("conversation_reads").upsert(
+  const admin = createAdminClient();
+  await admin.from("conversation_reads").upsert(
     { conversation_id: conversationId, player_id: session.playerId, read_at: new Date().toISOString() },
     { onConflict: "conversation_id,player_id" },
   );

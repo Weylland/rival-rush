@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { MastermindState, MastermindGuess } from "@/types/database";
@@ -57,6 +58,7 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
   }
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -101,7 +103,7 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
     ...(isFinished ? { revealed_code: code } : {}),
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: isFinished ? null : opponentId,
     status: isFinished ? "finished" : "playing",
@@ -109,7 +111,7 @@ export async function submitMastermindGuess(gameId: string, guess: number[]) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, isWin ? myId : null, p1Id, p2Id, "mastermind");
+    await updateLeaderboard(admin, isWin ? myId : null, p1Id, p2Id, "mastermind");
   }
 
   return { ok: true, blacks, whites };

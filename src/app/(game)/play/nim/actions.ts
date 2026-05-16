@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { NimState } from "@/types/database";
 
@@ -10,6 +11,7 @@ export async function takeNim(gameId: string, count: 1 | 2 | 3) {
   if (!session) return { ok: false, error: "Not authenticated" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -52,7 +54,7 @@ export async function takeNim(gameId: string, count: 1 | 2 | 3) {
     last_player_id: myId,
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: isFinished ? null : opponentId,
     status: isFinished ? "finished" : "playing",
@@ -60,7 +62,7 @@ export async function takeNim(gameId: string, count: 1 | 2 | 3) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, winnerId, p1Id, p2Id, "nim");
+    await updateLeaderboard(admin, winnerId, p1Id, p2Id, "nim");
   }
 
   return { ok: true };

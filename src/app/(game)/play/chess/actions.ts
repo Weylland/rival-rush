@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   initialChessState,
   legalMoves,
@@ -22,6 +23,7 @@ export async function submitChessMove(
   if (!session) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -66,13 +68,13 @@ export async function submitChessMove(
     if (remaining <= 0) {
       // Timed out on their own move — they lose
       const opponentId = myId === p1Id ? p2Id : p1Id;
-      await supabase.from("games").update({
+      await admin.from("games").update({
         state: newState as unknown as Record<string, unknown>,
         current_turn: null,
         status: "finished",
         winner_id: opponentId,
       }).eq("id", gameId);
-      await updateLeaderboard(supabase, opponentId, p1Id, p2Id, "chess");
+      await updateLeaderboard(admin, opponentId, p1Id, p2Id, "chess");
       return { ok: true };
     }
 
@@ -89,7 +91,7 @@ export async function submitChessMove(
   const finished = checkmate || stalemate;
   const winnerId = checkmate ? myId : null;
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: finished ? null : opponentId,
     status: finished ? "finished" : "playing",
@@ -97,7 +99,7 @@ export async function submitChessMove(
   }).eq("id", gameId);
 
   if (finished) {
-    await updateLeaderboard(supabase, winnerId, p1Id, p2Id, "chess");
+    await updateLeaderboard(admin, winnerId, p1Id, p2Id, "chess");
   }
 
   return { ok: true };
@@ -108,6 +110,7 @@ export async function claimChessTimeout(gameId: string) {
   if (!session) return { ok: false };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -134,7 +137,7 @@ export async function claimChessTimeout(gameId: string) {
 
   const winnerId = timedOutId === p1Id ? p2Id : p1Id;
 
-  const { error } = await supabase.from("games").update({
+  const { error } = await admin.from("games").update({
     status: "finished",
     winner_id: winnerId,
     current_turn: null,
@@ -142,6 +145,6 @@ export async function claimChessTimeout(gameId: string) {
 
   if (error) return { ok: false };
 
-  await updateLeaderboard(supabase, winnerId, p1Id, p2Id, "chess");
+  await updateLeaderboard(admin, winnerId, p1Id, p2Id, "chess");
   return { ok: true };
 }

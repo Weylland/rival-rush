@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PigState } from "@/types/database";
 
@@ -36,6 +37,7 @@ export async function rollPig(gameId: string) {
   if (!session) return { ok: false, error: "Not authenticated" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
   const res = await getGame(supabase, gameId, session.playerId);
   if ("error" in res) return { ok: false, error: res.error };
 
@@ -52,7 +54,7 @@ export async function rollPig(gameId: string) {
       turn_total: 0,
       last_roll: 1,
     };
-    await supabase.from("games").update({
+    await admin.from("games").update({
       state: newState as unknown as Record<string, unknown>,
       current_turn: opponentId,
     }).eq("id", gameId);
@@ -68,7 +70,7 @@ export async function rollPig(gameId: string) {
     last_roll: roll,
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
   }).eq("id", gameId);
 
@@ -80,6 +82,7 @@ export async function holdPig(gameId: string) {
   if (!session) return { ok: false, error: "Not authenticated" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
   const res = await getGame(supabase, gameId, session.playerId);
   if ("error" in res) return { ok: false, error: res.error };
 
@@ -99,7 +102,7 @@ export async function holdPig(gameId: string) {
     last_roll: state.last_roll,
   };
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: newState as unknown as Record<string, unknown>,
     current_turn: isFinished ? null : opponentId,
     status: isFinished ? "finished" : "playing",
@@ -107,7 +110,7 @@ export async function holdPig(gameId: string) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, myId, p1Id, p2Id, "pig");
+    await updateLeaderboard(admin, myId, p1Id, p2Id, "pig");
   }
 
   return { ok: true };

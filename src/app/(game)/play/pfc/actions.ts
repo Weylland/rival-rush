@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { PFCState, PFCRound } from "@/types/database";
 
@@ -18,6 +19,7 @@ export async function submitPFCMove(gameId: string, move: PFCMove) {
   if (!session) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -79,14 +81,14 @@ export async function submitPFCMove(gameId: string, move: PFCMove) {
     gameWinnerId = topPlayers.length === 1 ? topPlayers[0][0] : null;
   }
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: state as unknown as Record<string, unknown>,
     status: isFinished ? "finished" : "playing",
     ...(isFinished ? { winner_id: gameWinnerId } : {}),
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, gameWinnerId, p1Id, p2Id, "pfc");
+    await updateLeaderboard(admin, gameWinnerId, p1Id, p2Id, "pfc");
   }
 
   return { ok: true };

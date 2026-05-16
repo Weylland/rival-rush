@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
 import type { MorpionState } from "@/types/database";
 
@@ -25,6 +26,7 @@ export async function submitMorpionMove(gameId: string, cellIndex: number) {
   if (!session) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -68,7 +70,7 @@ export async function submitMorpionMove(gameId: string, cellIndex: number) {
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const nextTurn = isFinished ? null : opponentId;
 
-  await supabase.from("games").update({
+  await admin.from("games").update({
     state: state as unknown as Record<string, unknown>,
     current_turn: nextTurn,
     status: isFinished ? "finished" : "playing",
@@ -76,7 +78,7 @@ export async function submitMorpionMove(gameId: string, cellIndex: number) {
   }).eq("id", gameId);
 
   if (isFinished) {
-    await updateLeaderboard(supabase, winner, p1Id, p2Id, "morpion");
+    await updateLeaderboard(admin, winner, p1Id, p2Id, "morpion");
   }
 
   return { ok: true };

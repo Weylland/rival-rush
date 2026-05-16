@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // ── Profanity filter (FR) ─────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ export async function sendMessage(
   if (hasProfanity(trimmed)) return { ok: false, error: "Message refusé (contenu inapproprié)" };
 
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   // Rate limit : max 3 messages dans les 5 dernières secondes
   const since = new Date(Date.now() - 5_000).toISOString();
@@ -41,7 +43,7 @@ export async function sendMessage(
 
   if ((count ?? 0) >= 3) return { ok: false, error: "Trop vite ! Attends un peu." };
 
-  const { error } = await supabase.from("messages").insert({
+  const { error } = await admin.from("messages").insert({
     game_id: gameId,
     player_id: session.playerId,
     pseudo: session.pseudo,
@@ -58,8 +60,8 @@ export async function blockPlayer(
   const session = await getSession();
   if (!session) return { ok: false, error: "Non connecté" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("blocks").upsert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("blocks").upsert({
     blocker_id: session.playerId,
     blocked_id: blockedId,
   });
@@ -76,8 +78,8 @@ export async function reportMessage(
   const session = await getSession();
   if (!session) return { ok: false, error: "Non connecté" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("reports").insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("reports").insert({
     reporter_id: session.playerId,
     reported_player_id: reportedPlayerId,
     game_id: gameId,
