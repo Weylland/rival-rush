@@ -366,13 +366,21 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               }}>Connecte-toi</button>
             </>
           ) : (
-            <>Pas encore de compte ?{" "}
-              <button type="button" onClick={() => setTab("signup")} style={{
-                background: "none", border: "none", cursor: "pointer",
-                color: EA.cyan, textDecoration: "underline", fontWeight: 900,
-                fontFamily: "var(--font-sans)", fontSize: 12,
-              }}>Inscris-toi</button>
-            </>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+              <span>Pas encore de compte ?{" "}
+                <button type="button" onClick={() => setTab("signup")} style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  color: EA.cyan, textDecoration: "underline", fontWeight: 900,
+                  fontFamily: "var(--font-sans)", fontSize: 12,
+                }}>Inscris-toi</button>
+              </span>
+              <a href="/forgot-password" style={{
+                color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: 700,
+                textDecoration: "underline", textUnderlineOffset: 3,
+              }}>
+                Mot de passe oublié ?
+              </a>
+            </div>
           )}
         </div>
 
