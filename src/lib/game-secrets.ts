@@ -4,7 +4,7 @@
  * uniquement accessibles côté serveur via service role.
  */
 import type { NavalShip } from "@/types/database";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface GameSecretsData {
   ships?: Record<string, NavalShip[]>;   // Naval: playerId → fleet
@@ -13,8 +13,7 @@ export interface GameSecretsData {
 }
 
 export async function readSecrets(gameId: string): Promise<GameSecretsData> {
-  const supabase = await createClient();
-  const { data } = await supabase
+  const { data } = await createAdminClient()
     .from("game_secrets")
     .select("data")
     .eq("game_id", gameId)
@@ -23,9 +22,9 @@ export async function readSecrets(gameId: string): Promise<GameSecretsData> {
 }
 
 export async function writeSecrets(gameId: string, patch: Partial<GameSecretsData>): Promise<void> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const current = await readSecrets(gameId);
-  await supabase.from("game_secrets").upsert({
+  await admin.from("game_secrets").upsert({
     game_id: gameId,
     data: { ...current, ...patch },
   });

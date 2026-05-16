@@ -71,7 +71,8 @@ export async function sendChallenge(challengedId: string, gameType: GameType, ti
   if (error || !challenge) return { error: error?.message ?? "Impossible d'envoyer le défi" };
 
   // Send Web Push if player is offline (or as backup even if online)
-  const { data: subs } = await supabase
+  // admin requis : push_subscriptions n'a pas de policy SELECT publique
+  const { data: subs } = await admin
     .from("push_subscriptions")
     .select("endpoint, p256dh, auth")
     .eq("player_id", challengedId);

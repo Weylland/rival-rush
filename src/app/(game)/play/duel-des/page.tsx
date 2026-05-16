@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { DuelDesClient } from "./DuelDesClient";
 import type { DuelDesState } from "@/types/database";
 
@@ -15,7 +15,7 @@ export default async function DuelDesPage({ searchParams }: Props) {
   const { game_id } = await searchParams;
   if (!game_id) redirect("/lobby");
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -56,7 +56,7 @@ export default async function DuelDesPage({ searchParams }: Props) {
       p2AvatarUrl={avatarOf[p2Id] ?? null}
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
-      initialWinnerId={game.winner_id as string | null}
+      initialWinnerId={(game.winner_id ?? null) as string | null}
     />
   );
 }

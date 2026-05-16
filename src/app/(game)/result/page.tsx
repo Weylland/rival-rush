@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ResultClient } from "./ResultClient";
 import type { PFCState } from "@/types/database";
 
@@ -15,9 +15,9 @@ export default async function ResultPage({ searchParams }: Props) {
   const { game_id } = await searchParams;
   if (!game_id) redirect("/lobby");
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  const { data: game } = await supabase
+  const { data: game } = await admin
     .from("games")
     .select("*, challenges(challenger_id, challenged_id), rooms(code, name)")
     .eq("id", game_id)
@@ -30,7 +30,7 @@ export default async function ResultPage({ searchParams }: Props) {
 
   if (session.playerId !== p1Id && session.playerId !== p2Id) redirect("/lobby");
 
-  const { data: players } = await supabase
+  const { data: players } = await admin
     .from("players")
     .select("id, pseudo, avatar_url")
     .in("id", [p1Id, p2Id]);
@@ -56,7 +56,7 @@ export default async function ResultPage({ searchParams }: Props) {
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
       p1AvatarUrl={avatarOf[p1Id] ?? null}
       p2AvatarUrl={avatarOf[p2Id] ?? null}
-      winnerId={game.winner_id as string | null}
+      winnerId={(game.winner_id ?? null) as string | null}
       gameType={game.game_type as "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess"}
       pfcState={pfcState}
       opponentId={opponentId}

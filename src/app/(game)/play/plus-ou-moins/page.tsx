@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PlusOuMoinsClient } from "./PlusOuMoinsClient";
 import type { PlusOuMoinsState } from "@/types/database";
 
@@ -15,7 +15,7 @@ export default async function PlusOuMoinsPage({ searchParams }: Props) {
   const { game_id } = await searchParams;
   if (!game_id) redirect("/lobby");
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: game } = await supabase
     .from("games")
@@ -63,7 +63,7 @@ export default async function PlusOuMoinsPage({ searchParams }: Props) {
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
       initialCurrentTurn={game.current_turn as string | null}
-      initialWinnerId={game.winner_id as string | null}
+      initialWinnerId={(game.winner_id ?? null) as string | null}
     />
   );
 }

@@ -182,7 +182,7 @@ export async function inviteToRoom(roomId: string, playerId: string) {
   }, { onConflict: "room_id,invited_player_id" });
 
   const { data: room } = await supabase.from("rooms").select("name").eq("id", roomId).maybeSingle();
-  const { data: subs } = await supabase
+  const { data: subs } = await createAdminClient()
     .from("push_subscriptions").select("endpoint, p256dh, auth").eq("player_id", playerId);
 
   if (subs && subs.length > 0 && room) {
