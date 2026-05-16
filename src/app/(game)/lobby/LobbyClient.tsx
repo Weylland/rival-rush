@@ -313,8 +313,8 @@ function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, o
         )}
       </div>
 
-      {/* Bouton DÉFIER — masqué si bloqué */}
-      {!isBlocked && !inGame && (!offline || hasPush) && (
+      {/* Bouton DÉFIER — masqué si bloqué ou en partie */}
+      {!isBlocked && !inGame && (
         <button
           onClick={onChallenge}
           style={{
@@ -607,7 +607,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const availableCount = onlinePlayers.filter(p => p.status === "online").length;
   const inGameCount = onlinePlayers.filter(p => p.status === "in-game").length;
   const offlineWithPushCount = mergedPlayers.filter(p => p.status === "offline" && pushSubscriberIds.includes(p.player_id)).length;
-  const hasChallengeable = availableCount > 0 || offlineWithPushCount > 0;
+  const offlineCount = mergedPlayers.filter(p => p.status === "offline").length;
+  const hasChallengeable = availableCount > 0 || offlineCount > 0;
 
   const handleChooseGame = useCallback((gameType: GameType, timeControl?: number | null) => {
     if (!chooseOpponent) return;
@@ -625,12 +626,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       return;
     }
 
-    // Fallback : offline players with push subscriptions
-    const offlineWithPush = mergedPlayers.filter(
-      p => p.status === "offline" && pushSubscriberIds.includes(p.player_id)
-    );
-    if (offlineWithPush.length > 0) {
-      setChooseOpponent(offlineWithPush[Math.floor(Math.random() * offlineWithPush.length)]);
+    // Fallback : all offline players (push is a bonus notification, not required)
+    const offline = mergedPlayers.filter(p => p.status === "offline");
+    if (offline.length > 0) {
+      setChooseOpponent(offline[Math.floor(Math.random() * offline.length)]);
       return;
     }
 
@@ -997,8 +996,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
             <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 700, color: hasChallengeable ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginTop: 2 }}>
               {availableCount > 0
                 ? `${availableCount} joueur${availableCount > 1 ? "s" : ""} disponible${availableCount > 1 ? "s" : ""}`
-                : offlineWithPushCount > 0
-                  ? `${offlineWithPushCount} joueur${offlineWithPushCount > 1 ? "s" : ""} à notifier`
+                : offlineCount > 0
+                  ? `${offlineCount} joueur${offlineCount > 1 ? "s" : ""} hors ligne à inviter`
                   : inGameCount > 0 ? "Tous en match en ce moment" : "Personne de disponible"}
             </div>
           </div>
