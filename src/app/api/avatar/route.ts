@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSession, setAvatarUrl } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -15,13 +16,11 @@ export async function POST(req: Request) {
     if (!emoji) return NextResponse.json({ error: "Missing emoji" }, { status: 400 });
     const avatarUrl = `preset:${emoji}`;
     await supabase.from("players").update({ avatar_url: avatarUrl }).eq("id", session.playerId);
-    await setAvatarUrl(avatarUrl);
     return NextResponse.json({ ok: true, avatarUrl });
   }
 
   if (type === "remove") {
     await supabase.from("players").update({ avatar_url: null }).eq("id", session.playerId);
-    await setAvatarUrl(null);
     return NextResponse.json({ ok: true, avatarUrl: null });
   }
 
@@ -56,7 +55,7 @@ export async function POST(req: Request) {
     const avatarUrl = `${publicUrl}?v=${Date.now()}`;
 
     await supabase.from("players").update({ avatar_url: publicUrl }).eq("id", session.playerId);
-    await setAvatarUrl(avatarUrl);
+    await createAdminClient().from("players").update({ avatar_url: avatarUrl }).eq("id", session.playerId);
     return NextResponse.json({ ok: true, avatarUrl });
   }
 
