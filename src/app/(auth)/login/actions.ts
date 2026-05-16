@@ -110,8 +110,25 @@ export async function signin(_prev: AuthState, formData: FormData): Promise<Auth
 
 export async function signinAsGuest(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const ip = await getIp();
+
+  // Soft guard in-memory (warm path, single instance)
   if (!checkRate(guestBucket, ip, 5, 10 * 60_000)) {
     return { error: "Trop de connexions invité depuis cette IP. Réessaie dans 10 minutes." };
+  }
+
+  // Hard guard in DB (works across all Vercel instances)
+  // Count guest accounts created in the last 10 minutes — capped at 10 to be generous
+  const since = new Date(Date.now() - 10 * 60_000).toISOString();
+  const admin = createAdminClient();
+  const { count } = await admin
+    .from("players")
+    .select("id", { count: "exact", head: true })
+    .eq("is_guest", true)
+    .gte("created_at", since);
+
+  // Global cap: max 30 new guests per 10 minutes across all IPs (anti-burst)
+  if ((count ?? 0) >= 30) {
+    return { error: "Trop de connexions invité en ce moment. Réessaie dans quelques minutes." };
   }
 
   const rawPseudo = (formData.get("pseudo") as string)?.trim();
@@ -127,7 +144,6 @@ export async function signinAsGuest(_prev: AuthState, formData: FormData): Promi
   if (rawPseudo) {
     const suffix = data.user.id.slice(0, 4).toUpperCase();
     const pseudo = `${rawPseudo}#${suffix}`;
-    const admin = createAdminClient();
     await admin.from("players").update({ pseudo }).eq("id", data.user.id);
   }
 
