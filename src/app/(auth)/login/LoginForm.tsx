@@ -397,26 +397,6 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           </a>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap", paddingBottom: 24 }}>
-          {[
-            { href: "/legal/mentions", label: "Mentions légales" },
-            { href: "/legal/privacy", label: "Confidentialité" },
-            { href: "/legal/cgu", label: "CGU" },
-          ].map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              style={{
-                fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
-                color: "rgba(255,255,255,0.25)", textDecoration: "underline",
-                textUnderlineOffset: 3,
-              }}
-            >
-              {label}
-            </a>
-          ))}
-        </div>
-
         {qrSvg && (
           <div style={{
             marginTop: 28,
