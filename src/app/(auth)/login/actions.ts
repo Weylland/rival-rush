@@ -108,16 +108,28 @@ export async function signin(_prev: AuthState, formData: FormData): Promise<Auth
 
 // ── Login invité ──────────────────────────────────────────────────────────────
 
-export async function signinAsGuest(_prev: AuthState, _formData: FormData): Promise<AuthState> {
+export async function signinAsGuest(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const ip = await getIp();
   if (!checkRate(guestBucket, ip, 5, 10 * 60_000)) {
     return { error: "Trop de connexions invité depuis cette IP. Réessaie dans 10 minutes." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInAnonymously();
+  const rawPseudo = (formData.get("pseudo") as string)?.trim();
+  if (rawPseudo && rawPseudo.length < 2) return { error: "Pseudo trop court (min 2 caractères)" };
+  if (rawPseudo && rawPseudo.length > 20) return { error: "Pseudo trop long (max 20 caractères)" };
 
-  if (error) return { error: error.message };
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInAnonymously();
+
+  if (error || !data.user) return { error: error?.message ?? "Erreur de connexion" };
+
+  // Si un pseudo a été saisi, on met à jour le player record créé par le trigger DB
+  if (rawPseudo) {
+    const suffix = data.user.id.slice(0, 4).toUpperCase();
+    const pseudo = `${rawPseudo}#${suffix}`;
+    const admin = createAdminClient();
+    await admin.from("players").update({ pseudo }).eq("id", data.user.id);
+  }
 
   redirect("/lobby");
 }

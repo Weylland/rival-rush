@@ -328,7 +328,29 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           </span>
           <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
         </div>
-        <form action={guestAction}>
+        <form action={guestAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ position: "relative" }}>
+            <input
+              name="pseudo"
+              type="text"
+              placeholder="Ton pseudo (optionnel)"
+              maxLength={20}
+              style={{
+                display: "block", width: "100%", boxSizing: "border-box",
+                padding: "11px 16px",
+                background: "rgba(255,255,255,0.07)",
+                border: `2px solid rgba(255,255,255,0.18)`,
+                borderRadius: 14, outline: "none",
+                fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+                color: EA.white,
+              }}
+            />
+            <span style={{
+              position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
+              color: "rgba(255,255,255,0.25)", pointerEvents: "none",
+            }}>#????</span>
+          </div>
           <EAButton
             type="submit"
             full
@@ -342,7 +364,6 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           </EAButton>
           {guestState?.error && (
             <div style={{
-              marginTop: 8,
               fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
               color: EA.pink, textAlign: "center",
             }}>
@@ -418,6 +439,8 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
             )}
           </div>
         )}
+
+        <div style={{ height: 24 }} />
       </div>
     </div>
   );
