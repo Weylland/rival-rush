@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ChatProvider } from "./chat/ChatSystem";
+import { GuestBanner } from "@/components/ui/guest-banner";
 
 export default async function GameLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
@@ -47,6 +48,7 @@ export default async function GameLayout({ children }: { children: ReactNode }) 
       blockedUserIds={blockedUserIds}
     >
       {children}
+      {session.isGuest && <GuestBanner />}
     </ChatProvider>
   );
 }

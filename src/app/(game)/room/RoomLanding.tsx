@@ -7,6 +7,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createRoom, joinRoom } from "./actions";
+import { PasswordInput } from "@/components/ui/password-input";
 import type { GameType, RoomExpiration } from "@/types/database";
 import { GAME_LABELS, ALL_GAME_TYPES } from "@/lib/game-labels";
 
@@ -171,11 +172,10 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                   }}
                 />
                 {needsPassword && (
-                  <input
+                  <PasswordInput
                     value={joinPassword}
                     onChange={e => setJoinPassword(e.target.value)}
                     placeholder="Mot de passe de la salle"
-                    type="password"
                     style={{
                       background: "rgba(255,255,255,0.07)", border: `2px solid ${EA.butter}`,
                       borderRadius: 14, padding: "12px 16px",
@@ -300,10 +300,9 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
               description="Protéger la salle avec un mot de passe"
             >
               {usePassword && (
-                <input
+                <PasswordInput
                   value={password} onChange={e => setPassword(e.target.value)}
                   placeholder="Mot de passe"
-                  type="password"
                   style={inputStyle}
                 />
               )}

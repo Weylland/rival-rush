@@ -7,6 +7,7 @@ import { EA } from "@/lib/design";
 import { SvgBlob } from "@/components/ui/blob";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { updateRoomSettings, deleteRoom } from "../../actions";
+import { PasswordInput } from "@/components/ui/password-input";
 import type { GameType } from "@/types/database";
 import { GAME_LABELS, ALL_GAME_TYPES } from "@/lib/game-labels";
 
@@ -132,10 +133,9 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
               />
             )}
             {!clearPassword && (
-              <input
+              <PasswordInput
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
-                type="password"
                 placeholder={initial.hasPassword ? "Nouveau mot de passe (laisser vide = inchangé)" : "Ajouter un mot de passe (optionnel)"}
                 style={{ ...inputStyle, marginTop: initial.hasPassword ? 8 : 0 }}
               />

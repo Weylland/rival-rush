@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { signup, signin, signinAsGuest, type AuthState } from "./actions";
 import { EAButton } from "@/components/ui/ea-button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { EA } from "@/lib/design";
 
 function TabSwitch({ active, onSwitch }: { active: "signup" | "signin"; onSwitch: (t: "signup" | "signin") => void }) {
@@ -235,12 +236,38 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
             placeholder="toi@exemple.com"
             type="email"
           />
-          <FieldY2K
-            label="Mot de passe"
-            name="password"
-            placeholder="Top secret"
-            type="password"
-          />
+          <div style={{ width: "100%" }}>
+            <div style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 12, letterSpacing: 1.4,
+              color: EA.cyan, textTransform: "uppercase",
+              marginBottom: 6, marginLeft: 14,
+            }}>Mot de passe</div>
+            <PasswordInput
+              name="password"
+              placeholder="Top secret"
+              required
+              wrapperStyle={{
+                background: EA.white,
+                border: `2.5px solid ${EA.ink}`,
+                borderRadius: 16,
+                boxShadow: `4px 4px 0 ${EA.cyan}`,
+              }}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "12px 16px",
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                fontFamily: "var(--font-sans)",
+                fontSize: 16,
+                fontWeight: 800,
+                color: EA.ink,
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
 
           {state?.error && (
             <div style={{

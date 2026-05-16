@@ -4,9 +4,12 @@ import { useActionState, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updatePseudo, updatePassword, deleteAccount } from "./actions";
+import { convertGuestAccount } from "@/app/(auth)/login/actions";
 import { EA } from "@/lib/design";
 import type { SettingsState } from "./actions";
+import type { AuthState } from "@/app/(auth)/login/actions";
 import { subscribePush, unsubscribePush, NOTIF_KEY } from "@/lib/push-client";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const SOUND_KEY = "ea_sounds_enabled";
 
@@ -144,13 +147,15 @@ const PRESETS = [
 interface Props {
   initialPseudo: string;
   initialAvatarUrl: string | null;
+  isGuest: boolean;
 }
 
-export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
+export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Props) {
   const router = useRouter();
   const [pseudoState, pseudoAction, pseudoPending] = useActionState<SettingsState, FormData>(updatePseudo, null);
   const [pwState, pwAction, pwPending] = useActionState<SettingsState, FormData>(updatePassword, null);
   const [deleteState, deleteAction, deletePending] = useActionState<SettingsState, FormData>(deleteAccount as unknown as (s: SettingsState, f: FormData) => Promise<SettingsState>, null);
+  const [convertState, convertAction, convertPending] = useActionState<AuthState, FormData>(convertGuestAccount, null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
@@ -444,26 +449,57 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl }: Props) {
         </form>
       </SectionCard>
 
-      {/* Password */}
-      <SectionCard accent={EA.butter}>
-        <SectionTitle>Changer de mot de passe</SectionTitle>
-        <form action={pwAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <FocusInput
-            name="current_password"
-            type="password"
-            placeholder="Mot de passe actuel"
-            autoComplete="current-password"
-          />
-          <FocusInput
-            name="new_password"
-            type="password"
-            placeholder="Nouveau mot de passe (min 4 car.)"
-            autoComplete="new-password"
-          />
-          <SubmitButton pending={pwPending} label="Mettre à jour" color={EA.butter} />
-          <Feedback state={pwState} />
-        </form>
-      </SectionCard>
+      {/* Compte invité → conversion */}
+      {isGuest && (
+        <SectionCard accent={EA.pink}>
+          <SectionTitle>⚠️ Compte invité</SectionTitle>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: 16 }}>
+            Ton compte sera supprimé après la soirée. Crée un compte permanent pour garder tes stats et rejouer plus tard.
+          </div>
+          <form action={convertAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <FocusInput
+              name="pseudo"
+              placeholder={initialPseudo}
+              defaultValue={initialPseudo.startsWith("Joueur#") ? "" : initialPseudo}
+              autoComplete="username"
+              maxLength={20}
+            />
+            <FocusInput
+              name="email"
+              type="email"
+              placeholder="ton@email.com"
+              autoComplete="email"
+            />
+            <PasswordInput
+              name="password"
+              placeholder="Mot de passe (min 6 car.)"
+              autoComplete="new-password"
+              style={inputStyle(false)}
+            />
+            <SubmitButton pending={convertPending} label="✨ Créer mon compte permanent" color={EA.pink} />
+            {convertState?.error && (
+              <Feedback state={{ error: convertState.error }} />
+            )}
+          </form>
+        </SectionCard>
+      )}
+
+      {/* Password — compte permanent uniquement */}
+      {!isGuest && (
+        <SectionCard accent={EA.butter}>
+          <SectionTitle>Changer de mot de passe</SectionTitle>
+          <form action={pwAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <PasswordInput
+              name="new_password"
+              placeholder="Nouveau mot de passe (min 6 car.)"
+              autoComplete="new-password"
+              style={inputStyle(false)}
+            />
+            <SubmitButton pending={pwPending} label="Mettre à jour" color={EA.butter} />
+            <Feedback state={pwState} />
+          </form>
+        </SectionCard>
+      )}
 
       {/* Sons */}
       <SectionCard accent={EA.pink}>

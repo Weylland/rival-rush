@@ -183,13 +183,32 @@ export async function convertGuestAccount(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  const pseudo   = (formData.get("pseudo") as string)?.trim();
   const email    = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
 
   if (!email || !password) return { error: "Remplis tous les champs" };
+  if (pseudo && pseudo.length < 2) return { error: "Pseudo trop court (min 2 caractères)" };
   if (password.length < 6) return { error: "Mot de passe trop court (min 6 caractères)" };
+  if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) return { error: "Email invalide" };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const admin = createAdminClient();
+
+  // Vérifier unicité du pseudo si fourni et différent de l'actuel
+  if (pseudo) {
+    const { data: existing } = await admin
+      .from("players")
+      .select("id")
+      .eq("pseudo", pseudo)
+      .neq("id", user.id)
+      .maybeSingle();
+    if (existing) return { error: "Ce pseudo est déjà pris 😅" };
+  }
+
   const { error } = await supabase.auth.updateUser({ email, password });
 
   if (error) {
@@ -197,12 +216,9 @@ export async function convertGuestAccount(
     return { error: error.message };
   }
 
-  // Mettre à jour is_guest dans players
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const admin = createAdminClient();
-    await admin.from("players").update({ is_guest: false }).eq("id", user.id);
-  }
+  const update: Record<string, unknown> = { is_guest: false };
+  if (pseudo) update.pseudo = pseudo;
+  await admin.from("players").update(update).eq("id", user.id);
 
   redirect("/lobby");
 }
