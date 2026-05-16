@@ -116,20 +116,7 @@ export async function signinAsGuest(_prev: AuthState, formData: FormData): Promi
     return { error: "Trop de connexions invité depuis cette IP. Réessaie dans 10 minutes." };
   }
 
-  // Hard guard in DB (works across all Vercel instances)
-  // Count guest accounts created in the last 10 minutes — capped at 10 to be generous
-  const since = new Date(Date.now() - 10 * 60_000).toISOString();
   const admin = createAdminClient();
-  const { count } = await admin
-    .from("players")
-    .select("id", { count: "exact", head: true })
-    .eq("is_guest", true)
-    .gte("created_at", since);
-
-  // Global cap: max 30 new guests per 10 minutes across all IPs (anti-burst)
-  if ((count ?? 0) >= 30) {
-    return { error: "Trop de connexions invité en ce moment. Réessaie dans quelques minutes." };
-  }
 
   const rawPseudo = (formData.get("pseudo") as string)?.trim();
   if (rawPseudo && rawPseudo.length < 2) return { error: "Pseudo trop court (min 2 caractères)" };
