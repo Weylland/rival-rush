@@ -1,9 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/legal", "/contact", "/ios-pwa"];
-
-export async function proxy(request: NextRequest) {
+/**
+ * À appeler dans src/middleware.ts pour rafraîchir les tokens automatiquement.
+ * Sans ça, les sessions expirent côté serveur même si le cookie est encore valide.
+ */
+export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -28,24 +30,7 @@ export async function proxy(request: NextRequest) {
   );
 
   // Rafraîchit la session — NE PAS supprimer ou déplacer cet appel.
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
-
-  if (!user && !isPublic) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (user && pathname === "/login") {
-    return NextResponse.redirect(new URL("/lobby", request.url));
-  }
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
-};

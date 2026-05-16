@@ -1,73 +1,26 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { hashPassword } from "@/lib/auth";
+import { isAdmin } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
 
-// ── Admin token helper ────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-import { createHmac } from "crypto";
-
-function computeAdminToken(secret: string): string {
-  return createHmac("sha256", secret).update("ea_admin_session").digest("hex");
+async function guardAdmin() {
+  if (!(await isAdmin())) throw new Error("Non autorisé");
 }
 
-function isValidAdminCookie(cookieValue: string | undefined): boolean {
-  const secret = process.env.ADMIN_SECRET;
-  if (!cookieValue || !secret) return false;
-  return cookieValue === computeAdminToken(secret);
+function db() {
+  return createAdminClient();
 }
 
-// ── Admin login rate limiting (5 attempts / 10 min per IP) ───────────────────
-interface RateEntry { count: number; resetAt: number }
-const adminBucket = new Map<string, RateEntry>();
-
-function checkAdminRate(ip: string): boolean {
-  const now = Date.now();
-  const entry = adminBucket.get(ip);
-  if (!entry || now > entry.resetAt) {
-    adminBucket.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
-    return true;
-  }
-  if (entry.count >= 5) return false;
-  entry.count++;
-  return true;
-}
-
-export async function adminLogin(_prev: string | null, formData: FormData): Promise<string | null> {
-  const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-  if (!checkAdminRate(ip)) return "Trop de tentatives. Réessaie dans 10 minutes.";
-
-  const secret = formData.get("secret") as string;
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
-    return "Mot de passe incorrect";
-  }
-  const store = await cookies();
-  const token = computeAdminToken(secret);
-  store.set("ea_admin", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 8,
-    path: "/",
-  });
-  redirect("/admin");
-}
-
+// ── Joueurs ───────────────────────────────────────────────────────────────────
 
 export async function deletePlayer(playerId: string) {
-  const store = await cookies();
-  const adminCookie = store.get("ea_admin")?.value;
-  if (!isValidAdminCookie(adminCookie)) {
-    return { error: "Non autorisé" };
-  }
+  await guardAdmin();
+  const supabase = db();
 
-  const supabase = await createClient();
-
-  // 1. Forfeit any active game the player is in
+  // 1. Forfeit active games
   const { data: activeChallenges } = await supabase
     .from("challenges")
     .select("id, challenger_id, challenged_id")
@@ -78,7 +31,7 @@ export async function deletePlayer(playerId: string) {
     const activeIds = activeChallenges.map((c) => c.id);
     const { data: activeGames } = await supabase
       .from("games")
-      .select("id, challenge_id, winner_id")
+      .select("id, challenge_id")
       .in("challenge_id", activeIds)
       .eq("status", "playing");
 
@@ -89,18 +42,14 @@ export async function deletePlayer(playerId: string) {
         challenge.challenger_id === playerId
           ? challenge.challenged_id
           : challenge.challenger_id;
-
       await supabase
         .from("games")
         .update({ status: "finished", winner_id: winnerId })
         .eq("id", game.id);
-
-      // Update leaderboard for winner (opponent)
-      // leaderboard for the winner is recalculated in step 4 below
     }
   }
 
-  // 2. Collect all challenge IDs for this player
+  // 2. Collect all challenges + opponents
   const { data: allChallenges } = await supabase
     .from("challenges")
     .select("id, challenger_id, challenged_id")
@@ -109,196 +58,81 @@ export async function deletePlayer(playerId: string) {
   const challengeIds = (allChallenges ?? []).map((c) => c.id);
   const opponentIds = new Set<string>();
   for (const c of allChallenges ?? []) {
-    const opId =
-      c.challenger_id === playerId ? c.challenged_id : c.challenger_id;
-    opponentIds.add(opId);
+    opponentIds.add(c.challenger_id === playerId ? c.challenged_id : c.challenger_id);
   }
 
   // 3. Delete game_secrets + games + challenges
   if (challengeIds.length > 0) {
     const { data: gameRows } = await supabase.from("games").select("id").in("challenge_id", challengeIds);
-    const gameIds = (gameRows ?? []).map(g => g.id);
-    if (gameIds.length > 0) {
-      await supabase.from("game_secrets").delete().in("game_id", gameIds);
-    }
+    const gameIds = (gameRows ?? []).map((g) => g.id);
+    if (gameIds.length > 0) await supabase.from("game_secrets").delete().in("game_id", gameIds);
     const { error: gamesErr } = await supabase.from("games").delete().in("challenge_id", challengeIds);
     if (gamesErr) return { error: `Erreur suppression games: ${gamesErr.message}` };
     const { error: chalErr } = await supabase.from("challenges").delete().in("id", challengeIds);
     if (chalErr) return { error: `Erreur suppression challenges: ${chalErr.message}` };
   }
 
-  // 4. Recalculate leaderboard for all affected opponents
+  // 4. Recalculate leaderboard for opponents
   for (const opId of opponentIds) {
     await recalculatePlayerLeaderboard(supabase, opId);
   }
 
-  // 5. Delete chat messages (lobby + rooms)
+  // 5. Chats
   await supabase.from("lobby_chat").delete().eq("player_id", playerId);
   await supabase.from("room_chat").delete().eq("player_id", playerId);
 
-  // 6. Delete DMs and conversations
+  // 6. DMs
   const { data: convs } = await supabase
     .from("conversations").select("id")
     .or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
-  const convIds = (convs ?? []).map(c => c.id);
+  const convIds = (convs ?? []).map((c) => c.id);
   if (convIds.length > 0) {
     await supabase.from("direct_messages").delete().in("conversation_id", convIds);
     await supabase.from("conversation_reads").delete().in("conversation_id", convIds);
     await supabase.from("conversations").delete().or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
   }
 
-  // 7. Delete blocks, reports, room memberships, push subscriptions
+  // 7. Misc
   await supabase.from("blocks").delete().or(`blocker_id.eq.${playerId},blocked_id.eq.${playerId}`);
   await supabase.from("reports").delete().eq("reporter_id", playerId);
   await supabase.from("room_members").delete().eq("player_id", playerId);
   await supabase.from("push_subscriptions").delete().eq("player_id", playerId);
 
-  // 8. Clean up player's own records
-  const { error: lbErr } = await supabase.from("leaderboard").delete().eq("player_id", playerId);
-  if (lbErr) return { error: `Erreur suppression leaderboard: ${lbErr.message}` };
+  // 8. Player records
+  await supabase.from("leaderboard").delete().eq("player_id", playerId);
   await supabase.from("presence").delete().eq("player_id", playerId);
   const { error: playerErr } = await supabase.from("players").delete().eq("id", playerId);
   if (playerErr) return { error: `Erreur suppression joueur: ${playerErr.message}` };
+
+  // 9. Supprimer le compte Supabase Auth (cascade sur players via FK)
+  const { error: authErr } = await supabase.auth.admin.deleteUser(playerId);
+  if (authErr) return { error: `Erreur suppression auth: ${authErr.message}` };
 
   return { ok: true };
 }
 
 export async function resetPlayerPassword(playerId: string): Promise<{ tempPassword: string } | { error: string }> {
-  const store = await cookies();
-  const adminCookie = store.get("ea_admin")?.value;
-  if (!isValidAdminCookie(adminCookie)) {
-    return { error: "Non autorisé" };
-  }
+  await guardAdmin();
 
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const tempPassword = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+  const tempPassword = Array.from(
+    { length: 8 },
+    () => chars[Math.floor(Math.random() * chars.length)],
+  ).join("");
 
-  const hashed = await hashPassword(tempPassword);
-  const supabase = await createClient();
-  const { error } = await supabase.from("players").update({ password: hashed }).eq("id", playerId);
-  if (error) return { error: `Erreur: ${error.message}` };
+  const { error } = await db().auth.admin.updateUserById(playerId, {
+    password: tempPassword,
+  });
+  if (error) return { error: error.message };
 
   return { tempPassword };
 }
 
-export type ReportStatus = "new" | "reviewed" | "ignored";
-
-export async function updateReportStatus(
-  reportId: string,
-  status: ReportStatus,
-): Promise<{ ok: boolean } | { error: string }> {
-  const store = await cookies();
-  const adminCookie = store.get("ea_admin")?.value;
-  if (!isValidAdminCookie(adminCookie)) {
-    return { error: "Non autorisé" };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("reports").update({ status }).eq("id", reportId);
-  if (error) return { error: error.message };
-  return { ok: true };
-}
-
-export type ContactStatus = "new" | "in_progress" | "done" | "spam";
-
-export async function deleteContact(contactId: string): Promise<{ ok: boolean } | { error: string }> {
-  const store = await cookies();
-  const adminCookie = store.get("ea_admin")?.value;
-  if (!isValidAdminCookie(adminCookie)) {
-    return { error: "Non autorisé" };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("contacts").delete().eq("id", contactId);
-  if (error) return { error: error.message };
-
-  return { ok: true };
-}
-
-export async function updateContactStatus(
-  contactId: string,
-  status: ContactStatus,
-): Promise<{ ok: boolean } | { error: string }> {
-  const store = await cookies();
-  const adminCookie = store.get("ea_admin")?.value;
-  if (!isValidAdminCookie(adminCookie)) {
-    return { error: "Non autorisé" };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("contacts").update({ status }).eq("id", contactId);
-  if (error) return { error: error.message };
-
-  return { ok: true };
-}
-
-// ── Auth helper (nouveaux actions) ────────────────────────────────────────
-
-async function isAdmin(): Promise<boolean> {
-  const store = await cookies();
-  return isValidAdminCookie(store.get("ea_admin")?.value);
-}
-
-// ── Chat modération — Lobby ───────────────────────────────────────────────
-
-export async function deleteLobbyChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("lobby_chat").delete().eq("id", messageId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function deleteLobbyChatByPlayer(playerId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("lobby_chat").delete().eq("player_id", playerId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-// ── Chat modération — Salles ──────────────────────────────────────────────
-
-export async function deleteRoomChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("room_chat").delete().eq("id", messageId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function deleteRoomChatByPlayer(roomId: string, playerId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("room_chat").delete().eq("room_id", roomId).eq("player_id", playerId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-// ── Chat modération — DMs ─────────────────────────────────────────────────
-
-export async function deleteDMMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  // Soft delete — UPDATE fires reliably in Realtime, DELETE does not
-  const { error } = await supabase.from("direct_messages").update({ deleted: true }).eq("id", messageId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function deleteConversation(conversationId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  // Soft-delete all messages first so chat clients see them disappear via reliable UPDATE realtime events
-  // (DELETE realtime is unreliable, and cascade DELETE doesn't fire postgres_changes properly)
-  await supabase.from("direct_messages").update({ deleted: true }).eq("conversation_id", conversationId);
-  const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-// ── Gestion joueurs ───────────────────────────────────────────────────────
-
 export async function updatePlayerPseudo(playerId: string, newPseudo: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
+  await guardAdmin();
   const trimmed = newPseudo.trim();
   if (!trimmed || trimmed.length < 2 || trimmed.length > 20) return { error: "Pseudo invalide (2–20 caractères)" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("players").update({ pseudo: trimmed }).eq("id", playerId);
+  const { error } = await db().from("players").update({ pseudo: trimmed }).eq("id", playerId);
   return error ? { error: error.message } : { ok: true };
 }
 
@@ -308,36 +142,112 @@ export async function setPlayerStats(
   losses: number,
   draws: number,
 ): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const points = wins * 3 + draws * 1;
-  const supabase = await createClient();
-  const { error } = await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
+  await guardAdmin();
+  const points = wins * 3 + draws;
+  const { error } = await db().from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
   return error ? { error: error.message } : { ok: true };
 }
 
 export async function sendPlayerWarning(playerId: string, message: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
+  await guardAdmin();
   if (!message.trim()) return { error: "Message vide" };
-  const supabase = await createClient();
-  const { error } = await supabase
+  const { error } = await db()
     .from("player_notifications")
     .insert({ player_id: playerId, type: "warning", message: message.trim() });
   return error ? { error: error.message } : { ok: true };
 }
 
-// ── Gestion salles ────────────────────────────────────────────────────────
+// ── Reports ───────────────────────────────────────────────────────────────────
+
+export type ReportStatus = "new" | "reviewed" | "ignored";
+
+export async function updateReportStatus(
+  reportId: string,
+  status: ReportStatus,
+): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("reports").update({ status }).eq("id", reportId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Contacts ──────────────────────────────────────────────────────────────────
+
+export type ContactStatus = "new" | "in_progress" | "done" | "spam";
+
+export async function deleteContact(contactId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("contacts").delete().eq("id", contactId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function updateContactStatus(
+  contactId: string,
+  status: ContactStatus,
+): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("contacts").update({ status }).eq("id", contactId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteAllSpamContacts(): Promise<{ ok: boolean; count: number } | { error: string }> {
+  await guardAdmin();
+  const { error, count } = await db()
+    .from("contacts")
+    .delete({ count: "exact" })
+    .eq("status", "spam");
+  return error ? { error: error.message } : { ok: true, count: count ?? 0 };
+}
+
+// ── Chats ─────────────────────────────────────────────────────────────────────
+
+export async function deleteLobbyChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("lobby_chat").delete().eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteLobbyChatByPlayer(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("lobby_chat").delete().eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteRoomChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("room_chat").delete().eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteRoomChatByPlayer(roomId: string, playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("room_chat").delete().eq("room_id", roomId).eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteDMMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("direct_messages").update({ deleted: true }).eq("id", messageId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteConversation(conversationId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  await db().from("direct_messages").update({ deleted: true }).eq("conversation_id", conversationId);
+  const { error } = await db().from("conversations").delete().eq("id", conversationId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Salles ────────────────────────────────────────────────────────────────────
 
 export async function deleteRoom(roomId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("rooms").delete().eq("id", roomId);
+  await guardAdmin();
+  const { error } = await db().from("rooms").delete().eq("id", roomId);
   return error ? { error: error.message } : { ok: true };
 }
 
 export async function setRoomOpen(roomId: string, isOpen: boolean): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("rooms").update({ is_open: isOpen }).eq("id", roomId);
+  await guardAdmin();
+  const { error } = await db().from("rooms").update({ is_open: isOpen }).eq("id", roomId);
   return error ? { error: error.message } : { ok: true };
 }
 
@@ -351,73 +261,36 @@ export async function updateRoom(
     allowed_games?: string[] | null;
   },
 ): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
+  await guardAdmin();
   if (fields.name !== undefined && !fields.name.trim()) return { error: "Nom vide" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("rooms").update(fields).eq("id", roomId);
+  const { error } = await db().from("rooms").update(fields).eq("id", roomId);
   return error ? { error: error.message } : { ok: true };
 }
 
-// ── Configuration jeux ────────────────────────────────────────────────────
+// ── Jeux ──────────────────────────────────────────────────────────────────────
 
 export async function updateGameSetting(
   gameType: string,
   field: "is_active" | "win_pts" | "draw_pts" | "loss_pts",
   value: boolean | number,
 ): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("game_settings").update({ [field]: value }).eq("game_type", gameType);
+  await guardAdmin();
+  const { error } = await db().from("game_settings").update({ [field]: value }).eq("game_type", gameType);
   return error ? { error: error.message } : { ok: true };
 }
-
-// ── Avertissements (suite) ────────────────────────────────────────────────
-
-export async function deleteWarning(id: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("player_notifications").delete().eq("id", id);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function markWarningSeen(id: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("player_notifications").update({ seen: true }).eq("id", id);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function deleteAllWarningsForPlayer(playerId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("player_notifications").delete().eq("player_id", playerId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-// ── Présence ──────────────────────────────────────────────────────────────
-
-export async function kickPresence(playerId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("presence").delete().eq("player_id", playerId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-// ── Parties (force end) ───────────────────────────────────────────────────
 
 export async function forceEndGame(
   gameId: string,
   winnerId: string | null,
 ): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
+  await guardAdmin();
+  const supabase = db();
   const { error } = await supabase
     .from("games")
     .update({ status: "finished", winner_id: winnerId })
     .eq("id", gameId);
   if (error) return { error: error.message };
 
-  // Recalculate leaderboard for both players
   const { data: game } = await supabase
     .from("games")
     .select("challenge_id, challenges(challenger_id, challenged_id)")
@@ -437,54 +310,56 @@ export async function forceEndGame(
 }
 
 export async function deleteGame(gameId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("games").delete().eq("id", gameId);
+  await guardAdmin();
+  const { error } = await db().from("games").delete().eq("id", gameId);
   return error ? { error: error.message } : { ok: true };
 }
 
-// ── Challenges ────────────────────────────────────────────────────────────
-
 export async function cancelChallenge(challengeId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("challenges")
-    .update({ status: "cancelled" })
-    .eq("id", challengeId);
+  await guardAdmin();
+  const { error } = await db().from("challenges").update({ status: "cancelled" }).eq("id", challengeId);
   return error ? { error: error.message } : { ok: true };
 }
 
 export async function deleteChallenge(challengeId: string): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("challenges").delete().eq("id", challengeId);
+  await guardAdmin();
+  const { error } = await db().from("challenges").delete().eq("id", challengeId);
   return error ? { error: error.message } : { ok: true };
 }
 
-// ── Actions massives ──────────────────────────────────────────────────────
+// ── Avertissements ────────────────────────────────────────────────────────────
 
-export async function deleteAllSpamContacts(): Promise<{ ok: boolean; count: number } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error, count } = await supabase
-    .from("contacts")
-    .delete({ count: "exact" })
-    .eq("status", "spam");
-  if (error) return { error: error.message };
-  return { ok: true, count: count ?? 0 };
+export async function deleteWarning(id: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("player_notifications").delete().eq("id", id);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function markWarningSeen(id: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("player_notifications").update({ seen: true }).eq("id", id);
+  return error ? { error: error.message } : { ok: true };
+}
+
+export async function deleteAllWarningsForPlayer(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("player_notifications").delete().eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Présence ──────────────────────────────────────────────────────────────────
+
+export async function kickPresence(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("presence").delete().eq("player_id", playerId);
+  return error ? { error: error.message } : { ok: true };
 }
 
 export async function clearAllPresence(): Promise<{ ok: boolean } | { error: string }> {
-  if (!await isAdmin()) return { error: "Non autorisé" };
-  const supabase = await createClient();
-  const { error } = await supabase.from("presence").delete().neq("player_id", "00000000-0000-0000-0000-000000000000");
+  await guardAdmin();
+  const { error } = await db()
+    .from("presence")
+    .delete()
+    .neq("player_id", "00000000-0000-0000-0000-000000000000");
   return error ? { error: error.message } : { ok: true };
-}
-
-// ── Logout ────────────────────────────────────────────────────────────────
-
-export async function adminLogout(): Promise<void> {
-  const store = await cookies();
-  store.delete("ea_admin");
 }

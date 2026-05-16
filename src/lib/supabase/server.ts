@@ -1,18 +1,32 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 /**
- * Client Supabase côté serveur — utilise le service role key.
- * Bypasse le RLS (la sécurité est garantie par getSession() dans chaque action).
- * Ne jamais exposer ce client côté browser.
+ * Client Supabase côté serveur — lit/écrit les cookies de session.
+ * Soumis au RLS via l'identité de l'utilisateur connecté.
+ * Utiliser pour : auth.getUser(), opérations nécessitant le contexte utilisateur.
  */
 export async function createClient() {
-  return createSupabaseClient(
+  const cookieStore = await cookies();
+
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // Server Components ne peuvent pas écrire des cookies — OK,
+            // le middleware s'en charge.
+          }
+        },
       },
     },
   );

@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSession, setSession, clearSession, verifyPassword, hashPassword } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getSession } from "@/lib/auth";
 import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
 
 export type SettingsState = { error?: string; success?: string } | null;
@@ -15,9 +16,9 @@ export async function updatePseudo(_prev: SettingsState, formData: FormData): Pr
   if (!newPseudo || newPseudo.length < 2) return { error: "Pseudo trop court (min 2 caractères)" };
   if (newPseudo === session.pseudo) return { error: "C'est déjà ton pseudo 😄" };
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  const { data: existing } = await supabase
+  const { data: existing } = await admin
     .from("players")
     .select("id")
     .eq("pseudo", newPseudo)
@@ -25,15 +26,14 @@ export async function updatePseudo(_prev: SettingsState, formData: FormData): Pr
 
   if (existing) return { error: "Ce pseudo est déjà pris" };
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("players")
     .update({ pseudo: newPseudo })
     .eq("id", session.playerId);
 
   if (error) return { error: "Erreur lors de la mise à jour" };
 
-  await supabase.from("presence").update({ pseudo: newPseudo }).eq("player_id", session.playerId);
-  await setSession(session.playerId, newPseudo);
+  await admin.from("presence").update({ pseudo: newPseudo }).eq("player_id", session.playerId);
 
   return { success: "Pseudo mis à jour !" };
 }
@@ -42,41 +42,26 @@ export async function updatePassword(_prev: SettingsState, formData: FormData): 
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const currentPassword = formData.get("current_password") as string;
   const newPassword = formData.get("new_password") as string;
+  if (!newPassword) return { error: "Remplis tous les champs" };
+  if (newPassword.length < 6) return { error: "Nouveau mot de passe trop court (min 6 caractères)" };
 
-  if (!currentPassword || !newPassword) return { error: "Remplis tous les champs" };
-  if (newPassword.length < 4) return { error: "Nouveau mot de passe trop court (min 4 caractères)" };
-
+  // Supabase Auth gère la vérification du mot de passe actuel via reauthentication
   const supabase = await createClient();
-
-  const { data: player } = await supabase
-    .from("players")
-    .select("password")
-    .eq("id", session.playerId)
-    .single();
-
-  if (!player) return { error: "Joueur introuvable" };
-
-  const valid = await verifyPassword(currentPassword, player.password);
-  if (!valid) return { error: "Mot de passe actuel incorrect" };
-
-  const hashed = await hashPassword(newPassword);
-  const { error } = await supabase.from("players").update({ password: hashed }).eq("id", session.playerId);
-  if (error) return { error: "Erreur lors de la mise à jour" };
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { error: error.message };
 
   return { success: "Mot de passe mis à jour !" };
 }
-
 
 export async function deleteAccount(): Promise<SettingsState> {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const { playerId } = session;
 
-  const { data: activeChallenges } = await supabase
+  const { data: activeChallenges } = await admin
     .from("challenges")
     .select("id, challenger_id, challenged_id")
     .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`)
@@ -84,7 +69,7 @@ export async function deleteAccount(): Promise<SettingsState> {
 
   if (activeChallenges && activeChallenges.length > 0) {
     const activeIds = activeChallenges.map((c) => c.id);
-    const { data: activeGames } = await supabase
+    const { data: activeGames } = await admin
       .from("games").select("id, challenge_id")
       .in("challenge_id", activeIds).eq("status", "playing");
 
@@ -92,11 +77,11 @@ export async function deleteAccount(): Promise<SettingsState> {
       const challenge = activeChallenges.find((c) => c.id === game.challenge_id);
       if (!challenge) continue;
       const winnerId = challenge.challenger_id === playerId ? challenge.challenged_id : challenge.challenger_id;
-      await supabase.from("games").update({ status: "finished", winner_id: winnerId }).eq("id", game.id);
+      await admin.from("games").update({ status: "finished", winner_id: winnerId }).eq("id", game.id);
     }
   }
 
-  const { data: allChallenges } = await supabase
+  const { data: allChallenges } = await admin
     .from("challenges")
     .select("id, challenger_id, challenged_id")
     .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`);
@@ -108,51 +93,43 @@ export async function deleteAccount(): Promise<SettingsState> {
   }
 
   if (challengeIds.length > 0) {
-    // Delete game secrets for all games of this player
-    const { data: gameRows } = await supabase.from("games").select("id").in("challenge_id", challengeIds);
-    const gameIds = (gameRows ?? []).map(g => g.id);
-    if (gameIds.length > 0) {
-      await supabase.from("game_secrets").delete().in("game_id", gameIds);
-    }
-    const { error: gErr } = await supabase.from("games").delete().in("challenge_id", challengeIds);
+    const { data: gameRows } = await admin.from("games").select("id").in("challenge_id", challengeIds);
+    const gameIds = (gameRows ?? []).map((g) => g.id);
+    if (gameIds.length > 0) await admin.from("game_secrets").delete().in("game_id", gameIds);
+    const { error: gErr } = await admin.from("games").delete().in("challenge_id", challengeIds);
     if (gErr) return { error: `Erreur: ${gErr.message}` };
-    const { error: cErr } = await supabase.from("challenges").delete().in("id", challengeIds);
+    const { error: cErr } = await admin.from("challenges").delete().in("id", challengeIds);
     if (cErr) return { error: `Erreur: ${cErr.message}` };
   }
 
   for (const opId of opponentIds) {
-    await recalculatePlayerLeaderboard(supabase, opId);
+    await recalculatePlayerLeaderboard(admin, opId);
   }
 
-  // Delete chat messages (lobby + rooms)
-  await supabase.from("lobby_chat").delete().eq("player_id", playerId);
-  await supabase.from("room_chat").delete().eq("player_id", playerId);
+  await admin.from("lobby_chat").delete().eq("player_id", playerId);
+  await admin.from("room_chat").delete().eq("player_id", playerId);
 
-  // Delete direct messages and conversations
-  const { data: convs } = await supabase
-    .from("conversations")
-    .select("id")
+  const { data: convs } = await admin
+    .from("conversations").select("id")
     .or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
-  const convIds = (convs ?? []).map(c => c.id);
+  const convIds = (convs ?? []).map((c) => c.id);
   if (convIds.length > 0) {
-    await supabase.from("direct_messages").delete().in("conversation_id", convIds);
-    await supabase.from("conversation_reads").delete().in("conversation_id", convIds);
-    await supabase.from("conversations").delete().or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
+    await admin.from("direct_messages").delete().in("conversation_id", convIds);
+    await admin.from("conversation_reads").delete().in("conversation_id", convIds);
+    await admin.from("conversations").delete().or(`p1_id.eq.${playerId},p2_id.eq.${playerId}`);
   }
 
-  // Delete blocks and reports initiated by this player
-  await supabase.from("blocks").delete().or(`blocker_id.eq.${playerId},blocked_id.eq.${playerId}`);
-  await supabase.from("reports").delete().eq("reporter_id", playerId);
+  await admin.from("blocks").delete().or(`blocker_id.eq.${playerId},blocked_id.eq.${playerId}`);
+  await admin.from("reports").delete().eq("reporter_id", playerId);
+  await admin.from("room_members").delete().eq("player_id", playerId);
+  await admin.from("push_subscriptions").delete().eq("player_id", playerId);
+  await admin.from("leaderboard").delete().eq("player_id", playerId);
+  await admin.from("presence").delete().eq("player_id", playerId);
 
-  // Delete room memberships and push subscriptions
-  await supabase.from("room_members").delete().eq("player_id", playerId);
-  await supabase.from("push_subscriptions").delete().eq("player_id", playerId);
+  // Supprimer le compte Supabase Auth (cascade sur players)
+  await admin.auth.admin.deleteUser(playerId);
 
-  await supabase.from("leaderboard").delete().eq("player_id", playerId);
-  await supabase.from("presence").delete().eq("player_id", playerId);
-  const { error: pErr } = await supabase.from("players").delete().eq("id", playerId);
-  if (pErr) return { error: `Erreur: ${pErr.message}` };
-
-  await clearSession();
+  const supabase = await createClient();
+  await supabase.auth.signOut();
   redirect("/login");
 }

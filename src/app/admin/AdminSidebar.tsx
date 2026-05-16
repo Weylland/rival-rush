@@ -1,7 +1,7 @@
 "use client";
 
 import { EA } from "@/lib/design";
-import { adminLogout } from "./actions";
+import { logout } from "@/app/(auth)/login/actions";
 import type { SectionMeta } from "./AdminShell";
 
 export type SectionId =
@@ -315,7 +315,7 @@ export function AdminSidebar({
             Session active
           </div>
         </div>
-        <form action={adminLogout}>
+        <form action={logout}>
           <button
             type="submit"
             title="Déconnexion"
