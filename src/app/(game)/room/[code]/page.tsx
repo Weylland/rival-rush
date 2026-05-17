@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { RoomClient } from "./RoomClient";
 
 export default async function RoomPage({ params }: { params: Promise<{ code: string }> }) {
@@ -9,9 +10,11 @@ export default async function RoomPage({ params }: { params: Promise<{ code: str
   if (!session) redirect("/login");
 
   const supabase = await createClient();
+  // Admin client bypasses column-level grants (password_hash on rooms, games RLS)
+  const admin = createAdminClient();
 
-  // Fetch room
-  const { data: room } = await supabase
+  // Fetch room via admin — SELECT * fails with user client due to password_hash column grant
+  const { data: room } = await admin
     .from("rooms").select("*").eq("code", code.toUpperCase()).maybeSingle();
 
   if (!room) notFound();
@@ -21,7 +24,7 @@ export default async function RoomPage({ params }: { params: Promise<{ code: str
     redirect("/room?expired=1");
   }
 
-  // Check membership — if not member, try to auto-join (public + open) or redirect to join
+  // Check membership — security check stays on user client (RLS enforced)
   const { data: membership } = await supabase
     .from("room_members").select("player_id")
     .eq("room_id", room.id).eq("player_id", session.playerId).maybeSingle();
@@ -48,13 +51,14 @@ export default async function RoomPage({ params }: { params: Promise<{ code: str
   const memberIds = (membersRaw ?? []).map(m => m.player_id as string);
 
   const [{ data: players }, { data: lbRows }, { data: presence }] = await Promise.all([
-    supabase.from("players").select("id, pseudo, avatar_url").in("id", memberIds),
+    // avatar_color needs the column grant — use admin to be safe
+    admin.from("players").select("id, pseudo, avatar_url, avatar_color").in("id", memberIds),
     supabase.from("leaderboard").select("player_id, wins, losses, draws, points").in("player_id", memberIds),
     supabase.from("presence").select("player_id, status, game_type").in("player_id", memberIds),
   ]);
 
-  // Room leaderboard — games tagged with this room_id
-  const { data: roomGames } = await supabase
+  // Room leaderboard — admin needed because games RLS only shows games you personally played
+  const { data: roomGames } = await admin
     .from("games")
     .select("winner_id, current_turn, state, game_type")
     .eq("room_id", room.id)
@@ -97,6 +101,7 @@ export default async function RoomPage({ params }: { params: Promise<{ code: str
       player_id: id,
       pseudo: (p?.pseudo as string) ?? "?",
       avatar_url: (p?.avatar_url as string | null) ?? null,
+      avatar_color: (p?.avatar_color as string | null) ?? null,
       joined_at: membersRaw?.find(m => m.player_id === id)?.joined_at as string ?? "",
       status: (pr?.status as "online" | "in-game") ?? "offline" as "online" | "in-game" | "offline",
       game_type: (pr?.game_type as string | null) ?? null,
