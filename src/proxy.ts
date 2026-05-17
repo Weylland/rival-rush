@@ -62,10 +62,10 @@ export async function proxy(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   // ── Maintenance mode ──────────────────────────────────────────────────────
-  // Les utilisateurs connectés passent toujours (admin ou participant déjà inscrit)
-  // Seuls les visiteurs non connectés voient la page maintenance
-  const MAINTENANCE_BYPASS = ["/maintenance", "/login", "/forgot-password", "/reset-password"];
-  const bypassMaintenance = user || MAINTENANCE_BYPASS.some((p) => pathname.startsWith(p));
+  // Bloque tout le monde sauf : la page maintenance elle-même, le login,
+  // et /admin (protégé par isAdmin() côté page — inaccessible aux non-admins)
+  const MAINTENANCE_BYPASS = ["/maintenance", "/login", "/forgot-password", "/reset-password", "/admin"];
+  const bypassMaintenance = MAINTENANCE_BYPASS.some((p) => pathname.startsWith(p));
 
   if (!bypassMaintenance && await isMaintenanceOn(supabase)) {
     return NextResponse.redirect(new URL("/maintenance", request.url));
