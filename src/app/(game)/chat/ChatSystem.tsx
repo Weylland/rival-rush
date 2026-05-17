@@ -51,6 +51,31 @@ export const useChatOpen = () => useContext(ChatCtx);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function playDmSound() {
+  try {
+    const ctx = new AudioContext();
+    // Deux notes courtes — "ding ding"
+    const notes = [1047, 1319]; // Do5, Mi5
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      const t = ctx.currentTime + i * 0.12;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.start(t);
+      osc.stop(t + 0.22);
+    });
+    setTimeout(() => ctx.close(), 800);
+  } catch {
+    // AudioContext non dispo (ex: SSR, navigateur restreint)
+  }
+}
+
 function fmtTime(iso: string) {
   const d = new Date(iso);
   const now = new Date();
@@ -133,6 +158,12 @@ export function ChatProvider({
   const dmRef       = useRef<HTMLDivElement>(null);
   const lobbyInput$ = useRef<HTMLInputElement>(null);
   const dmInput$    = useRef<HTMLInputElement>(null);
+  // Empêche le son pendant le chargement initial des messages
+  const soundReadyRef = useRef(false);
+  useEffect(() => {
+    const t = setTimeout(() => { soundReadyRef.current = true; }, 1500);
+    return () => clearTimeout(t);
+  }, []);
 
   // ── Back-gesture interception ─────────────────────────────────────────────
 
@@ -302,6 +333,16 @@ export function ChatProvider({
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (p) => {
         const msg = p.new as DMsg;
         if (msg.sender_id !== myId && blockedSet.has(msg.sender_id)) return;
+
+        // Son de notification pour les DMs reçus
+        if (
+          soundReadyRef.current &&
+          msg.sender_id !== myId &&
+          (!isOpen || activeConvId !== msg.conversation_id)
+        ) {
+          playDmSound();
+        }
+
         // Active conversation — replace any matching optimistic message instead of duplicating
         setActiveMessages(prev => {
           if (prev.length === 0 || prev[0].conversation_id !== msg.conversation_id) return prev;
@@ -337,7 +378,7 @@ export function ChatProvider({
       .subscribe();
 
     return () => { supabase.removeChannel(lobbyCh); supabase.removeChannel(dmCh); };
-  }, [myId, activeConvId, activeRoomId, loadConversations, blockedSet]);
+  }, [myId, activeConvId, activeRoomId, isOpen, loadConversations, blockedSet]);
 
   // ── Scroll to bottom ──────────────────────────────────────────────────────
 
