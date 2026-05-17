@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password", "/legal", "/contact", "/ios-pwa"];
+// /admin est public pour le middleware : la page gère elle-même l'auth (formulaire inline)
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password", "/legal", "/contact", "/ios-pwa", "/admin"];
 
 // ── Maintenance mode cache (évite un appel DB à chaque requête) ───────────────
 let maintenanceCache: { value: boolean; expiresAt: number } | null = null;
