@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { EA } from "@/lib/design";
 import { ScreenBg } from "@/components/ui/screen-bg";
 import { SvgBlob } from "@/components/ui/blob";
@@ -9,6 +10,13 @@ import { SettingsClient } from "./SettingsClient";
 export default async function SettingsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const { data: player } = await createAdminClient()
+    .from("players")
+    .select("avatar_color")
+    .eq("id", session.playerId)
+    .single();
+  const initialAvatarColor: string = (player as { avatar_color?: string | null })?.avatar_color ?? "#00D4E8";
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden" }}>
@@ -42,7 +50,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <SettingsClient initialPseudo={session.pseudo} initialAvatarUrl={session.avatarUrl} isGuest={session.isGuest} />
+        <SettingsClient initialPseudo={session.pseudo} initialAvatarUrl={session.avatarUrl} initialAvatarColor={initialAvatarColor} isGuest={session.isGuest} />
       </div>
     </div>
   );

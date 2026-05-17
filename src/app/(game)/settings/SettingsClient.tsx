@@ -144,13 +144,29 @@ const PRESETS = [
   "🌋","💣","🕷️","🦂","🦇","🦉","🐙","🧟","🧛","🎭",
 ];
 
+const BG_PRESETS = [
+  { color: "#00D4E8", label: "Cyan"     },
+  { color: "#FF1E8C", label: "Rose"     },
+  { color: "#FFE566", label: "Jaune"    },
+  { color: "#A855F7", label: "Violet"   },
+  { color: "#22C55E", label: "Vert"     },
+  { color: "#F97316", label: "Orange"   },
+  { color: "#3B82F6", label: "Bleu"     },
+  { color: "#EF4444", label: "Rouge"    },
+  { color: "#0A0218", label: "Nuit"     },
+  { color: "#FFFFFF", label: "Blanc"    },
+  { color: "#1A1A2E", label: "Marine"   },
+  { color: "#6B7280", label: "Gris"     },
+];
+
 interface Props {
   initialPseudo: string;
   initialAvatarUrl: string | null;
+  initialAvatarColor: string;
   isGuest: boolean;
 }
 
-export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Props) {
+export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarColor, isGuest }: Props) {
   const router = useRouter();
   const [pseudoState, pseudoAction, pseudoPending] = useActionState<SettingsState, FormData>(updatePseudo, null);
   const [pwState, pwAction, pwPending] = useActionState<SettingsState, FormData>(updatePassword, null);
@@ -163,6 +179,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Pro
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarColor, setAvatarColor] = useState(initialAvatarColor);
+  const [colorHex, setColorHex] = useState(initialAvatarColor);
+  const [colorSaving, setColorSaving] = useState(false);
+  const [colorSaved, setColorSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Crop modal state
@@ -315,6 +335,32 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Pro
     await saveAvatar(fd);
   }
 
+  async function saveColor(hex: string) {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    setColorSaving(true);
+    setColorSaved(false);
+    try {
+      const fd = new FormData();
+      fd.append("type", "color");
+      fd.append("color", hex);
+      const res = await fetch("/api/avatar", { method: "POST", body: fd, credentials: "include" });
+      if (res.ok) {
+        setAvatarColor(hex);
+        setColorHex(hex);
+        setColorSaved(true);
+        setTimeout(() => setColorSaved(false), 2000);
+      }
+    } finally {
+      setColorSaving(false);
+    }
+  }
+
+  function handleHexInput(raw: string) {
+    const val = raw.startsWith("#") ? raw : `#${raw}`;
+    setColorHex(val);
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) setAvatarColor(val);
+  }
+
   const currentEmoji = avatarUrl?.startsWith("preset:") ? avatarUrl.slice(7) : null;
   const [showAllPresets, setShowAllPresets] = useState(false);
 
@@ -329,7 +375,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Pro
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{
             width: 72, height: 72, borderRadius: "50%",
-            background: avatarUrl && !avatarUrl.startsWith("preset:") ? "transparent" : EA.violetDeep,
+            background: avatarUrl && !avatarUrl.startsWith("preset:") ? "transparent" : avatarColor,
             border: `2.5px solid ${EA.ink}`, flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: avatarUrl?.startsWith("preset:") ? 36 : 28,
@@ -431,6 +477,114 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, isGuest }: Pro
             {avatarError}
           </div>
         )}
+      </SectionCard>
+
+      {/* Couleur de fond */}
+      <SectionCard accent={EA.butter}>
+        <SectionTitle>🎨 Couleur de fond</SectionTitle>
+
+        {/* Presets */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8, marginBottom: 16 }}>
+          {BG_PRESETS.map(({ color, label }) => (
+            <button
+              key={color}
+              type="button"
+              title={label}
+              onClick={() => { setAvatarColor(color); setColorHex(color); }}
+              style={{
+                width: "100%",
+                aspectRatio: "1",
+                borderRadius: 10,
+                background: color,
+                border: `2.5px solid ${avatarColor === color ? EA.white : "rgba(255,255,255,0.15)"}`,
+                boxShadow: avatarColor === color ? `0 0 0 2px ${EA.cyan}` : "none",
+                cursor: "pointer",
+                transition: "border-color .1s, box-shadow .1s",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Color picker natif + hex input */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+          {/* Roue de couleur native */}
+          <label style={{ position: "relative", flexShrink: 0, cursor: "pointer" }} title="Ouvrir le sélecteur">
+            <div style={{
+              width: 44, height: 44, borderRadius: 10,
+              background: avatarColor,
+              border: `2.5px solid rgba(255,255,255,0.3)`,
+              boxShadow: `2px 2px 0 ${EA.ink}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18,
+            }}>🎨</div>
+            <input
+              type="color"
+              value={avatarColor}
+              onChange={e => { setAvatarColor(e.target.value); setColorHex(e.target.value); }}
+              style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", top: 0, left: 0, cursor: "pointer" }}
+            />
+          </label>
+
+          {/* Hex input */}
+          <div style={{ flex: 1, position: "relative" }}>
+            <span style={{
+              position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+              fontFamily: "var(--font-display)", fontSize: 15, color: "rgba(255,255,255,0.35)",
+            }}>#</span>
+            <input
+              type="text"
+              value={colorHex.replace(/^#/, "")}
+              onChange={e => handleHexInput(e.target.value)}
+              onBlur={() => saveColor(avatarColor)}
+              maxLength={7}
+              placeholder="00D4E8"
+              style={{
+                ...inputStyle(false),
+                paddingLeft: 30,
+                fontFamily: "var(--font-display)",
+                letterSpacing: 1.5,
+                textTransform: "uppercase",
+              }}
+            />
+          </div>
+
+          {/* Preview rond */}
+          <div style={{
+            width: 44, height: 44, borderRadius: "50%",
+            background: avatarColor,
+            border: `2.5px solid ${EA.ink}`,
+            boxShadow: `2px 2px 0 ${EA.ink}`,
+            flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "var(--font-display)", fontSize: 20, color: EA.ink,
+          }}>
+            {avatarUrl?.startsWith("preset:")
+              ? avatarUrl.slice(7)
+              : initialPseudo.charAt(0).toUpperCase()}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => saveColor(avatarColor)}
+          disabled={colorSaving}
+          style={{
+            fontFamily: "var(--font-display)", fontSize: 14,
+            color: EA.violetDeep,
+            background: colorSaved ? "#22C55E" : colorSaving ? "rgba(255,255,255,0.2)" : EA.butter,
+            border: `2px solid ${EA.ink}`,
+            borderRadius: 999, padding: "11px 24px",
+            cursor: colorSaving ? "wait" : "pointer",
+            boxShadow: colorSaving ? "none" : `3px 3px 0 ${EA.ink}`,
+            transform: "skewX(-4deg)", textTransform: "uppercase",
+            transition: "background .2s",
+            opacity: colorSaving ? 0.6 : 1,
+          }}
+        >
+          <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>
+            {colorSaved ? "✓ Sauvegardé" : colorSaving ? "..." : "Appliquer la couleur"}
+          </span>
+        </button>
       </SectionCard>
 
       {/* Pseudo */}

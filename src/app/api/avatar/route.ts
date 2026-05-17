@@ -24,6 +24,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, avatarUrl: null });
   }
 
+  if (type === "color") {
+    const color = formData.get("color") as string;
+    if (!color || !/^#[0-9A-Fa-f]{6}$/.test(color)) {
+      return NextResponse.json({ error: "Couleur invalide" }, { status: 400 });
+    }
+    await createAdminClient().from("players").update({ avatar_color: color }).eq("id", session.playerId);
+    return NextResponse.json({ ok: true, color });
+  }
+
   if (type === "upload") {
     const file = formData.get("file") as File | null;
     if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });
