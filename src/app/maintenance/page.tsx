@@ -105,18 +105,6 @@ export default function MaintenancePage() {
           RIVAL-RUSH.COM
         </div>
 
-        {/* Lien admin discret — comme WordPress */}
-        <a
-          href="/admin"
-          style={{
-            fontSize: 11, fontWeight: 600,
-            color: "rgba(255,255,255,0.12)",
-            textDecoration: "none",
-            letterSpacing: 0.5,
-          }}
-        >
-          ·
-        </a>
       </div>
 
       <style>{`

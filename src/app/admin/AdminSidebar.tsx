@@ -8,6 +8,7 @@ export type SectionId =
   | "dashboard"
   | "activity"
   | "players"
+  | "admins"
   | "warnings"
   | "presence"
   | "chats"

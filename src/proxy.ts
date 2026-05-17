@@ -62,13 +62,25 @@ export async function proxy(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   // ── Maintenance mode ──────────────────────────────────────────────────────
-  // Bloque tout le monde sauf : la page maintenance elle-même, le login,
-  // et /admin (protégé par isAdmin() côté page — inaccessible aux non-admins)
-  const MAINTENANCE_BYPASS = ["/maintenance", "/login", "/forgot-password", "/reset-password", "/admin"];
-  const bypassMaintenance = MAINTENANCE_BYPASS.some((p) => pathname.startsWith(p));
+  // /admin toujours accessible → gère sa propre auth (formulaire de login inline)
+  // /maintenance toujours accessible (c'est la page de destination)
+  // Tout le reste en maintenance → /maintenance
+  // Quand maintenance OFF → /maintenance redirige vers /lobby ou /login
+  const MAINTENANCE_ALWAYS_OPEN = ["/maintenance", "/admin"];
 
-  if (!bypassMaintenance && await isMaintenanceOn(supabase)) {
-    return NextResponse.redirect(new URL("/maintenance", request.url));
+  const maintenanceOn = await isMaintenanceOn(supabase);
+
+  if (maintenanceOn) {
+    const open = MAINTENANCE_ALWAYS_OPEN.some((p) => pathname.startsWith(p));
+    if (!open) {
+      return NextResponse.redirect(new URL("/maintenance", request.url));
+    }
+  } else {
+    if (pathname.startsWith("/maintenance")) {
+      return NextResponse.redirect(
+        new URL(user ? "/lobby" : "/login", request.url),
+      );
+    }
   }
 
   // ── Auth guard ────────────────────────────────────────────────────────────

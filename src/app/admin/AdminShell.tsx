@@ -17,6 +17,7 @@ import { WarningsClient } from "./WarningsClient";
 import { PresenceClient } from "./PresenceClient";
 import { GamesBrowserClient } from "./GamesBrowserClient";
 import { ChallengesClient } from "./ChallengesClient";
+import { AdminsClient } from "./AdminsClient";
 import type { Contact } from "./ContactsClient";
 import type { Report, ReportStatus } from "./ReportsClient";
 import type { ContactStatus } from "./actions";
@@ -48,10 +49,12 @@ export function AdminShell({
   players,
   contacts: initialContacts,
   reports: initialReports,
+  adminPlayerIds,
 }: {
   players: Player[];
   contacts: Contact[];
   reports: Report[];
+  adminPlayerIds: string[];
 }) {
   const [section, setSection] = useState<SectionId>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -174,6 +177,16 @@ export function AdminShell({
       accent: EA.violet,
       title: "Joueurs",
       subtitle: `${players.length} comptes inscrits`,
+    },
+    {
+      id: "admins",
+      group: "COMMUNAUTÉ",
+      label: "Admins",
+      icon: "👑",
+      badge: adminPlayerIds.length,
+      accent: EA.butter,
+      title: "Administrateurs",
+      subtitle: "Gérer les accès admin",
     },
     {
       id: "warnings",
@@ -419,6 +432,7 @@ export function AdminShell({
             {current.id === "dashboard" && <DashboardClient />}
             {current.id === "activity" && <ActivityClient />}
             {current.id === "players" && <AdminClient players={players} />}
+            {current.id === "admins" && <AdminsClient players={players} adminPlayerIds={adminPlayerIds} />}
             {current.id === "warnings" && <WarningsClient />}
             {current.id === "presence" && <PresenceClient />}
             {current.id === "chats" && <ChatAdminClient />}

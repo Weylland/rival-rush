@@ -1,8 +1,38 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recalculatePlayerLeaderboard } from "@/lib/leaderboard";
+
+export type AuthState = { error: string } | null;
+
+// ── Connexion admin (depuis /admin sans session) ───────────────────────────
+
+export async function signinToAdmin(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email    = (formData.get("email") as string)?.trim().toLowerCase();
+  const password = formData.get("password") as string;
+
+  if (!email || !password) return { error: "Remplis tous les champs" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    if (error.code === "invalid_credentials") return { error: "Email ou mot de passe incorrect" };
+    return { error: error.message };
+  }
+
+  // Vérifier que le compte est bien admin
+  const adminOk = await isAdmin();
+  if (!adminOk) {
+    await supabase.auth.signOut();
+    return { error: "Ce compte n'est pas administrateur" };
+  }
+
+  redirect("/admin");
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -381,5 +411,28 @@ export async function setMaintenanceMode(enabled: boolean): Promise<{ ok: boolea
   const { error } = await db()
     .from("site_settings")
     .upsert({ key: "maintenance_mode", value: enabled, updated_at: new Date().toISOString() });
+  return error ? { error: error.message } : { ok: true };
+}
+
+// ── Gestion des admins ────────────────────────────────────────────────────────
+
+export async function grantAdmin(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db().from("admins").insert({ player_id: playerId });
+  if (error) {
+    if (error.code === "23505") return { error: "Ce joueur est déjà admin" };
+    return { error: error.message };
+  }
+  return { ok: true };
+}
+
+export async function revokeAdmin(playerId: string): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  // Vérifier qu'il reste au moins un autre admin
+  const { count } = await db()
+    .from("admins")
+    .select("*", { count: "exact", head: true });
+  if ((count ?? 0) <= 1) return { error: "Impossible : dernier admin restant" };
+  const { error } = await db().from("admins").delete().eq("player_id", playerId);
   return error ? { error: error.message } : { ok: true };
 }

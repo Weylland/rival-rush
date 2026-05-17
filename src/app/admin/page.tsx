@@ -1,12 +1,23 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminShell } from "./AdminShell";
+import { AdminLoginPage } from "./AdminLoginPage";
 import type { Contact } from "./ContactsClient";
 import type { Report } from "./ReportsClient";
 
 export default async function AdminPage() {
-  if (!(await isAdmin())) {
+  const userIsAdmin = await isAdmin();
+
+  if (!userIsAdmin) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      // Non connecté → formulaire de connexion admin (accessible même en maintenance)
+      return <AdminLoginPage />;
+    }
+    // Connecté mais pas admin
     redirect("/lobby");
   }
 
@@ -17,6 +28,7 @@ export default async function AdminPage() {
     { data: lbRows },
     { data: contactRows },
     { data: reportRows },
+    { data: adminRows },
   ] = await Promise.all([
     supabase
       .from("players")
@@ -25,6 +37,7 @@ export default async function AdminPage() {
     supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
     supabase.from("contacts").select("*").order("created_at", { ascending: false }),
     supabase.from("reports").select("*").order("created_at", { ascending: false }),
+    supabase.from("admins").select("player_id"),
   ]);
 
   const lbMap = new Map((lbRows ?? []).map((r) => [r.player_id, r]));
@@ -57,11 +70,14 @@ export default async function AdminPage() {
     created_at: r.created_at as string,
   }));
 
+  const adminPlayerIds = (adminRows ?? []).map((r) => r.player_id as string);
+
   return (
     <AdminShell
       players={players}
       contacts={(contactRows ?? []) as Contact[]}
       reports={reports}
+      adminPlayerIds={adminPlayerIds}
     />
   );
 }
