@@ -40,12 +40,16 @@ export default async function RootLayout({
 
   let isInvisible = false;
   if (session) {
-    const { data: prefs } = await createAdminClient()
-      .from("players")
-      .select("is_invisible")
-      .eq("id", session.playerId)
-      .single();
-    isInvisible = (prefs as { is_invisible?: boolean | null } | null)?.is_invisible ?? false;
+    try {
+      const { data: prefs } = await createAdminClient()
+        .from("players")
+        .select("is_invisible")
+        .eq("id", session.playerId)
+        .single();
+      isInvisible = (prefs as { is_invisible?: boolean | null } | null)?.is_invisible ?? false;
+    } catch {
+      // Column may not exist yet — default to visible
+    }
   }
 
   return (
