@@ -51,10 +51,25 @@ export const useChatOpen = () => useContext(ChatCtx);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// AudioContext singleton — créé lors du premier geste utilisateur
+let _audioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext | null {
+  try {
+    if (!_audioCtx) _audioCtx = new AudioContext();
+    return _audioCtx;
+  } catch { return null; }
+}
+
+function unlockAudio() {
+  const ctx = getAudioCtx();
+  if (ctx && ctx.state === "suspended") ctx.resume();
+}
+
 function playDmSound() {
   try {
-    const ctx = new AudioContext();
-    // Deux notes courtes — "ding ding"
+    const ctx = getAudioCtx();
+    if (!ctx || ctx.state === "suspended") return;
     const notes = [1047, 1319]; // Do5, Mi5
     notes.forEach((freq, i) => {
       const osc  = ctx.createOscillator();
@@ -70,10 +85,7 @@ function playDmSound() {
       osc.start(t);
       osc.stop(t + 0.22);
     });
-    setTimeout(() => ctx.close(), 800);
-  } catch {
-    // AudioContext non dispo (ex: SSR, navigateur restreint)
-  }
+  } catch {}
 }
 
 function fmtTime(iso: string) {
@@ -415,6 +427,7 @@ export function ChatProvider({
     e.preventDefault();
     const txt = lobbyInput.trim();
     if (!txt || sendingLobby) return;
+    unlockAudio();
     setLobbyInput("");
     startLobby(async () => {
       if (activeRoomId) await sendRoomMessage(activeRoomId, txt);
@@ -428,6 +441,7 @@ export function ChatProvider({
     if (!activeConvId) return;
     const txt = dmInput.trim();
     if (!txt || sendingDm) return;
+    unlockAudio();
     setDmInput("");
     // Optimistic
     const optimistic: DMsg = {
@@ -456,7 +470,7 @@ export function ChatProvider({
       {/* Floating chat button — bas-gauche mobile, bas-droite desktop */}
       <button
         aria-label="Ouvrir le chat"
-        onClick={() => { if (isOpen) closeChat(); else setIsOpen(true); }}
+        onClick={() => { unlockAudio(); if (isOpen) closeChat(); else setIsOpen(true); }}
         style={{
           position: "fixed",
           bottom: 20,
