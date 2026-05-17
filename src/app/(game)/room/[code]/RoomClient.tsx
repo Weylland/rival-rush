@@ -31,6 +31,12 @@ interface Member {
   roomWins: number; roomLosses: number; roomDraws: number; roomPoints: number;
 }
 
+const PODIUM_STYLES = [
+  { border: "#FFD700", shadow: "3px 3px 0 #FFD700", bg: "rgba(255,215,0,0.1)" },
+  { border: "#C0C0C0", shadow: "3px 3px 0 #C0C0C0", bg: "rgba(192,192,192,0.08)" },
+  { border: "#CD7F32", shadow: "3px 3px 0 #CD7F32", bg: "rgba(205,127,50,0.10)" },
+] as const;
+
 // ── Countdown ─────────────────────────────────────────────────────────────────
 
 function useCountdown(expiresAt: string | null) {
@@ -256,6 +262,13 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
   const me = members.find(m => m.player_id === myPlayerId);
   const rankedMembers = [...members].sort((a, b) => b.roomPoints - a.roomPoints || b.roomWins - a.roomWins);
 
+  // Local podium: only players who have actually played in this room
+  const localRankMap = new Map<string, 0 | 1 | 2>();
+  rankedMembers
+    .filter(m => m.roomWins + m.roomLosses + m.roomDraws > 0)
+    .slice(0, 3)
+    .forEach((m, i) => localRankMap.set(m.player_id, i as 0 | 1 | 2));
+
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.55) 1.4px, transparent 1.8px)", backgroundSize: "16px 16px" }} />
@@ -316,7 +329,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
             marginBottom: 16,
             boxShadow: `3px 3px 0 ${EA.cyan}`,
           }}>
-            <Avatar name={myPseudo} src={me.avatar_url} color={EA.cyan} ring={EA.pink} size={desktop ? 40 : 32} />
+            <Avatar name={myPseudo} src={me.avatar_url} color={me.avatar_color ?? EA.cyan} ring={EA.pink} size={desktop ? 40 : 32} podiumRank={localRankMap.get(myPlayerId)} />
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Mes stats dans cette salle</div>
               <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
@@ -383,13 +396,16 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                 { label: "⚠️ Signaler", action: () => { setReportTarget({ id: m.player_id, pseudo: m.pseudo }); setReportReason(""); setReportSent(false); setMemberMenu(null); }, color: EA.pink },
               ];
 
+              const localRank = localRankMap.get(m.player_id);
+              const podium = !isBlocked && !offline && localRank !== undefined ? PODIUM_STYLES[localRank] : null;
+
               return (
                 <div key={m.player_id} style={{
                   background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
-                  border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : EA.ink}`,
+                  border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
                   borderRadius: 20, padding: desktop ? "14px 18px" : "11px 14px",
                   display: "flex", alignItems: "center", gap: 12,
-                  boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${shadowColor}`,
+                  boxShadow: isBlocked || offline ? "none" : podium ? podium.shadow : `4px 4px 0 ${shadowColor}`,
                   transform: isBlocked || offline ? "none" : i % 2 === 0 ? "rotate(-0.5deg)" : "rotate(0.4deg)",
                   opacity: isBlocked ? 0.4 : offline ? 0.6 : 1,
                 }}>
@@ -398,6 +414,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                     color={offline ? "rgba(255,255,255,0.2)" : (m.avatar_color ?? EA.cyan)}
                     ring={offline ? "transparent" : i % 2 === 0 ? EA.pink : EA.cyan}
                     size={desktop ? 50 : 40}
+                    podiumRank={!offline ? localRank : undefined}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -477,21 +494,23 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
               const isMe = m.player_id === myPlayerId;
               const isExpanded = expandedRankId === m.player_id || (expandedRankId === null && i === 0);
               const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+              const localRank = localRankMap.get(m.player_id);
+              const podium = localRank !== undefined ? PODIUM_STYLES[localRank] : null;
               return (
                 <div
                   key={m.player_id}
                   onClick={() => setExpandedRankId(isExpanded ? null : m.player_id)}
                   style={{
-                    background: isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
-                    border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                    background: podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
+                    border: `2.5px solid ${podium ? podium.border : isMe ? EA.cyan : EA.ink}`,
                     borderRadius: 18, padding: desktop ? "12px 16px" : "10px 14px",
-                    boxShadow: i === 0 ? `3px 3px 0 ${EA.butter}` : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                    boxShadow: podium ? podium.shadow : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
                     cursor: "pointer",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
-                    <Avatar name={m.pseudo} src={m.avatar_url} color={m.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                    <Avatar name={m.pseudo} src={m.avatar_url} color={m.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} podiumRank={localRank} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {m.pseudo.toUpperCase()}
