@@ -442,6 +442,11 @@ export async function grantAdmin(playerId: string): Promise<{ ok: boolean } | { 
 
 export async function revokeAdmin(playerId: string): Promise<{ ok: boolean } | { error: string }> {
   await guardAdmin();
+  // Compte principal protégé — impossible de le révoquer
+  const superAdminId = process.env.SUPER_ADMIN_ID;
+  if (superAdminId && playerId === superAdminId) {
+    return { error: "Ce compte est protégé et ne peut pas être révoqué" };
+  }
   const supabase = db();
   // Vérifier qu'il reste au moins un autre admin
   const { count } = await supabase

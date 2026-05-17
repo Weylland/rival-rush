@@ -76,6 +76,7 @@ export default async function AdminPage() {
   }));
 
   const adminPlayerIds = (adminRows ?? []).map((r) => r.player_id as string);
+  const superAdminId = process.env.SUPER_ADMIN_ID ?? null;
 
   return (
     <AdminShell
@@ -83,6 +84,7 @@ export default async function AdminPage() {
       contacts={(contactRows ?? []) as Contact[]}
       reports={reports}
       adminPlayerIds={adminPlayerIds}
+      superAdminId={superAdminId}
     />
   );
 }

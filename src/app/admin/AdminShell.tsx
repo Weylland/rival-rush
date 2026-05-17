@@ -50,11 +50,13 @@ export function AdminShell({
   contacts: initialContacts,
   reports: initialReports,
   adminPlayerIds,
+  superAdminId,
 }: {
   players: Player[];
   contacts: Contact[];
   reports: Report[];
   adminPlayerIds: string[];
+  superAdminId: string | null;
 }) {
   const [section, setSection] = useState<SectionId>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -432,7 +434,7 @@ export function AdminShell({
             {current.id === "dashboard" && <DashboardClient />}
             {current.id === "activity" && <ActivityClient />}
             {current.id === "players" && <AdminClient players={players} />}
-            {current.id === "admins" && <AdminsClient players={players} adminPlayerIds={adminPlayerIds} />}
+            {current.id === "admins" && <AdminsClient players={players} adminPlayerIds={adminPlayerIds} superAdminId={superAdminId} />}
             {current.id === "warnings" && <WarningsClient />}
             {current.id === "presence" && <PresenceClient />}
             {current.id === "chats" && <ChatAdminClient />}
