@@ -174,6 +174,48 @@ export function AdminHeader({
           flexShrink: 0,
         }}
       >
+        {/* Lien vers le site */}
+        <a
+          href="/lobby"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Ouvrir le site"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 14px",
+            background: "rgba(0,212,232,0.08)",
+            border: `1.5px solid rgba(0,212,232,0.25)`,
+            borderRadius: 999,
+            textDecoration: "none",
+            transition: "all .15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,212,232,0.18)";
+            e.currentTarget.style.borderColor = "rgba(0,212,232,0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(0,212,232,0.08)";
+            e.currentTarget.style.borderColor = "rgba(0,212,232,0.25)";
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: EA.cyan }}>
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+          <span style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 11, fontWeight: 900,
+            color: EA.cyan,
+            textTransform: "uppercase",
+            letterSpacing: 0.8,
+          }}>
+            Site
+          </span>
+        </a>
+
         {alerts > 0 && (
           <div
             style={{
