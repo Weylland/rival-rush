@@ -15,12 +15,12 @@ export async function POST(req: Request) {
     const emoji = formData.get("emoji") as string;
     if (!emoji) return NextResponse.json({ error: "Missing emoji" }, { status: 400 });
     const avatarUrl = `preset:${emoji}`;
-    await supabase.from("players").update({ avatar_url: avatarUrl }).eq("id", session.playerId);
+    await createAdminClient().from("players").update({ avatar_url: avatarUrl }).eq("id", session.playerId);
     return NextResponse.json({ ok: true, avatarUrl });
   }
 
   if (type === "remove") {
-    await supabase.from("players").update({ avatar_url: null }).eq("id", session.playerId);
+    await createAdminClient().from("players").update({ avatar_url: null }).eq("id", session.playerId);
     return NextResponse.json({ ok: true, avatarUrl: null });
   }
 
@@ -51,10 +51,8 @@ export async function POST(req: Request) {
     if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
     const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    // Cache-bust
     const avatarUrl = `${publicUrl}?v=${Date.now()}`;
 
-    await supabase.from("players").update({ avatar_url: publicUrl }).eq("id", session.playerId);
     await createAdminClient().from("players").update({ avatar_url: avatarUrl }).eq("id", session.playerId);
     return NextResponse.json({ ok: true, avatarUrl });
   }
