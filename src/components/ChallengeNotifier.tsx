@@ -132,10 +132,12 @@ export function ChallengeNotifier({ playerId }: Props) {
           event: "INSERT",
           schema: "public",
           table: "challenges",
-          filter: `challenged_id=eq.${playerId}`,
+          // No server-side filter: RLS (challenged_id=auth.uid() OR challenger_id=auth.uid())
+          // handles who receives the event. We guard client-side below.
         },
         async (payload) => {
-          const c = payload.new as { id: string; challenger_id: string; game_type: GameType; status: string; expires_at: string };
+          const c = payload.new as { id: string; challenger_id: string; challenged_id: string; game_type: GameType; status: string; expires_at: string };
+          if (c.challenged_id !== playerId) return; // not for us
           if (c.status !== "pending") return;
           const { data: challenger } = await supabase
             .from("players")
@@ -185,11 +187,12 @@ export function ChallengeNotifier({ playerId }: Props) {
           event: "UPDATE",
           schema: "public",
           table: "challenges",
-          filter: `challenged_id=eq.${playerId}`,
+          // No server-side filter — same reasoning as INSERT above
         },
         (payload) => {
           // If the challenger cancels or the challenge expires, dismiss the modal
-          const c = payload.new as { id: string; status: string };
+          const c = payload.new as { id: string; challenged_id: string; status: string };
+          if (c.challenged_id !== playerId) return;
           setIncoming((current) => (current && current.id === c.id && c.status !== "pending" ? null : current));
         },
       )
