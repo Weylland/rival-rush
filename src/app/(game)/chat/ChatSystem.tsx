@@ -158,6 +158,9 @@ export function ChatProvider({
   const [activeMessages, setActiveMessages] = useState<DMsg[]>([]);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
   const [showNewDm, setShowNewDm]         = useState(false);
+  const [dmSearch, setDmSearch]           = useState("");
+  const [dmAllPlayers, setDmAllPlayers]   = useState<OnlinePlayer[]>([]);
+  const [dmLoading, setDmLoading]         = useState(false);
 
   const [lobbyInput, setLobbyInput]       = useState("");
   const [dmInput, setDmInput]             = useState("");
@@ -318,6 +321,33 @@ export function ChatProvider({
       .neq("player_id", myId);
     if (data) setOnlinePlayers(data.filter(p => !blockedSet.has(p.player_id)));
   }, [myId, blockedSet]);
+
+  // ── Lazy-load all players for new DM panel ────────────────────────────────
+
+  useEffect(() => {
+    if (!showNewDm) { setDmSearch(""); return; }
+    setDmLoading(true);
+    const supabase = createClient();
+    supabase
+      .from("players")
+      .select("id, pseudo, avatar_url, avatar_color")
+      .neq("id", myId)
+      .then(({ data }) => {
+        if (data) {
+          setDmAllPlayers(
+            data
+              .filter(p => !blockedSet.has(p.id as string))
+              .map(p => ({
+                player_id: p.id as string,
+                pseudo: p.pseudo as string,
+                avatar_url: (p.avatar_url as string | null) ?? null,
+                avatar_color: (p.avatar_color as string | null) ?? null,
+              }))
+          );
+        }
+        setDmLoading(false);
+      });
+  }, [showNewDm, myId, blockedSet]);
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -742,50 +772,97 @@ export function ChatProvider({
         )}
 
         {/* ── DMs tab — nouvelle conversation ── */}
-        {!activeConvId && tab === "dms" && showNewDm && (
-          <>
-            <div style={{ padding: "12px 18px 8px", borderBottom: `1px solid rgba(255,255,255,0.08)` }}>
-              <button
-                onClick={() => setShowNewDm(false)}
-                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer", fontFamily: "var(--font-sans)", fontWeight: 700 }}
-              >← Retour</button>
-            </div>
-            <div style={{ padding: "12px 18px 8px" }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>
-                Joueurs disponibles
-              </div>
-            </div>
-            <div style={{ flex: 1, overflowY: "auto" }}>
-              {onlinePlayers.length === 0 && (
-                <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px" }}>
-                  Aucun joueur en ligne pour l'instant.
-                </div>
-              )}
-              {onlinePlayers.map(p => (
+        {!activeConvId && tab === "dms" && showNewDm && (() => {
+          const onlineIds = new Set(onlinePlayers.map(p => p.player_id));
+          const q = dmSearch.trim().toLowerCase();
+          const filtered = dmAllPlayers
+            .filter(p => !q || p.pseudo.toLowerCase().includes(q))
+            .sort((a, b) => {
+              const ao = onlineIds.has(a.player_id), bo = onlineIds.has(b.player_id);
+              if (ao !== bo) return ao ? -1 : 1;
+              return a.pseudo.localeCompare(b.pseudo);
+            });
+          return (
+            <>
+              <div style={{ padding: "12px 18px 8px", borderBottom: `1px solid rgba(255,255,255,0.08)` }}>
                 <button
-                  key={p.player_id}
-                  onClick={() => handleStartDm(p)}
-                  disabled={pendingDm}
+                  onClick={() => setShowNewDm(false)}
+                  style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer", fontFamily: "var(--font-sans)", fontWeight: 700 }}
+                >← Retour</button>
+              </div>
+              {/* Search input */}
+              <div style={{ padding: "10px 14px", borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Rechercher un joueur…"
+                  value={dmSearch}
+                  onChange={e => setDmSearch(e.target.value)}
                   style={{
-                    width: "100%", display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 18px",
-                    background: "none", border: "none",
-                    borderBottom: `1px solid rgba(255,255,255,0.06)`,
-                    cursor: "pointer",
-                    transition: "background 0.15s",
+                    width: "100%", boxSizing: "border-box",
+                    background: "rgba(255,255,255,0.07)",
+                    border: `1.5px solid ${dmSearch ? EA.cyan : "rgba(255,255,255,0.15)"}`,
+                    borderRadius: 10, padding: "8px 12px",
+                    fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
+                    color: EA.white, outline: "none",
+                    transition: "border-color 0.15s",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
-                >
-                  <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.avatar_color ?? EA.cyan} size={36} />
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-3deg)" }}>
-                    {p.pseudo.toUpperCase()}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+                />
+              </div>
+              <div style={{ flex: 1, overflowY: "auto" }}>
+                {dmLoading && (
+                  <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px" }}>
+                    Chargement…
+                  </div>
+                )}
+                {!dmLoading && filtered.length === 0 && (
+                  <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "24px" }}>
+                    {q ? `Aucun joueur pour "${q}"` : "Aucun autre joueur inscrit."}
+                  </div>
+                )}
+                {!dmLoading && filtered.map(p => {
+                  const isOnline = onlineIds.has(p.player_id);
+                  return (
+                    <button
+                      key={p.player_id}
+                      onClick={() => handleStartDm(p)}
+                      disabled={pendingDm}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 12,
+                        padding: "10px 18px",
+                        background: "none", border: "none",
+                        borderBottom: `1px solid rgba(255,255,255,0.06)`,
+                        cursor: "pointer",
+                        transition: "background 0.15s",
+                        opacity: pendingDm ? 0.6 : 1,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+                    >
+                      <div style={{ position: "relative", flexShrink: 0 }}>
+                        <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.avatar_color ?? EA.cyan} size={34} />
+                        <span style={{
+                          position: "absolute", bottom: 0, right: 0,
+                          width: 9, height: 9, borderRadius: "50%",
+                          background: isOnline ? "#1ee29a" : "rgba(255,255,255,0.2)",
+                          border: `1.5px solid ${EA.violetDeep}`,
+                        }} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {p.pseudo.toUpperCase()}
+                        </div>
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: isOnline ? "#1ee29a" : "rgba(255,255,255,0.3)", marginTop: 1 }}>
+                          {isOnline ? "En ligne" : "Hors ligne"}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
 
         {/* ── Conversation view ── */}
         {activeConvId && (
