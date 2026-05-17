@@ -68,6 +68,7 @@ function unlockAudio() {
 
 function playDmSound() {
   try {
+    if (localStorage.getItem("ea_sounds_enabled") === "false") return;
     const ctx = getAudioCtx();
     if (!ctx || ctx.state === "suspended") return;
     const notes = [1047, 1319]; // Do5, Mi5

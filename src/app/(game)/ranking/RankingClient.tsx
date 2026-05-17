@@ -20,6 +20,12 @@ interface Props {
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
+
+const PODIUM_STYLES = [
+  { border: "#FFD700", shadow: "#FFD700", bg: "rgba(255,215,0,0.08)" },   // 🥇 or
+  { border: "#C0C0C0", shadow: "#C0C0C0", bg: "rgba(192,192,192,0.07)" }, // 🥈 argent
+  { border: "#CD7F32", shadow: "#CD7F32", bg: "rgba(205,127,50,0.08)" },  // 🥉 bronze
+] as const;
 const TAB_LABELS: Record<Tab, string> = {
   global:     "🏆 Classement global",
   pfc:        "✊ Pierre Feuille Ciseaux",
@@ -190,15 +196,22 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         {rows.map((row, i) => {
           const isMe = row.playerId === myPlayerId;
           const isExpanded = expandedId === row.playerId || (expandedId === null && i === 0);
+          const podium = i < 3 ? PODIUM_STYLES[i] : null;
+
+          const borderColor = podium ? podium.border : isMe ? EA.cyan : EA.ink;
+          const shadowColor = podium ? podium.shadow : isMe ? EA.cyan : EA.ink;
+          const shadowSize  = podium ? "3px 3px" : isMe ? "3px 3px" : "2px 2px";
+          const bgColor     = podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep;
+
           return (
             <div
               key={row.playerId}
               onClick={() => setExpandedId(isExpanded ? null : row.playerId)}
               style={{
-                background: isMe ? `rgba(0,212,232,0.12)` : EA.violetDeep,
-                border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                background: bgColor,
+                border: `2.5px solid ${borderColor}`,
                 borderRadius: 18, padding: "12px 16px",
-                boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                boxShadow: `${shadowSize} 0 ${shadowColor}`,
                 cursor: "pointer",
                 transition: "box-shadow 0.15s",
               }}
