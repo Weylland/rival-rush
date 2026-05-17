@@ -34,7 +34,7 @@ REVOKE SELECT ON public.players FROM anon, authenticated;
 
 -- Accorder uniquement les colonnes publiques
 -- (password reste visible uniquement par service_role)
-GRANT SELECT (id, pseudo, avatar_url, created_at) ON public.players TO anon, authenticated;
+GRANT SELECT (id, pseudo, avatar_url, avatar_color, created_at) ON public.players TO anon, authenticated;
 
 -- RLS : tout le monde peut voir la liste des joueurs (mais seulement les colonnes accordées)
 CREATE POLICY "players_select"
