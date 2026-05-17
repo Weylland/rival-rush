@@ -24,7 +24,7 @@ interface RoomInfo {
 }
 
 interface Member {
-  player_id: string; pseudo: string; avatar_url: string | null;
+  player_id: string; pseudo: string; avatar_url: string | null; avatar_color?: string | null;
   joined_at: string; status: "online" | "in-game" | "offline";
   game_type: string | null;
   globalWins: number; globalLosses: number; globalPoints: number;
@@ -160,7 +160,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 
   // Invite players panel
   const [showInvite, setShowInvite] = useState(false);
-  const [onlinePlayers, setOnlinePlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null; offline?: boolean }[]>([]);
+  const [onlinePlayers, setOnlinePlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null; avatar_color?: string | null; offline?: boolean }[]>([]);
   const [inviteSearch, setInviteSearch] = useState("");
   const [invitePending, setInvitePending] = useState<Set<string>>(new Set());
   const [inviteSent, setInviteSent] = useState<Set<string>>(new Set());
@@ -211,7 +211,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
     const supabase = createClient();
     const memberIds = new Set(members.map(m => m.player_id));
     Promise.all([
-      supabase.from("players").select("id, pseudo, avatar_url").neq("id", myPlayerId),
+      supabase.from("players").select("id, pseudo, avatar_url, avatar_color").neq("id", myPlayerId),
       supabase.from("presence").select("player_id"),
     ]).then(([{ data: allPlayers }, { data: presence }]) => {
       if (!allPlayers) return;
@@ -222,6 +222,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
           player_id: p.id as string,
           pseudo: p.pseudo as string,
           avatar_url: (p.avatar_url as string | null) ?? null,
+          avatar_color: (p.avatar_color as string | null) ?? null,
           offline: !onlineIds.has(p.id as string),
         }))
         .sort((a, b) => Number(a.offline) - Number(b.offline) || a.pseudo.localeCompare(b.pseudo));
@@ -394,7 +395,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                 }}>
                   <Avatar
                     name={m.pseudo} src={m.avatar_url}
-                    color={offline ? "rgba(255,255,255,0.2)" : i % 2 === 0 ? EA.cyan : EA.pink}
+                    color={offline ? "rgba(255,255,255,0.2)" : (m.avatar_color ?? EA.cyan)}
                     ring={offline ? "transparent" : i % 2 === 0 ? EA.pink : EA.cyan}
                     size={desktop ? 50 : 40}
                   />
@@ -490,7 +491,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
-                    <Avatar name={m.pseudo} src={m.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                    <Avatar name={m.pseudo} src={m.avatar_url} color={m.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {m.pseudo.toUpperCase()}
@@ -604,7 +605,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
               <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
                 {filtered.map(p => (
                   <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10, opacity: p.offline ? 0.65 : 1 }}>
-                    <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : EA.cyan} size={34} />
+                    <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : (p.avatar_color ?? EA.cyan)} size={34} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
                       {p.offline && (

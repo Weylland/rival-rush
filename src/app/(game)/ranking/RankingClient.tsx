@@ -118,17 +118,17 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
       });
   }, []);
 
-  const getTabRows = (): { playerId: string; pseudo: string; avatar_url?: string | null; wins: number; losses: number; draws: number; pts?: number }[] => {
+  const getTabRows = (): { playerId: string; pseudo: string; avatar_url?: string | null; avatar_color?: string | null; wins: number; losses: number; draws: number; pts?: number }[] => {
     if (tab === "global") {
       return entries
-        .map(e => ({ playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }))
+        .map(e => ({ playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, avatar_color: e.avatar_color, wins: e.wins, losses: e.losses, draws: e.draws, pts: e.points }))
         .filter(r => r.wins + r.losses + r.draws > 0);
     }
     const map = typeStats[tab];
     return entries
       .map(e => {
         const s = map.get(e.player_id) ?? { wins: 0, losses: 0, draws: 0 };
-        return { playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, ...s };
+        return { playerId: e.player_id, pseudo: e.pseudo, avatar_url: e.avatar_url, avatar_color: e.avatar_color, ...s };
       })
       .filter(r => r.wins + r.losses + r.draws > 0)
       .sort((a, b) => b.wins - a.wins || a.losses - b.losses);
@@ -222,7 +222,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 48px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                  <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={34} podiumRank={podium ? i as 0 | 1 | 2 : undefined} />
+                  <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={34} podiumRank={podium ? i as 0 | 1 | 2 : undefined} />
                   <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
                     {row.pseudo.toUpperCase()}
                     {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}

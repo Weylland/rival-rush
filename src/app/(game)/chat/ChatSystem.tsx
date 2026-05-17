@@ -21,11 +21,12 @@ interface LobbyMsg {
   id: string; player_id: string; pseudo: string;
   content: string; created_at: string;
   avatar_url?: string | null;
+  avatar_color?: string | null;
 }
 
 interface Conv {
   id: string; p1_id: string; p2_id: string;
-  otherPseudo: string; otherAvatarUrl: string | null;
+  otherPseudo: string; otherAvatarUrl: string | null; otherAvatarColor?: string | null;
   lastContent: string | null; lastAt: string | null; lastSenderId: string | null;
   unread: number;
 }
@@ -36,7 +37,7 @@ interface DMsg {
 }
 
 interface OnlinePlayer {
-  player_id: string; pseudo: string; avatar_url?: string | null;
+  player_id: string; pseudo: string; avatar_url?: string | null; avatar_color?: string | null;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -152,6 +153,7 @@ export function ChatProvider({
 
   const [lobbyMessages, setLobbyMessages] = useState<LobbyMsg[]>([]);
   const avatarCacheRef = useRef<Map<string, string | null>>(new Map());
+  const colorCacheRef  = useRef<Map<string, string | null>>(new Map());
   const [conversations, setConversations] = useState<Conv[]>([]);
   const [activeMessages, setActiveMessages] = useState<DMsg[]>([]);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
@@ -226,15 +228,16 @@ export function ChatProvider({
 
     const ids = [...new Set(msgs.map(m => m.player_id))];
     if (ids.length > 0) {
-      const { data: players } = await supabase.from("players").select("id, avatar_url").in("id", ids);
+      const { data: players } = await supabase.from("players").select("id, avatar_url, avatar_color").in("id", ids);
       for (const p of players ?? []) {
         avatarCacheRef.current.set(p.id, (p.avatar_url as string | null) ?? null);
+        colorCacheRef.current.set(p.id, (p.avatar_color as string | null) ?? null);
       }
     }
     setLobbyMessages(
       msgs
         .filter(m => !blockedSet.has(m.player_id))
-        .map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null }))
+        .map(m => ({ ...m, avatar_url: avatarCacheRef.current.get(m.player_id) ?? null, avatar_color: colorCacheRef.current.get(m.player_id) ?? null }))
     );
   }, [activeRoomId, blockedSet]);
 
@@ -252,7 +255,7 @@ export function ChatProvider({
     const partnerIds = rawConvs.map(c => c.p1_id === myId ? c.p2_id : c.p1_id);
 
     const [{ data: players }, { data: reads }, { data: lastMsgs }] = await Promise.all([
-      supabase.from("players").select("id, pseudo, avatar_url").in("id", partnerIds),
+      supabase.from("players").select("id, pseudo, avatar_url, avatar_color").in("id", partnerIds),
       supabase.from("conversation_reads").select("conversation_id, read_at").eq("player_id", myId),
       supabase.from("direct_messages").select("conversation_id, sender_id, content, created_at")
         .in("conversation_id", convIds).eq("deleted", false).order("created_at", { ascending: false }).limit(convIds.length * 3),
@@ -287,6 +290,7 @@ export function ChatProvider({
           id: c.id, p1_id: c.p1_id, p2_id: c.p2_id,
           otherPseudo: partner?.pseudo ?? "?",
           otherAvatarUrl: (partner?.avatar_url as string | null) ?? null,
+          otherAvatarColor: (partner?.avatar_color as string | null) ?? null,
           lastContent: lastMsg?.content ?? null,
           lastAt: lastMsg?.created_at ?? null,
           lastSenderId: lastMsg?.sender_id ?? null,
@@ -335,10 +339,11 @@ export function ChatProvider({
         const raw = p.new as LobbyMsg;
         if (blockedSet.has(raw.player_id)) return;
         if (!avatarCacheRef.current.has(raw.player_id)) {
-          const { data: player } = await supabase.from("players").select("avatar_url").eq("id", raw.player_id).maybeSingle();
+          const { data: player } = await supabase.from("players").select("avatar_url, avatar_color").eq("id", raw.player_id).maybeSingle();
           avatarCacheRef.current.set(raw.player_id, (player?.avatar_url as string | null) ?? null);
+          colorCacheRef.current.set(raw.player_id, (player?.avatar_color as string | null) ?? null);
         }
-        const msg: LobbyMsg = { ...raw, avatar_url: avatarCacheRef.current.get(raw.player_id) ?? null };
+        const msg: LobbyMsg = { ...raw, avatar_url: avatarCacheRef.current.get(raw.player_id) ?? null, avatar_color: colorCacheRef.current.get(raw.player_id) ?? null };
         setLobbyMessages(prev => [...prev.slice(-99), msg]);
       }).subscribe();
 
@@ -606,7 +611,7 @@ export function ChatProvider({
                 return (
                   <div key={m.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
                     {!isMe && (
-                      <Avatar name={m.pseudo} src={m.avatar_url ?? null} color={EA.cyan} size={28} />
+                      <Avatar name={m.pseudo} src={m.avatar_url ?? null} color={m.avatar_color ?? EA.cyan} size={28} />
                     )}
                     <div style={{ maxWidth: "75%" }}>
                       {!isMe && (
@@ -688,7 +693,7 @@ export function ChatProvider({
                   onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
                 >
                   <div style={{ position: "relative", flexShrink: 0 }}>
-                    <Avatar name={c.otherPseudo} src={c.otherAvatarUrl} color={EA.pink} size={40} />
+                    <Avatar name={c.otherPseudo} src={c.otherAvatarUrl} color={c.otherAvatarColor ?? EA.cyan} size={40} />
                     {c.unread > 0 && (
                       <span style={{
                         position: "absolute", top: -3, right: -3,
@@ -772,7 +777,7 @@ export function ChatProvider({
                   onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
                 >
-                  <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={EA.cyan} size={36} />
+                  <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.avatar_color ?? EA.cyan} size={36} />
                   <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-3deg)" }}>
                     {p.pseudo.toUpperCase()}
                   </span>

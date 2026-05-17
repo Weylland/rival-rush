@@ -32,6 +32,7 @@ interface LobbyPlayer {
   pseudo: string;
   status: "online" | "in-game" | "offline";
   avatar_url?: string | null;
+  avatar_color?: string | null;
   game_type?: string | null;
 }
 
@@ -121,7 +122,7 @@ function ChooseGameModal({
             borderRadius: 999, padding: "6px 18px 6px 6px",
             boxShadow: `3px 3px 0 ${EA.cyan}`,
           }}>
-            <Avatar name={opponent.pseudo} src={opponent.avatar_url} color={EA.cyan} ring={EA.pink} size={36} />
+            <Avatar name={opponent.pseudo} src={opponent.avatar_url} color={opponent.avatar_color ?? EA.cyan} ring={EA.pink} size={36} />
             <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
               {opponent.pseudo.toUpperCase()}
             </div>
@@ -291,7 +292,7 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
       <Avatar
         name={p.pseudo}
         src={p.avatar_url}
-        color={isBlocked ? "rgba(255,255,255,0.2)" : offline ? "rgba(255,255,255,0.2)" : idx % 2 === 0 ? EA.cyan : EA.pink}
+        color={isBlocked || offline ? "rgba(255,255,255,0.2)" : (p.avatar_color ?? EA.cyan)}
         ring={isBlocked || offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
         size={desktop ? 56 : 44}
         podiumRank={!isBlocked && !offline ? rank : undefined}
@@ -461,7 +462,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     initialPlayers.filter(p => p.player_id !== myPlayerId)
   );
   // All registered players (loaded async)
-  const [allPlayers, setAllPlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null }[]>([]);
+  const [allPlayers, setAllPlayers] = useState<{ player_id: string; pseudo: string; avatar_url?: string | null; avatar_color?: string | null }[]>([]);
   // Leaderboard stats par joueur
   const [lbStats, setLbStats] = useState<Map<string, { wins: number; losses: number; draws: number; points: number }>>(new Map());
 
@@ -477,7 +478,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
   const [mainTab, setMainTab] = useState<"joueurs" | "classement">("joueurs");
 
   // Ranking (inline)
-  const [rankEntries, setRankEntries] = useState<{ playerId: string; pseudo: string; avatar_url: string | null; wins: number; losses: number; draws: number; points: number }[]>([]);
+  const [rankEntries, setRankEntries] = useState<{ playerId: string; pseudo: string; avatar_url: string | null; avatar_color: string | null; wins: number; losses: number; draws: number; points: number }[]>([]);
   const [rankLoaded, setRankLoaded] = useState(false);
   const [expandedRankId, setExpandedRankId] = useState<string | null>(null);
 
@@ -488,12 +489,13 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       .then(async ({ data: rows }) => {
         if (!rows) return;
         const ids = rows.map((r: Record<string, unknown>) => r.player_id as string);
-        const { data: avatars } = await supabase.from("players").select("id, avatar_url").in("id", ids);
-        const avatarOf = Object.fromEntries((avatars ?? []).map(p => [p.id, p.avatar_url as string | null]));
+        const { data: avatars } = await supabase.from("players").select("id, avatar_url, avatar_color").in("id", ids);
+        const avatarOf = Object.fromEntries((avatars ?? []).map(p => [p.id, { avatar_url: p.avatar_url as string | null, avatar_color: p.avatar_color as string | null }]));
         setRankEntries(rows.map((r: Record<string, unknown>) => ({
           playerId: r.player_id as string,
           pseudo: r.pseudo as string,
-          avatar_url: avatarOf[r.player_id as string] ?? null,
+          avatar_url: avatarOf[r.player_id as string]?.avatar_url ?? null,
+          avatar_color: avatarOf[r.player_id as string]?.avatar_color ?? null,
           wins: r.wins as number,
           losses: r.losses as number,
           draws: r.draws as number,
@@ -559,8 +561,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     const supabase = createClient();
 
     // Load all registered players (for search + offline display)
-    supabase.from("players").select("id, pseudo, avatar_url").then(({ data }) => {
-      if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string, avatar_url: (p.avatar_url as string | null) ?? null })));
+    supabase.from("players").select("id, pseudo, avatar_url, avatar_color").then(({ data }) => {
+      if (data) setAllPlayers(data.map(p => ({ player_id: p.id as string, pseudo: p.pseudo as string, avatar_url: (p.avatar_url as string | null) ?? null, avatar_color: (p.avatar_color as string | null) ?? null })));
     });
 
     // Load leaderboard stats for all players
@@ -596,7 +598,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
     .filter(p => p.player_id !== myPlayerId)
     .map(p => {
       const presence = onlinePlayers.find(op => op.player_id === p.player_id);
-      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"], avatar_url: p.avatar_url ?? null, game_type: presence?.game_type ?? null };
+      return { player_id: p.player_id, pseudo: p.pseudo, status: (presence?.status ?? "offline") as LobbyPlayer["status"], avatar_url: p.avatar_url ?? null, avatar_color: p.avatar_color ?? null, game_type: presence?.game_type ?? null };
     })
     .sort((a, b) => {
       const order = { online: 0, "in-game": 1, offline: 2 };
@@ -935,7 +937,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
-                      <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                      <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {row.pseudo.toUpperCase()}
