@@ -153,6 +153,8 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
   const isHost = room.hostId === myPlayerId;
 
   const [members, setMembers] = useState<Member[]>(initialMembers);
+  // Sync when router.refresh() provides new server props
+  useEffect(() => { setMembers(initialMembers); }, [initialMembers]);
   const [tab, setTab] = useState<"members" | "ranking">(
     searchParams.get("tab") === "ranking" ? "ranking" : "members"
   );
