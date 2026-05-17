@@ -247,8 +247,14 @@ function ChooseGameModal({
 
 // ── Player row ────────────────────────────────────────────────────────────────
 
-function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, onReport, desktop, hasPush, stats }: {
-  p: LobbyPlayer; idx: number; isBlocked: boolean;
+const PODIUM_RANK_STYLES = [
+  { border: "#FFD700", glow: "0 0 18px #FFD70088, 0 0 6px #FFD70066", shadow: `4px 4px 0 #FFD700`, label: "🥇" },
+  { border: "#C0C0C0", glow: "0 0 18px #C0C0C088, 0 0 6px #C0C0C066", shadow: `4px 4px 0 #C0C0C0`, label: "🥈" },
+  { border: "#CD7F32", glow: "0 0 18px #CD7F3288, 0 0 6px #CD7F3266", shadow: `4px 4px 0 #CD7F32`, label: "🥉" },
+] as const;
+
+function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnblock, onReport, desktop, hasPush, stats }: {
+  p: LobbyPlayer; idx: number; rank?: 0 | 1 | 2; isBlocked: boolean;
   onChallenge: () => void; onDM: () => void;
   onBlock: () => void; onUnblock: () => void; onReport: () => void;
   desktop: boolean; hasPush: boolean;
@@ -258,6 +264,7 @@ function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, o
   const menuRef = useRef<HTMLDivElement>(null);
   const inGame  = p.status === "in-game";
   const offline = p.status === "offline";
+  const podium  = rank !== undefined ? PODIUM_RANK_STYLES[rank] : null;
   const shadowColor = isBlocked ? "transparent" : offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
 
   useEffect(() => {
@@ -271,15 +278,23 @@ function PlayerRow({ p, idx, isBlocked, onChallenge, onDM, onBlock, onUnblock, o
 
   return (
     <div style={{
+      position: "relative",
       background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
-      border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : EA.ink}`,
+      border: `${podium ? "3.5px" : "2.5px"} solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
       borderRadius: 22, padding: desktop ? "16px 20px" : "12px 14px",
       display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
-      boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${shadowColor}`,
+      boxShadow: isBlocked || offline ? "none" : podium ? `${podium.glow}, ${podium.shadow}` : `4px 4px 0 ${shadowColor}`,
       transform: isBlocked || offline ? "none" : idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
       opacity: isBlocked ? 0.45 : offline ? 0.6 : 1,
       transition: "opacity 0.2s",
     }}>
+      {podium && !isBlocked && !offline && (
+        <span style={{
+          position: "absolute", top: -10, right: 14,
+          fontSize: 20, lineHeight: 1,
+          filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.4))",
+        }}>{podium.label}</span>
+      )}
       <Avatar
         name={p.pseudo}
         src={p.avatar_url}
@@ -860,30 +875,38 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
         }}>
           {displayPlayers.length === 0 ? (
             <EmptyState searchQuery={searchQuery.trim()} showOffline={showOffline} onlineCount={onlineCount} />
-          ) : (
-            displayPlayers.map((p, i) => (
-              <PlayerRow
-                key={p.player_id}
-                p={p}
-                idx={i}
-                isBlocked={myBlocks.has(p.player_id)}
-                onChallenge={() => setChooseOpponent(p)}
-                onDM={() => openDM(p.player_id, p.pseudo)}
-                onBlock={() => {
-                  setMyBlocks(prev => new Set([...prev, p.player_id]));
-                  blockPlayer(p.player_id);
-                }}
-                onUnblock={() => {
-                  setMyBlocks(prev => { const next = new Set(prev); next.delete(p.player_id); return next; });
-                  unblockPlayer(p.player_id);
-                }}
-                onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
-                desktop={desktop}
-                hasPush={pushSubscriberIds.includes(p.player_id)}
-                stats={lbStats.get(p.player_id) ?? null}
-              />
-            ))
-          )}
+          ) : (() => {
+            const top3Ids = [...lbStats.entries()]
+              .sort((a, b) => b[1].points - a[1].points)
+              .slice(0, 3)
+              .map(([id]) => id);
+            return displayPlayers.map((p, i) => {
+              const rankIdx = top3Ids.indexOf(p.player_id);
+              return (
+                <PlayerRow
+                  key={p.player_id}
+                  p={p}
+                  idx={i}
+                  rank={rankIdx >= 0 ? (rankIdx as 0 | 1 | 2) : undefined}
+                  isBlocked={myBlocks.has(p.player_id)}
+                  onChallenge={() => setChooseOpponent(p)}
+                  onDM={() => openDM(p.player_id, p.pseudo)}
+                  onBlock={() => {
+                    setMyBlocks(prev => new Set([...prev, p.player_id]));
+                    blockPlayer(p.player_id);
+                  }}
+                  onUnblock={() => {
+                    setMyBlocks(prev => { const next = new Set(prev); next.delete(p.player_id); return next; });
+                    unblockPlayer(p.player_id);
+                  }}
+                  onReport={() => { setReportTarget({ id: p.player_id, pseudo: p.pseudo }); setReportReason(""); setReportSent(false); }}
+                  desktop={desktop}
+                  hasPush={pushSubscriberIds.includes(p.player_id)}
+                  stats={lbStats.get(p.player_id) ?? null}
+                />
+              );
+            });
+          })()}
         </div>
       )}
 

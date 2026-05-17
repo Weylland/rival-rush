@@ -22,9 +22,9 @@ interface Props {
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 const PODIUM_STYLES = [
-  { border: "#FFD700", shadow: "#FFD700", bg: "rgba(255,215,0,0.08)" },   // 🥇 or
-  { border: "#C0C0C0", shadow: "#C0C0C0", bg: "rgba(192,192,192,0.07)" }, // 🥈 argent
-  { border: "#CD7F32", shadow: "#CD7F32", bg: "rgba(205,127,50,0.08)" },  // 🥉 bronze
+  { border: "#FFD700", glow: "0 0 20px #FFD70099, 0 0 8px #FFD70055", shadow: "4px 4px 0 #FFD700", bg: "rgba(255,215,0,0.1)" },
+  { border: "#C0C0C0", glow: "0 0 20px #C0C0C099, 0 0 8px #C0C0C055", shadow: "4px 4px 0 #C0C0C0", bg: "rgba(192,192,192,0.08)" },
+  { border: "#CD7F32", glow: "0 0 20px #CD7F3299, 0 0 8px #CD7F3255", shadow: "4px 4px 0 #CD7F32", bg: "rgba(205,127,50,0.10)" },
 ] as const;
 const TAB_LABELS: Record<Tab, string> = {
   global:     "🏆 Classement global",
@@ -199,19 +199,21 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
           const podium = i < 3 ? PODIUM_STYLES[i] : null;
 
           const borderColor = podium ? podium.border : isMe ? EA.cyan : EA.ink;
-          const shadowColor = podium ? podium.shadow : isMe ? EA.cyan : EA.ink;
-          const shadowSize  = podium ? "3px 3px" : isMe ? "3px 3px" : "2px 2px";
           const bgColor     = podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep;
+          const boxShadow   = podium
+            ? `${podium.glow}, ${podium.shadow}`
+            : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`;
 
           return (
             <div
               key={row.playerId}
               onClick={() => setExpandedId(isExpanded ? null : row.playerId)}
               style={{
+                position: "relative",
                 background: bgColor,
-                border: `2.5px solid ${borderColor}`,
+                border: `${podium ? "3.5px" : "2.5px"} solid ${borderColor}`,
                 borderRadius: 18, padding: "12px 16px",
-                boxShadow: `${shadowSize} 0 ${shadowColor}`,
+                boxShadow,
                 cursor: "pointer",
                 transition: "box-shadow 0.15s",
               }}
