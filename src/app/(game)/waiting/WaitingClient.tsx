@@ -128,6 +128,24 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, opponentPseu
   const [, startTransition] = useTransition();
   const tip = getTip(gameType);
 
+  // Guard : si la partie existe déjà (retour arrière depuis /play ou /result)
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("games")
+      .select("id, game_type, status")
+      .eq("challenge_id", challengeId)
+      .maybeSingle()
+      .then(({ data: game }) => {
+        if (!game) return;
+        if (game.status === "finished") {
+          router.replace(`/result?game_id=${game.id}`);
+        } else {
+          router.replace(`/play/${game.game_type as string}?game_id=${game.id}`);
+        }
+      });
+  }, [challengeId, router]);
+
   useEffect(() => {
     const supabase = createClient();
     const sub = supabase
@@ -140,7 +158,7 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, opponentPseu
       }, (payload) => {
         const updated = payload.new as { status: string };
         if (updated.status === "declined" || updated.status === "cancelled") {
-          router.push("/lobby");
+          router.replace("/lobby");
         }
       })
       .on("postgres_changes", {
@@ -150,7 +168,8 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, opponentPseu
         filter: `challenge_id=eq.${challengeId}`,
       }, (payload) => {
         const game = payload.new as { id: string; game_type: GameType };
-        router.push(`/play/${game.game_type}?game_id=${game.id}`);
+        // replace : efface /waiting de l'historique → retour arrière = lobby
+        router.replace(`/play/${game.game_type}?game_id=${game.id}`);
       })
       .subscribe();
     return () => { supabase.removeChannel(sub); };
