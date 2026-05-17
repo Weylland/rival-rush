@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { EA } from "@/lib/design";
 
 interface AvatarProps {
@@ -15,6 +18,8 @@ export function Avatar({
   size = 44,
   ring = EA.pink,
 }: AvatarProps) {
+  const [imgError, setImgError] = useState(false);
+
   const circleStyle: React.CSSProperties = {
     width: size,
     height: size,
@@ -29,6 +34,7 @@ export function Avatar({
     overflow: "hidden",
   };
 
+  // Emoji preset
   if (src?.startsWith("preset:")) {
     return (
       <div style={circleStyle}>
@@ -39,19 +45,22 @@ export function Avatar({
     );
   }
 
-  if (src) {
+  // Image URL — avec fallback sur l'initiale si l'image échoue
+  if (src && !imgError) {
     return (
       <div style={{ ...circleStyle, padding: 0 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
           alt={name}
+          onError={() => setImgError(true)}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
       </div>
     );
   }
 
+  // Fallback initiale
   const initial = (name || "?").trim().charAt(0).toUpperCase();
   return (
     <div style={{ ...circleStyle, fontFamily: "var(--font-display)", fontSize: size * 0.45, color: EA.ink }}>
