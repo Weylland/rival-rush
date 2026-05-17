@@ -2,265 +2,332 @@
 
 import { useId } from "react";
 
-// Coordonnées polaires → cartésiennes (0° = haut, sens horaire)
-function pt(cx: number, cy: number, r: number, deg: number): [number, number] {
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Coordonnées d'un point sur un cercle (0° = haut, sens horaire, coords écran) */
+function xy(cx: number, cy: number, r: number, deg: number): [number, number] {
   const a = (deg - 90) * Math.PI / 180;
   return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
 }
-function s(cx: number, cy: number, r: number, deg: number) {
-  const [x, y] = pt(cx, cy, r, deg);
-  return `${x.toFixed(2)},${y.toFixed(2)}`;
+const f = (n: number) => n.toFixed(2);
+const p = (x: number, y: number) => `${f(x)},${f(y)}`;
+
+/** Arc SVG en C (fromDeg → toDeg en passant par le haut, grande arc horaire) */
+function arc(cx: number, cy: number, r: number, fromDeg: number, toDeg: number) {
+  const [sx, sy] = xy(cx, cy, r, fromDeg);
+  const [ex, ey] = xy(cx, cy, r, toDeg);
+  return `M ${p(sx, sy)} A ${f(r)} ${f(r)} 0 1 1 ${p(ex, ey)}`;
 }
 
-// ── Gold frame — 8 spikes + 4 diamonds ────────────────────────────────────────
+/**
+ * Corne organique pointant vers -y (haut) dans l'espace local.
+ * curlDx : décalage horizontal de la pointe (négatif = gauche, positif = droite)
+ */
+function horn(w: number, h: number, curlDx = 0): string {
+  const tx = curlDx, ty = -h;
+  return [
+    `M ${f(-w)},0`,
+    `C ${f(-w * 1.4)},${f(-h * 0.22)} ${f(tx - w * 0.4)},${f(-h * 0.72)} ${f(tx)},${f(ty)}`,
+    `C ${f(tx + w * 0.4)},${f(-h * 0.72)} ${f(w * 1.4)},${f(-h * 0.22)} ${f(w)},0`,
+    "Z",
+  ].join(" ");
+}
+
+/** Lame angulaire (pour silver) */
+function blade(w: number, h: number, lean: number): string {
+  return [
+    `M ${f(-w)},0`,
+    `L ${f(-w * 0.05 + lean)},${f(-h)}`,
+    `L ${f(w * 0.15 + lean)},${f(-h * 0.86)}`,
+    `L ${f(w)},0`,
+    "Z",
+  ].join(" ");
+}
+
+/** Goutte/teardrop arrondie (pour bronze) */
+function drop(w: number, h: number): string {
+  return [
+    `M ${f(-w)},0`,
+    `C ${f(-w * 1.3)},${f(-h * 0.28)} ${f(-w * 0.55)},${f(-h)} 0,${f(-h)}`,
+    `C ${f(w * 0.55)},${f(-h)} ${f(w * 1.3)},${f(-h * 0.28)} ${f(w)},0`,
+    "Z",
+  ].join(" ");
+}
+
+/** Losange */
+function gem(cx: number, cy: number, s: number): string {
+  return `M ${p(cx, cy - s)} L ${p(cx + s * 0.65, cy)} L ${p(cx, cy + s * 0.8)} L ${p(cx - s * 0.65, cy)} Z`;
+}
+
+// ─── Gold frame (🥇) ─────────────────────────────────────────────────────────
+// Grand C doré, 2 grandes cornes organiques vers le haut, gems aux cardinaux
 
 function GoldFrame({ cx, cy, aR, uid }: { cx: number; cy: number; aR: number; uid: string }) {
-  const thick = aR * 0.22;
-  const rI = aR + 3;
-  const rM = rI + thick / 2;
-  const rO = rI + thick;
-  const spike = aR * 0.45;
+  const thick = Math.max(4.5, aR * 0.21);
+  const rM    = aR + 4 + thick / 2;
 
-  // 8 spikes
-  const spikes = Array.from({ length: 8 }, (_, i) => {
-    const angle = i * 45;
-    const half = 11;
-    return `${s(cx, cy, rO + spike, angle)} ${s(cx, cy, rO - 1, angle - half)} ${s(cx, cy, rO - 1, angle + half)}`;
-  });
+  // Cornes à ±30° du sommet (330° et 30°)
+  // direction sortante = (deg - 90)° depuis +x → rotation template = outwardDeg - 270°
+  const hornDeg  = 32;
+  const lRot = (360 - hornDeg) - 90 - 270; // -30 → simplifié : -(hornDeg)
+  const rRot = hornDeg - 90 - 270 + 360;   // = hornDeg (ex: 32°)
+  const [lhx, lhy] = xy(cx, cy, rM, 360 - hornDeg);
+  const [rhx, rhy] = xy(cx, cy, rM, hornDeg);
+  const hW = aR * 0.25, hH = aR * 0.62;
 
-  // 4 diamonds at cardinal points (on ring outer edge)
-  const gemR = rO + spike * 0.28;
-  const gemS = thick * 0.52;
-  const gems = [0, 90, 180, 270].map(angle => {
-    const [gx, gy] = pt(cx, cy, gemR, angle);
-    return { gx, gy, angle };
-  });
+  // Gems
+  const [gx0, gy0] = xy(cx, cy, rM, 0);      // top center
+  const [gxL, gyL] = xy(cx, cy, rM, 305);    // left accent
+  const [gxR, gyR] = xy(cx, cy, rM, 55);     // right accent
+  const gs = aR * 0.14, gs2 = aR * 0.09;
 
   return (
     <>
       <defs>
-        <radialGradient id={`${uid}g`} cx="38%" cy="30%" r="70%">
+        <linearGradient id={`${uid}g`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%"   stopColor="#FFFDE7" />
-          <stop offset="25%"  stopColor="#FFD700" />
-          <stop offset="60%"  stopColor="#F9A825" />
+          <stop offset="22%"  stopColor="#FFD700" />
+          <stop offset="55%"  stopColor="#F57F17" />
+          <stop offset="80%"  stopColor="#FFD700" />
+          <stop offset="100%" stopColor="#FFFDE7" />
+        </linearGradient>
+        <linearGradient id={`${uid}gh`} x1="20%" y1="100%" x2="80%" y2="0%">
+          <stop offset="0%"   stopColor="#BF6000" />
+          <stop offset="35%"  stopColor="#FFD700" />
+          <stop offset="65%"  stopColor="#FFF9C4" />
+          <stop offset="100%" stopColor="#FFD700" />
+        </linearGradient>
+        <radialGradient id={`${uid}gg`} cx="35%" cy="28%" r="72%">
+          <stop offset="0%"   stopColor="#FFFFFF" />
+          <stop offset="40%"  stopColor="#FFE57F" />
           <stop offset="100%" stopColor="#E65100" />
         </radialGradient>
-        <radialGradient id={`${uid}gG`} cx="30%" cy="25%" r="75%">
-          <stop offset="0%"   stopColor="#FFFFFF" />
-          <stop offset="45%"  stopColor="#FFD700" />
-          <stop offset="100%" stopColor="#FF8F00" />
-        </radialGradient>
-        <filter id={`${uid}gF`} x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation={aR * 0.07} result="b" />
+        <filter id={`${uid}gf`} x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation={aR * 0.09} result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id={`${uid}gg2`} x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation={aR * 0.18} result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* Halo animé */}
-      <circle cx={cx} cy={cy} r={rO + spike + 4} fill="none" stroke="#FFD700" strokeWidth="1.5" opacity="0.2">
-        <animate attributeName="opacity" values="0.1;0.45;0.1" dur="2.8s" repeatCount="indefinite" />
-      </circle>
+      {/* Halo pulsant */}
+      <path d={arc(cx, cy, rM + thick * 0.7 + 2, 232, 128)} fill="none"
+        stroke="#FFD700" strokeWidth={thick * 0.6} strokeLinecap="round" opacity="0.22">
+        <animate attributeName="opacity" values="0.1;0.42;0.1" dur="2.6s" repeatCount="indefinite" />
+      </path>
 
-      {/* Spikes */}
-      {spikes.map((pts, i) => (
-        <polygon key={i} points={pts} fill={`url(#${uid}g)`} filter={`url(#${uid}gF)`} />
-      ))}
+      {/* Cornes principales */}
+      <path d={horn(hW, hH, -hW * 0.28)}
+        transform={`translate(${f(lhx)},${f(lhy)}) rotate(${f(-hornDeg)})`}
+        fill={`url(#${uid}gh)`} filter={`url(#${uid}gf)`} />
+      <path d={horn(hW, hH, hW * 0.28)}
+        transform={`translate(${f(rhx)},${f(rhy)}) rotate(${f(hornDeg)})`}
+        fill={`url(#${uid}gh)`} filter={`url(#${uid}gf)`} />
 
-      {/* Anneau principal */}
-      <circle cx={cx} cy={cy} r={rM} fill="none"
-        stroke={`url(#${uid}g)`} strokeWidth={thick}
-        filter={`url(#${uid}gF)`} />
+      {/* Arc principal */}
+      <path d={arc(cx, cy, rM, 232, 128)} fill="none"
+        stroke={`url(#${uid}g)`} strokeWidth={thick} strokeLinecap="round"
+        filter={`url(#${uid}gf)`} />
 
-      {/* Highlight interne */}
-      <circle cx={cx} cy={cy} r={rM} fill="none"
-        stroke="#FFFDE7" strokeWidth="1"
-        strokeDasharray={`${rM * 0.15} ${rM * 0.08}`}
-        opacity="0.55" />
+      {/* Ligne de reflet interne */}
+      <path d={arc(cx, cy, rM - thick * 0.28, 234, 126)} fill="none"
+        stroke="#FFFDE7" strokeWidth={thick * 0.14} strokeLinecap="round" opacity="0.65" />
 
-      {/* Gems en losange aux 4 points cardinaux */}
-      {gems.map(({ gx, gy, angle }, i) => (
-        <rect key={i}
-          x={gx - gemS} y={gy - gemS}
-          width={gemS * 2} height={gemS * 2}
-          fill={`url(#${uid}gG)`}
-          transform={`rotate(45 ${gx} ${gy})`}
-          filter={`url(#${uid}gF)`}
-        />
-      ))}
+      {/* Gem central (sommet) */}
+      <path d={gem(gx0, gy0, gs)} fill={`url(#${uid}gg)`} filter={`url(#${uid}gg2)`} />
 
-      {/* Anneau intérieur fin */}
-      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#FFF9C4" strokeWidth="1" opacity="0.45" />
+      {/* Petits gems latéraux */}
+      <path d={gem(gxL, gyL, gs2)} fill={`url(#${uid}gg)`} filter={`url(#${uid}gf)`} />
+      <path d={gem(gxR, gyR, gs2)} fill={`url(#${uid}gg)`} filter={`url(#${uid}gf)`} />
+
+      {/* Bord interne lumineux */}
+      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#FFD700" strokeWidth="1" opacity="0.38" />
     </>
   );
 }
 
-// ── Silver frame — 6 lames + anneau segmenté ──────────────────────────────────
+// ─── Silver frame (🥈) ───────────────────────────────────────────────────────
+// C argenté, 2 lames angulaires style armure, gem en pointe au sommet
 
 function SilverFrame({ cx, cy, aR, uid }: { cx: number; cy: number; aR: number; uid: string }) {
-  const thick = aR * 0.19;
-  const rI = aR + 3;
-  const rM = rI + thick / 2;
-  const rO = rI + thick;
-  const blade = aR * 0.36;
-  const gap = 16; // degrés de séparation entre les lames
+  const thick = Math.max(4.5, aR * 0.20);
+  const rM    = aR + 4 + thick / 2;
 
-  const bladeAngles = [0, 60, 120, 180, 240, 300];
+  const bladeDeg = 38;
+  const bW = aR * 0.32, bH = aR * 0.52;
+  const [lbx, lby] = xy(cx, cy, rM, 360 - bladeDeg);
+  const [rbx, rby] = xy(cx, cy, rM, bladeDeg);
 
-  // Arcs entre les lames
-  const arcs = bladeAngles.map((angle, i) => {
-    const next = bladeAngles[(i + 1) % 6];
-    const from = s(cx, cy, rM, angle + gap);
-    const to   = s(cx, cy, rM, next - gap);
-    return { from, to, rM };
-  });
+  // Gem au sommet
+  const [gx0, gy0] = xy(cx, cy, rM, 0);
+  const gs = aR * 0.13;
+
+  // Petits rivets le long de l'arc
+  const rivetAngles = [340, 310, 270, 230, 200, 160, 130, 100, 60, 20];
+  const rivetR = aR * 0.055;
 
   return (
     <>
       <defs>
         <linearGradient id={`${uid}s`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%"   stopColor="#FFFFFF" />
-          <stop offset="30%"  stopColor="#E0E0E0" />
-          <stop offset="60%"  stopColor="#9E9E9E" />
+          <stop offset="28%"  stopColor="#E0E0E0" />
+          <stop offset="58%"  stopColor="#9E9E9E" />
+          <stop offset="82%"  stopColor="#E0E0E0" />
+          <stop offset="100%" stopColor="#FFFFFF" />
+        </linearGradient>
+        <linearGradient id={`${uid}sb`} x1="0%" y1="100%" x2="50%" y2="0%">
+          <stop offset="0%"   stopColor="#616161" />
+          <stop offset="40%"  stopColor="#E0E0E0" />
+          <stop offset="70%"  stopColor="#FFFFFF" />
           <stop offset="100%" stopColor="#BDBDBD" />
         </linearGradient>
-        <filter id={`${uid}sF`} x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation={aR * 0.06} result="b" />
+        <radialGradient id={`${uid}sg`} cx="32%" cy="25%" r="75%">
+          <stop offset="0%"   stopColor="#FFFFFF" />
+          <stop offset="45%"  stopColor="#CFD8DC" />
+          <stop offset="100%" stopColor="#546E7A" />
+        </radialGradient>
+        <filter id={`${uid}sf`} x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation={aR * 0.08} result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id={`${uid}sg2`} x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation={aR * 0.16} result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* Halo */}
-      <circle cx={cx} cy={cy} r={rO + blade + 3} fill="none" stroke="#C0C0C0" strokeWidth="1.5" opacity="0.18" />
+      {/* Lames angulaires gauche */}
+      <path d={blade(bW, bH, -bW * 0.15)}
+        transform={`translate(${f(lbx)},${f(lby)}) rotate(${f(-bladeDeg)})`}
+        fill={`url(#${uid}sb)`} filter={`url(#${uid}sf)`} />
+      {/* Lames angulaires droite */}
+      <path d={blade(bW, bH, bW * 0.15)}
+        transform={`translate(${f(rbx)},${f(rby)}) rotate(${f(bladeDeg)})`}
+        fill={`url(#${uid}sb)`} filter={`url(#${uid}sf)`} />
 
-      {/* Arcs de l'anneau */}
-      {arcs.map(({ from, to, rM: r }, i) => (
-        <path key={i}
-          d={`M ${from} A ${r} ${r} 0 0 1 ${to}`}
-          fill="none" stroke={`url(#${uid}s)`}
-          strokeWidth={thick} strokeLinecap="round"
-          filter={`url(#${uid}sF)`} />
-      ))}
+      {/* Arc principal */}
+      <path d={arc(cx, cy, rM, 236, 124)} fill="none"
+        stroke={`url(#${uid}s)`} strokeWidth={thick} strokeLinecap="butt"
+        filter={`url(#${uid}sf)`} />
 
-      {/* Lames aux 6 positions */}
-      {bladeAngles.map((angle, i) => {
-        const tip  = s(cx, cy, rO + blade, angle);
-        const bL   = s(cx, cy, rO,     angle - 9);
-        const bR   = s(cx, cy, rO,     angle + 9);
-        const iL   = s(cx, cy, rI + 2, angle - 5);
-        const iR   = s(cx, cy, rI + 2, angle + 5);
-        return (
-          <polygon key={i}
-            points={`${tip} ${bL} ${iL} ${iR} ${bR}`}
-            fill={`url(#${uid}s)`}
-            filter={`url(#${uid}sF)`} />
-        );
+      {/* Reflet interne */}
+      <path d={arc(cx, cy, rM - thick * 0.3, 237, 123)} fill="none"
+        stroke="#FFFFFF" strokeWidth={thick * 0.14} strokeLinecap="butt" opacity="0.55" />
+
+      {/* Rivets / détails */}
+      {rivetAngles.map((deg, i) => {
+        const [rx, ry] = xy(cx, cy, rM, deg);
+        return <circle key={i} cx={rx} cy={ry} r={rivetR}
+          fill={`url(#${uid}s)`} filter={`url(#${uid}sf)`} />;
       })}
 
-      {/* Petits cercles entre les lames */}
-      {bladeAngles.map((angle, i) => {
-        const [bx, by] = pt(cx, cy, rM, angle + 30);
-        return (
-          <circle key={i} cx={bx} cy={by} r={thick * 0.35}
-            fill={`url(#${uid}s)`} filter={`url(#${uid}sF)`} />
-        );
-      })}
+      {/* Gem sommet (losange effilé vertical) */}
+      <path d={gem(gx0, gy0, gs)} fill={`url(#${uid}sg)`} filter={`url(#${uid}sg2)`} />
 
-      {/* Anneau intérieur fin */}
-      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.4" />
+      {/* Bord interne */}
+      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#BDBDBD" strokeWidth="1" opacity="0.4" />
     </>
   );
 }
 
-// ── Bronze frame — anneau continu + 4 flammes ──────────────────────────────────
+// ─── Bronze frame (🥉) ───────────────────────────────────────────────────────
+// C bronze, 2 gouttes/cornes arrondies, anneau avec motif en pointillé
 
 function BronzeFrame({ cx, cy, aR, uid }: { cx: number; cy: number; aR: number; uid: string }) {
-  const thick = aR * 0.20;
-  const rI = aR + 3;
-  const rM = rI + thick / 2;
-  const rO = rI + thick;
-  const flame = aR * 0.32;
+  const thick = Math.max(4, aR * 0.19);
+  const rM    = aR + 4 + thick / 2;
 
-  // 4 flammes / gouttes aux points cardinaux
-  const accents = [0, 90, 180, 270].map(angle => {
-    const tip  = s(cx, cy, rO + flame, angle);
-    const bL   = s(cx, cy, rO - 1,   angle - 13);
-    const bR   = s(cx, cy, rO - 1,   angle + 13);
-    const mL   = s(cx, cy, rO + flame * 0.5, angle - 7);
-    const mR   = s(cx, cy, rO + flame * 0.5, angle + 7);
-    return `${tip} ${mL} ${bL} ${bR} ${mR}`;
-  });
+  const dropDeg = 42;
+  const dW = aR * 0.20, dH = aR * 0.44;
+  const [ldx, ldy] = xy(cx, cy, rM, 360 - dropDeg);
+  const [rdx, rdy] = xy(cx, cy, rM, dropDeg);
 
-  // Petits losanges entre les flammes
-  const gems = [45, 135, 225, 315].map(angle => {
-    const [gx, gy] = pt(cx, cy, rO + flame * 0.18, angle);
-    const gs = thick * 0.38;
-    return { gx, gy, gs };
-  });
+  // Petits losanges aux 4 points intermédiaires
+  const accentAngles = [330, 270, 210, 150, 90];
+  const as = aR * 0.075;
 
   return (
     <>
       <defs>
-        <radialGradient id={`${uid}b`} cx="40%" cy="30%" r="70%">
+        <linearGradient id={`${uid}b`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%"   stopColor="#FFCC80" />
-          <stop offset="30%"  stopColor="#CD7F32" />
-          <stop offset="65%"  stopColor="#8D4E2B" />
-          <stop offset="100%" stopColor="#6D3012" />
+          <stop offset="25%"  stopColor="#CD7F32" />
+          <stop offset="60%"  stopColor="#8D4E2B" />
+          <stop offset="82%"  stopColor="#CD7F32" />
+          <stop offset="100%" stopColor="#FFCC80" />
+        </linearGradient>
+        <linearGradient id={`${uid}bd`} x1="10%" y1="100%" x2="50%" y2="0%">
+          <stop offset="0%"   stopColor="#5D3012" />
+          <stop offset="38%"  stopColor="#CD7F32" />
+          <stop offset="68%"  stopColor="#FFCC80" />
+          <stop offset="100%" stopColor="#CD7F32" />
+        </linearGradient>
+        <radialGradient id={`${uid}ba`} cx="38%" cy="28%" r="72%">
+          <stop offset="0%"   stopColor="#FFE0B2" />
+          <stop offset="48%"  stopColor="#CD7F32" />
+          <stop offset="100%" stopColor="#4E2900" />
         </radialGradient>
-        <filter id={`${uid}bF`} x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation={aR * 0.06} result="b" />
+        <filter id={`${uid}bf`} x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation={aR * 0.08} result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id={`${uid}bg`} x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation={aR * 0.15} result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* Halo */}
-      <circle cx={cx} cy={cy} r={rO + flame + 3} fill="none" stroke="#CD7F32" strokeWidth="1.5" opacity="0.18" />
+      {/* Halo doux */}
+      <path d={arc(cx, cy, rM + thick * 0.6 + 2, 240, 120)} fill="none"
+        stroke="#CD7F32" strokeWidth={thick * 0.55} strokeLinecap="round" opacity="0.18" />
 
-      {/* Anneau principal */}
-      <circle cx={cx} cy={cy} r={rM} fill="none"
-        stroke={`url(#${uid}b)`} strokeWidth={thick}
-        filter={`url(#${uid}bF)`} />
+      {/* Gouttes gauche/droite */}
+      <path d={drop(dW, dH)}
+        transform={`translate(${f(ldx)},${f(ldy)}) rotate(${f(-dropDeg)})`}
+        fill={`url(#${uid}bd)`} filter={`url(#${uid}bf)`} />
+      <path d={drop(dW, dH)}
+        transform={`translate(${f(rdx)},${f(rdy)}) rotate(${f(dropDeg)})`}
+        fill={`url(#${uid}bd)`} filter={`url(#${uid}bf)`} />
 
-      {/* Highlight */}
-      <circle cx={cx} cy={cy} r={rM} fill="none"
+      {/* Arc principal */}
+      <path d={arc(cx, cy, rM, 240, 120)} fill="none"
+        stroke={`url(#${uid}b)`} strokeWidth={thick} strokeLinecap="round"
+        filter={`url(#${uid}bf)`} />
+
+      {/* Pointillé décoratif sur l'arc */}
+      <path d={arc(cx, cy, rM, 240, 120)} fill="none"
         stroke="#FFCC80"
-        strokeWidth="1"
-        strokeDasharray={`${rM * 0.12} ${rM * 0.1}`}
-        opacity="0.5" />
+        strokeWidth={thick * 0.13}
+        strokeDasharray={`${rM * 0.13} ${rM * 0.09}`}
+        strokeLinecap="round"
+        opacity="0.55" />
 
-      {/* Flammes aux 4 points cardinaux */}
-      {accents.map((pts, i) => (
-        <polygon key={i} points={pts}
-          fill={`url(#${uid}b)`}
-          filter={`url(#${uid}bF)`} />
-      ))}
+      {/* Accents losange */}
+      {accentAngles.map((deg, i) => {
+        const [ax, ay] = xy(cx, cy, rM, deg);
+        return <path key={i} d={gem(ax, ay, as)}
+          fill={`url(#${uid}ba)`} filter={`url(#${uid}bf)`} />;
+      })}
 
-      {/* Petits losanges entre les flammes */}
-      {gems.map(({ gx, gy, gs }, i) => (
-        <rect key={i}
-          x={gx - gs} y={gy - gs}
-          width={gs * 2} height={gs * 2}
-          fill={`url(#${uid}b)`}
-          transform={`rotate(45 ${gx} ${gy})`}
-          filter={`url(#${uid}bF)`}
-        />
-      ))}
-
-      {/* Anneau intérieur fin */}
-      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#FFCC80" strokeWidth="1" opacity="0.4" />
+      {/* Bord interne */}
+      <circle cx={cx} cy={cy} r={aR + 1.5} fill="none" stroke="#FFCC80" strokeWidth="1" opacity="0.38" />
     </>
   );
 }
 
-// ── Composant public ──────────────────────────────────────────────────────────
+// ─── Export ───────────────────────────────────────────────────────────────────
 
 export function AvatarRankFrame({ rank, size }: { rank: 0 | 1 | 2; size: number }) {
   const rawUid = useId();
-  const uid = rawUid.replace(/:/g, "u");
-  const aR  = size / 2;
-  const pad = Math.max(12, Math.round(aR * 0.75));
-  const total = size + pad * 2;
-  const cx = total / 2;
-  const cy = total / 2;
+  const uid    = rawUid.replace(/:/g, "u");
+  const aR     = size / 2;
+  const pad    = Math.max(14, Math.round(aR * 0.92));
+  const total  = size + pad * 2;
+  const cx     = total / 2;
+  const cy     = total / 2;
 
   return (
     <svg
