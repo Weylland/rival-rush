@@ -213,7 +213,8 @@ export async function acceptRoomInvitation(invitationId: string) {
   if (!inv) return { error: "Invitation introuvable ou expirée" };
   if (new Date(inv.expires_at) < new Date()) return { error: "Invitation expirée" };
 
-  const { data: room } = await supabase
+  // Admin client: invited user isn't a member yet, rooms RLS would block the read
+  const { data: room } = await createAdminClient()
     .from("rooms").select("code, is_open, max_members").eq("id", inv.room_id).maybeSingle();
   if (!room) return { error: "Salle introuvable" };
   if (!room.is_open) return { error: "Les inscriptions sont fermées" };

@@ -211,6 +211,21 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
     return () => { supabase.removeChannel(ch); };
   }, [room.id, router]);
 
+  // Realtime: invitation accepted/declined → refresh so host can re-invite
+  useEffect(() => {
+    const supabase = createClient();
+    const ch = supabase.channel(`room-invitations-host-${room.id}`)
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "room_invitations",
+        filter: `room_id=eq.${room.id}`,
+      }, () => {
+        router.refresh();
+      }).subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [room.id, router]);
+
   // Fetch all players for invite (online + offline)
   useEffect(() => {
     if (!showInvite) return;

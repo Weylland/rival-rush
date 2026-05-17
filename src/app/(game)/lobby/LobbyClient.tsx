@@ -519,13 +519,18 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "room_invitations",
           filter: `invited_player_id=eq.${myPlayerId}`,
         },
         async (payload) => {
-          const inv = payload.new as { id: string; room_id: string; invited_by_id: string; expires_at: string };
+          const inv = payload.new as { id: string; room_id: string; invited_by_id: string; expires_at: string; status: string };
+          // Remove declined/accepted invitations from the list
+          if (inv.status && inv.status !== "pending") {
+            setPendingInvitations(prev => prev.filter(i => i.id !== inv.id));
+            return;
+          }
           if (!inv.expires_at || new Date(inv.expires_at) < new Date()) return;
           // Fetch room via API (bypasses rooms RLS for private rooms) + inviter pseudo
           const [roomRes, { data: inviter }] = await Promise.all([
