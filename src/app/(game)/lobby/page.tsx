@@ -26,7 +26,9 @@ export default async function LobbyPage() {
     supabase.from("presence").select("*").neq("player_id", session.playerId).gte("updated_at", cutoff),
     supabase.from("leaderboard").select("points").eq("player_id", session.playerId).maybeSingle(),
     createAdminClient().from("push_subscriptions").select("player_id"),
-    supabase.from("room_invitations")
+    // Admin client: rooms RLS blocks private room joins for non-members
+    createAdminClient()
+      .from("room_invitations")
       .select("id, room_id, invited_by_id, expires_at, rooms(name, code), players!room_invitations_invited_by_id_fkey(pseudo)")
       .eq("invited_player_id", session.playerId)
       .eq("status", "pending")

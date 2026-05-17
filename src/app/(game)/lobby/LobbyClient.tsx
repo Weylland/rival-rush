@@ -527,11 +527,12 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
         async (payload) => {
           const inv = payload.new as { id: string; room_id: string; invited_by_id: string; expires_at: string };
           if (!inv.expires_at || new Date(inv.expires_at) < new Date()) return;
-          // Fetch room + inviter details
-          const [{ data: room }, { data: inviter }] = await Promise.all([
-            supabase.from("rooms").select("name, code").eq("id", inv.room_id).maybeSingle(),
+          // Fetch room via API (bypasses rooms RLS for private rooms) + inviter pseudo
+          const [roomRes, { data: inviter }] = await Promise.all([
+            fetch(`/api/rooms/${inv.room_id}`).then(r => r.ok ? r.json() as Promise<{ name: string; code: string }> : null),
             supabase.from("players").select("pseudo").eq("id", inv.invited_by_id).maybeSingle(),
           ]);
+          const room = roomRes;
           if (!room) return;
           setPendingInvitations(prev => {
             if (prev.some(i => i.id === inv.id)) return prev;
