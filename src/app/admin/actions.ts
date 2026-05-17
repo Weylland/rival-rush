@@ -31,6 +31,15 @@ export async function signinToAdmin(_prev: AuthState, formData: FormData): Promi
     return { error: "Ce compte n'est pas administrateur" };
   }
 
+  // Sync app_metadata pour que le middleware puisse bypasser la maintenance
+  const { data: { user: signedInUser } } = await supabase.auth.getUser();
+  if (signedInUser && !signedInUser.app_metadata?.is_admin) {
+    const adminDb = createAdminClient();
+    await adminDb.auth.admin.updateUserById(signedInUser.id, {
+      app_metadata: { is_admin: true },
+    });
+  }
+
   redirect("/admin");
 }
 
@@ -418,21 +427,32 @@ export async function setMaintenanceMode(enabled: boolean): Promise<{ ok: boolea
 
 export async function grantAdmin(playerId: string): Promise<{ ok: boolean } | { error: string }> {
   await guardAdmin();
-  const { error } = await db().from("admins").insert({ player_id: playerId });
+  const supabase = db();
+  const { error } = await supabase.from("admins").insert({ player_id: playerId });
   if (error) {
     if (error.code === "23505") return { error: "Ce joueur est déjà admin" };
     return { error: error.message };
   }
+  // Sync app_metadata pour le middleware maintenance
+  await supabase.auth.admin.updateUserById(playerId, {
+    app_metadata: { is_admin: true },
+  });
   return { ok: true };
 }
 
 export async function revokeAdmin(playerId: string): Promise<{ ok: boolean } | { error: string }> {
   await guardAdmin();
+  const supabase = db();
   // Vérifier qu'il reste au moins un autre admin
-  const { count } = await db()
+  const { count } = await supabase
     .from("admins")
     .select("*", { count: "exact", head: true });
   if ((count ?? 0) <= 1) return { error: "Impossible : dernier admin restant" };
-  const { error } = await db().from("admins").delete().eq("player_id", playerId);
-  return error ? { error: error.message } : { ok: true };
+  const { error } = await supabase.from("admins").delete().eq("player_id", playerId);
+  if (error) return { error: error.message };
+  // Sync app_metadata
+  await supabase.auth.admin.updateUserById(playerId, {
+    app_metadata: { is_admin: false },
+  });
+  return { ok: true };
 }

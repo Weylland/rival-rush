@@ -8,20 +8,26 @@ import type { Contact } from "./ContactsClient";
 import type { Report } from "./ReportsClient";
 
 export default async function AdminPage() {
-  const userIsAdmin = await isAdmin();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) {
+    return <AdminLoginPage />;
+  }
+
+  const userIsAdmin = await isAdmin();
   if (!userIsAdmin) {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      // Non connecté → formulaire de connexion admin (accessible même en maintenance)
-      return <AdminLoginPage />;
-    }
-    // Connecté mais pas admin
     redirect("/lobby");
   }
 
-  const supabase = createAdminClient();
+  // Bootstrap app_metadata si pas encore défini (admin existant)
+  // Nécessaire pour que le middleware puisse bypasser la maintenance
+  const db = createAdminClient();
+  if (!user.app_metadata?.is_admin) {
+    await db.auth.admin.updateUserById(user.id, {
+      app_metadata: { is_admin: true },
+    });
+  }
 
   const [
     { data: allPlayers },
@@ -30,14 +36,13 @@ export default async function AdminPage() {
     { data: reportRows },
     { data: adminRows },
   ] = await Promise.all([
-    supabase
-      .from("players")
+    db.from("players")
       .select("id, pseudo, avatar_url, created_at")
       .order("pseudo", { ascending: true }),
-    supabase.from("leaderboard").select("player_id, wins, losses, draws, points"),
-    supabase.from("contacts").select("*").order("created_at", { ascending: false }),
-    supabase.from("reports").select("*").order("created_at", { ascending: false }),
-    supabase.from("admins").select("player_id"),
+    db.from("leaderboard").select("player_id, wins, losses, draws, points"),
+    db.from("contacts").select("*").order("created_at", { ascending: false }),
+    db.from("reports").select("*").order("created_at", { ascending: false }),
+    db.from("admins").select("player_id"),
   ]);
 
   const lbMap = new Map((lbRows ?? []).map((r) => [r.player_id, r]));

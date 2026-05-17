@@ -69,11 +69,12 @@ export async function proxy(request: NextRequest) {
   // Quand maintenance OFF → /maintenance redirige vers /lobby ou /login
   const MAINTENANCE_ALWAYS_OPEN = ["/maintenance", "/admin"];
 
+  const isAdminUser = user?.app_metadata?.is_admin === true;
   const maintenanceOn = await isMaintenanceOn(supabase);
 
   if (maintenanceOn) {
     const open = MAINTENANCE_ALWAYS_OPEN.some((p) => pathname.startsWith(p));
-    if (!open) {
+    if (!open && !isAdminUser) {
       return NextResponse.redirect(new URL("/maintenance", request.url));
     }
   } else {
