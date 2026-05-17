@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EA } from "@/lib/design";
 
@@ -13,12 +13,23 @@ export function PreventLeave({ enabled, gameId }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [abandoning, setAbandoning] = useState(false);
+  // Tracks whether we pushed a fake history entry that needs to be undone
+  const fakePushed = useRef(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      // Game ended naturally — undo the fake entry before router.replace fires
+      if (fakePushed.current) {
+        fakePushed.current = false;
+        history.go(-1);
+      }
+      return;
+    }
 
-    // Bloque le bouton retour uniquement (pas beforeunload — évite la popup native du navigateur)
+    // Bloque le bouton retour (pas beforeunload — évite la popup native du navigateur)
+    fakePushed.current = true;
     history.pushState(null, "", window.location.href);
+
     const handlePopState = () => {
       history.pushState(null, "", window.location.href);
       setShowModal(true);
@@ -29,6 +40,7 @@ export function PreventLeave({ enabled, gameId }: Props) {
   }, [enabled]);
 
   async function handleAbandon() {
+    fakePushed.current = false; // on quitte intentionnellement, pas besoin d'annuler
     setAbandoning(true);
     await fetch("/api/forfeit", {
       method: "POST",
