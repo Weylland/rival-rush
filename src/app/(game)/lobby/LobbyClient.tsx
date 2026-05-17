@@ -280,21 +280,14 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
     <div style={{
       position: "relative",
       background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
-      border: `${podium ? "3.5px" : "2.5px"} solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
+      border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
       borderRadius: 22, padding: desktop ? "16px 20px" : "12px 14px",
       display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
-      boxShadow: isBlocked || offline ? "none" : podium ? `${podium.glow}, ${podium.shadow}` : `4px 4px 0 ${shadowColor}`,
+      boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${podium ? podium.border : shadowColor}`,
       transform: isBlocked || offline ? "none" : idx % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
       opacity: isBlocked ? 0.45 : offline ? 0.6 : 1,
       transition: "opacity 0.2s",
     }}>
-      {podium && !isBlocked && !offline && (
-        <span style={{
-          position: "absolute", top: -10, right: 14,
-          fontSize: 20, lineHeight: 1,
-          filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.4))",
-        }}>{podium.label}</span>
-      )}
       <Avatar
         name={p.pseudo}
         src={p.avatar_url}

@@ -200,9 +200,9 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
 
           const borderColor = podium ? podium.border : isMe ? EA.cyan : EA.ink;
           const bgColor     = podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep;
-          const boxShadow   = podium
-            ? `${podium.glow}, ${podium.shadow}`
-            : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`;
+          const boxShadow   = isMe && !podium
+            ? `3px 3px 0 ${EA.cyan}`
+            : podium ? `3px 3px 0 ${podium.border}` : `2px 2px 0 ${EA.ink}`;
 
           return (
             <div
@@ -211,7 +211,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               style={{
                 position: "relative",
                 background: bgColor,
-                border: `${podium ? "3.5px" : "2.5px"} solid ${borderColor}`,
+                border: `2.5px solid ${borderColor}`,
                 borderRadius: 18, padding: "12px 16px",
                 boxShadow,
                 cursor: "pointer",
