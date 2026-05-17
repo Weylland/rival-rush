@@ -33,6 +33,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, color });
   }
 
+  if (type === "invisible") {
+    const value = formData.get("value") === "true";
+    const admin = createAdminClient();
+    await admin.from("players").update({ is_invisible: value }).eq("id", session.playerId);
+    if (value) {
+      // Immediately remove from presence so they disappear from the lobby
+      await admin.from("presence").delete().eq("player_id", session.playerId);
+    }
+    return NextResponse.json({ ok: true, isInvisible: value });
+  }
+
   if (type === "upload") {
     const file = formData.get("file") as File | null;
     if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 interface Props {
   playerId: string;
   pseudo: string;
+  isInvisible?: boolean;
 }
 
 // Heartbeat every 25s — browsers throttle background tabs but don't stop them
@@ -13,8 +14,11 @@ interface Props {
 // lobby uses a 3-minute cutoff (STALE_MS) instead of 90 s.
 const HEARTBEAT_MS = 25_000;
 
-export function PresenceProvider({ playerId, pseudo }: Props) {
+export function PresenceProvider({ playerId, pseudo, isInvisible = false }: Props) {
   useEffect(() => {
+    // Invisible mode: don't publish presence at all
+    if (isInvisible) return;
+
     const supabase = createClient();
 
     // Always upsert so the row is (re)created if it was deleted
@@ -64,7 +68,7 @@ export function PresenceProvider({ playerId, pseudo }: Props) {
       window.removeEventListener("pagehide", leave);
       window.removeEventListener("beforeunload", leave);
     };
-  }, [playerId, pseudo]);
+  }, [playerId, pseudo, isInvisible]);
 
   return null;
 }

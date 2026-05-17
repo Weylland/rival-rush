@@ -163,10 +163,11 @@ interface Props {
   initialPseudo: string;
   initialAvatarUrl: string | null;
   initialAvatarColor: string;
+  initialIsInvisible: boolean;
   isGuest: boolean;
 }
 
-export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarColor, isGuest }: Props) {
+export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarColor, initialIsInvisible, isGuest }: Props) {
   const router = useRouter();
   const [pseudoState, pseudoAction, pseudoPending] = useActionState<SettingsState, FormData>(updatePseudo, null);
   const [pwState, pwAction, pwPending] = useActionState<SettingsState, FormData>(updatePassword, null);
@@ -183,6 +184,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
   const [colorHex, setColorHex] = useState(initialAvatarColor);
   const [colorSaving, setColorSaving] = useState(false);
   const [colorSaved, setColorSaved] = useState(false);
+  const [isInvisible, setIsInvisible] = useState(initialIsInvisible);
+  const [invisibleSaving, setInvisibleSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Crop modal state
@@ -202,6 +205,18 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
     const next = !soundEnabled;
     setSoundEnabled(next);
     localStorage.setItem(SOUND_KEY, next ? "true" : "false");
+  }
+
+  async function toggleInvisible() {
+    setInvisibleSaving(true);
+    const next = !isInvisible;
+    const fd = new FormData();
+    fd.append("type", "invisible");
+    fd.append("value", String(next));
+    await fetch("/api/avatar", { method: "POST", body: fd });
+    setIsInvisible(next);
+    setInvisibleSaving(false);
+    router.refresh();
   }
 
   async function toggleNotif() {
@@ -654,6 +669,50 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
           </form>
         </SectionCard>
       )}
+
+      {/* Mode invisible */}
+      <SectionCard accent={EA.violetDeep}>
+        <SectionTitle>👻 Visibilité dans le lobby</SectionTitle>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
+              {isInvisible ? "👻 Mode invisible activé" : "👁 Visible dans le lobby public"}
+            </div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>
+              {isInvisible ? "Les autres joueurs ne te voient pas en ligne" : "Tout le monde peut voir que tu es connecté"}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={toggleInvisible}
+            disabled={invisibleSaving}
+            style={{
+              width: 52, height: 28,
+              borderRadius: 999,
+              background: isInvisible ? EA.pink : "rgba(255,255,255,0.15)",
+              border: `2px solid ${EA.ink}`,
+              cursor: invisibleSaving ? "wait" : "pointer",
+              position: "relative",
+              transition: "background .2s",
+              padding: 0,
+              flexShrink: 0,
+              opacity: invisibleSaving ? 0.6 : 1,
+            }}
+          >
+            <span style={{
+              position: "absolute",
+              top: 2,
+              left: isInvisible ? 26 : 2,
+              width: 20, height: 20,
+              borderRadius: "50%",
+              background: EA.white,
+              border: `2px solid ${EA.ink}`,
+              transition: "left .2s",
+              display: "block",
+            }} />
+          </button>
+        </div>
+      </SectionCard>
 
       {/* Sons */}
       <SectionCard accent={EA.pink}>

@@ -13,10 +13,11 @@ export default async function SettingsPage() {
 
   const { data: player } = await createAdminClient()
     .from("players")
-    .select("avatar_color")
+    .select("avatar_color, is_invisible")
     .eq("id", session.playerId)
     .single();
   const initialAvatarColor: string = (player as { avatar_color?: string | null })?.avatar_color ?? "#00D4E8";
+  const initialIsInvisible: boolean = (player as { is_invisible?: boolean | null })?.is_invisible ?? false;
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden" }}>
@@ -50,7 +51,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <SettingsClient initialPseudo={session.pseudo} initialAvatarUrl={session.avatarUrl} initialAvatarColor={initialAvatarColor} isGuest={session.isGuest} />
+        <SettingsClient initialPseudo={session.pseudo} initialAvatarUrl={session.avatarUrl} initialAvatarColor={initialAvatarColor} initialIsInvisible={initialIsInvisible} isGuest={session.isGuest} />
       </div>
     </div>
   );
