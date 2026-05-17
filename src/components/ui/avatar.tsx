@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { EA } from "@/lib/design";
 
+const PODIUM_RING_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"] as const;
+
 interface AvatarProps {
   name?: string;
   src?: string | null;
   color?: string;
   size?: number;
   ring?: string;
+  podiumRank?: 0 | 1 | 2;
 }
 
 export function Avatar({
@@ -17,8 +20,11 @@ export function Avatar({
   color = EA.cyan,
   size = 44,
   ring = EA.pink,
+  podiumRank,
 }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
+
+  const podiumColor = podiumRank !== undefined ? PODIUM_RING_COLORS[podiumRank] : null;
 
   const circleStyle: React.CSSProperties = {
     width: size,
@@ -30,7 +36,10 @@ export function Avatar({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: `2px 2px 0 ${EA.ink}`,
+    // anneau podium : ring coloré → gap sombre → halo extérieur
+    boxShadow: podiumColor
+      ? `0 0 0 3px ${podiumColor}, 0 0 0 5.5px rgba(0,0,0,0.65), 0 0 18px 4px ${podiumColor}88`
+      : `2px 2px 0 ${EA.ink}`,
     overflow: "hidden",
   };
 

@@ -222,7 +222,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 48px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                  <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={34} />
+                  <Avatar name={row.pseudo} src={row.avatar_url} color={isMe ? EA.butter : EA.pink} ring={isMe ? EA.cyan : "transparent"} size={34} podiumRank={podium ? i as 0 | 1 | 2 : undefined} />
                   <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
                     {row.pseudo.toUpperCase()}
                     {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}

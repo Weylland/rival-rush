@@ -301,6 +301,7 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
         color={isBlocked ? "rgba(255,255,255,0.2)" : offline ? "rgba(255,255,255,0.2)" : idx % 2 === 0 ? EA.cyan : EA.pink}
         ring={isBlocked || offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
         size={desktop ? 56 : 44}
+        podiumRank={!isBlocked && !offline ? rank : undefined}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: isBlocked || offline ? "rgba(255,255,255,0.5)" : EA.ink, transform: "skewX(-4deg)" }}>
