@@ -27,6 +27,8 @@ interface Stats {
   newContacts: number;
   totalWarnings: number;
   totalBlocks: number;
+  guestPlayers: number;
+  guestsToday: number;
 }
 
 interface DayCount { day: string; label: string; count: number }
@@ -331,6 +333,15 @@ function Skeleton({ h = 80 }: { h?: number }) {
   );
 }
 
+/* ─── Usage color (green / amber / red) ──────────────────────────── */
+
+function usageColor(value: number, max: number): string {
+  const pct = max > 0 ? (value / max) * 100 : 0;
+  if (pct >= 90) return "#f87171"; // red
+  if (pct >= 70) return "#fbbf24"; // amber
+  return "#4ade80"; // green
+}
+
 /* ─── Main component ──────────────────────────────────────────────── */
 
 export function DashboardClient() {
@@ -350,8 +361,10 @@ export function DashboardClient() {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
     const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString();
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayStartIso = todayStart.toISOString();
 
-    const [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, rG7, rP14, rG30, rTop] =
+    const [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, rG7, rP14, rG30, rTop, rGuests, rGuestsToday] =
       await Promise.all([
         supabase.from("players").select("*", { count: "exact", head: true }),
         supabase.from("presence").select("*", { count: "exact", head: true }).gt("updated_at", staleThreshold),
@@ -370,6 +383,9 @@ export function DashboardClient() {
         supabase.from("players").select("created_at").gte("created_at", fourteenDaysAgo),
         supabase.from("games").select("game_type").gte("created_at", thirtyDaysAgo),
         supabase.from("leaderboard").select("player_id, points, wins, losses, draws").order("points", { ascending: false }).limit(5),
+        // infra
+        supabase.from("players").select("*", { count: "exact", head: true }).eq("is_guest", true),
+        supabase.from("players").select("*", { count: "exact", head: true }).eq("is_guest", true).gte("created_at", todayStartIso),
       ]);
 
     setStats({
@@ -385,6 +401,8 @@ export function DashboardClient() {
       newContacts: r10.count ?? 0,
       totalWarnings: r11.count ?? 0,
       totalBlocks: r12.count ?? 0,
+      guestPlayers: rGuests.count ?? 0,
+      guestsToday: rGuestsToday.count ?? 0,
     });
 
     /* games per day */
@@ -628,6 +646,124 @@ export function DashboardClient() {
           </>
         ) : (
           <Skeleton h={90} />
+        )}
+      </Panel>
+
+      {/* ── Infra & capacité ── */}
+      <Panel title="Infra & capacité — Free Tier" icon="⚙️">
+        {stats ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+            {/* KPI row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
+              <KpiCard
+                label="Invités aujourd'hui"
+                value={stats.guestsToday}
+                color={usageColor(stats.guestsToday, 200)}
+                alert={stats.guestsToday >= 180}
+                sub="limite douce : 200/j"
+              />
+              <KpiCard
+                label="Invités actifs"
+                value={stats.guestPlayers}
+                color={EA.white}
+                sub="comptes anonymes"
+              />
+              <KpiCard
+                label="En ligne"
+                value={stats.onlinePlayers}
+                color={usageColor(stats.onlinePlayers, 60)}
+                alert={stats.onlinePlayers >= 54}
+                sub="connexions DB ≈ /60"
+              />
+              <KpiCard
+                label="Parties live"
+                value={stats.activeGames}
+                color={usageColor(stats.activeGames, 50)}
+                alert={stats.activeGames >= 45}
+                sub="limite douce : 50"
+              />
+            </div>
+
+            {/* Progress bars */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <HBar
+                label="Joueurs en ligne / connexions DB"
+                value={stats.onlinePlayers}
+                max={60}
+                color={usageColor(stats.onlinePlayers, 60)}
+                sub="/ 60 (Free)"
+              />
+              <HBar
+                label="Invités créés aujourd'hui"
+                value={stats.guestsToday}
+                max={200}
+                color={usageColor(stats.guestsToday, 200)}
+                sub="/ 200 (limite douce)"
+              />
+              <HBar
+                label="Parties en cours"
+                value={stats.activeGames}
+                max={50}
+                color={usageColor(stats.activeGames, 50)}
+                sub="/ 50 (limite douce)"
+              />
+              <HBar
+                label="Joueurs inscrits"
+                value={stats.totalPlayers}
+                max={500}
+                color={usageColor(stats.totalPlayers, 500)}
+                sub="/ 500 (Free tier conseillé)"
+              />
+            </div>
+
+            {/* Warning legend + external links */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                {[
+                  { color: "#4ade80", label: "< 70 % — OK" },
+                  { color: "#fbbf24", label: "70–90 % — Surveiller" },
+                  { color: "#f87171", label: "> 90 % — Agir" },
+                ].map(({ color, label }) => (
+                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, boxShadow: `0 0 6px ${color}` }} />
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                {[
+                  { label: "Supabase →", href: "https://supabase.com/dashboard/project/_/reports" },
+                  { label: "Vercel →", href: "https://vercel.com/dashboard" },
+                ].map(({ label, href }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
+                      color: "rgba(255,255,255,0.5)",
+                      background: "rgba(255,255,255,0.07)",
+                      border: "1.5px solid rgba(255,255,255,0.12)",
+                      borderRadius: 999,
+                      padding: "6px 14px",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={28} />)}
+          </div>
         )}
       </Panel>
     </div>
