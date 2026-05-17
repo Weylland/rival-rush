@@ -363,3 +363,23 @@ export async function clearAllPresence(): Promise<{ ok: boolean } | { error: str
     .neq("player_id", "00000000-0000-0000-0000-000000000000");
   return error ? { error: error.message } : { ok: true };
 }
+
+// ── Maintenance ───────────────────────────────────────────────────────────────
+
+export async function getMaintenanceMode(): Promise<boolean> {
+  await guardAdmin();
+  const { data } = await db()
+    .from("site_settings")
+    .select("value")
+    .eq("key", "maintenance_mode")
+    .maybeSingle();
+  return data?.value === true;
+}
+
+export async function setMaintenanceMode(enabled: boolean): Promise<{ ok: boolean } | { error: string }> {
+  await guardAdmin();
+  const { error } = await db()
+    .from("site_settings")
+    .upsert({ key: "maintenance_mode", value: enabled, updated_at: new Date().toISOString() });
+  return error ? { error: error.message } : { ok: true };
+}

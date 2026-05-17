@@ -3,6 +3,34 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password", "/legal", "/contact", "/ios-pwa"];
 
+// ── Maintenance mode cache (évite un appel DB à chaque requête) ───────────────
+let maintenanceCache: { value: boolean; expiresAt: number } | null = null;
+
+async function isMaintenanceOn(supabase: ReturnType<typeof createServerClient>): Promise<boolean> {
+  const now = Date.now();
+  if (maintenanceCache && now < maintenanceCache.expiresAt) {
+    return maintenanceCache.value;
+  }
+  try {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "maintenance_mode")
+      .maybeSingle();
+    const value = data?.value === true;
+    maintenanceCache = { value, expiresAt: now + 30_000 }; // cache 30s
+    return value;
+  } catch {
+    return false; // en cas d'erreur, ne pas bloquer le site
+  }
+}
+
+export function invalidateMaintenanceCache() {
+  maintenanceCache = null;
+}
+
+// ── Proxy principal ───────────────────────────────────────────────────────────
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -33,7 +61,16 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
-  if (!user && !isPublic) {
+  // ── Maintenance mode ──────────────────────────────────────────────────────
+  const MAINTENANCE_BYPASS = ["/maintenance", "/login", "/admin", "/_next", "/api"];
+  const bypassMaintenance = MAINTENANCE_BYPASS.some((p) => pathname.startsWith(p));
+
+  if (!bypassMaintenance && await isMaintenanceOn(supabase)) {
+    return NextResponse.redirect(new URL("/maintenance", request.url));
+  }
+
+  // ── Auth guard ────────────────────────────────────────────────────────────
+  if (!user && !isPublic && pathname !== "/maintenance") {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

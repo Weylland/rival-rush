@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { GAME_LABELS } from "@/lib/game-labels";
+import { getMaintenanceMode, setMaintenanceMode } from "@/app/admin/actions";
 
 /* ─── constants ─────────────────────────────────────────────────── */
 
@@ -352,6 +353,8 @@ export function DashboardClient() {
   const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshedAt, setRefreshedAt] = useState<Date | null>(null);
+  const [maintenance, setMaintenance] = useState<boolean | null>(null);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -462,6 +465,19 @@ export function DashboardClient() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  useEffect(() => {
+    getMaintenanceMode().then(setMaintenance);
+  }, []);
+
+  async function toggleMaintenance() {
+    if (maintenance === null) return;
+    setMaintenanceLoading(true);
+    const next = !maintenance;
+    await setMaintenanceMode(next);
+    setMaintenance(next);
+    setMaintenanceLoading(false);
+  }
+
   const maxPoints = Math.max(...topPlayers.map((p) => p.points), 1);
   const maxType = Math.max(...gamesPerType.map((t) => t.count), 1);
   const totalGames = (stats?.finishedGames ?? 0) + (stats?.activeGames ?? 0);
@@ -474,7 +490,27 @@ export function DashboardClient() {
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-4deg)" }}>
           Vue d&apos;ensemble
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+
+          {/* Maintenance toggle */}
+          <button
+            onClick={toggleMaintenance}
+            disabled={maintenance === null || maintenanceLoading}
+            style={{
+              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
+              color: maintenance ? EA.pink : "rgba(255,255,255,0.5)",
+              background: maintenance ? "rgba(255,30,140,0.15)" : "rgba(255,255,255,0.07)",
+              border: `2px solid ${maintenance ? EA.pink + "60" : "rgba(255,255,255,0.14)"}`,
+              borderRadius: 999,
+              padding: "8px 18px", cursor: (maintenance === null || maintenanceLoading) ? "wait" : "pointer",
+              opacity: (maintenance === null || maintenanceLoading) ? 0.5 : 1,
+              transition: "all .2s",
+              boxShadow: maintenance ? `0 0 16px rgba(255,30,140,0.25)` : "none",
+            }}
+          >
+            {maintenance ? "🔧 Maintenance ON" : "✅ Site en ligne"}
+          </button>
+
           {refreshedAt && (
             <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.28)" }}>
               {refreshedAt.toLocaleTimeString("fr-FR")}
