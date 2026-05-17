@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMemo, useTransition } from "react";
 import { EA } from "@/lib/design";
@@ -219,6 +219,17 @@ interface Props {
 export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo, roomCode, roomName }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
+
+  // Intercepte le bouton retour du navigateur : quelle que soit l'historique,
+  // retour depuis l'écran résultat → lobby (jamais vers la page de jeu)
+  useEffect(() => {
+    history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      router.replace(roomCode ? `/room/${roomCode}` : "/lobby");
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [router, roomCode]);
   const [rematchPending, startRematch] = useTransition();
   const myPseudo   = myId === p1Id ? p1Pseudo : p2Pseudo;
   const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
