@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
-import { Avatar } from "@/components/ui/avatar";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { setReflexeReady, submitReflexeTap } from "./actions";
@@ -12,6 +11,7 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { useGamePresence } from "@/hooks/useGamePresence";
 import { resolveDuo } from "@/lib/players";
+import { ScorePanel } from "./components/ScorePanel";
 import { RulesButton } from "@/components/ui/rules-button";
 import type { TapState, GameStatus } from "@/types/database";
 
@@ -181,32 +181,7 @@ export function ReflexeClient({
         flexShrink: 0,
       }}>
         {/* Moi */}
-        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-          {tapState.phase === "idle" && iAmReady && (
-            <div style={{
-              position: "absolute", top: -10, left: -6, zIndex: 10,
-              background: EA.cyan, border: `2px solid ${EA.ink}`,
-              padding: "2px 8px", borderRadius: 999,
-              fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink,
-              transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
-            }}>✓ PRÊT</div>
-          )}
-          <div style={{
-            background: isArmed ? "rgba(255,80,0,0.15)" : EA.pink,
-            border: `2.5px solid ${isArmed ? "rgba(255,80,0,0.5)" : EA.ink}`,
-            borderRadius: 18, padding: "10px 12px",
-            display: "flex", alignItems: "center", gap: 8,
-            transform: "rotate(-0.8deg)",
-            boxShadow: isArmed ? `3px 3px 0 rgba(255,80,0,0.4)` : `3px 3px 0 ${EA.cyan}`,
-            transition: "all 0.3s",
-          }}>
-            <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isArmed ? EA.butter : EA.white, lineHeight: 1, transition: "color 0.3s" }}>{myScore}</div>
-            </div>
-          </div>
-        </div>
+        <ScorePanel pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} side="left" isArmed={isArmed} showReady={tapState.phase === "idle" && iAmReady} />
 
         {/* Round counter */}
         <div style={{ flexShrink: 0, textAlign: "center" }}>
@@ -216,32 +191,7 @@ export function ReflexeClient({
         </div>
 
         {/* Adversaire */}
-        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-          {tapState.phase === "idle" && opIsReady && (
-            <div style={{
-              position: "absolute", top: -10, right: -6, zIndex: 10,
-              background: EA.cyan, border: `2px solid ${EA.ink}`,
-              padding: "2px 8px", borderRadius: 999,
-              fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink,
-              transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
-            }}>✓ PRÊT</div>
-          )}
-          <div style={{
-            background: isArmed ? "rgba(255,80,0,0.15)" : EA.cyan,
-            border: `2.5px solid ${isArmed ? "rgba(255,80,0,0.5)" : EA.ink}`,
-            borderRadius: 18, padding: "10px 12px",
-            display: "flex", alignItems: "center", gap: 8,
-            transform: "rotate(0.8deg)", justifyContent: "flex-end",
-            boxShadow: isArmed ? `3px 3px 0 rgba(255,80,0,0.4)` : `3px 3px 0 ${EA.pink}`,
-            transition: "all 0.3s",
-          }}>
-            <div style={{ textAlign: "right", minWidth: 0 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isArmed ? EA.butter : EA.ink, lineHeight: 1, transition: "color 0.3s" }}>{opScore}</div>
-            </div>
-            <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
-          </div>
-        </div>
+        <ScorePanel pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} side="right" isArmed={isArmed} showReady={tapState.phase === "idle" && opIsReady} />
       </div>
 
       {/* ── LAST ROUND RESULT ── */}
