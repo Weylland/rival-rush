@@ -23,7 +23,7 @@ async function getPoints(supabase: SupabaseClient, gameType?: string): Promise<P
 
 /**
  * Recalculates a single player's leaderboard row from their full game history.
- * Uses default 3/1/0 points — per-game config not applied since history mixes game types.
+ * Points use each game's own game_type settings (cached), matching live scoring.
  * Called after account deletion to fix affected opponents, and by admin on manual recalc.
  */
 export async function recalculatePlayerLeaderboard(
@@ -36,23 +36,32 @@ export async function recalculatePlayerLeaderboard(
     .or(`challenger_id.eq.${playerId},challenged_id.eq.${playerId}`);
 
   const challengeIds = (challenges ?? []).map((c) => c.id);
-  let wins = 0, losses = 0, draws = 0;
+  let wins = 0, losses = 0, draws = 0, points = 0;
 
   if (challengeIds.length > 0) {
     const { data: games } = await supabase
       .from("games")
-      .select("winner_id")
+      .select("winner_id, challenges(game_type)")
       .eq("status", "finished")
       .in("challenge_id", challengeIds);
 
+    const ptsCache = new Map<string, Points>();
     for (const g of games ?? []) {
-      if (g.winner_id === null) draws++;
-      else if (g.winner_id === playerId) wins++;
-      else losses++;
+      const rel = g.challenges as { game_type?: string } | { game_type?: string }[] | null;
+      const gameType = (Array.isArray(rel) ? rel[0] : rel)?.game_type;
+
+      let pts = gameType ? ptsCache.get(gameType) : undefined;
+      if (!pts) {
+        pts = await getPoints(supabase, gameType);
+        if (gameType) ptsCache.set(gameType, pts);
+      }
+
+      if (g.winner_id === null) { draws++; points += pts.draw; }
+      else if (g.winner_id === playerId) { wins++; points += pts.win; }
+      else { losses++; points += pts.loss; }
     }
   }
 
-  const points = wins * DEFAULTS.win + draws * DEFAULTS.draw;
   await supabase.from("leaderboard").upsert({ player_id: playerId, wins, losses, draws, points });
 }
 
