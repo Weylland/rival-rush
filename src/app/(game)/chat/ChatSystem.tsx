@@ -45,10 +45,25 @@ interface OnlinePlayer {
 interface ChatCtxValue {
   openDM: (recipientId: string, recipientPseudo: string) => void;
   totalUnread: number;
+  /** Déclare l'adversaire courant (page de jeu) → le bouton chat ouvre sa conversation. */
+  setGameOpponent: (opponent: { id: string; pseudo: string } | null) => void;
 }
 
-const ChatCtx = createContext<ChatCtxValue>({ openDM: () => {}, totalUnread: 0 });
+const ChatCtx = createContext<ChatCtxValue>({ openDM: () => {}, totalUnread: 0, setGameOpponent: () => {} });
 export const useChatOpen = () => useContext(ChatCtx);
+
+/**
+ * À appeler dans une page de jeu : enregistre l'adversaire le temps de la partie.
+ * Quand un adversaire est enregistré, le bouton chat flottant ouvre directement
+ * la conversation privée avec lui.
+ */
+export function useGameOpponent(opponentId: string, opponentPseudo: string) {
+  const { setGameOpponent } = useContext(ChatCtx);
+  useEffect(() => {
+    setGameOpponent({ id: opponentId, pseudo: opponentPseudo });
+    return () => setGameOpponent(null);
+  }, [opponentId, opponentPseudo, setGameOpponent]);
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -147,6 +162,7 @@ export function ChatProvider({
   }, [pathname, localMemberships]);
 
   const [isOpen, setIsOpen]               = useState(false);
+  const [gameOpponent, setGameOpponent]   = useState<{ id: string; pseudo: string } | null>(null);
   const [tab, setTab]                     = useState<"lobby" | "dms">("lobby");
   const [activeConvId, setActiveConvId]   = useState<string | null>(null);
   const [activeConvPseudo, setActiveConvPseudo] = useState("");
@@ -500,13 +516,18 @@ export function ChatProvider({
   const drawerW = desktop ? 400 : "100dvw";
 
   return (
-    <ChatCtx.Provider value={{ openDM, totalUnread }}>
+    <ChatCtx.Provider value={{ openDM, totalUnread, setGameOpponent }}>
       {children}
 
       {/* Floating chat button — bas-gauche mobile, bas-droite desktop */}
       <button
         aria-label="Ouvrir le chat"
-        onClick={() => { unlockAudio(); if (isOpen) closeChat(); else setIsOpen(true); }}
+        onClick={() => {
+          unlockAudio();
+          if (isOpen) closeChat();
+          else if (gameOpponent) openDM(gameOpponent.id, gameOpponent.pseudo);
+          else setIsOpen(true);
+        }}
         style={{
           position: "fixed",
           bottom: 20,

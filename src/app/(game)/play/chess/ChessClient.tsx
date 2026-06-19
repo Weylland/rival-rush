@@ -11,7 +11,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
-import { GameChat } from "@/components/GameChat";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import {
   legalMoves,
@@ -131,6 +131,7 @@ export function ChessClient({
 
   useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
   // Clock countdown
@@ -702,7 +703,6 @@ export function ChessClient({
           </div>
         </div>
       )}
-      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
     </div>
   );

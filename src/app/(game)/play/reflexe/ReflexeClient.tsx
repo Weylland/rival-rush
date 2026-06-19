@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
-import { GameChat } from "@/components/GameChat";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { setReflexeReady, submitReflexeTap } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
@@ -51,6 +51,7 @@ export function ReflexeClient({
 
   useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
   // Presence heartbeat
@@ -419,7 +420,6 @@ export function ReflexeClient({
         )}
       </div>
 
-      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`

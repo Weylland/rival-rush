@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
-import { GameChat } from "@/components/GameChat";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
 import { rollPig, holdPig } from "./actions";
@@ -183,6 +183,7 @@ export function PigClient({
 
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
   // Presence + forfeit
@@ -482,7 +483,6 @@ export function PigClient({
       </div>
 
       <RulesButton gameType="pig" />
-      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`

@@ -12,7 +12,7 @@ import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { RulesButton } from "@/components/ui/rules-button";
-import { GameChat } from "@/components/GameChat";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import type { MorpionState, GameStatus } from "@/types/database";
 
@@ -84,6 +84,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
   }, [gameStatus]);
 
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
   useEffect(() => {
@@ -403,7 +404,6 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           <TurnPill />
         </div>
       </div>
-      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
     </div>
   );

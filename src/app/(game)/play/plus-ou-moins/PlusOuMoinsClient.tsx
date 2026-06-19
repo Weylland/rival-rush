@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
-import { GameChat } from "@/components/GameChat";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { submitGuess } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
@@ -71,6 +71,7 @@ export function PlusOuMoinsClient({
 
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
   // Présence + forfeit
@@ -605,13 +606,6 @@ export function PlusOuMoinsClient({
         </div>
       )}
 
-      <GameChat
-        gameId={gameId}
-        myId={myId}
-        myPseudo={myPseudo}
-        opponentId={opponentId}
-        opponentPseudo={opPseudo}
-      />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`

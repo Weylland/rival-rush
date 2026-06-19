@@ -10,6 +10,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { RulesButton } from "@/components/ui/rules-button";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import type { DuelDesState } from "@/types/database";
 
 // ── Dé CSS ────────────────────────────────────────────────────────────────────
@@ -124,6 +125,8 @@ export function DuelDesClient({
   const myPseudo      = myId === p1Id ? p1Pseudo : p2Pseudo;
   const myAvatarUrl   = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
   const opAvatarUrl   = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+
+  useGameOpponent(opponentId, opponentPseudo);
 
   // ── Realtime ──────────────────────────────────────────────────────────────
 
