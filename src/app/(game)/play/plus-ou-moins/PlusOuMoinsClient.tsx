@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
-import { Avatar } from "@/components/ui/avatar";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -14,6 +13,7 @@ import { useGameSounds } from "@/hooks/useGameSounds";
 import { useGamePresence } from "@/hooks/useGamePresence";
 import { resolveDuo } from "@/lib/players";
 import { getHeat } from "./components/heat";
+import { PlayerScore } from "./components/PlayerScore";
 import type { PlusOuMoinsState, PlusOuMoinsGuess, GameStatus } from "@/types/database";
 
 // ── Props ──────────────────────────────────────────────────────────────────────
@@ -185,20 +185,7 @@ export function PlusOuMoinsClient({
         position: "relative", zIndex: 2,
       }}>
         {/* Moi */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <div style={{
-            padding: 3, borderRadius: "50%",
-            border: isMyTurn && !isFinished ? `3px solid ${EA.cyan}` : `3px solid transparent`,
-            boxShadow: isMyTurn && !isFinished ? `0 0 14px ${EA.cyan}` : "none",
-            transition: "border 0.3s, box-shadow 0.3s",
-          }}>
-            <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={48} />
-          </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {myPseudo.toUpperCase()}
-          </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.cyan, lineHeight: 1 }}>{myScore}</div>
-        </div>
+        <PlayerScore pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} accent={EA.cyan} avatarColor={EA.butter} active={isMyTurn && !isFinished} />
 
         {/* Centre */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -215,20 +202,7 @@ export function PlusOuMoinsClient({
         </div>
 
         {/* Adversaire */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <div style={{
-            padding: 3, borderRadius: "50%",
-            border: !isMyTurn && !isFinished ? `3px solid ${EA.pink}` : `3px solid transparent`,
-            boxShadow: !isMyTurn && !isFinished ? `0 0 14px ${EA.pink}` : "none",
-            transition: "border 0.3s, box-shadow 0.3s",
-          }}>
-            <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={EA.cyan} size={48} />
-          </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {opPseudo.toUpperCase()}
-          </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.pink, lineHeight: 1 }}>{opScore}</div>
-        </div>
+        <PlayerScore pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} accent={EA.pink} avatarColor={EA.pink} active={!isMyTurn && !isFinished} />
       </div>
 
       {/* ── BARRE DE RANGE ── */}
