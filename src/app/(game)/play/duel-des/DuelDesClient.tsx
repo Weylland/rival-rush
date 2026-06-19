@@ -148,7 +148,7 @@ export function DuelDesClient({
 
   useEffect(() => {
     if (gameStatus === "finished") {
-      const t = setTimeout(() => router.replace(`/result?game_id=${gameId}`), 1800);
+      const t = setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
       return () => clearTimeout(t);
     }
   }, [gameStatus, gameId, router]);

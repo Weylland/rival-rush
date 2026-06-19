@@ -142,7 +142,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           const iWon = updated.winner_id === myId;
           const isDraw = updated.winner_id === null;
           play(isDraw ? "reveal" : iWon ? "win" : "lose");
-          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 1800);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
         } else if (updated.current_turn === myId) {
           play("tick");
         }

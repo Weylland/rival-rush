@@ -97,7 +97,7 @@ export function ReflexeClient({
         if (updated.status === "finished") {
           isFinishedRef.current = true;
           play(updated.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2000);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
         } else if (newState.rounds.length > prevRoundsCount) {
           const completed = newState.rounds[newState.rounds.length - 1];
           setLastRound({ winner_id: completed.winner_id, reaction_ms: completed.reaction_ms });

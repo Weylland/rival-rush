@@ -125,7 +125,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
         isGameFinishedRef.current = true;
         const iWon = round.winner_id === myId || (newState.scores[myId] ?? 0) > (newState.scores[opponentId] ?? 0);
         play(iWon ? "win" : "lose");
-        setTimeout(() => router.replace(`/result?game_id=${gameId}`), 600);
+        setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2500);
       } else {
         setMyMove(null);
         setOpponentChose(false);
@@ -159,7 +159,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
           if (newStatus === "finished") {
             isGameFinishedRef.current = true;
             play(updated.winner_id === myId ? "win" : "lose");
-            setTimeout(() => router.replace(`/result?game_id=${gameId}`), 1500);
+            setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
           }
         }
       })

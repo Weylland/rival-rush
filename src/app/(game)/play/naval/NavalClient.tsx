@@ -654,7 +654,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
         if (u.status === "finished") {
           isFinishedRef.current = true;
           play(u.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2000);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
         } else if (u.current_turn === myId) {
           // Opponent just fired at me — switch to fleet view briefly
           const opShots = ns.shots?.[opponentId] ?? [];

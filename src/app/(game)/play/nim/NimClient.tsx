@@ -243,7 +243,7 @@ export function NimClient({
         if (updated.status === "finished") {
           isFinishedRef.current = true;
           play(updated.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 1800);
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4000);
         }
       })
       .subscribe();
