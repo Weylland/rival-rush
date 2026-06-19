@@ -7,20 +7,14 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
+import { RulesButton } from "@/components/ui/rules-button";
 import { submitGuess } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
+import { getHeat } from "./components/heat";
 import type { PlusOuMoinsState, PlusOuMoinsGuess, GameStatus } from "@/types/database";
-
-// ── Chaleur selon distance ─────────────────────────────────────────────────────
-
-function getHeat(distance: number): { color: string; glow: string; label: string; emoji: string } {
-  if (distance > 30) return { color: "#4A90D9",  glow: "rgba(74,144,217,0.5)",  label: "GLACIAL",  emoji: "❄️" };
-  if (distance > 15) return { color: EA.cyan,     glow: "rgba(0,212,232,0.4)",   label: "FROID",    emoji: "🌡️" };
-  if (distance >  7) return { color: EA.butter,   glow: "rgba(255,233,74,0.4)",  label: "TIÈDE",    emoji: "☀️" };
-  if (distance >  3) return { color: "#FF8C00",   glow: "rgba(255,140,0,0.5)",   label: "CHAUD !",  emoji: "🔥" };
-  return               { color: EA.pink,           glow: "rgba(255,30,140,0.6)",  label: "BRÛLANT !!",emoji: "🌋" };
-}
 
 // ── Props ──────────────────────────────────────────────────────────────────────
 
@@ -47,11 +41,7 @@ export function PlusOuMoinsClient({
   initialState, initialStatus, initialCurrentTurn,
 }: Props) {
   const router = useRouter();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo   = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
   const [state, setState] = useState<PlusOuMoinsState>(initialState);
   const [currentTurn, setCurrentTurn] = useState<string | null>(initialCurrentTurn);
@@ -64,7 +54,6 @@ export function PlusOuMoinsClient({
   const [flashRound, setFlashRound] = useState(false);
 
   const isFinishedRef = useRef(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMyTurn  = currentTurn === myId;
   const isFinished = gameStatus === "finished";
@@ -72,38 +61,8 @@ export function PlusOuMoinsClient({
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "plus-ou-moins", initialFinished: initialStatus === "finished", isFinishedRef });
   const { play } = useGameSounds();
-
-  // Présence + forfeit
-  useEffect(() => {
-    if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
-    const supabase = createClient();
-    const updatePresence = () =>
-      supabase.from("presence").upsert({
-        player_id: myId, pseudo: myPseudo,
-        status: "in-game", game_type: "plus-ou-moins",
-        updated_at: new Date().toISOString(),
-      }).then(() => {});
-    updatePresence();
-    const heartbeat = setInterval(updatePresence, 15_000);
-    return () => {
-      clearInterval(heartbeat);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
-          fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (initialStatus === "finished") {
-      isFinishedRef.current = true;
-      router.replace(`/result?game_id=${gameId}`);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime
   useEffect(() => {
@@ -606,6 +565,7 @@ export function PlusOuMoinsClient({
         </div>
       )}
 
+      <RulesButton gameType="plus-ou-moins" />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`
