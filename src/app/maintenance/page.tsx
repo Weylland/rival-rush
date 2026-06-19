@@ -42,11 +42,11 @@ export default function MaintenancePage() {
         {/* Logo */}
         <div style={{
           fontFamily: "var(--font-display), system-ui, sans-serif",
-          fontSize: 42, color: EA.white,
+          fontSize: 34, color: EA.white,
           transform: "skewX(-6deg)",
           textShadow: `4px 4px 0 ${EA.pink}`,
         }}>
-          RIVAL<span style={{ color: EA.cyan }}>RUSH</span>
+          EXPRESSION <span style={{ color: EA.cyan }}>ARENA</span>
         </div>
 
         {/* Badge */}
@@ -102,7 +102,7 @@ export default function MaintenancePage() {
           color: "rgba(255,255,255,0.25)",
           letterSpacing: 1,
         }}>
-          RIVAL-RUSH.COM
+          EXPRESSION ARENA
         </div>
 
       </div>
