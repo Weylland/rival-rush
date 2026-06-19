@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/auth";
 import { updateLeaderboard } from "@/lib/leaderboard";
 
@@ -71,7 +72,11 @@ export async function POST(request: NextRequest) {
 
     const winnerId = loserId === p1Id ? p2Id : p1Id;
 
-    const { error } = await supabase
+    // Writes go through the admin client: RLS blocks direct games/leaderboard
+    // updates (same pattern as the game server actions).
+    const admin = createAdminClient();
+
+    const { error } = await admin
       .from("games")
       .update({ status: "finished", winner_id: winnerId })
       .eq("id", gameId)
@@ -79,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     if (error) return NextResponse.json({ ok: false });
 
-    await updateLeaderboard(supabase, winnerId, p1Id, p2Id, game.game_type as string);
+    await updateLeaderboard(admin, winnerId, p1Id, p2Id, game.game_type as string);
 
     return NextResponse.json({ ok: true, winnerId, loserId });
   } catch {
