@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
-import { Avatar } from "@/components/ui/avatar";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -14,128 +13,9 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { useGamePresence } from "@/hooks/useGamePresence";
 import { resolveDuo } from "@/lib/players";
+import { DieFace } from "./components/Die";
+import { PlayerCard } from "./components/PlayerCard";
 import type { PigState, GameStatus } from "@/types/database";
-
-const WIN_SCORE = 100;
-
-// ── Dot positions for each die face ──────────────────────────────────────────
-const DOT_POSITIONS: Record<number, [number, number][]> = {
-  1: [[1, 1]],
-  2: [[0, 0], [2, 2]],
-  3: [[0, 0], [1, 1], [2, 2]],
-  4: [[0, 0], [2, 0], [0, 2], [2, 2]],
-  5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]],
-  6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]],
-};
-
-// ── Die ───────────────────────────────────────────────────────────────────────
-function DieFace({ value, size = 140, bust = false, rolling = false }: {
-  value: number | null; size?: number; bust?: boolean; rolling?: boolean;
-}) {
-  const dots = value ? DOT_POSITIONS[value] ?? [] : [];
-  const dotSize = size * 0.14;
-  const padding = size * 0.14;
-  const inner = size - padding * 2;
-  const cell = inner / 3;
-
-  return (
-    <div style={{
-      width: size, height: size,
-      background: bust
-        ? `linear-gradient(145deg, #ff5599 0%, ${EA.pink} 100%)`
-        : `linear-gradient(145deg, #ffffff 0%, #e8e8f0 100%)`,
-      border: `4px solid ${EA.ink}`,
-      borderRadius: size * 0.18,
-      boxShadow: bust
-        ? `0 0 40px rgba(255,45,140,0.7), 6px 6px 0 ${EA.ink}, inset 0 -10px 18px rgba(0,0,0,0.18)`
-        : `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}, inset 0 -10px 18px rgba(0,0,0,0.1), 0 0 30px rgba(0,212,232,0.3)`,
-      position: "relative", flexShrink: 0,
-      transition: "background 0.2s, box-shadow 0.2s",
-      animation: rolling ? "pig-roll 0.55s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }}>
-      {value === null ? (
-        <div style={{ fontSize: size * 0.45, lineHeight: 1, opacity: 0.3 }}>🎲</div>
-      ) : (
-        <div style={{ position: "relative", width: inner, height: inner }}>
-          {dots.map(([col, row], i) => (
-            <div key={i} style={{
-              position: "absolute",
-              left: col * cell + cell / 2 - dotSize / 2,
-              top: row * cell + cell / 2 - dotSize / 2,
-              width: dotSize, height: dotSize,
-              borderRadius: "50%",
-              background: bust ? EA.white : EA.ink,
-              boxShadow: bust ? "none" : `inset 0 1px 2px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.25)`,
-            }} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Player card ───────────────────────────────────────────────────────────────
-function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, side }: {
-  score: number; pseudo: string; avatarUrl: string | null;
-  color: string; isActive: boolean; isMe: boolean; side: "left" | "right";
-}) {
-  const pct = Math.min(100, (score / WIN_SCORE) * 100);
-  return (
-    <div style={{
-      flex: 1, minWidth: 0,
-      background: isActive ? `${color}1f` : EA.violetDeep,
-      border: `2.5px solid ${isActive ? color : EA.ink}`,
-      borderRadius: 18, padding: "12px 14px",
-      boxShadow: isActive ? `3px 3px 0 ${color}` : `2px 2px 0 ${EA.ink}`,
-      transition: "all 0.3s",
-      display: "flex", flexDirection: "column", gap: 8,
-    }}>
-      <div style={{
-        display: "flex",
-        flexDirection: side === "right" ? "row-reverse" : "row",
-        alignItems: "center", gap: 10,
-      }}>
-        <Avatar name={pseudo} src={avatarUrl} color={color} ring={isActive ? color : "transparent"} size={38} />
-        <div style={{ flex: 1, minWidth: 0, textAlign: side }}>
-          <div style={{
-            fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
-            transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>
-            {pseudo.toUpperCase()}
-            {isMe && <span style={{ fontSize: 9, fontWeight: 900, color, marginLeft: 5 }}>TOI</span>}
-          </div>
-          <div style={{
-            fontFamily: "var(--font-display)", fontSize: 32,
-            color: EA.white, transform: "skewX(-6deg)",
-            textShadow: `2px 2px 0 ${color}`, lineHeight: 1,
-            marginTop: 2,
-          }}>{score}</div>
-        </div>
-      </div>
-      <div style={{
-        height: 8, borderRadius: 999,
-        background: "rgba(0,0,0,0.35)",
-        border: `1.5px solid rgba(255,255,255,0.08)`,
-        overflow: "hidden", position: "relative",
-      }}>
-        <div style={{
-          height: "100%", width: `${pct}%`,
-          background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-          borderRadius: 999,
-          transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-          boxShadow: `0 0 10px ${color}`,
-        }} />
-      </div>
-      <div style={{
-        fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.35)",
-        textAlign: side, textTransform: "uppercase", letterSpacing: 1,
-      }}>
-        {WIN_SCORE - score > 0 ? `${WIN_SCORE - score} pts à atteindre` : "🏆 GAGNÉ"}
-      </div>
-    </div>
-  );
-}
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface Props {
