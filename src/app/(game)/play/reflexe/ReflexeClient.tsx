@@ -210,7 +210,7 @@ export function ReflexeClient({
         flexShrink: 0,
       }}>
         {/* Moi */}
-        <div style={{ flex: 1, position: "relative" }}>
+        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
           {tapState.phase === "idle" && iAmReady && (
             <div style={{
               position: "absolute", top: -10, left: -6, zIndex: 10,
@@ -230,8 +230,8 @@ export function ReflexeClient({
             transition: "all 0.3s",
           }}>
             <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isArmed ? EA.butter : EA.white, lineHeight: 1, transition: "color 0.3s" }}>{myScore}</div>
             </div>
           </div>
@@ -245,7 +245,7 @@ export function ReflexeClient({
         </div>
 
         {/* Adversaire */}
-        <div style={{ flex: 1, position: "relative" }}>
+        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
           {tapState.phase === "idle" && opIsReady && (
             <div style={{
               position: "absolute", top: -10, right: -6, zIndex: 10,
@@ -264,8 +264,8 @@ export function ReflexeClient({
             boxShadow: isArmed ? `3px 3px 0 rgba(255,80,0,0.4)` : `3px 3px 0 ${EA.pink}`,
             transition: "all 0.3s",
           }}>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+            <div style={{ textAlign: "right", minWidth: 0 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 10, color: isArmed ? "rgba(255,200,150,0.7)" : EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isArmed ? EA.butter : EA.ink, lineHeight: 1, transition: "color 0.3s" }}>{opScore}</div>
             </div>
             <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />

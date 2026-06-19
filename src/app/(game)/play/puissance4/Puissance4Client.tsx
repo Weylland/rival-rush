@@ -385,12 +385,12 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
 
         {/* Player headers */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={30} src={myAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ width: 14, height: 14, borderRadius: "50%", background: myColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />
               </div>
             </div>
@@ -398,12 +398,12 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
           <div style={{ flexShrink: 0, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, padding: "5px 8px", fontFamily: "var(--font-display)", fontSize: 14, color: EA.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.pink}` }}>
             {board.filter(c => c === myId).length}—{board.filter(c => c === opponentId).length}
           </div>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
             <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={30} src={opAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ width: 14, height: 14, borderRadius: "50%", background: opColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />
               </div>
             </div>

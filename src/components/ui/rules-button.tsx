@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { EA } from "@/lib/design";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
 import type { GameType } from "@/types/database";
 
 const RULES: Record<GameType, { title: string; icon: string; items: { icon: string; text: string }[] }> = {
@@ -129,6 +130,7 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
 export function RulesButton({ gameType }: { gameType: GameType }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const desktop = useIsDesktop();
   const rules = RULES[gameType];
 
   useEffect(() => { setMounted(true); }, []);
@@ -141,7 +143,9 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
         onClick={() => setOpen(true)}
         title="Règles du jeu"
         style={{
-          position: "fixed", bottom: 16, right: 16, zIndex: 200,
+          // En bas à gauche. Sur mobile, le bouton chat occupe ce coin → on remonte
+          // au-dessus de lui pour ne rien recouvrir (ni le chat, ni les contrôles à droite).
+          position: "fixed", bottom: desktop ? 16 : 86, left: 16, zIndex: 200,
           width: 36, height: 36, borderRadius: "50%",
           background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
           color: EA.cyan, cursor: "pointer",

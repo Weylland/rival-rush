@@ -389,7 +389,7 @@ export function ChessClient({
       }}>
         <Avatar name={pseudo} src={avatarUrl} color={color} size={desktop ? 44 : 34} ring={isActive ? EA.ink : "transparent"} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: EA.white, lineHeight: 1 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: EA.white, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {pseudo.toUpperCase()}
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
@@ -432,7 +432,12 @@ export function ChessClient({
     Math.abs(dragState.x - dragState.startX) > 5 ||
     Math.abs(dragState.y - dragState.startY) > 5
   );
-  const pieceFs = desktop ? "clamp(28px, 4.5vw, 56px)" : "clamp(22px, 7vw, 40px)";
+  // Pièces dimensionnées par rapport au PLATEAU (container query cqw) → toujours
+  // proportionnelles, même quand la fenêtre change de taille (le plateau est borné
+  // par min(dvh, vw), les pièces doivent suivre le plateau, pas le viewport).
+  const pieceFs = "clamp(16px, 9cqw, 60px)";
+  // Pièce fantôme rendue via portal (hors du container) : taille basée sur le viewport.
+  const floatPieceFs = desktop ? "clamp(28px, 4.5vw, 56px)" : "clamp(22px, 7vw, 40px)";
 
   const board = (
     <div
@@ -446,6 +451,7 @@ export function ChessClient({
         flexShrink: 0,
         display: "grid",
         gridTemplateColumns: "repeat(8, 1fr)",
+        containerType: "inline-size",
         border: `3px solid ${EA.ink}`,
         borderRadius: 6,
         overflow: "hidden",
@@ -543,8 +549,8 @@ export function ChessClient({
           left: dragState.x,
           top: dragState.y,
           transform: "translate(-50%, -60%)",
-          width: `calc(${pieceFs} * 1.6)`,
-          height: `calc(${pieceFs} * 1.6)`,
+          width: `calc(${floatPieceFs} * 1.6)`,
+          height: `calc(${floatPieceFs} * 1.6)`,
           borderRadius: "50%",
           background: pieceColor(dragState.piece) === "w" ? "rgba(255,250,230,0.97)" : "rgba(8,2,22,0.95)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
@@ -554,7 +560,7 @@ export function ChessClient({
           userSelect: "none",
         }}>
           <span style={{
-            fontSize: pieceFs,
+            fontSize: floatPieceFs,
             lineHeight: 1,
             color: pieceColor(dragState.piece) === "w" ? "#1a0a2e" : "#f0e8ff",
             pointerEvents: "none",

@@ -475,16 +475,16 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
             </div>
             <div style={{ background: "rgba(26,15,94,0.55)", border: `2.5px solid ${EA.ink}`, borderRadius: 22, padding: "14px 14px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
                   <Avatar name={opPseudo} src={opAvatarUrl} color={EA.cyan} ring={EA.pink} size={36} />
-                  <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
                       {opponentChose ? <><span style={{ width: 6, height: 6, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 6px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit..."}
                     </div>
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.cyan, transform: "skewX(-8deg)" }}>{opScore} — {myScore}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.cyan, transform: "skewX(-8deg)", flexShrink: 0 }}>{opScore} — {myScore}</div>
               </div>
               <FaceDownCard chose={opponentChose} height={96} />
             </div>
@@ -522,20 +522,20 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
             </div>
           </div>
           <div style={{ position: "absolute", top: 240, left: 12, right: 12, display: "flex", alignItems: "center", gap: 8, zIndex: 5 }}>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
               {revealWin && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(-8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
               <div style={{ width: 110, height: 110, borderRadius: 28, background: revealWin ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: revealWin ? `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}` : `3px 3px 0 ${EA.violetDeep}`, transform: revealWin ? "rotate(-3deg) scale(1.05)" : (!revealDraw ? "rotate(4deg) scale(0.92)" : "none"), opacity: (!revealWin && !revealDraw) ? 0.7 : 1 }}>
                 {revealMyMove ? MOVES.find(m => m.id === revealMyMove)?.emoji : "?"}
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (!revealWin && !revealDraw) ? 0.6 : 1 }}>{myPseudo.toUpperCase()}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (!revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
             </div>
             <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: "50%", background: EA.pink, border: `2.5px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `3px 3px 0 ${EA.cyan}` }}>VS</div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
               {!revealWin && !revealDraw && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
               <div style={{ width: 110, height: 110, borderRadius: 28, background: (!revealWin && !revealDraw) ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: (!revealWin && !revealDraw) ? `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}` : `3px 3px 0 ${EA.violetDeep}`, transform: (!revealWin && !revealDraw) ? "rotate(3deg) scale(1.05)" : (revealWin ? "rotate(-4deg) scale(0.92)" : "none"), opacity: (revealWin && !revealDraw) ? 0.7 : 1 }}>
                 {revealOpMove ? MOVES.find(m => m.id === revealOpMove)?.emoji : "?"}
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (revealWin && !revealDraw) ? 0.6 : 1 }}>{opPseudo.toUpperCase()}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
             </div>
           </div>
           <div style={{ position: "absolute", top: 420, left: 24, right: 24, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `4px 4px 0 ${EA.cyan}`, zIndex: 5 }}>

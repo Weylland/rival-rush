@@ -7,6 +7,7 @@ import { submitNavalShot, submitNavalPlacement } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { RulesButton } from "@/components/ui/rules-button";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
@@ -238,6 +239,7 @@ function getPreviewCells(anchorCell: number, defId: number, horiz: boolean): num
 
 function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlaced }: PlacementProps) {
   const desktop = useIsDesktop();
+  const winWidth = useWindowWidth();
   const [placedShips, setPlacedShips] = useState<NavalShip[]>([]);
   const [selectedShipId, setSelectedShipId] = useState<number | null>(0);
   const [horizontal, setHorizontal] = useState(true);
@@ -544,7 +546,7 @@ function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlaced }: P
   }
 
   // Mobile
-  const mobileCellSize = Math.min(Math.floor(((typeof window !== "undefined" ? window.innerWidth : 390) - 24) / 10), 36);
+  const mobileCellSize = Math.min(Math.floor((winWidth - 24) / 10), 36);
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
@@ -593,6 +595,7 @@ interface Props {
 export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, myInitialShips, initialState, initialStatus, initialWinnerId, initialTurn }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
+  const winWidth = useWindowWidth();
   const { play } = useGameSounds();
   const opponentId = myId === p1Id ? p2Id : p1Id;
   const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
@@ -733,7 +736,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
     const waitGrid = computeMyGrid(myShips, []);
     const waitCellSize = desktop
       ? 44
-      : Math.min(Math.floor(((typeof window !== "undefined" ? window.innerWidth : 390) - 24) / 10), 36);
+      : Math.min(Math.floor((winWidth - 24) / 10), 36);
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32 }}>
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
@@ -847,7 +850,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   const opActive = !isMyTurn && !isFinished;
 
   // Full-width grid: screen - 2*12px padding - 12px grid padding*2 - 3px border*2
-  const gridCellSize = Math.min(Math.floor((typeof window !== "undefined" ? window.innerWidth : 390) / 10) - 3, 36);
+  const gridCellSize = Math.min(Math.floor(winWidth / 10) - 3, 36);
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
@@ -867,12 +870,12 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
 
         {/* Player headers */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -4, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={28} src={myAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Touché : {myHits}/17</div>
               </div>
             </div>
@@ -880,12 +883,12 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
           <div style={{ flexShrink: 0, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 12, padding: "4px 8px", fontFamily: "var(--font-display)", fontSize: 13, color: EA.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.pink}` }}>
             ⚓
           </div>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -4, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
             <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={28} src={opAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: "rgba(26,15,94,0.6)", marginTop: 2 }}>Touché : {opHits}/17</div>
               </div>
             </div>

@@ -297,7 +297,7 @@ export function DuelDesClient({
         }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
             <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={d ? 48 : 38} />
-            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: EA.white, transform: "skewX(-3deg)" }}>{myPseudo.toUpperCase()}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: EA.white, transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -313,7 +313,7 @@ export function DuelDesClient({
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
             <Avatar name={opponentPseudo} src={opAvatarUrl} color={EA.pink} ring={EA.butter} size={d ? 48 : 38} />
-            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: "rgba(255,255,255,0.6)", transform: "skewX(-3deg)" }}>{opponentPseudo.toUpperCase()}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: "rgba(255,255,255,0.6)", transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opponentPseudo.toUpperCase()}</span>
           </div>
         </div>
 

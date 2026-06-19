@@ -367,12 +367,12 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
 
         {/* Player headers */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
-            <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
+            <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.white, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "×" : "○"}</div>
               </div>
             </div>
@@ -380,12 +380,12 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           <div style={{ flexShrink: 0, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, padding: "6px 10px", fontFamily: "var(--font-display)", fontSize: 16, color: EA.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.pink}` }}>
             {board.filter(c => c === myId).length}—{board.filter(c => c === opponentId).length}
           </div>
-          <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
-            <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
+            <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
               <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.ink, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "○" : "×"}</div>
               </div>
             </div>
