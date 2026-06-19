@@ -9,7 +9,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
+import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
+import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
 import { RulesButton } from "@/components/ui/rules-button";
+import { PreventLeave } from "@/components/PreventLeave";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import type { DuelDesState } from "@/types/database";
 
@@ -119,14 +124,15 @@ export function DuelDesClient({
   const [revealData, setRevealData] = useState<RevealData | null>(null);
   const [showReveal, setShowReveal] = useState(false);
   const revealedUpToRef             = useRef(-1);
+  const isFinishedRef               = useRef(initialStatus === "finished");
 
-  const opponentId    = myId === p1Id ? p2Id : p1Id;
-  const opponentPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myPseudo      = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const myAvatarUrl   = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl   = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo: opponentPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
+  useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
+  useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opponentPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "duel-des", initialFinished: initialStatus === "finished", isFinishedRef });
+  const { play } = useGameSounds();
 
   // ── Realtime ──────────────────────────────────────────────────────────────
 
@@ -139,10 +145,14 @@ export function DuelDesClient({
         setGameState(g.state);
         setGameStatus(g.status as "waiting" | "playing" | "finished");
         setWinnerId(g.winner_id);
+        if (g.status === "finished") {
+          isFinishedRef.current = true;
+          play(g.winner_id === myId ? "win" : "lose");
+        }
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [gameId]);
+  }, [gameId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Redirect on finish ────────────────────────────────────────────────────
 
@@ -495,6 +505,7 @@ export function DuelDesClient({
       </div>
 
       <RulesButton gameType="duel-des" />
+      <PreventLeave enabled={gameStatus !== "finished"} gameId={gameId} />
 
       <style>{`
         @keyframes die-shake {
