@@ -12,6 +12,8 @@ import { submitMastermindGuess } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
 import { MM_MAX_GUESSES } from "@/lib/mastermind";
 import type { MastermindState, MastermindGuess, GameStatus } from "@/types/database";
 
@@ -130,11 +132,7 @@ export function MastermindClient({
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo   = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
   const [myBoard, setMyBoard]     = useState<MastermindGuess[]>(initialState.boards?.[myId] ?? []);
   const [opCount, setOpCount]     = useState<number>(initialState.boards?.[opponentId]?.length ?? 0);
@@ -151,7 +149,6 @@ export function MastermindClient({
 
   const boardEndRef   = useRef<HTMLDivElement>(null);
   const isFinishedRef = useRef<boolean>(initialStatus === "finished");
-  const forfeitRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const iCracked   = myBoard.some(g => g.blacks === 4);
   const isFinished = gameStatus === "finished";
@@ -163,42 +160,13 @@ export function MastermindClient({
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "mastermind", initialFinished: initialStatus === "finished", isFinishedRef });
   const { play } = useGameSounds();
 
   // Auto-scroll vers le bas quand un essai est ajouté
   useEffect(() => {
     boardEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [myBoard.length]);
-
-  // Présence + forfait
-  useEffect(() => {
-    if (forfeitRef.current) { clearTimeout(forfeitRef.current); forfeitRef.current = null; }
-    const supabase = createClient();
-    const up = () => supabase.from("presence").upsert({
-      player_id: myId, pseudo: myPseudo,
-      status: "in-game", game_type: "mastermind",
-      updated_at: new Date().toISOString(),
-    }).then(() => {});
-    up();
-    const hb = setInterval(up, 15_000);
-    return () => {
-      clearInterval(hb);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isFinishedRef.current) {
-        forfeitRef.current = setTimeout(() => {
-          forfeitRef.current = null;
-          fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (initialStatus === "finished") {
-      isFinishedRef.current = true;
-      router.replace(`/result?game_id=${gameId}`);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime — on ne fait jamais régresser son propre plateau (anti perte d'écriture concurrente)
   useEffect(() => {

@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { submitNavalShot, submitNavalPlacement } from "./actions";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -597,11 +599,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   const desktop = useIsDesktop();
   const winWidth = useWindowWidth();
   const { play } = useGameSounds();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo  = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
   const [navalState, setNavalState] = useState<NavalState>(initialState);
   const [gameStatus, setGameStatus]   = useState<GameStatus>(initialStatus);
@@ -614,34 +612,10 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
   const [myShips, setMyShips]         = useState<NavalShip[]>(myInitialShips ?? []);
 
   const isFinishedRef = useRef(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opPseudo);
-
-  // Presence heartbeat
-  useEffect(() => {
-    if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
-    const supabase = createClient();
-    const beat = () => supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "naval", updated_at: new Date().toISOString() }).then(() => {});
-    beat();
-    const hb = setInterval(beat, 15_000);
-    return () => {
-      clearInterval(hb);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
-          fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Redirect if already finished on load
-  useEffect(() => {
-    if (initialStatus === "finished") { isFinishedRef.current = true; router.replace(`/result?game_id=${gameId}`); }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useGamePresence({ gameId, myId, myPseudo, gameType: "naval", initialFinished: initialStatus === "finished", isFinishedRef });
 
   // Realtime
   useEffect(() => {

@@ -10,6 +10,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
 import { RulesButton } from "@/components/ui/rules-button";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
@@ -96,11 +98,7 @@ export function ChessClient({
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
   // White = p1 (challenger), Black = p2 (challenged)
   const iAmWhite = myId === p1Id;
   // Board is flipped for black so my pieces are always at the bottom
@@ -120,7 +118,6 @@ export function ChessClient({
   } | null>(null);
 
   const isFinishedRef = useRef(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeoutClaimedRef = useRef(false);
   const boardRef = useRef<HTMLDivElement>(null);
 
@@ -132,6 +129,7 @@ export function ChessClient({
   useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "chess", initialFinished: initialStatus === "finished", isFinishedRef });
   const { play } = useGameSounds();
 
   // Clock countdown
@@ -161,34 +159,6 @@ export function ChessClient({
       });
     }
   }, [runningTime, isFinished, gameId]);
-
-  // Presence + forfeit
-  useEffect(() => {
-    if (forfeitTimerRef.current) { clearTimeout(forfeitTimerRef.current); forfeitTimerRef.current = null; }
-    const supabase = createClient();
-    const updatePresence = () =>
-      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "chess", updated_at: new Date().toISOString() }).then(() => {});
-    updatePresence();
-    const heartbeat = setInterval(updatePresence, 15_000);
-    return () => {
-      clearInterval(heartbeat);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
-          fetch("/api/forfeit", { method: "POST", body: JSON.stringify({ gameId }), headers: { "Content-Type": "application/json" }, keepalive: true });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Redirect if already finished
-  useEffect(() => {
-    if (initialStatus === "finished") {
-      isFinishedRef.current = true;
-      router.replace(`/result?game_id=${gameId}`);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime
   useEffect(() => {

@@ -10,6 +10,8 @@ import { submitPFCMove } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
 import { RulesButton } from "@/components/ui/rules-button";
 import type { PFCState, PFCRound, GameStatus } from "@/types/database";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
@@ -41,11 +43,7 @@ interface Props {
 export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, initialState, initialStatus }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
   const [pfcState, setPfcState] = useState<PFCState>(initialState);
   const [phase, setPhase] = useState<Phase>(() => {
@@ -67,47 +65,13 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
   const lastRevealedRef = useRef<number>(0);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isGameFinishedRef = useRef<boolean>(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useOpponentWatcher({ gameId, opponentId, isFinishedRef: isGameFinishedRef });
   useGameOpponent(opponentId, opPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "pfc", initialFinished: initialStatus === "finished", isFinishedRef: isGameFinishedRef });
   const { play } = useGameSounds();
 
   useEffect(() => {
-    // Cancel any pending forfeit from Strict Mode's fake cleanup
-    if (forfeitTimerRef.current) {
-      clearTimeout(forfeitTimerRef.current);
-      forfeitTimerRef.current = null;
-    }
-
-    const supabase = createClient();
-    const updatePresence = () =>
-      supabase.from("presence").upsert({ player_id: myId, pseudo: myPseudo, status: "in-game", game_type: "pfc", updated_at: new Date().toISOString() }).then(() => {});
-    updatePresence();
-    const heartbeat = setInterval(updatePresence, 15_000);
-
-    return () => {
-      clearInterval(heartbeat);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isGameFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
-          fetch("/api/forfeit", {
-            method: "POST",
-            body: JSON.stringify({ gameId }),
-            headers: { "Content-Type": "application/json" },
-            keepalive: true,
-          });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]);
-
-  useEffect(() => {
-    if (initialStatus === "finished") {
-      isGameFinishedRef.current = true;
-      router.replace(`/result?game_id=${gameId}`);
-    }
     const last = initialState.rounds[initialState.rounds.length - 1];
     if (last && Object.keys(last.moves).length === 2) lastRevealedRef.current = last.round;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
