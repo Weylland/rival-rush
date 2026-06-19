@@ -149,7 +149,7 @@ export function TurnPill({ isMyTurn, isFinished, iWon, isDraw, opPseudo, shotFee
         flexShrink: 0,
       }} />
       <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
-        {shotFeedback ?? (isMyTurn ? "À toi de jouer — vise bien !" : `${opPseudo} vise...`)}
+        {shotFeedback ?? (isMyTurn ? "À toi de jouer — vise bien !" : `${opPseudo} vise…`)}
       </span>
     </div>
   );

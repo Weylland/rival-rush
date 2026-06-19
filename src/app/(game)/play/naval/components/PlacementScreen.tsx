@@ -274,7 +274,7 @@ export function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlac
         width: "100%",
       }}
     >
-      {submitting ? "..." : "⚓ PRÊT !"}
+      {submitting ? "…" : "⚓ PRÊT !"}
     </button>
   );
 

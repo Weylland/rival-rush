@@ -496,7 +496,7 @@ export function PlusOuMoinsClient({
               letterSpacing: 1.5,
               transform: "skewX(4deg)",
             }}>
-              {submitting ? "..." : !isMyTurn ? `Tour de ${opPseudo}` : "🎯 DEVINER !"}
+              {submitting ? "…" : !isMyTurn ? `Tour de ${opPseudo}` : "🎯 DEVINER !"}
             </span>
           </button>
 

@@ -272,7 +272,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                  {opponentChose ? <><span style={{ width: 9, height: 9, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 8px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit..."}
+                  {opponentChose ? <><span style={{ width: 9, height: 9, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 8px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
                 </div>
               </div>
             </div>
@@ -295,7 +295,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
             </div>
             <div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 42, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}`, marginBottom: 8 }}>
-                {phase === "waiting" ? "EN ATTENTE..." : "À TOI DE JOUER !"}
+                {phase === "waiting" ? "EN ATTENTE…" : "À TOI DE JOUER !"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 17, fontWeight: 800, color: EA.cyan, marginBottom: 24 }}>
                 {phase === "waiting" ? `${opPseudo} doit encore choisir 🔒` : "Tape pour choisir — révélation simultanée 🔒"}
@@ -331,7 +331,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                     <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
-                      {opponentChose ? <><span style={{ width: 6, height: 6, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 6px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit..."}
+                      {opponentChose ? <><span style={{ width: 6, height: 6, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 6px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
                     </div>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
           <div style={{ position: "absolute", bottom: 50, left: 0, right: 0, padding: "0 18px", zIndex: 5 }}>
             <div style={{ textAlign: "center", marginBottom: 10 }}>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}` }}>
-                {phase === "waiting" ? "EN ATTENTE..." : "À TOI DE JOUER !"}
+                {phase === "waiting" ? "EN ATTENTE…" : "À TOI DE JOUER !"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 800, color: EA.cyan, marginTop: 4 }}>
                 {phase === "waiting" ? `${opPseudo} doit encore choisir` : "tape pour choisir — révélation simultanée 🔒"}

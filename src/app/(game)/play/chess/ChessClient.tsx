@@ -350,7 +350,7 @@ export function ChessClient({
   };
 
   const statusText = isFinished
-    ? winnerId === myId ? "🏆 Victoire !" : winnerId ? "💀 Défaite" : "🤝 Match nul"
+    ? winnerId === myId ? "🏆 Victoire !" : winnerId ? "💀 Défaite !" : "🤝 Match nul !"
     : selected !== null
       ? `${moves.length} coup${moves.length > 1 ? "s" : ""} possible${moves.length > 1 ? "s" : ""} — clique la destination`
       : isMyTurn

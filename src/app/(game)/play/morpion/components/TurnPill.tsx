@@ -24,7 +24,7 @@ export function TurnPill({ isFinished, isDraw, iWon, isMyTurn, opPseudo }: Props
     <div style={{ background: "rgba(26,15,94,0.7)", border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 10, boxShadow: `3px 3px 0 ${EA.cyan}` }}>
       <span style={{ width: 8, height: 8, borderRadius: "50%", background: isMyTurn ? EA.butter : EA.cyan, boxShadow: `0 0 10px ${isMyTurn ? EA.butter : EA.cyan}`, animation: "ea-pulse 1.2s ease-in-out infinite", flexShrink: 0 }} />
       <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
-        {isMyTurn ? "À toi de jouer !" : `${opPseudo} réfléchit...`}
+        {isMyTurn ? "À toi de jouer !" : `${opPseudo} réfléchit…`}
       </span>
     </div>
   );

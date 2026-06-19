@@ -271,7 +271,7 @@ export function ReflexeClient({
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative", zIndex: 2 }}>
               <div style={{ fontSize: 60, lineHeight: 1 }}>✋</div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: EA.ink, transform: "skewX(-6deg)", textShadow: `3px 3px 0 rgba(0,0,0,0.15)` }}>
-                {submitting ? "..." : "PRÊT ?"}
+                {submitting ? "…" : "PRÊT ?"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(26,15,94,0.6)", textAlign: "center", padding: "0 24px" }}>
                 {opIsReady ? `⚡ ${opPseudo} attend déjà !` : "Appuie quand tu es prêt"}
@@ -320,7 +320,7 @@ export function ReflexeClient({
                 textShadow: `4px 4px 0 rgba(0,0,0,0.2)`,
                 animation: "reflexe-pop 0.2s cubic-bezier(0.175,0.885,0.32,1.6)",
               }}>
-                {submitting ? "..." : "TAPEZ !"}
+                {submitting ? "…" : "TAPEZ !"}
               </div>
               {!submitting && (
                 <div style={{ fontSize: 36, animation: "reflexe-pop 0.2s cubic-bezier(0.175,0.885,0.32,1.6) 0.05s both" }}>
