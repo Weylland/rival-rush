@@ -7,114 +7,15 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
+import { RulesButton } from "@/components/ui/rules-button";
 import { takeNim } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { useGamePresence } from "@/hooks/useGamePresence";
+import { resolveDuo } from "@/lib/players";
+import { getPileColor, AllumettesGrid } from "./components/Allumettes";
 import type { NimState, GameStatus } from "@/types/database";
-
-// ── Couleurs danger selon la pile ────────────────────────────────────────────
-
-function getPileColor(pile: number) {
-  if (pile <= 1) return EA.pink;
-  if (pile <= 3) return "#ff6b35";
-  if (pile <= 6) return EA.butter;
-  return EA.cyan;
-}
-
-function getPileGlow(pile: number) {
-  if (pile <= 1) return `0 0 32px ${EA.pink}, 0 0 64px rgba(255,30,140,0.5)`;
-  if (pile <= 3) return `0 0 24px #ff6b35, 0 0 48px rgba(255,107,53,0.4)`;
-  if (pile <= 6) return `0 0 20px ${EA.butter}`;
-  return `0 0 16px ${EA.cyan}`;
-}
-
-// ── Allumette visuelle ────────────────────────────────────────────────────────
-
-function Allumette({
-  highlight,
-  danger,
-  size = 1,
-}: {
-  highlight: boolean;
-  danger: boolean;
-  size?: number;
-}) {
-  const headSize = Math.round(12 * size);
-  const stickW = Math.round(7 * size);
-  const stickH = Math.round(48 * size);
-
-  const headColor = danger ? EA.pink : highlight ? "#ff6b35" : "#e85d04";
-  const stickTop = danger
-    ? `linear-gradient(180deg, ${EA.pink} 0%, #c8a063 50%)`
-    : highlight
-      ? `linear-gradient(180deg, #ff6b35 0%, #c8a063 50%)`
-      : `linear-gradient(180deg, #d4874a 0%, #8b5e3c 100%)`;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-      {/* Tête enflammée */}
-      <div style={{
-        width: headSize, height: headSize, borderRadius: "50%",
-        background: headColor,
-        border: `2px solid ${EA.ink}`,
-        boxShadow: danger
-          ? `0 0 10px ${EA.pink}, 0 0 20px rgba(255,30,140,0.6)`
-          : highlight
-            ? `0 0 8px #ff6b35`
-            : "none",
-        flexShrink: 0,
-        transition: "background 0.2s, box-shadow 0.2s",
-      }} />
-      {/* Bâton */}
-      <div style={{
-        width: stickW, height: stickH,
-        background: stickTop,
-        border: `1.5px solid ${EA.ink}`,
-        borderTop: "none",
-        borderRadius: "0 0 3px 3px",
-        transition: "background 0.2s",
-      }} />
-    </div>
-  );
-}
-
-function AllumettesGrid({
-  pile,
-  hoverCount,
-  myTurn,
-  danger,
-}: {
-  pile: number;
-  hoverCount: number | null;
-  myTurn: boolean;
-  danger: boolean;
-}) {
-  const perRow = pile > 12 ? 7 : pile > 6 ? 5 : pile;
-  const rows: number[][] = [];
-  for (let i = 0; i < pile; i += perRow) {
-    rows.push(Array.from({ length: Math.min(perRow, pile - i) }, (_, j) => i + j));
-  }
-  const highlightFrom = hoverCount !== null && myTurn ? pile - hoverCount : -1;
-  const size = pile > 15 ? 0.7 : pile > 8 ? 0.85 : 1;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-      {rows.map((row, ri) => (
-        <div key={ri} style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
-          {row.map((idx) => (
-            <Allumette
-              key={idx}
-              highlight={idx >= highlightFrom}
-              danger={danger && idx >= highlightFrom}
-              size={size}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -142,11 +43,7 @@ export function NimClient({
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const opponentId = myId === p1Id ? p2Id : p1Id;
-  const myPseudo = myId === p1Id ? p1Pseudo : p2Pseudo;
-  const opPseudo = myId === p1Id ? p2Pseudo : p1Pseudo;
-  const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
-  const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
 
   const [pile, setPile] = useState(initialState.pile);
   const [lastTaken, setLastTaken] = useState<number | null>(initialState.last_taken);
@@ -158,7 +55,6 @@ export function NimClient({
   const [shakePile, setShakePile] = useState(false);
 
   const isFinishedRef = useRef<boolean>(initialStatus === "finished");
-  const forfeitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMyTurn = currentTurn === myId;
   const isFinished = gameStatus === "finished";
@@ -171,46 +67,8 @@ export function NimClient({
 
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
   useGameOpponent(opponentId, opPseudo);
+  useGamePresence({ gameId, myId, myPseudo, gameType: "nim", initialFinished: initialStatus === "finished", isFinishedRef });
   const { play } = useGameSounds();
-
-  // Presence + forfeit
-  useEffect(() => {
-    if (forfeitTimerRef.current) {
-      clearTimeout(forfeitTimerRef.current);
-      forfeitTimerRef.current = null;
-    }
-    const supabase = createClient();
-    const updatePresence = () =>
-      supabase.from("presence").upsert({
-        player_id: myId, pseudo: myPseudo,
-        status: "in-game", game_type: "nim",
-        updated_at: new Date().toISOString(),
-      }).then(() => {});
-    updatePresence();
-    const heartbeat = setInterval(updatePresence, 15_000);
-    return () => {
-      clearInterval(heartbeat);
-      supabase.from("presence").update({ status: "online", updated_at: new Date().toISOString() }).eq("player_id", myId).then(() => {});
-      if (!isFinishedRef.current) {
-        forfeitTimerRef.current = setTimeout(() => {
-          forfeitTimerRef.current = null;
-          fetch("/api/forfeit", {
-            method: "POST",
-            body: JSON.stringify({ gameId }),
-            headers: { "Content-Type": "application/json" },
-            keepalive: true,
-          });
-        }, 5000);
-      }
-    };
-  }, [myId, gameId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (initialStatus === "finished") {
-      isFinishedRef.current = true;
-      router.replace(`/result?game_id=${gameId}`);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const supabase = createClient();
@@ -504,6 +362,7 @@ export function NimClient({
       )}
 
 
+      <RulesButton gameType="nim" />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
 
       <style>{`
