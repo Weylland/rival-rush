@@ -15,3 +15,12 @@ export function tictactoeWinner<T extends string>(board: (T | null)[]): T | null
   }
   return null;
 }
+
+/** Retourne les 3 indices de la ligne gagnante (pour la mise en évidence), sinon null. */
+export function tictactoeWinningLine(board: (string | null)[]): readonly number[] | null {
+  for (const line of TICTACTOE_LINES) {
+    const [a, b, c] = line;
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return line;
+  }
+  return null;
+}

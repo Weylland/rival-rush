@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { tictactoeWinner } from "./tictactoe";
+import { tictactoeWinner, tictactoeWinningLine } from "./tictactoe";
 
 const N = null;
 
@@ -24,5 +24,16 @@ describe("tictactoeWinner", () => {
   it("pas de gagnant sur plateau plein sans alignement (nul)", () => {
     // A B A / A B B / B A A
     expect(tictactoeWinner(["A", "B", "A", "A", "B", "B", "B", "A", "A"])).toBeNull();
+  });
+});
+
+describe("tictactoeWinningLine", () => {
+  it("null sans alignement", () => {
+    expect(tictactoeWinningLine([N, N, N, N, N, N, N, N, N])).toBeNull();
+  });
+
+  it("retourne les indices de la ligne gagnante", () => {
+    expect(tictactoeWinningLine(["A", "A", "A", N, N, N, N, N, N])).toEqual([0, 1, 2]);
+    expect(tictactoeWinningLine([N, N, "B", N, "B", N, "B", N, N])).toEqual([2, 4, 6]);
   });
 });
