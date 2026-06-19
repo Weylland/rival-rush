@@ -4,9 +4,8 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { isPigBust, pigBank } from "@/lib/games/pig";
 import type { PigState } from "@/types/database";
-
-const WIN_SCORE = 100;
 
 async function getGame(supabase: Awaited<ReturnType<typeof createClient>>, gameId: string, playerId: string) {
   const { data: game } = await supabase
@@ -47,7 +46,7 @@ export async function rollPig(gameId: string) {
 
   const roll = Math.floor(Math.random() * 6) + 1;
 
-  if (roll === 1) {
+  if (isPigBust(roll)) {
     // Lose turn total, pass turn
     const newState: PigState = {
       scores: state.scores,
@@ -92,9 +91,9 @@ export async function holdPig(gameId: string) {
 
   if (state.turn_total === 0) return { ok: false, error: "Nothing to hold" };
 
-  const newScore = (state.scores[myId] ?? 0) + state.turn_total;
-  const newScores = { ...state.scores, [myId]: newScore };
-  const isFinished = newScore >= WIN_SCORE;
+  const bank = pigBank(state.scores[myId] ?? 0, state.turn_total);
+  const newScores = { ...state.scores, [myId]: bank.newScore };
+  const isFinished = bank.finished;
 
   const newState: PigState = {
     scores: newScores,

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { diceDuelRoundWinner, DICE_DUEL_TARGET } from "@/lib/games/dice-duel";
 import type { DuelDesState } from "@/types/database";
 
 export async function rollDice(gameId: string) {
@@ -55,13 +56,13 @@ export async function rollDice(gameId: string) {
   let finalWinnerId: string | null = null;
 
   if (bothRolled) {
-    const roundWinner = roll > opRoll ? myId : opRoll > roll ? opponentId : null;
+    const roundWinner = diceDuelRoundWinner(myId, roll, opponentId, opRoll);
     newRounds[roundIdx] = { ...newRounds[roundIdx], winner_id: roundWinner };
 
     const newScores = { ...state.scores };
     if (roundWinner) newScores[roundWinner] = (newScores[roundWinner] ?? 0) + 1;
 
-    if (roundWinner && newScores[roundWinner] >= 3) {
+    if (roundWinner && newScores[roundWinner] >= DICE_DUEL_TARGET) {
       finalWinnerId = roundWinner;
       gameFinished  = true;
       newState = { ...newState, rounds: newRounds, scores: newScores };

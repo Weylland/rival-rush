@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { resolveNimTake } from "@/lib/games/nim";
 import type { NimState } from "@/types/database";
 
 export async function takeNim(gameId: string, count: 1 | 2 | 3) {
@@ -36,15 +37,14 @@ export async function takeNim(gameId: string, count: 1 | 2 | 3) {
     ? (raw as unknown as NimState)
     : { pile: 15, initial_pile: 15, last_taken: null, last_player_id: null };
 
-  if (count < 1 || count > 3) return { ok: false, error: "Invalid count" };
-  if (count > state.pile) return { ok: false, error: "Not enough allumettes" };
+  const move = resolveNimTake(state.pile, count);
+  if (!move.valid) return { ok: false, error: "Invalid count" };
 
-  const newPile = state.pile - count;
+  const newPile = move.newPile;
   const opponentId = myId === p1Id ? p2Id : p1Id;
 
-  // Misère rule: who takes the LAST allumette LOSES
-  // newPile === 0 → current player took the last one → they LOSE → opponent WINS
-  const isFinished = newPile === 0;
+  // Misère : qui prend la dernière allumette PERD → l'adversaire gagne
+  const isFinished = move.finished;
   const winnerId = isFinished ? opponentId : null;
 
   const newState: NimState = {

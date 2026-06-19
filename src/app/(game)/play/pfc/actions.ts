@@ -4,17 +4,10 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { rpsRoundWinner, type RpsMove } from "@/lib/games/rps";
 import type { PFCState, PFCRound } from "@/types/database";
 
-type PFCMove = "pierre" | "feuille" | "ciseaux";
-
-function resolveRound(p1Id: string, p1Move: PFCMove, p2Id: string, p2Move: PFCMove): string | null {
-  if (p1Move === p2Move) return null; // draw
-  const wins: Record<PFCMove, PFCMove> = { pierre: "ciseaux", ciseaux: "feuille", feuille: "pierre" };
-  return wins[p1Move] === p2Move ? p1Id : p2Id;
-}
-
-export async function submitPFCMove(gameId: string, move: PFCMove) {
+export async function submitPFCMove(gameId: string, move: RpsMove) {
   const session = await getSession();
   if (!session) throw new Error("Not authenticated");
 
@@ -61,8 +54,8 @@ export async function submitPFCMove(gameId: string, move: PFCMove) {
 
   // Resolve round when both moved
   if (currentRound.moves[opponentId]) {
-    const opMove = currentRound.moves[opponentId];
-    currentRound.winner_id = resolveRound(myId, move, opponentId, opMove);
+    const opMove = currentRound.moves[opponentId] as RpsMove;
+    currentRound.winner_id = rpsRoundWinner(myId, move, opponentId, opMove);
     if (currentRound.winner_id) {
       state.scores[currentRound.winner_id] = (state.scores[currentRound.winner_id] ?? 0) + 1;
     }

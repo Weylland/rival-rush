@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { readSecrets, writeSecrets } from "@/lib/game-secrets";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { higherLowerFeedback, narrowRange } from "@/lib/games/higher-lower";
 import type { PlusOuMoinsState } from "@/types/database";
 
 /** Returns the secret for the given round from game_secrets, migrating legacy state if needed. */
@@ -82,17 +83,13 @@ export async function submitGuess(gameId: string, value: number) {
   const secret = await getOrCreateSecret(gameId, currentRound, isNewRound ? undefined : legacySecret);
 
   const opponentId = myId === p1Id ? p2Id : p1Id;
-  const feedback: "plus" | "moins" | "exact" =
-    clampedValue === secret ? "exact" :
-    clampedValue < secret ? "plus" : "moins";
+  const feedback = higherLowerFeedback(clampedValue, secret);
 
   const newGuess = { player_id: myId, value: clampedValue, feedback };
 
-  let newMin = isNewRound ? 1 : state.range_min;
-  let newMax = isNewRound ? 100 : state.range_max;
-  if (feedback === "plus")  newMin = Math.max(newMin, clampedValue + 1);
-  if (feedback === "moins") newMax = Math.min(newMax, clampedValue - 1);
-  if (feedback === "exact") { newMin = secret; newMax = secret; }
+  const baseMin = isNewRound ? 1 : state.range_min;
+  const baseMax = isNewRound ? 100 : state.range_max;
+  const { min: newMin, max: newMax } = narrowRange(baseMin, baseMax, clampedValue, feedback);
 
   const newScores = { ...state.scores };
   let gameFinished = false;

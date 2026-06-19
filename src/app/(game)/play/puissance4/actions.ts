@@ -4,28 +4,8 @@ import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeaderboard } from "@/lib/leaderboard";
+import { connect4Winner, dropRow, isBoardFull, C4_COLS } from "@/lib/games/connect4";
 import type { Puissance4State } from "@/types/database";
-
-const ROWS = 6;
-const COLS = 7;
-
-function get(board: (string | null)[], r: number, c: number) {
-  return board[r * COLS + c];
-}
-
-function checkWinner(board: (string | null)[]): string | null {
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const cell = get(board, r, c);
-      if (!cell) continue;
-      if (c + 3 < COLS && cell === get(board, r, c + 1) && cell === get(board, r, c + 2) && cell === get(board, r, c + 3)) return cell;
-      if (r + 3 < ROWS && cell === get(board, r + 1, c) && cell === get(board, r + 2, c) && cell === get(board, r + 3, c)) return cell;
-      if (r + 3 < ROWS && c + 3 < COLS && cell === get(board, r + 1, c + 1) && cell === get(board, r + 2, c + 2) && cell === get(board, r + 3, c + 3)) return cell;
-      if (r + 3 < ROWS && c - 3 >= 0 && cell === get(board, r + 1, c - 1) && cell === get(board, r + 2, c - 2) && cell === get(board, r + 3, c - 3)) return cell;
-    }
-  }
-  return null;
-}
 
 export async function submitPuissance4Move(gameId: string, col: number) {
   const session = await getSession();
@@ -60,22 +40,16 @@ export async function submitPuissance4Move(gameId: string, col: number) {
 
   if (!state.board || state.board.length !== 42) state.board = Array(42).fill(null);
 
-  if (col < 0 || col >= COLS) return { ok: false, error: "Invalid column" };
+  if (col < 0 || col >= C4_COLS) return { ok: false, error: "Invalid column" };
 
-  // Find lowest empty row in column
-  let targetRow = -1;
-  for (let r = ROWS - 1; r >= 0; r--) {
-    if (state.board[r * COLS + col] === null) {
-      targetRow = r;
-      break;
-    }
-  }
+  // Ligne où tombe le jeton dans la colonne
+  const targetRow = dropRow(state.board, col);
   if (targetRow === -1) return { ok: false, error: "Column full" };
 
-  state.board[targetRow * COLS + col] = myId;
+  state.board[targetRow * C4_COLS + col] = myId;
 
-  const winner = checkWinner(state.board);
-  const isDraw = !winner && state.board.every(c => c !== null);
+  const winner = connect4Winner(state.board);
+  const isDraw = !winner && isBoardFull(state.board);
   const isFinished = !!winner || isDraw;
 
   const opponentId = myId === p1Id ? p2Id : p1Id;
