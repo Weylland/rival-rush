@@ -13,34 +13,11 @@ import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
 import { useGamePresence } from "@/hooks/useGamePresence";
 import { resolveDuo } from "@/lib/players";
+import { connect4WinningCells, C4_ROWS as ROWS, C4_COLS as COLS } from "@/lib/games/connect4";
 import { RulesButton } from "@/components/ui/rules-button";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import type { Puissance4State, GameStatus } from "@/types/database";
-
-const ROWS = 6;
-const COLS = 7;
-
-function getWinningCells(board: (string | null)[]): number[] | null {
-  const get = (r: number, c: number) => board[r * COLS + c];
-  const idx = (r: number, c: number) => r * COLS + c;
-
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const cell = get(r, c);
-      if (!cell) continue;
-      if (c + 3 < COLS && cell === get(r, c + 1) && cell === get(r, c + 2) && cell === get(r, c + 3))
-        return [idx(r, c), idx(r, c + 1), idx(r, c + 2), idx(r, c + 3)];
-      if (r + 3 < ROWS && cell === get(r + 1, c) && cell === get(r + 2, c) && cell === get(r + 3, c))
-        return [idx(r, c), idx(r + 1, c), idx(r + 2, c), idx(r + 3, c)];
-      if (r + 3 < ROWS && c + 3 < COLS && cell === get(r + 1, c + 1) && cell === get(r + 2, c + 2) && cell === get(r + 3, c + 3))
-        return [idx(r, c), idx(r + 1, c + 1), idx(r + 2, c + 2), idx(r + 3, c + 3)];
-      if (r + 3 < ROWS && c - 3 >= 0 && cell === get(r + 1, c - 1) && cell === get(r + 2, c - 2) && cell === get(r + 3, c - 3))
-        return [idx(r, c), idx(r + 1, c - 1), idx(r + 2, c - 2), idx(r + 3, c - 3)];
-    }
-  }
-  return null;
-}
 
 interface Props {
   gameId: string;
@@ -115,7 +92,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   const isMyTurn = currentTurn === myId;
   const isFinished = gameStatus === "finished";
   const isDraw = isFinished && !winnerId;
-  const winCells = winnerId ? getWinningCells(board) : null;
+  const winCells = winnerId ? connect4WinningCells(board) : null;
 
   const myColor = iAmP1 ? EA.pink : EA.cyan;
   const opColor = iAmP1 ? EA.cyan : EA.pink;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { connect4Winner, dropRow, isBoardFull, C4_COLS, C4_ROWS } from "./connect4";
+import { connect4Winner, connect4WinningCells, dropRow, isBoardFull, C4_COLS, C4_ROWS } from "./connect4";
 
 const empty = () => Array<string | null>(C4_ROWS * C4_COLS).fill(null);
 const idx = (r: number, c: number) => r * C4_COLS + c;
@@ -68,5 +68,23 @@ describe("isBoardFull", () => {
   it("faux si une case est libre, vrai si plein", () => {
     expect(isBoardFull(empty())).toBe(false);
     expect(isBoardFull(Array(42).fill("A"))).toBe(true);
+  });
+});
+
+describe("connect4WinningCells", () => {
+  it("null sans alignement", () => {
+    expect(connect4WinningCells(empty())).toBeNull();
+  });
+
+  it("retourne les 4 indices d'un alignement horizontal", () => {
+    const b = empty();
+    [0, 1, 2, 3].forEach(c => (b[idx(5, c)] = "A"));
+    expect(connect4WinningCells(b)).toEqual([idx(5, 0), idx(5, 1), idx(5, 2), idx(5, 3)]);
+  });
+
+  it("retourne les 4 indices d'une diagonale ↘", () => {
+    const b = empty();
+    [[2, 0], [3, 1], [4, 2], [5, 3]].forEach(([r, c]) => (b[idx(r, c)] = "A"));
+    expect(connect4WinningCells(b)).toEqual([idx(2, 0), idx(3, 1), idx(4, 2), idx(5, 3)]);
   });
 });
