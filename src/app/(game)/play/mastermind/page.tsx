@@ -40,9 +40,10 @@ export default async function MastermindPage({ searchParams }: Props) {
   const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_url as string | null) ?? null]));
 
   const raw = game.state as Record<string, unknown>;
-  const initialState: MastermindState = raw && "guesses" in raw
-    ? (raw as unknown as MastermindState)
-    : { guesses: [] };
+  const initialState: MastermindState =
+    raw && typeof raw.boards === "object" && raw.boards !== null
+      ? (raw as unknown as MastermindState)
+      : { boards: {} };
 
   return (
     <MastermindClient
@@ -56,7 +57,6 @@ export default async function MastermindPage({ searchParams }: Props) {
       p2AvatarUrl={avatarOf[p2Id] ?? null}
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
-      initialCurrentTurn={game.current_turn as string | null}
       initialWinnerId={(game.winner_id ?? null) as string | null}
     />
   );

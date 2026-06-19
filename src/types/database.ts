@@ -93,17 +93,20 @@ export interface NavalState {
 }
 
 export interface MastermindGuess {
-  player_id: string;
   guess: number[];
   blacks: number;
   whites: number;
 }
 
 export interface MastermindState {
-  /** code is server-side only (game_secrets table) — never in broadcast state */
-  guesses: MastermindGuess[];
-  /** Only populated once the game is finished */
-  revealed_code?: number[];
+  /**
+   * Mode duel "course" : chaque joueur craque son propre code.
+   * Plateaux indexés par player_id — un joueur ne voit que le sien.
+   * Les codes secrets restent côté serveur (game_secrets), jamais diffusés.
+   */
+  boards: Record<string, MastermindGuess[]>;
+  /** Codes révélés (par player_id) uniquement une fois la partie terminée. */
+  revealed?: Record<string, number[]>;
 }
 
 export interface PigState {

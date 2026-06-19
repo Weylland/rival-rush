@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
-import { GameChat } from "@/components/GameChat";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
+import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { submitMastermindGuess } from "./actions";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
 import { useGameSounds } from "@/hooks/useGameSounds";
+import { MM_MAX_GUESSES } from "@/lib/mastermind";
 import type { MastermindState, MastermindGuess, GameStatus } from "@/types/database";
 
-const MAX_GUESSES = 12;
+const MAX_GUESSES = MM_MAX_GUESSES;
 
 const COLORS = [
   { bg: "#FF2D78", glow: "rgba(255,45,120,0.6)",  label: "Rubis",     symbol: "♦" },
@@ -118,7 +119,6 @@ interface Props {
   p1AvatarUrl: string | null; p2AvatarUrl: string | null;
   initialState: MastermindState;
   initialStatus: GameStatus;
-  initialCurrentTurn: string | null;
   initialWinnerId: string | null;
 }
 
@@ -126,7 +126,7 @@ interface Props {
 export function MastermindClient({
   gameId, myId, p1Id, p2Id,
   p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
-  initialState, initialStatus, initialCurrentTurn, initialWinnerId,
+  initialState, initialStatus, initialWinnerId,
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
@@ -136,12 +136,16 @@ export function MastermindClient({
   const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
   const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
 
-  const [guesses, setGuesses]           = useState<MastermindGuess[]>(initialState.guesses ?? []);
-  const [revealedCode, setRevealedCode] = useState<number[] | null>(
-    initialStatus === "finished" ? (initialState.revealed_code ?? null) : null
+  const [myBoard, setMyBoard]     = useState<MastermindGuess[]>(initialState.boards?.[myId] ?? []);
+  const [opCount, setOpCount]     = useState<number>(initialState.boards?.[opponentId]?.length ?? 0);
+  const [opCracked, setOpCracked] = useState<boolean>(
+    (initialState.boards?.[opponentId] ?? []).some(g => g.blacks === 4)
   );
-  const [currentTurn, setCurrentTurn]   = useState<string | null>(initialCurrentTurn);
-  const [gameStatus, setGameStatus]     = useState<GameStatus>(initialStatus);
+  const [revealedCode, setRevealedCode] = useState<number[] | null>(
+    initialStatus === "finished" ? (initialState.revealed?.[myId] ?? null) : null
+  );
+  const [winnerId, setWinnerId]   = useState<string | null>(initialWinnerId);
+  const [gameStatus, setGameStatus] = useState<GameStatus>(initialStatus);
   const [currentGuess, setCurrentGuess] = useState<(number | null)[]>([null, null, null, null]);
   const [submitting, setSubmitting]     = useState(false);
 
@@ -149,21 +153,24 @@ export function MastermindClient({
   const isFinishedRef = useRef<boolean>(initialStatus === "finished");
   const forfeitRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isMyTurn   = currentTurn === myId;
+  const iCracked   = myBoard.some(g => g.blacks === 4);
   const isFinished = gameStatus === "finished";
+  const outOfGuesses = myBoard.length >= MAX_GUESSES;
+  const canPlay    = !isFinished && !iCracked && !outOfGuesses;
   const guessReady = currentGuess.every(c => c !== null);
-  const activeRow  = guesses.length;
+  const activeRow  = myBoard.length;
 
   useEffect(() => { isFinishedRef.current = isFinished; }, [isFinished]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
+  useGameOpponent(opponentId, opPseudo);
   const { play } = useGameSounds();
 
-  // Auto-scroll to bottom when new guess added
+  // Auto-scroll vers le bas quand un essai est ajouté
   useEffect(() => {
     boardEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [guesses.length]);
+  }, [myBoard.length]);
 
-  // Presence + forfeit
+  // Présence + forfait
   useEffect(() => {
     if (forfeitRef.current) { clearTimeout(forfeitRef.current); forfeitRef.current = null; }
     const supabase = createClient();
@@ -193,34 +200,43 @@ export function MastermindClient({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Realtime
+  // Realtime — on ne fait jamais régresser son propre plateau (anti perte d'écriture concurrente)
   useEffect(() => {
     const supabase = createClient();
     const sub = supabase
       .channel(`mastermind-${gameId}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "games", filter: `id=eq.${gameId}` }, (payload) => {
-        const updated = payload.new as { state: unknown; status: string; current_turn: string | null; winner_id: string | null };
+        const updated = payload.new as { state: unknown; status: string; winner_id: string | null };
         const raw = updated.state as Record<string, unknown>;
-        const newState: MastermindState = raw && "guesses" in raw
-          ? (raw as unknown as MastermindState)
-          : { guesses: [] };
-        setGuesses(newState.guesses ?? []);
-        setCurrentTurn(updated.current_turn);
+        const boards = (raw && typeof raw.boards === "object" && raw.boards !== null
+          ? raw.boards
+          : {}) as Record<string, MastermindGuess[]>;
+
+        const incomingMine = boards[myId] ?? [];
+        setMyBoard(prev => incomingMine.length >= prev.length ? incomingMine : prev);
+
+        const incomingOp = boards[opponentId] ?? [];
+        setOpCount(prev => Math.max(prev, incomingOp.length));
+        if (incomingOp.some(g => g.blacks === 4)) setOpCracked(true);
+
         setGameStatus(updated.status as GameStatus);
-        if (updated.current_turn === myId) play("notify");
+        setWinnerId(updated.winner_id);
+
         if (updated.status === "finished") {
           isFinishedRef.current = true;
-          setRevealedCode(newState.revealed_code ?? null);
+          const revealed = (raw.revealed as Record<string, number[]> | undefined)?.[myId] ?? null;
+          setRevealedCode(revealed);
           play(updated.winner_id === myId ? "win" : "lose");
-          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 2200);
+          // Laisse le temps de voir le code révélé + la ligne gagnante avant le résultat
+          setTimeout(() => router.replace(`/result?game_id=${gameId}`), 4500);
         }
       })
       .subscribe();
     return () => { supabase.removeChannel(sub); };
-  }, [gameId, myId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [gameId, myId, opponentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function pickColor(idx: number) {
-    if (!isMyTurn || submitting) return;
+    if (!canPlay || submitting) return;
     const next = [...currentGuess];
     const first = next.findIndex(v => v === null);
     if (first === -1) return;
@@ -229,28 +245,33 @@ export function MastermindClient({
   }
 
   function clearSlot(i: number) {
-    if (!isMyTurn || submitting) return;
+    if (!canPlay || submitting) return;
     const next = [...currentGuess];
     next[i] = null;
     setCurrentGuess(next);
   }
 
   function clearAll() {
-    if (!isMyTurn || submitting) return;
+    if (!canPlay || submitting) return;
     setCurrentGuess([null, null, null, null]);
   }
 
   async function handleSubmit() {
-    if (!isMyTurn || submitting || !guessReady) return;
+    if (!canPlay || submitting || !guessReady) return;
     setSubmitting(true);
     play("move");
+    // Optimiste : on ajoute l'essai localement, le realtime confirmera le feedback
     const res = await submitMastermindGuess(gameId, currentGuess as number[]);
-    if (res.ok) setCurrentGuess([null, null, null, null]);
+    if (res.ok) {
+      setMyBoard(prev => {
+        if (prev.length >= MAX_GUESSES) return prev;
+        return [...prev, { guess: currentGuess as number[], blacks: res.blacks ?? 0, whites: res.whites ?? 0 }];
+      });
+      setCurrentGuess([null, null, null, null]);
+      if (res.win) play("win");
+    }
     setSubmitting(false);
   }
-
-  const myGuessCount = guesses.filter(g => g.player_id === myId).length;
-  const opGuessCount = guesses.filter(g => g.player_id === opponentId).length;
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -277,14 +298,12 @@ export function MastermindClient({
           display: "grid", gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center", gap: 8,
         }}>
-          {/* Moi */}
           <PlayerBadge
             pseudo={myPseudo} avatar={myAvatarUrl}
-            guessCount={myGuessCount} color={EA.cyan}
-            active={currentTurn === myId && !isFinished}
+            guessCount={myBoard.length} cracked={iCracked} color={EA.cyan}
+            active={canPlay}
             align="left"
           />
-          {/* Titre */}
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
               🎨 MASTER
@@ -293,16 +312,15 @@ export function MastermindClient({
               MIND
             </div>
           </div>
-          {/* Adversaire */}
           <PlayerBadge
             pseudo={opPseudo} avatar={opAvatarUrl}
-            guessCount={opGuessCount} color={EA.pink}
-            active={currentTurn === opponentId && !isFinished}
+            guessCount={opCount} cracked={opCracked} color={EA.pink}
+            active={!isFinished && !opCracked}
             align="right"
           />
         </div>
 
-        {/* ── Code secret ─────────────────────────────────────────────────── */}
+        {/* ── Ton code secret ─────────────────────────────────────────────── */}
         <div style={{
           background: EA.violetDeep,
           border: `2.5px solid ${revealedCode ? EA.butter : EA.ink}`,
@@ -315,21 +333,16 @@ export function MastermindClient({
             color: revealedCode ? EA.butter : "rgba(255,255,255,0.4)",
             textTransform: "uppercase", letterSpacing: 2,
           }}>
-            {revealedCode ? "🔓 CODE RÉVÉLÉ !" : "🔒 CODE SECRET"}
+            {revealedCode ? "🔓 TON CODE ÉTAIT…" : "🔒 TON CODE SECRET À CRAQUER"}
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             {(revealedCode ?? [null, null, null, null]).map((c, i) => (
-              <Gem
-                key={i}
-                color={c}
-                size={revealedCode ? 44 : 36}
-                glow={!!revealedCode}
-              />
+              <Gem key={i} color={c} size={revealedCode ? 44 : 36} glow={!!revealedCode} />
             ))}
           </div>
         </div>
 
-        {/* ── Plateau — seulement les essais joués + ligne active ─────────── */}
+        {/* ── Plateau (uniquement mes essais) ─────────────────────────────── */}
         <div style={{
           background: EA.violetDeep,
           border: `2.5px solid ${EA.ink}`,
@@ -337,14 +350,13 @@ export function MastermindClient({
           boxShadow: `2px 2px 0 ${EA.ink}`,
           overflow: "hidden",
         }}>
-          {/* Sous-titre / compteur */}
           <div style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
             padding: "10px 16px 8px",
             borderBottom: `1.5px solid rgba(255,255,255,0.08)`,
           }}>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.5 }}>
-              Plateau
+              Ton plateau
             </div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: "rgba(255,255,255,0.4)", transform: "skewX(-4deg)" }}>
               {activeRow} / {MAX_GUESSES} essais
@@ -353,67 +365,54 @@ export function MastermindClient({
 
           <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
             {/* Lignes jouées */}
-            {guesses.map((g, i) => {
-              const isMe = g.player_id === myId;
-              const playerColor = isMe ? EA.cyan : EA.pink;
-              return (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "8px 10px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: `1.5px solid rgba(255,255,255,0.08)`,
-                  borderRadius: 12,
-                }}>
-                  {/* Barre joueur */}
-                  <div style={{ width: 4, height: 36, borderRadius: 2, background: playerColor, flexShrink: 0 }} />
-                  {/* Numéro */}
-                  <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "right", flexShrink: 0 }}>
-                    {i + 1}
-                  </div>
-                  {/* Gems */}
-                  <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
-                    {g.guess.map((c, j) => <Gem key={j} color={c} size={36} />)}
-                  </div>
-                  {/* Pegs */}
-                  <Pegs blacks={g.blacks} whites={g.whites} />
+            {myBoard.map((g, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "8px 10px",
+                background: "rgba(255,255,255,0.04)",
+                border: `1.5px solid rgba(255,255,255,0.08)`,
+                borderRadius: 12,
+              }}>
+                <div style={{ width: 4, height: 36, borderRadius: 2, background: EA.cyan, flexShrink: 0 }} />
+                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "right", flexShrink: 0 }}>
+                  {i + 1}
                 </div>
-              );
-            })}
+                <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
+                  {g.guess.map((c, j) => <Gem key={j} color={c} size={36} />)}
+                </div>
+                <Pegs blacks={g.blacks} whites={g.whites} />
+              </div>
+            ))}
 
             {/* Ligne active */}
-            {!isFinished && activeRow < MAX_GUESSES && (
+            {canPlay && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "10px 10px",
-                background: isMyTurn ? "rgba(0,212,232,0.08)" : "rgba(255,45,120,0.06)",
-                border: `2px solid ${isMyTurn ? EA.cyan : EA.pink}`,
+                background: "rgba(0,212,232,0.08)",
+                border: `2px solid ${EA.cyan}`,
                 borderRadius: 12,
-                boxShadow: isMyTurn ? `0 0 12px rgba(0,212,232,0.2)` : "none",
+                boxShadow: `0 0 12px rgba(0,212,232,0.2)`,
               }}>
-                {/* Barre joueur */}
-                <div style={{ width: 4, height: 40, borderRadius: 2, background: isMyTurn ? EA.cyan : EA.pink, flexShrink: 0 }} />
-                {/* Numéro */}
-                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: isMyTurn ? EA.cyan : EA.pink, textAlign: "right", flexShrink: 0 }}>
+                <div style={{ width: 4, height: 40, borderRadius: 2, background: EA.cyan, flexShrink: 0 }} />
+                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, textAlign: "right", flexShrink: 0 }}>
                   {activeRow + 1}
                 </div>
-                {/* Slots */}
                 <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
                   {currentGuess.map((c, i) => (
                     <Gem
                       key={i}
                       color={c}
                       size={40}
-                      glow={c !== null && isMyTurn}
-                      onClick={isMyTurn && c !== null ? () => clearSlot(i) : undefined}
+                      glow={c !== null}
+                      onClick={c !== null ? () => clearSlot(i) : undefined}
                     />
                   ))}
                 </div>
-                {/* Empty pegs */}
                 <EmptyPegs />
               </div>
             )}
 
-            {/* Sentinel pour auto-scroll */}
             <div ref={boardEndRef} />
           </div>
         </div>
@@ -428,22 +427,27 @@ export function MastermindClient({
             padding: "14px 16px",
             display: "flex", flexDirection: "column", gap: 14,
           }}>
-            {/* Status */}
             <div style={{
               textAlign: "center",
               fontFamily: "var(--font-display)", fontSize: 14,
-              color: isMyTurn ? EA.cyan : "rgba(255,255,255,0.4)",
+              color: iCracked ? EA.butter : canPlay ? EA.cyan : "rgba(255,255,255,0.4)",
               transform: "skewX(-4deg)",
               letterSpacing: 0.8,
             }}>
-              {isMyTurn ? "🎯 À TOI DE JOUER" : `⏳ ${opPseudo.toUpperCase()} RÉFLÉCHIT…`}
+              {iCracked
+                ? `✓ CODE CRAQUÉ — ON ATTEND ${opPseudo.toUpperCase()}…`
+                : outOfGuesses
+                  ? `😬 12 ESSAIS ÉPUISÉS — ON ATTEND ${opPseudo.toUpperCase()}…`
+                  : opCracked
+                    ? `⚡ ${opPseudo.toUpperCase()} A CRAQUÉ — VITE !`
+                    : "🎯 CRAQUE TON CODE"}
             </div>
 
             {/* Palette */}
             <div style={{
               display: "flex", gap: desktop ? 10 : 7,
               justifyContent: "center",
-              opacity: isMyTurn && !submitting ? 1 : 0.35,
+              opacity: canPlay && !submitting ? 1 : 0.35,
               transition: "opacity 0.3s",
             }}>
               {COLORS.map((col, idx) => {
@@ -452,7 +456,7 @@ export function MastermindClient({
                   <div key={idx} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                     <button
                       type="button"
-                      disabled={!isMyTurn || submitting}
+                      disabled={!canPlay || submitting}
                       onClick={() => pickColor(idx)}
                       title={col.label}
                       style={{
@@ -460,8 +464,8 @@ export function MastermindClient({
                         borderRadius: "50%",
                         background: `radial-gradient(circle at 35% 35%, ${col.bg}ff, ${col.bg}88)`,
                         border: `3px solid rgba(255,255,255,0.4)`,
-                        cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
-                        boxShadow: isMyTurn && !submitting
+                        cursor: !canPlay || submitting ? "not-allowed" : "pointer",
+                        boxShadow: canPlay && !submitting
                           ? `0 0 16px 4px ${col.glow}, 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.45)`
                           : "none",
                         position: "relative",
@@ -474,7 +478,6 @@ export function MastermindClient({
                         {col.symbol}
                       </span>
                     </button>
-                    {/* Compteur d'usage */}
                     {usedCount > 0 && (
                       <div style={{
                         position: "absolute", top: -5, right: -5,
@@ -485,7 +488,6 @@ export function MastermindClient({
                         zIndex: 1,
                       }}>{usedCount}</div>
                     )}
-                    {/* Label */}
                     <div style={{ fontSize: 8, fontWeight: 900, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 0.5 }}>
                       {col.label.slice(0, 3)}
                     </div>
@@ -498,7 +500,7 @@ export function MastermindClient({
             <div style={{ display: "flex", gap: 8 }}>
               <button
                 type="button"
-                disabled={!isMyTurn || submitting || currentGuess.every(c => c === null)}
+                disabled={!canPlay || submitting || currentGuess.every(c => c === null)}
                 onClick={clearAll}
                 style={{
                   flexShrink: 0, width: 52, height: 52,
@@ -506,31 +508,31 @@ export function MastermindClient({
                   border: `2.5px solid ${EA.ink}`,
                   borderRadius: 14,
                   boxShadow: `2px 2px 0 ${EA.ink}`,
-                  cursor: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? "not-allowed" : "pointer",
+                  cursor: (!canPlay || submitting || currentGuess.every(c => c === null)) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-display)", fontSize: 18,
                   color: EA.white,
-                  opacity: (!isMyTurn || submitting || currentGuess.every(c => c === null)) ? 0.3 : 1,
+                  opacity: (!canPlay || submitting || currentGuess.every(c => c === null)) ? 0.3 : 1,
                   transition: "opacity 0.15s",
                 }}
               >⌫</button>
 
               <button
                 type="button"
-                disabled={!isMyTurn || !guessReady || submitting}
+                disabled={!canPlay || !guessReady || submitting}
                 onClick={handleSubmit}
                 style={{
                   flex: 1, height: 52,
-                  background: (!isMyTurn || !guessReady || submitting)
+                  background: (!canPlay || !guessReady || submitting)
                     ? "rgba(255,255,255,0.06)"
                     : EA.cyan,
                   border: `2.5px solid ${EA.ink}`,
                   borderRadius: 14,
-                  boxShadow: (!isMyTurn || !guessReady || submitting)
+                  boxShadow: (!canPlay || !guessReady || submitting)
                     ? `2px 2px 0 ${EA.ink}`
                     : `3px 3px 0 ${EA.ink}`,
-                  cursor: (!isMyTurn || !guessReady || submitting) ? "not-allowed" : "pointer",
+                  cursor: (!canPlay || !guessReady || submitting) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-display)", fontSize: 15,
-                  color: (!isMyTurn || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : EA.ink,
+                  color: (!canPlay || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : EA.ink,
                   letterSpacing: 1,
                   transition: "all 0.15s",
                 }}
@@ -559,16 +561,15 @@ export function MastermindClient({
       </div>
 
       <RulesButton gameType="mastermind" />
-      <GameChat gameId={gameId} myId={myId} myPseudo={myPseudo} opponentId={opponentId} opponentPseudo={opPseudo} />
       <PreventLeave enabled={!isFinished} gameId={gameId} />
     </div>
   );
 }
 
 // ── PlayerBadge ───────────────────────────────────────────────────────────────
-function PlayerBadge({ pseudo, avatar, guessCount, color, active, align }: {
+function PlayerBadge({ pseudo, avatar, guessCount, cracked, color, active, align }: {
   pseudo: string; avatar: string | null;
-  guessCount: number; color: string;
+  guessCount: number; cracked: boolean; color: string;
   active: boolean; align: "left" | "right";
 }) {
   return (
@@ -593,8 +594,8 @@ function PlayerBadge({ pseudo, avatar, guessCount, color, active, align }: {
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           transition: "color 0.3s",
         }}>{pseudo.toUpperCase()}</div>
-        <div style={{ fontSize: 9, fontWeight: 900, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-          {guessCount} essai{guessCount !== 1 ? "s" : ""}
+        <div style={{ fontSize: 9, fontWeight: 900, color: cracked ? color : "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 0.8 }}>
+          {cracked ? "🏁 craqué" : `${guessCount} essai${guessCount !== 1 ? "s" : ""}`}
         </div>
       </div>
     </div>

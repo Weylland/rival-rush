@@ -75,11 +75,11 @@ const RULES: Record<GameType, { title: string; icon: string; items: { icon: stri
     title: "Mastermind 🎨",
     icon: "🎨🔴🟡",
     items: [
-      { icon: "🎨", text: "Le serveur génère un code secret de 4 couleurs (répétitions possibles)" },
-      { icon: "🔄", text: "Tour par tour : propose une combinaison de 4 couleurs" },
+      { icon: "🎨", text: "Chacun a SON propre code secret de 4 couleurs (répétitions possibles)" },
+      { icon: "⚡", text: "Course : vous jouez en même temps, tu ne vois que ton plateau" },
       { icon: "⚫", text: "Peg noir = bonne couleur à la bonne place" },
       { icon: "⚪", text: "Peg blanc = bonne couleur mais mauvaise place" },
-      { icon: "🏆", text: "Premier à trouver le code (4 noirs) gagne · 12 essais max puis nul" },
+      { icon: "🏆", text: "Premier à craquer son code (4 noirs) gagne · 12 essais max" },
     ],
   },
   pig: {

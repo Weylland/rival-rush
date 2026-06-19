@@ -148,8 +148,8 @@ export async function acceptChallenge(challengeId: string) {
                 : challenge.game_type === "pig"
                   ? { scores: { [p1]: 0, [p2]: 0 }, turn_total: 0, last_roll: null }
                   : challenge.game_type === "mastermind"
-                    // code is server-only — stored in game_secrets on first guess, never in public state
-                    ? { guesses: [] }
+                    // duel "course" : chacun son code (server-only, game_secrets). Plateaux par joueur.
+                    ? { boards: {} }
                     : challenge.game_type === "plus-ou-moins"
                       // secret is server-only — stored in game_secrets on first guess, never in public state
                       ? { range_min: 1, range_max: 100, guesses: [], scores: { [p1]: 0, [p2]: 0 }, current_round: 1 }
@@ -184,7 +184,7 @@ export async function acceptChallenge(challengeId: string) {
       challenge_id: challengeId,
       game_type: challenge.game_type,
       state: initialState,
-      current_turn: challenge.game_type === "naval" || challenge.game_type === "duel-des" ? null : challenge.challenger_id,
+      current_turn: ["naval", "duel-des", "mastermind"].includes(challenge.game_type) ? null : challenge.challenger_id,
       status: "playing",
       ...(sharedRoom ? { room_id: sharedRoom } : {}),
     })

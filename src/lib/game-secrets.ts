@@ -7,9 +7,10 @@ import type { NavalShip } from "@/types/database";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface GameSecretsData {
-  ships?: Record<string, NavalShip[]>;   // Naval: playerId → fleet
-  code?: number[];                        // Mastermind: code secret [0-5]×4
-  secret_rounds?: Record<string, number>; // Plus-ou-Moins: "round_1" → nombre
+  ships?: Record<string, NavalShip[]>;     // Naval: playerId → fleet
+  code?: number[];                          // Mastermind (legacy: code partagé)
+  codes?: Record<string, number[]>;         // Mastermind: playerId → son code secret
+  secret_rounds?: Record<string, number>;   // Plus-ou-Moins: "round_1" → nombre
 }
 
 export async function readSecrets(gameId: string): Promise<GameSecretsData> {
