@@ -17,7 +17,8 @@ export type SectionId =
   | "games-config"
   | "games-browser"
   | "challenges"
-  | "contacts";
+  | "contacts"
+  | "affiche";
 
 interface Props {
   sections: SectionMeta[];

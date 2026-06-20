@@ -18,6 +18,7 @@ import { PresenceClient } from "./PresenceClient";
 import { GamesBrowserClient } from "./GamesBrowserClient";
 import { ChallengesClient } from "./ChallengesClient";
 import { AdminsClient } from "./AdminsClient";
+import { AfficheClient } from "./AfficheClient";
 import type { Contact } from "./ContactsClient";
 import type { Report, ReportStatus } from "./ReportsClient";
 import type { ContactStatus } from "./actions";
@@ -284,6 +285,15 @@ export function AdminShell({
       title: "Messages de contact",
       subtitle: "Formulaire public reçu",
     },
+    {
+      id: "affiche",
+      group: "OUTILS",
+      label: "Affiche",
+      icon: "🖼️",
+      accent: EA.cyan,
+      title: "Affiche de la soirée",
+      subtitle: "QR code à imprimer ou télécharger en PDF",
+    },
   ];
 
   const current = sections.find((s) => s.id === section) ?? sections[0];
@@ -449,6 +459,7 @@ export function AdminShell({
             {current.id === "games-config" && <GameConfigClient />}
             {current.id === "games-browser" && <GamesBrowserClient />}
             {current.id === "challenges" && <ChallengesClient />}
+            {current.id === "affiche" && <AfficheClient />}
             {current.id === "contacts" && (
               <ContactsClient
                 contacts={contacts}

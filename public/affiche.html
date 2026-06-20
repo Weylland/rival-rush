@@ -130,5 +130,16 @@
       <div class="step">3 · <b>Défie</b> qui tu veux</div>
     </div>
   </div>
+  <script>
+    // Ouvrir avec #print (depuis l'admin) déclenche la boîte d'impression → "Enregistrer en PDF"
+    if (location.hash === "#print") {
+      const go = () => window.print();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => setTimeout(go, 250));
+      } else {
+        window.addEventListener("load", () => setTimeout(go, 400));
+      }
+    }
+  </script>
 </body>
 </html>
