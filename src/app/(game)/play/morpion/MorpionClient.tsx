@@ -178,6 +178,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           </div>
         </div>
         </div>{/* end max-width wrapper */}
+        <PreventLeave enabled={!isFinished} gameId={gameId} />
       </div>
     );
   }

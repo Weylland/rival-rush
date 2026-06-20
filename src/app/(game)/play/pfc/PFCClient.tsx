@@ -190,6 +190,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
       return (
         <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {BG}
+          <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />
           <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 60px", gap: 36 }}>
             {/* Round label */}
             <div style={{ display: "inline-block", background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "6px 24px", fontFamily: "var(--font-display)", fontSize: 16, color: EA.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${EA.pink}` }}>
@@ -239,6 +240,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {BG}
+        <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />
         {/* Content wrapper — max-width, bg stays full-screen */}
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
         {/* Top bar */}

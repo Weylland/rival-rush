@@ -195,6 +195,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <RulesButton gameType="naval" />
+        <PreventLeave enabled={!isFinished} gameId={gameId} />
         {Bg}
 
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1500, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
