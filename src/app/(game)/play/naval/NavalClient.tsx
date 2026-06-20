@@ -155,6 +155,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
       : Math.min(Math.floor((winWidth - 24) / 10), 36);
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32 }}>
+        <PreventLeave enabled={!isFinished} gameId={gameId} />
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
         <SvgBlob color={EA.cyan} style={{ width: 480, height: 420, top: -180, left: -140, opacity: 0.55, animation: "ea-float 7s ease-in-out infinite" }} />
         <div style={{ position: "relative", zIndex: 5, display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: "40px 24px" }}>

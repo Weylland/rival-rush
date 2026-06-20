@@ -228,15 +228,6 @@ export async function updateContactStatus(
   return error ? { error: error.message } : { ok: true };
 }
 
-export async function deleteAllSpamContacts(): Promise<{ ok: boolean; count: number } | { error: string }> {
-  await guardAdmin();
-  const { error, count } = await db()
-    .from("contacts")
-    .delete({ count: "exact" })
-    .eq("status", "spam");
-  return error ? { error: error.message } : { ok: true, count: count ?? 0 };
-}
-
 // ── Chats ─────────────────────────────────────────────────────────────────────
 
 export async function deleteLobbyChatMessage(messageId: string): Promise<{ ok: boolean } | { error: string }> {
@@ -281,12 +272,6 @@ export async function deleteConversation(conversationId: string): Promise<{ ok: 
 export async function deleteRoom(roomId: string): Promise<{ ok: boolean } | { error: string }> {
   await guardAdmin();
   const { error } = await db().from("rooms").delete().eq("id", roomId);
-  return error ? { error: error.message } : { ok: true };
-}
-
-export async function setRoomOpen(roomId: string, isOpen: boolean): Promise<{ ok: boolean } | { error: string }> {
-  await guardAdmin();
-  const { error } = await db().from("rooms").update({ is_open: isOpen }).eq("id", roomId);
   return error ? { error: error.message } : { ok: true };
 }
 

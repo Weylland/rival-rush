@@ -4,6 +4,7 @@ import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
+import { PreventLeave } from "@/components/PreventLeave";
 import { FLEET_DEFS, generateFleet } from "@/lib/battleship";
 import type { NavalShip } from "@/types/database";
 import { submitNavalPlacement } from "../actions";
@@ -292,6 +293,7 @@ export function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlac
   if (desktop) {
     return (
       <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <PreventLeave enabled gameId={gameId} />
         {Bg}
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1200, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
           <div style={{ textAlign: "center", padding: "24px 40px 0" }}>
@@ -330,6 +332,7 @@ export function PlacementScreen({ gameId, myId, p1Id, myPseudo, opPseudo, onPlac
   const mobileCellSize = Math.min(Math.floor((winWidth - 24) / 10), 36);
   return (
     <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <PreventLeave enabled gameId={gameId} />
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
       <SvgBlob color={EA.cyan} style={{ width: 200, height: 180, top: -80, left: -60, opacity: 0.7, animation: "ea-float 4s ease-in-out infinite" }} />
 
