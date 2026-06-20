@@ -44,6 +44,8 @@ export async function createRoom(input: CreateRoomInput) {
   const session = await getSession();
   if (!session) redirect("/login");
 
+  if (!input.name?.trim()) return { error: "Donne un nom à ta salle." };
+
   const supabase = await createClient();
 
   // Generate a unique code
