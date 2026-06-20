@@ -5,6 +5,7 @@ export interface SessionPayload {
   playerId: string;
   pseudo: string;
   avatarUrl: string | null;
+  avatarColor: string | null;
   isGuest: boolean;
 }
 
@@ -21,7 +22,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   const admin = createAdminClient();
   const { data: player } = await admin
     .from("players")
-    .select("pseudo, avatar_url, is_guest")
+    .select("pseudo, avatar_url, avatar_color, is_guest")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -31,6 +32,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     playerId: user.id,
     pseudo: player.pseudo as string,
     avatarUrl: (player.avatar_url as string | null) ?? null,
+    avatarColor: (player.avatar_color as string | null) ?? null,
     isGuest: (player.is_guest as boolean) ?? false,
   };
 }

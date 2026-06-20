@@ -10,6 +10,7 @@ interface OnlineEntry {
   player_id: string;
   pseudo: string;
   avatar_url: string | null;
+  avatar_color: string | null;
   status: "online" | "in-game";
   game_type: string | null;
   updated_at: string;
@@ -48,10 +49,13 @@ export function PresenceClient() {
     const playerIds = presence.map((p) => p.player_id as string);
     const { data: players } = await supabase
       .from("players")
-      .select("id, avatar_url")
+      .select("id, avatar_url, avatar_color")
       .in("id", playerIds);
     const avatarMap = Object.fromEntries(
       (players ?? []).map((p) => [p.id, p.avatar_url as string | null]),
+    );
+    const colorMap = Object.fromEntries(
+      (players ?? []).map((p) => [p.id, p.avatar_color as string | null]),
     );
 
     setEntries(
@@ -59,6 +63,7 @@ export function PresenceClient() {
         player_id: p.player_id as string,
         pseudo: p.pseudo as string,
         avatar_url: avatarMap[p.player_id as string] ?? null,
+        avatar_color: colorMap[p.player_id as string] ?? null,
         status: p.status as "online" | "in-game",
         game_type: p.game_type as string | null,
         updated_at: p.updated_at as string,
@@ -378,7 +383,7 @@ export function PresenceClient() {
                   <Avatar
                     name={e.pseudo}
                     src={e.avatar_url}
-                    color={inGame ? EA.cyan : EA.violet}
+                    color={e.avatar_color ?? (inGame ? EA.cyan : EA.violet)}
                     ring="transparent"
                     size={40}
                   />

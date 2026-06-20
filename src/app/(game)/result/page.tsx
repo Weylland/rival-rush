@@ -32,11 +32,12 @@ export default async function ResultPage({ searchParams }: Props) {
 
   const { data: players } = await admin
     .from("players")
-    .select("id, pseudo, avatar_url")
+    .select("id, pseudo, avatar_url, avatar_color")
     .in("id", [p1Id, p2Id]);
 
   const pseudoOf = Object.fromEntries((players ?? []).map(p => [p.id, p.pseudo]));
   const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, p.avatar_url as string | null]));
+  const colorOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_color as string | null) ?? null]));
 
   const raw = game.state as Record<string, unknown>;
   const pfcState: PFCState | null = raw && "rounds" in raw ? (raw as unknown as PFCState) : null;
@@ -56,6 +57,8 @@ export default async function ResultPage({ searchParams }: Props) {
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
       p1AvatarUrl={avatarOf[p1Id] ?? null}
       p2AvatarUrl={avatarOf[p2Id] ?? null}
+      p1AvatarColor={colorOf[p1Id] ?? null}
+      p2AvatarColor={colorOf[p2Id] ?? null}
       winnerId={(game.winner_id ?? null) as string | null}
       gameType={game.game_type as "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess"}
       pfcState={pfcState}

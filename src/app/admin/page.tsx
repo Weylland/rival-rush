@@ -37,7 +37,7 @@ export default async function AdminPage() {
     { data: adminRows },
   ] = await Promise.all([
     db.from("players")
-      .select("id, pseudo, avatar_url, created_at")
+      .select("id, pseudo, avatar_url, avatar_color, created_at")
       .order("pseudo", { ascending: true }),
     db.from("leaderboard").select("player_id, wins, losses, draws, points"),
     db.from("contacts").select("*").order("created_at", { ascending: false }),
@@ -52,6 +52,7 @@ export default async function AdminPage() {
       id: p.id,
       pseudo: p.pseudo,
       avatar_url: (p.avatar_url as string | null) ?? null,
+      avatar_color: (p.avatar_color as string | null) ?? null,
       wins: lb?.wins ?? 0,
       losses: lb?.losses ?? 0,
       draws: lb?.draws ?? 0,

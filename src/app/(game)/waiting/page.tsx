@@ -39,6 +39,7 @@ export default async function WaitingPage({ searchParams }: Props) {
       challengeId={challenge_id}
       myPseudo={session.pseudo}
       myAvatarUrl={session.avatarUrl}
+      myAvatarColor={session.avatarColor}
       opponentPseudo={opponent?.pseudo ?? "?"}
       gameType={challenge.game_type}
       opponentIsOffline={opponentIsOffline}

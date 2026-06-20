@@ -2,9 +2,10 @@ import { EA } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { PIG_WIN_SCORE } from "@/lib/games/pig";
 
-export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, side }: {
+export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, side, avatarColor }: {
   score: number; pseudo: string; avatarUrl: string | null;
   color: string; isActive: boolean; isMe: boolean; side: "left" | "right";
+  avatarColor?: string | null;
 }) {
   const pct = Math.min(100, (score / PIG_WIN_SCORE) * 100);
   return (
@@ -22,7 +23,7 @@ export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, si
         flexDirection: side === "right" ? "row-reverse" : "row",
         alignItems: "center", gap: 10,
       }}>
-        <Avatar name={pseudo} src={avatarUrl} color={color} ring={isActive ? color : "transparent"} size={38} />
+        <Avatar name={pseudo} src={avatarUrl} color={avatarColor ?? color} ring={isActive ? color : "transparent"} size={38} />
         <div style={{ flex: 1, minWidth: 0, textAlign: side }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,

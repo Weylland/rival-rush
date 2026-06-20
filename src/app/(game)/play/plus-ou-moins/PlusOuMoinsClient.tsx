@@ -27,6 +27,8 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: PlusOuMoinsState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
@@ -37,11 +39,11 @@ interface Props {
 
 export function PlusOuMoinsClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialCurrentTurn,
 }: Props) {
   const router = useRouter();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [state, setState] = useState<PlusOuMoinsState>(initialState);
   const [currentTurn, setCurrentTurn] = useState<string | null>(initialCurrentTurn);
@@ -185,7 +187,7 @@ export function PlusOuMoinsClient({
         position: "relative", zIndex: 2,
       }}>
         {/* Moi */}
-        <PlayerScore pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} accent={EA.cyan} avatarColor={EA.butter} active={isMyTurn && !isFinished} />
+        <PlayerScore pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} accent={EA.cyan} avatarColor={myAvatarColor ?? EA.butter} active={isMyTurn && !isFinished} />
 
         {/* Centre */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -202,7 +204,7 @@ export function PlusOuMoinsClient({
         </div>
 
         {/* Adversaire */}
-        <PlayerScore pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} accent={EA.pink} avatarColor={EA.pink} active={!isMyTurn && !isFinished} />
+        <PlayerScore pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} accent={EA.pink} avatarColor={opAvatarColor ?? EA.pink} active={!isMyTurn && !isFinished} />
       </div>
 
       {/* ── BARRE DE RANGE ── */}

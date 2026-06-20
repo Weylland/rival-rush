@@ -26,6 +26,8 @@ interface Props {
   p1Id: string; p2Id: string;
   p1Pseudo: string; p2Pseudo: string;
   p1AvatarUrl: string | null; p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: MastermindState;
   initialStatus: GameStatus;
   initialWinnerId: string | null;
@@ -34,12 +36,12 @@ interface Props {
 // ── Component ─────────────────────────────────────────────────────────────────
 export function MastermindClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialWinnerId,
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [myBoard, setMyBoard]     = useState<MastermindGuess[]>(initialState.boards?.[myId] ?? []);
   const [opCount, setOpCount]     = useState<number>(initialState.boards?.[opponentId]?.length ?? 0);
@@ -174,7 +176,7 @@ export function MastermindClient({
           alignItems: "center", gap: 8,
         }}>
           <PlayerBadge
-            pseudo={myPseudo} avatar={myAvatarUrl}
+            pseudo={myPseudo} avatar={myAvatarUrl} avatarColor={myAvatarColor}
             guessCount={myBoard.length} cracked={iCracked} color={EA.cyan}
             active={canPlay}
             align="left"
@@ -188,7 +190,7 @@ export function MastermindClient({
             </div>
           </div>
           <PlayerBadge
-            pseudo={opPseudo} avatar={opAvatarUrl}
+            pseudo={opPseudo} avatar={opAvatarUrl} avatarColor={opAvatarColor}
             guessCount={opCount} cracked={opCracked} color={EA.pink}
             active={!isFinished && !opCracked}
             align="right"

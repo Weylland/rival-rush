@@ -29,17 +29,19 @@ interface Props {
   p1Pseudo: string; p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   myInitialShips: NavalShip[] | null;
   initialState: NavalState; initialStatus: GameStatus;
   initialWinnerId: string | null; initialTurn: string | null;
 }
 
-export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, myInitialShips, initialState, initialStatus, initialWinnerId, initialTurn }: Props) {
+export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor, myInitialShips, initialState, initialStatus, initialWinnerId, initialTurn }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const winWidth = useWindowWidth();
   const { play } = useGameSounds();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [navalState, setNavalState] = useState<NavalState>(initialState);
   const [gameStatus, setGameStatus]   = useState<GameStatus>(initialStatus);
@@ -210,7 +212,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
               <div style={{ position: "relative" }}>
                 {isMyTurn && !isFinished && <div style={{ position: "absolute", top: -14, left: -10, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>TON TOUR</div>}
                 <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: "rotate(-1deg)", boxShadow: `4px 4px 0 ${EA.cyan}`, opacity: !isMyTurn && !isFinished ? 0.6 : 1, minWidth: 160 }}>
-                  <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={72} src={myAvatarUrl} />
+                  <Avatar name={myPseudo} color={myAvatarColor ?? EA.butter} ring={EA.ink} size={72} src={myAvatarUrl} />
                   <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>{myPseudo.toUpperCase()}</div>
                   <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>{opHits}/{17} reçus</div>
                 </div>
@@ -243,7 +245,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
               <div style={{ position: "relative" }}>
                 {!isMyTurn && !isFinished && <div style={{ position: "absolute", top: -14, right: -10, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>SON TOUR</div>}
                 <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: "rotate(1.5deg)", boxShadow: `4px 4px 0 ${EA.pink}`, opacity: isMyTurn && !isFinished ? 0.6 : 1, minWidth: 160 }}>
-                  <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={72} src={opAvatarUrl} />
+                  <Avatar name={opPseudo} color={opAvatarColor ?? EA.pink} ring={EA.ink} size={72} src={opAvatarUrl} />
                   <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.ink, transform: "skewX(-4deg)" }}>{opPseudo.toUpperCase()}</div>
                   <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(26,15,94,0.6)" }}>{myHits}/{17} reçus</div>
                 </div>
@@ -287,7 +289,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -4, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={28} src={myAvatarUrl} />
+              <Avatar name={myPseudo} color={myAvatarColor ?? EA.butter} ring={EA.ink} size={28} src={myAvatarUrl} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Touché : {myHits}/17</div>
@@ -300,7 +302,7 @@ export function NavalClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Av
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -4, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
             <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={28} src={opAvatarUrl} />
+              <Avatar name={opPseudo} color={opAvatarColor ?? EA.pink} ring={EA.ink} size={28} src={opAvatarUrl} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: "rgba(26,15,94,0.6)", marginTop: 2 }}>Touché : {opHits}/17</div>

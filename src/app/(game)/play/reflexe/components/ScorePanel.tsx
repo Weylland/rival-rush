@@ -9,10 +9,11 @@ interface Props {
   isArmed: boolean;
   /** Affiche le badge "✓ PRÊT" (phase idle, joueur prêt). */
   showReady: boolean;
+  avatarColor?: string | null;
 }
 
 /** En-tête joueur du jeu Réflexe (carte + score), symétrique gauche/droite. */
-export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady }: Props) {
+export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady, avatarColor }: Props) {
   const isMe = side === "left";
   const cardBg = isArmed ? "rgba(255,80,0,0.15)" : isMe ? EA.pink : EA.cyan;
   const textColor = isArmed ? "rgba(255,200,150,0.7)" : isMe ? EA.white : EA.ink;
@@ -25,7 +26,7 @@ export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady 
     </div>
   );
   const avatarEl = (
-    <Avatar name={pseudo} color={isMe ? EA.butter : EA.pink} ring={EA.ink} size={32} src={avatarUrl} />
+    <Avatar name={pseudo} color={avatarColor ?? (isMe ? EA.butter : EA.pink)} ring={EA.ink} size={32} src={avatarUrl} />
   );
 
   return (

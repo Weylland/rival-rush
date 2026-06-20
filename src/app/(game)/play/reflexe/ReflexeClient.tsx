@@ -24,17 +24,19 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: TapState;
   initialStatus: GameStatus;
   initialWinnerId: string | null;
 }
 
 export function ReflexeClient({
-  gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialWinnerId,
 }: Props) {
   const router = useRouter();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [tapState, setTapState] = useState<TapState>(initialState);
   const [gameStatus, setGameStatus] = useState<GameStatus>(initialStatus);
@@ -181,7 +183,7 @@ export function ReflexeClient({
         flexShrink: 0,
       }}>
         {/* Moi */}
-        <ScorePanel pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} side="left" isArmed={isArmed} showReady={tapState.phase === "idle" && iAmReady} />
+        <ScorePanel pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} side="left" avatarColor={myAvatarColor} isArmed={isArmed} showReady={tapState.phase === "idle" && iAmReady} />
 
         {/* Round counter */}
         <div style={{ flexShrink: 0, textAlign: "center" }}>
@@ -191,7 +193,7 @@ export function ReflexeClient({
         </div>
 
         {/* Adversaire */}
-        <ScorePanel pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} side="right" isArmed={isArmed} showReady={tapState.phase === "idle" && opIsReady} />
+        <ScorePanel pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} side="right" avatarColor={opAvatarColor} isArmed={isArmed} showReady={tapState.phase === "idle" && opIsReady} />
       </div>
 
       {/* ── LAST ROUND RESULT ── */}

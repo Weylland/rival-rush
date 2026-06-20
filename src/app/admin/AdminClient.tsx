@@ -17,6 +17,7 @@ interface Player {
   id: string;
   pseudo: string;
   avatar_url: string | null;
+  avatar_color: string | null;
   wins: number;
   losses: number;
   draws: number;
@@ -241,7 +242,7 @@ function PlayerCard({
         <Avatar
           name={player.pseudo}
           src={player.avatar_url}
-          color={EA.pink}
+          color={player.avatar_color ?? EA.pink}
           ring="transparent"
           size={42}
         />

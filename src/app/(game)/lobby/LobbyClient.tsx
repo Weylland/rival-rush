@@ -56,6 +56,7 @@ interface LobbyClientProps {
   myPlayerId: string;
   myPseudo: string;
   myAvatarUrl: string | null;
+  myAvatarColor: string | null;
   myPoints: number;
   initialPlayers: PresencePlayer[];
   pushSubscriberIds: string[];
@@ -440,7 +441,7 @@ function EmptyState({ searchQuery, showOffline, onlineCount }: { searchQuery: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initialPlayers, pushSubscriberIds, roomInvitations = [], myRooms = [] }: LobbyClientProps) {
+export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, myPoints, initialPlayers, pushSubscriberIds, roomInvitations = [], myRooms = [] }: LobbyClientProps) {
   const router = useRouter();
   const desktop = useIsDesktop();
   const { openDM } = useChatOpen();
@@ -706,7 +707,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
 
             {/* Avatar → settings (toujours visible) */}
             <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 48 : 36} />
+              <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={desktop ? 48 : 36} />
             </Link>
 
             {/* Burger (toujours visible — salles + nav) */}
@@ -1174,7 +1175,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myPoints, initi
               display: "flex", alignItems: "center", gap: 14,
             }}>
               <Link href="/settings" onClick={() => setBurgerOpen(false)} style={{ textDecoration: "none", flexShrink: 0 }}>
-                <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={48} />
+                <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={48} />
               </Link>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

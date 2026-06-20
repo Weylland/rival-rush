@@ -8,6 +8,8 @@ interface DuoInput {
   p2Pseudo: string;
   p1AvatarUrl?: string | null;
   p2AvatarUrl?: string | null;
+  p1AvatarColor?: string | null;
+  p2AvatarColor?: string | null;
 }
 
 export interface Duo {
@@ -17,9 +19,15 @@ export interface Duo {
   opPseudo: string;
   myAvatarUrl: string | null;
   opAvatarUrl: string | null;
+  myAvatarColor: string | null;
+  opAvatarColor: string | null;
 }
 
-export function resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl = null, p2AvatarUrl = null }: DuoInput): Duo {
+export function resolveDuo({
+  myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
+  p1AvatarUrl = null, p2AvatarUrl = null,
+  p1AvatarColor = null, p2AvatarColor = null,
+}: DuoInput): Duo {
   const iAmP1 = myId === p1Id;
   return {
     iAmP1,
@@ -28,5 +36,7 @@ export function resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl =
     opPseudo: iAmP1 ? p2Pseudo : p1Pseudo,
     myAvatarUrl: iAmP1 ? p1AvatarUrl : p2AvatarUrl,
     opAvatarUrl: iAmP1 ? p2AvatarUrl : p1AvatarUrl,
+    myAvatarColor: iAmP1 ? p1AvatarColor : p2AvatarColor,
+    opAvatarColor: iAmP1 ? p2AvatarColor : p1AvatarColor,
   };
 }

@@ -34,11 +34,12 @@ export default async function ChessPage({ searchParams }: Props) {
 
   const { data: players } = await supabase
     .from("players")
-    .select("id, pseudo, avatar_url")
+    .select("id, pseudo, avatar_url, avatar_color")
     .in("id", [p1Id, p2Id]);
 
   const pseudoOf = Object.fromEntries((players ?? []).map(p => [p.id, p.pseudo]));
   const avatarOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_url as string | null) ?? null]));
+  const colorOf = Object.fromEntries((players ?? []).map(p => [p.id, (p.avatar_color as string | null) ?? null]));
 
   const raw = game.state as Record<string, unknown>;
   const initialState: ChessState = (raw && "board" in raw)
@@ -55,6 +56,8 @@ export default async function ChessPage({ searchParams }: Props) {
       p2Pseudo={pseudoOf[p2Id] ?? "?"}
       p1AvatarUrl={avatarOf[p1Id] ?? null}
       p2AvatarUrl={avatarOf[p2Id] ?? null}
+      p1AvatarColor={colorOf[p1Id] ?? null}
+      p2AvatarColor={colorOf[p2Id] ?? null}
       initialState={initialState}
       initialStatus={game.status as "waiting" | "playing" | "finished"}
       initialCurrentTurn={game.current_turn as string | null}

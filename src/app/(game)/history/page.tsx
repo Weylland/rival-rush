@@ -18,6 +18,7 @@ interface GameRow {
   challenger_pseudo: string;
   challenged_pseudo: string;
   opponent_avatar_url: string | null;
+  opponent_avatar_color: string | null;
 }
 
 export default async function HistoryPage() {
@@ -57,11 +58,12 @@ export default async function HistoryPage() {
 
   const { data: opPlayers } = await supabase
     .from("players")
-    .select("id, pseudo, avatar_url")
+    .select("id, pseudo, avatar_url, avatar_color")
     .in("id", [...opponentIds]);
 
   const pseudoOf = Object.fromEntries((opPlayers ?? []).map(p => [p.id, p.pseudo as string]));
   const avatarOf = Object.fromEntries((opPlayers ?? []).map(p => [p.id, p.avatar_url as string | null]));
+  const colorOf = Object.fromEntries((opPlayers ?? []).map(p => [p.id, p.avatar_color as string | null]));
 
   const rows: GameRow[] = myGames.map(g => {
     const c = g.challenges!;
@@ -76,6 +78,7 @@ export default async function HistoryPage() {
       challenger_pseudo: pseudoOf[c.challenger_id] ?? "?",
       challenged_pseudo: pseudoOf[c.challenged_id] ?? "?",
       opponent_avatar_url: avatarOf[opId] ?? null,
+      opponent_avatar_color: colorOf[opId] ?? null,
     };
   });
 
@@ -163,7 +166,7 @@ export default async function HistoryPage() {
                 {/* Opponent info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <Avatar name={opponentPseudo} src={game.opponent_avatar_url} color={EA.pink} ring="transparent" size={28} />
+                    <Avatar name={opponentPseudo} src={game.opponent_avatar_url} color={game.opponent_avatar_color ?? EA.pink} ring="transparent" size={28} />
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       vs {opponentPseudo.toUpperCase()}
                     </div>

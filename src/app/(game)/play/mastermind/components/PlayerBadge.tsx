@@ -1,9 +1,10 @@
 import { Avatar } from "@/components/ui/avatar";
 
-export function PlayerBadge({ pseudo, avatar, guessCount, cracked, color, active, align }: {
+export function PlayerBadge({ pseudo, avatar, guessCount, cracked, color, active, align, avatarColor }: {
   pseudo: string; avatar: string | null;
   guessCount: number; cracked: boolean; color: string;
   active: boolean; align: "left" | "right";
+  avatarColor?: string | null;
 }) {
   return (
     <div style={{
@@ -17,7 +18,7 @@ export function PlayerBadge({ pseudo, avatar, guessCount, cracked, color, active
         boxShadow: active ? `0 0 12px ${color}` : "none",
         transition: "border 0.3s, box-shadow 0.3s",
       }}>
-        <Avatar name={pseudo} src={avatar} color={color} ring="transparent" size={36} />
+        <Avatar name={pseudo} src={avatar} color={avatarColor ?? color} ring="transparent" size={36} />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, textAlign: align }}>
         <div style={{

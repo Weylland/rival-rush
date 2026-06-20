@@ -42,6 +42,8 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: ChessState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
@@ -52,12 +54,12 @@ interface Props {
 
 export function ChessClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialCurrentTurn, initialWinnerId,
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
   // White = p1 (challenger), Black = p2 (challenged)
   const iAmWhite = myId === p1Id;
   // Board is flipped for black so my pieces are always at the bottom
@@ -316,7 +318,7 @@ export function ChessClient({
         transition: "all 0.3s ease",
         width: desktop ? boardSize : undefined,
       }}>
-        <Avatar name={pseudo} src={avatarUrl} color={color} size={desktop ? 44 : 34} ring={isActive ? EA.ink : "transparent"} />
+        <Avatar name={pseudo} src={avatarUrl} color={(isMe ? myAvatarColor : opAvatarColor) ?? color} size={desktop ? 44 : 34} ring={isActive ? EA.ink : "transparent"} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: EA.white, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {pseudo.toUpperCase()}

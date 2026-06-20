@@ -31,16 +31,18 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: MorpionState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
   initialWinnerId: string | null;
 }
 
-export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, initialState, initialStatus, initialCurrentTurn, initialWinnerId }: Props) {
+export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor, initialState, initialStatus, initialCurrentTurn, initialWinnerId }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const { iAmP1, opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { iAmP1, opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [board, setBoard] = useState<(string | null)[]>(initialState.board ?? Array(9).fill(null));
   const [currentTurn, setCurrentTurn] = useState<string | null>(initialCurrentTurn ?? p1Id);
@@ -146,7 +148,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           {/* Left — Me */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
             <PlayerCard
-              pseudo={myPseudo} avatarUrl={myAvatarUrl} mark={iAmP1 ? "×" : "○"} isMe align="left"
+              pseudo={myPseudo} avatarUrl={myAvatarUrl} avatarColor={myAvatarColor} mark={iAmP1 ? "×" : "○"} isMe align="left"
               isActive={currentTurn === myId && !isFinished} isWinner={winnerId === myId} isFinished={isFinished}
             />
             {isMyTurn && !isFinished && (
@@ -165,7 +167,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           {/* Right — Opponent */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
             <PlayerCard
-              pseudo={opPseudo} avatarUrl={opAvatarUrl} mark={iAmP1 ? "○" : "×"} isMe={false} align="right"
+              pseudo={opPseudo} avatarUrl={opAvatarUrl} avatarColor={opAvatarColor} mark={iAmP1 ? "○" : "×"} isMe={false} align="right"
               isActive={currentTurn === opponentId && !isFinished} isWinner={winnerId === opponentId} isFinished={isFinished}
             />
             {!isMyTurn && !isFinished && (
@@ -207,7 +209,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
             <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={myPseudo} color={EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
+              <Avatar name={myPseudo} color={myAvatarColor ?? EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.white, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "×" : "○"}</div>
@@ -220,7 +222,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
             <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={opPseudo} color={EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
+              <Avatar name={opPseudo} color={opAvatarColor ?? EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.ink, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "○" : "×"}</div>

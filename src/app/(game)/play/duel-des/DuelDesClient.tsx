@@ -30,6 +30,8 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: DuelDesState;
   initialStatus: "waiting" | "playing" | "finished";
   initialWinnerId: string | null;
@@ -45,7 +47,7 @@ interface RevealData {
 
 export function DuelDesClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialWinnerId,
 }: Props) {
   const router   = useRouter();
@@ -63,7 +65,7 @@ export function DuelDesClient({
   const revealedUpToRef             = useRef(-1);
   const isFinishedRef               = useRef(initialStatus === "finished");
 
-  const { opponentId, myPseudo, opPseudo: opponentPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo: opponentPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   useEffect(() => { isFinishedRef.current = gameStatus === "finished"; }, [gameStatus]);
   useOpponentWatcher({ gameId, opponentId, isFinishedRef });
@@ -243,7 +245,7 @@ export function DuelDesClient({
           marginBottom: d ? 28 : 20,
         }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={d ? 48 : 38} />
+            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={d ? 48 : 38} />
             <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: EA.white, transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</span>
           </div>
 
@@ -259,7 +261,7 @@ export function DuelDesClient({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <Avatar name={opponentPseudo} src={opAvatarUrl} color={EA.pink} ring={EA.butter} size={d ? 48 : 38} />
+            <Avatar name={opponentPseudo} src={opAvatarUrl} color={opAvatarColor ?? EA.pink} ring={EA.butter} size={d ? 48 : 38} />
             <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: "rgba(255,255,255,0.6)", transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opponentPseudo.toUpperCase()}</span>
           </div>
         </div>

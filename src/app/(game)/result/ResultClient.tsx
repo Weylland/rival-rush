@@ -205,6 +205,8 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   winnerId: string | null;
   gameType: "pfc" | "morpion" | "puissance4" | "reflexe" | "naval" | "chess";
   pfcState: PFCState | null;
@@ -216,7 +218,7 @@ interface Props {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, winnerId, gameType, pfcState, opponentId, opponentPseudo, roomCode, roomName }: Props) {
+export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor, winnerId, gameType, pfcState, opponentId, opponentPseudo, roomCode, roomName }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
 
@@ -235,6 +237,8 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
   const opPseudo   = myId === p1Id ? p2Pseudo : p1Pseudo;
   const myAvatarUrl = myId === p1Id ? p1AvatarUrl : p2AvatarUrl;
   const opAvatarUrl = myId === p1Id ? p2AvatarUrl : p1AvatarUrl;
+  const myAvatarColor = myId === p1Id ? p1AvatarColor : p2AvatarColor;
+  const opAvatarColor = myId === p1Id ? p2AvatarColor : p1AvatarColor;
 
   const isWin  = winnerId === myId;
   const isDraw = winnerId === null;
@@ -346,7 +350,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
                 {isLose && <RedX size={avatarSize} />}
                 <Avatar
                   name={myPseudo} src={myAvatarUrl}
-                  color={EA.butter}
+                  color={myAvatarColor ?? EA.butter}
                   ring={isWin ? EA.cyan : isLose ? "#FF1515" : "rgba(255,255,255,0.3)"}
                   size={avatarSize}
                 />
@@ -382,7 +386,7 @@ export function ResultClient({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl
                 {isWin  && <RedX size={avatarSize} />}
                 <Avatar
                   name={opPseudo} src={opAvatarUrl}
-                  color={EA.pink}
+                  color={opAvatarColor ?? EA.pink}
                   ring={isLose ? EA.cyan : isWin ? "#FF1515" : "rgba(255,255,255,0.3)"}
                   size={avatarSize}
                 />

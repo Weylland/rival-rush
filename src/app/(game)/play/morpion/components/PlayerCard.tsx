@@ -10,10 +10,11 @@ interface Props {
   isWinner: boolean;
   isFinished: boolean;
   align: "left" | "right";
+  avatarColor?: string | null;
 }
 
 /** Carte joueur (layout desktop). */
-export function PlayerCard({ pseudo, avatarUrl, mark, isMe, isActive, isWinner, isFinished, align }: Props) {
+export function PlayerCard({ pseudo, avatarUrl, mark, isMe, isActive, isWinner, isFinished, align, avatarColor }: Props) {
   const bgColor = isMe ? EA.pink : EA.cyan;
   const shadowColor = isMe ? EA.cyan : EA.pink;
   const textColor = isMe ? EA.white : EA.ink;
@@ -33,7 +34,7 @@ export function PlayerCard({ pseudo, avatarUrl, mark, isMe, isActive, isWinner, 
         </div>
       )}
       <div style={{ background: bgColor, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: rotation, boxShadow: `4px 4px 0 ${shadowColor}`, opacity: !isActive && !isFinished ? 0.6 : 1, transition: "opacity 0.3s", minWidth: 160 }}>
-        <Avatar name={pseudo} color={avatarBg} ring={EA.ink} size={72} src={avatarUrl} />
+        <Avatar name={pseudo} color={avatarColor ?? avatarBg} ring={EA.ink} size={72} src={avatarUrl} />
         <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: textColor, transform: "skewX(-4deg)", lineHeight: 1, textAlign: "center" }}>{pseudo.toUpperCase()}</div>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 40, fontWeight: 900, color: textColor, lineHeight: 1 }}>{mark}</div>
       </div>

@@ -23,6 +23,8 @@ interface Props {
   p1Id: string; p2Id: string;
   p1Pseudo: string; p2Pseudo: string;
   p1AvatarUrl: string | null; p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: PigState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
@@ -32,12 +34,12 @@ interface Props {
 // ── Component ─────────────────────────────────────────────────────────────────
 export function PigClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialCurrentTurn, initialWinnerId,
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [scores, setScores] = useState<Record<string, number>>(
     initialState.scores ?? { [myId]: 0, [opponentId]: 0 }
@@ -186,11 +188,11 @@ export function PigClient({
         <div style={{ display: "flex", gap: 10, width: "100%" }}>
           <PlayerCard
             score={myScore} pseudo={myPseudo} avatarUrl={myAvatarUrl}
-            color={EA.cyan} isActive={isMyTurn && !isFinished} isMe side="left"
+            color={EA.cyan} avatarColor={myAvatarColor} isActive={isMyTurn && !isFinished} isMe side="left"
           />
           <PlayerCard
             score={opScore} pseudo={opPseudo} avatarUrl={opAvatarUrl}
-            color={EA.pink} isActive={!isMyTurn && !isFinished} isMe={false} side="right"
+            color={EA.pink} avatarColor={opAvatarColor} isActive={!isMyTurn && !isFinished} isMe={false} side="right"
           />
         </div>
 

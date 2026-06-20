@@ -28,6 +28,8 @@ interface Props {
   p2Pseudo: string;
   p1AvatarUrl: string | null;
   p2AvatarUrl: string | null;
+  p1AvatarColor: string | null;
+  p2AvatarColor: string | null;
   initialState: NimState;
   initialStatus: GameStatus;
   initialCurrentTurn: string | null;
@@ -38,12 +40,12 @@ interface Props {
 
 export function NimClient({
   gameId, myId, p1Id, p2Id,
-  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl,
+  p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor,
   initialState, initialStatus, initialCurrentTurn,
 }: Props) {
   const router = useRouter();
   const desktop = useIsDesktop();
-  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl });
+  const { opponentId, myPseudo, opPseudo, myAvatarUrl, opAvatarUrl, myAvatarColor, opAvatarColor } = resolveDuo({ myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1AvatarUrl, p2AvatarUrl, p1AvatarColor, p2AvatarColor });
 
   const [pile, setPile] = useState(initialState.pile);
   const [lastTaken, setLastTaken] = useState<number | null>(initialState.last_taken);
@@ -164,7 +166,7 @@ export function NimClient({
             boxShadow: isMyTurn && !isFinished ? `0 0 14px ${EA.cyan}` : "none",
             transition: "border 0.3s, box-shadow 0.3s",
           }}>
-            <Avatar name={myPseudo} src={myAvatarUrl} color={EA.butter} ring={EA.cyan} size={desktop ? 60 : 48} />
+            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={desktop ? 60 : 48} />
           </div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
@@ -194,7 +196,7 @@ export function NimClient({
             boxShadow: !isMyTurn && !isFinished ? `0 0 14px ${EA.pink}` : "none",
             transition: "border 0.3s, box-shadow 0.3s",
           }}>
-            <Avatar name={opPseudo} src={opAvatarUrl} color={EA.pink} ring={EA.cyan} size={desktop ? 60 : 48} />
+            <Avatar name={opPseudo} src={opAvatarUrl} color={opAvatarColor ?? EA.pink} ring={EA.cyan} size={desktop ? 60 : 48} />
           </div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
