@@ -623,7 +623,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
         <SectionCard accent={RR.pink}>
           <SectionTitle>⚠️ Compte invité</SectionTitle>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: 16 }}>
-            Ton compte sera supprimé après la soirée. Crée un compte permanent pour garder tes stats et rejouer plus tard.
+            Ton compte est temporaire. Crée un compte permanent pour garder tes stats et rejouer plus tard.
           </div>
           <form action={convertAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <FocusInput

@@ -32,13 +32,13 @@ export default function CguPage() {
       <h2 style={h2}>1. Présentation</h2>
       <p style={p}>
         RivalRush est une application de mini-jeux en duel destinée aux événements festifs en réseau local.
-        L'accès est réservé aux participants invités à la soirée.
+        L'accès est ouvert à toute personne disposant d'un lien vers l'application.
       </p>
 
       <h2 style={h2}>2. Accès au service</h2>
       <p style={p}>
         L'inscription nécessite un pseudo et un mot de passe. Vous êtes responsable de la confidentialité de vos identifiants.
-        Un seul compte par joueur. Les comptes inactifs peuvent être supprimés par l'administrateur en fin de soirée.
+        Un seul compte par joueur. Les comptes inactifs peuvent être supprimés par l'administrateur.
       </p>
 
       <h2 style={h2}>3. Règles de conduite</h2>

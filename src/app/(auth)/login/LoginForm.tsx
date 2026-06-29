@@ -324,7 +324,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
         }}>
           <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
-            ou pour ce soir seulement
+            ou sans créer de compte
           </span>
           <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
         </div>

@@ -44,7 +44,7 @@ export function GuestBanner() {
           color: "rgba(255,255,255,0.5)",
           marginTop: 2,
         }}>
-          Tes données seront supprimées après la soirée.
+          Tes données seront supprimées à la déconnexion.
         </div>
       </div>
       <Link

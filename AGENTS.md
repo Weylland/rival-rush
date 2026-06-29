@@ -6,9 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # RivalRush
 
-App web de mini-jeux en duel pour soirée festive. Les invités s'affrontent depuis leur téléphone en temps réel.
-
-Maquette de référence : `C:\Users\nicol\Documents\www\F_te de l_expression\` (11 écrans JSX + shared.jsx pour les tokens design).
+App web de mini-jeux en duel. Les joueurs s'affrontent depuis leur téléphone en temps réel.
 
 ## Stack
 
@@ -46,9 +44,9 @@ src/
 │       │   ├── pfc/page.tsx       # Pierre Feuille Ciseaux
 │       │   └── morpion/page.tsx   # Morpion
 │       ├── result/page.tsx        # Résultat partie
-│       └── ranking/page.tsx       # Classement soirée
+│       └── ranking/page.tsx       # Classement
 ├── components/
-│   ├── ui/                        # Primitives Y2K (EAButton, EATitle, Avatar, Blob, Star…)
+│   ├── ui/                        # Primitives Y2K (RRButton, Avatar, Blob, Star…)
 │   └── game/                      # Composants jeux (PFCChoice, MorpionCell, PlayerRow…)
 ├── lib/
 │   └── supabase/
@@ -62,7 +60,7 @@ supabase/
 
 ## Design system
 
-Vibe Y2K festif. Source de vérité : `F_te de l_expression/shared.jsx`.
+Vibe Y2K festif.
 
 ### Palette (CSS variables → Tailwind auto)
 - `violet` `#2D1B8E` — fond principal
@@ -86,11 +84,11 @@ Vibe Y2K festif. Source de vérité : `F_te de l_expression/shared.jsx`.
 - Rotation alternée sur les cards (±0.5°)
 
 ### Animations
-- `ea-blink` — curseur texte
-- `ea-pulse` — point de présence online
-- `ea-float` — éléments décoratifs
-- `ea-bounce` — feedback victoire
-- `ea-glow-pulse` — CTA principal
+- `rr-blink` — curseur texte
+- `rr-pulse` — point de présence online
+- `rr-float` — éléments décoratifs
+- `rr-bounce` — feedback victoire
+- `rr-glow-pulse` — CTA principal
 
 ## Base de données
 
