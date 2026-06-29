@@ -1,10 +1,10 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export default function MaintenancePage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -25,12 +25,12 @@ export default function MaintenancePage() {
       <div aria-hidden style={{
         position: "absolute", top: -200, right: -150,
         width: 500, height: 440, borderRadius: "60% 40% 70% 30% / 50% 60% 40% 50%",
-        background: EA.cyan, opacity: 0.12, animation: "ea-float 6s ease-in-out infinite",
+        background: RR.cyan, opacity: 0.12, animation: "rr-float 6s ease-in-out infinite",
       }} />
       <div aria-hidden style={{
         position: "absolute", bottom: -180, left: -120,
         width: 420, height: 380, borderRadius: "40% 60% 30% 70% / 60% 40% 50% 50%",
-        background: EA.pink, opacity: 0.1, animation: "ea-float 8s ease-in-out infinite reverse",
+        background: RR.pink, opacity: 0.1, animation: "rr-float 8s ease-in-out infinite reverse",
       }} />
 
       <div style={{
@@ -42,24 +42,24 @@ export default function MaintenancePage() {
         {/* Logo */}
         <div style={{
           fontFamily: "var(--font-display), system-ui, sans-serif",
-          fontSize: 34, color: EA.white,
+          fontSize: 34, color: RR.white,
           transform: "skewX(-6deg)",
-          textShadow: `4px 4px 0 ${EA.pink}`,
+          textShadow: `4px 4px 0 ${RR.pink}`,
         }}>
-          EXPRESSION <span style={{ color: EA.cyan }}>ARENA</span>
+          EXPRESSION <span style={{ color: RR.cyan }}>ARENA</span>
         </div>
 
         {/* Badge */}
         <div style={{
-          background: EA.butter,
-          border: `3px solid ${EA.ink}`,
+          background: RR.butter,
+          border: `3px solid ${RR.ink}`,
           borderRadius: 999,
           padding: "12px 32px",
           fontFamily: "var(--font-display), system-ui, sans-serif",
           fontSize: 22,
-          color: EA.ink,
+          color: RR.ink,
           transform: "skewX(-8deg) rotate(-1.5deg)",
-          boxShadow: `5px 5px 0 ${EA.ink}`,
+          boxShadow: `5px 5px 0 ${RR.ink}`,
         }}>
           🔧 MAINTENANCE
         </div>
@@ -80,7 +80,7 @@ export default function MaintenancePage() {
           </div>
           <div style={{
             fontFamily: "var(--font-display), system-ui, sans-serif",
-            fontSize: 26, color: EA.white,
+            fontSize: 26, color: RR.white,
             transform: "skewX(-4deg)",
             marginBottom: 12,
           }}>
@@ -102,13 +102,13 @@ export default function MaintenancePage() {
           color: "rgba(255,255,255,0.25)",
           letterSpacing: 1,
         }}>
-          EXPRESSION ARENA
+          RIVAL RUSH
         </div>
 
       </div>
 
       <style>{`
-        @keyframes ea-float {
+        @keyframes rr-float {
           0%, 100% { transform: translateY(0); }
           50%       { transform: translateY(-18px); }
         }

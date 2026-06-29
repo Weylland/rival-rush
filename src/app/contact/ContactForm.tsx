@@ -2,14 +2,14 @@
 
 import { useActionState, useState } from "react";
 import { sendContact } from "./actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import type { ContactState } from "./actions";
 
 function FocusInput({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   const [focused, setFocused] = useState(false);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>
+      <label style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>
         {label}
       </label>
       <input
@@ -18,8 +18,8 @@ function FocusInput({ label, ...props }: React.InputHTMLAttributes<HTMLInputElem
         onBlur={() => setFocused(false)}
         style={{
           fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
-          color: EA.white, background: "rgba(255,255,255,0.06)",
-          border: `2px solid ${focused ? EA.cyan : EA.ink}`,
+          color: RR.white, background: "rgba(255,255,255,0.06)",
+          border: `2px solid ${focused ? RR.cyan : RR.ink}`,
           borderRadius: 12, padding: "13px 16px", outline: "none",
           width: "100%", boxSizing: "border-box", transition: "border-color .15s",
         }}
@@ -32,7 +32,7 @@ function FocusTextarea({ label, ...props }: React.TextareaHTMLAttributes<HTMLTex
   const [focused, setFocused] = useState(false);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>
+      <label style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>
         {label}
       </label>
       <textarea
@@ -41,8 +41,8 @@ function FocusTextarea({ label, ...props }: React.TextareaHTMLAttributes<HTMLTex
         onBlur={() => setFocused(false)}
         style={{
           fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
-          color: EA.white, background: "rgba(255,255,255,0.06)",
-          border: `2px solid ${focused ? EA.cyan : EA.ink}`,
+          color: RR.white, background: "rgba(255,255,255,0.06)",
+          border: `2px solid ${focused ? RR.cyan : RR.ink}`,
           borderRadius: 12, padding: "13px 16px", outline: "none",
           width: "100%", boxSizing: "border-box", transition: "border-color .15s",
           resize: "vertical", minHeight: 140,
@@ -58,12 +58,12 @@ export function ContactForm() {
   if (state?.success) {
     return (
       <div style={{
-        background: "rgba(0,212,232,0.1)", border: `2.5px solid ${EA.cyan}`,
+        background: "rgba(0,212,232,0.1)", border: `2.5px solid ${RR.cyan}`,
         borderRadius: 20, padding: "40px 24px", textAlign: "center",
-        boxShadow: `4px 4px 0 ${EA.cyan}`,
+        boxShadow: `4px 4px 0 ${RR.cyan}`,
       }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: EA.white, transform: "skewX(-4deg)" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: RR.white, transform: "skewX(-4deg)" }}>
           Message envoyé !
         </div>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
@@ -90,8 +90,8 @@ export function ContactForm() {
       {state?.error && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
-          fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.white,
+          background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
+          fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.white,
         }}>
           {state.error}
         </div>
@@ -102,10 +102,10 @@ export function ContactForm() {
         disabled={pending}
         style={{
           fontFamily: "var(--font-display)", fontSize: 16,
-          color: EA.violetDeep, background: pending ? "rgba(255,255,255,0.2)" : EA.cyan,
-          border: `2px solid ${EA.ink}`, borderRadius: 999,
+          color: RR.violetDeep, background: pending ? "rgba(255,255,255,0.2)" : RR.cyan,
+          border: `2px solid ${RR.ink}`, borderRadius: 999,
           padding: "15px 32px", cursor: pending ? "wait" : "pointer",
-          boxShadow: pending ? "none" : `4px 4px 0 ${EA.ink}`,
+          boxShadow: pending ? "none" : `4px 4px 0 ${RR.ink}`,
           transform: "skewX(-4deg)", textTransform: "uppercase",
           transition: "all .1s", opacity: pending ? 0.6 : 1,
           alignSelf: "flex-start",

@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { rollDice } from "./actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
@@ -151,16 +151,16 @@ export function DuelDesClient({
   }
 
   function roundOutcome(rw: string | null): { label: string; color: string } {
-    if (!rw) return { label: "ÉGALITÉ", color: EA.butter };
+    if (!rw) return { label: "ÉGALITÉ", color: RR.butter };
     return rw === myId
-      ? { label: "TU GAGNES", color: EA.cyan }
-      : { label: "TU PERDS",  color: EA.pink };
+      ? { label: "TU GAGNES", color: RR.cyan }
+      : { label: "TU PERDS",  color: RR.pink };
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: "100dvh", background: EA.violet, position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100dvh", background: RR.violet, position: "relative", overflow: "hidden" }}>
 
       {/* Background */}
       <div aria-hidden style={{
@@ -168,13 +168,13 @@ export function DuelDesClient({
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.7) 1.5px, transparent 2px)",
         backgroundSize: "18px 18px",
       }} />
-      <SvgBlob color={EA.cyan}   style={{ width: d ? 480 : 280, height: d ? 420 : 250, top: -140, left: -100, opacity: 0.55, animation: "ea-float 6s ease-in-out infinite" }} />
-      <SvgBlob color={EA.pink}   style={{ width: d ? 440 : 260, height: d ? 380 : 220, bottom: -120, right: -100, opacity: 0.55, animation: "ea-float 8s ease-in-out infinite reverse" }} />
-      <SvgBlob color={EA.butter} style={{ width: d ? 340 : 200, height: d ? 300 : 180, top: "40%", right: -100, opacity: 0.4, animation: "ea-float 10s ease-in-out infinite" }} />
+      <SvgBlob color={RR.cyan}   style={{ width: d ? 480 : 280, height: d ? 420 : 250, top: -140, left: -100, opacity: 0.55, animation: "rr-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink}   style={{ width: d ? 440 : 260, height: d ? 380 : 220, bottom: -120, right: -100, opacity: 0.55, animation: "rr-float 8s ease-in-out infinite reverse" }} />
+      <SvgBlob color={RR.butter} style={{ width: d ? 340 : 200, height: d ? 300 : 180, top: "40%", right: -100, opacity: 0.4, animation: "rr-float 10s ease-in-out infinite" }} />
 
-      <Star color={EA.butter} size={d ? 32 : 22} style={{ top: "8%", right: "8%", animation: "ea-spin-slow 8s linear infinite" }} />
-      <Star color={EA.cyan}   size={d ? 20 : 14} style={{ bottom: "20%", left: "6%", animation: "ea-float 5s ease-in-out infinite" }} />
-      <Star color={EA.pink}   size={d ? 14 : 11} style={{ top: "28%", left: "5%", animation: "ea-spin-slow 12s linear infinite reverse" }} />
+      <Star color={RR.butter} size={d ? 32 : 22} style={{ top: "8%", right: "8%", animation: "rr-spin-slow 8s linear infinite" }} />
+      <Star color={RR.cyan}   size={d ? 20 : 14} style={{ bottom: "20%", left: "6%", animation: "rr-float 5s ease-in-out infinite" }} />
+      <Star color={RR.pink}   size={d ? 14 : 11} style={{ top: "28%", left: "5%", animation: "rr-spin-slow 12s linear infinite reverse" }} />
 
       {/* ── Reveal overlay ── */}
       {showReveal && revealData && (
@@ -191,16 +191,16 @@ export function DuelDesClient({
               <DieFace
                 value={revealData.myRoll}
                 size={diceSize}
-                bg={EA.butter}
-                dotColor={EA.ink}
-                glowColor={revealData.roundWinner === myId ? EA.cyan : revealData.roundWinner === opponentId ? EA.pink : undefined}
+                bg={RR.butter}
+                dotColor={RR.ink}
+                glowColor={revealData.roundWinner === myId ? RR.cyan : revealData.roundWinner === opponentId ? RR.pink : undefined}
               />
-              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 40 : 30, color: EA.butter }}>{revealData.myRoll}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 40 : 30, color: RR.butter }}>{revealData.myRoll}</span>
             </div>
 
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: d ? 28 : 22, color: EA.pink,
-              border: `2.5px solid ${EA.pink}`, borderRadius: "50%",
+              fontFamily: "var(--font-display)", fontSize: d ? 28 : 22, color: RR.pink,
+              border: `2.5px solid ${RR.pink}`, borderRadius: "50%",
               width: d ? 56 : 42, height: d ? 56 : 42,
               display: "flex", alignItems: "center", justifyContent: "center",
               background: "rgba(255,30,140,0.12)",
@@ -211,11 +211,11 @@ export function DuelDesClient({
               <DieFace
                 value={revealData.opRoll}
                 size={diceSize}
-                bg={EA.pink}
-                dotColor={EA.white}
-                glowColor={revealData.roundWinner === opponentId ? EA.cyan : revealData.roundWinner === myId ? EA.pink : undefined}
+                bg={RR.pink}
+                dotColor={RR.white}
+                glowColor={revealData.roundWinner === opponentId ? RR.cyan : revealData.roundWinner === myId ? RR.pink : undefined}
               />
-              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 40 : 30, color: EA.pink }}>{revealData.opRoll}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 40 : 30, color: RR.pink }}>{revealData.opRoll}</span>
             </div>
           </div>
 
@@ -245,15 +245,15 @@ export function DuelDesClient({
           marginBottom: d ? 28 : 20,
         }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={d ? 48 : 38} />
-            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: EA.white, transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</span>
+            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? RR.butter} ring={RR.cyan} size={d ? 48 : 38} />
+            <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: RR.white, transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: d ? 16 : 12 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 52 : 38, color: EA.cyan, textShadow: `3px 3px 0 ${EA.ink}` }}>{myScore}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 52 : 38, color: RR.cyan, textShadow: `3px 3px 0 ${RR.ink}` }}>{myScore}</span>
               <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 24 : 18, color: "rgba(255,255,255,0.3)" }}>—</span>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 52 : 38, color: EA.pink, textShadow: `3px 3px 0 ${EA.ink}` }}>{opScore}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 52 : 38, color: RR.pink, textShadow: `3px 3px 0 ${RR.ink}` }}>{opScore}</span>
             </div>
             <span style={{ fontFamily: "var(--font-sans)", fontSize: d ? 11 : 9, fontWeight: 900, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase" }}>
               MANCHE {gameState.current_round} — 3 VICTOIRES POUR GAGNER
@@ -261,7 +261,7 @@ export function DuelDesClient({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <Avatar name={opponentPseudo} src={opAvatarUrl} color={opAvatarColor ?? EA.pink} ring={EA.butter} size={d ? 48 : 38} />
+            <Avatar name={opponentPseudo} src={opAvatarUrl} color={opAvatarColor ?? RR.pink} ring={RR.butter} size={d ? 48 : 38} />
             <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 14 : 11, color: "rgba(255,255,255,0.6)", transform: "skewX(-3deg)", display: "inline-block", maxWidth: d ? 160 : 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opponentPseudo.toUpperCase()}</span>
           </div>
         </div>
@@ -271,9 +271,9 @@ export function DuelDesClient({
           {Array.from({ length: 3 }, (_, i) => (
             <div key={`my-${i}`} style={{
               width: d ? 16 : 12, height: d ? 16 : 12, borderRadius: "50%",
-              background: i < myScore ? EA.cyan : "rgba(255,255,255,0.15)",
-              border: `2px solid ${i < myScore ? EA.cyan : "rgba(255,255,255,0.2)"}`,
-              boxShadow: i < myScore ? `0 0 8px ${EA.cyan}` : "none",
+              background: i < myScore ? RR.cyan : "rgba(255,255,255,0.15)",
+              border: `2px solid ${i < myScore ? RR.cyan : "rgba(255,255,255,0.2)"}`,
+              boxShadow: i < myScore ? `0 0 8px ${RR.cyan}` : "none",
               transition: "all 0.3s",
             }} />
           ))}
@@ -281,9 +281,9 @@ export function DuelDesClient({
           {Array.from({ length: 3 }, (_, i) => (
             <div key={`op-${i}`} style={{
               width: d ? 16 : 12, height: d ? 16 : 12, borderRadius: "50%",
-              background: i < opScore ? EA.pink : "rgba(255,255,255,0.15)",
-              border: `2px solid ${i < opScore ? EA.pink : "rgba(255,255,255,0.2)"}`,
-              boxShadow: i < opScore ? `0 0 8px ${EA.pink}` : "none",
+              background: i < opScore ? RR.pink : "rgba(255,255,255,0.15)",
+              border: `2px solid ${i < opScore ? RR.pink : "rgba(255,255,255,0.2)"}`,
+              boxShadow: i < opScore ? `0 0 8px ${RR.pink}` : "none",
               transition: "all 0.3s",
             }} />
           ))}
@@ -292,10 +292,10 @@ export function DuelDesClient({
         {/* Dés + bouton */}
         <div style={{
           width: "100%",
-          background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+          background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
           borderRadius: d ? 28 : 20,
           padding: d ? "36px 32px" : "28px 20px",
-          boxShadow: `5px 5px 0 ${EA.ink}`,
+          boxShadow: `5px 5px 0 ${RR.ink}`,
           display: "flex", flexDirection: "column", alignItems: "center", gap: d ? 28 : 22,
           marginBottom: d ? 20 : 16,
         }}>
@@ -307,13 +307,13 @@ export function DuelDesClient({
               <DieFace
                 value={myRoll}
                 size={diceSize}
-                bg={myRoll !== null ? EA.butter : EA.violetMid}
-                dotColor={myRoll !== null ? EA.ink : "rgba(255,255,255,0.5)"}
-                glowColor={myRoll !== null ? EA.butter : undefined}
+                bg={myRoll !== null ? RR.butter : RR.violetMid}
+                dotColor={myRoll !== null ? RR.ink : "rgba(255,255,255,0.5)"}
+                glowColor={myRoll !== null ? RR.butter : undefined}
                 shaking={myShaking}
               />
               {myRoll !== null && (
-                <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 32 : 24, color: EA.butter }}>{myRoll}</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 32 : 24, color: RR.butter }}>{myRoll}</span>
               )}
             </div>
 
@@ -322,8 +322,8 @@ export function DuelDesClient({
               display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
             }}>
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: d ? 24 : 18, color: EA.pink,
-                border: `2.5px solid ${EA.pink}`, borderRadius: "50%",
+                fontFamily: "var(--font-display)", fontSize: d ? 24 : 18, color: RR.pink,
+                border: `2.5px solid ${RR.pink}`, borderRadius: "50%",
                 width: d ? 52 : 40, height: d ? 52 : 40,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 background: "rgba(255,30,140,0.1)",
@@ -337,16 +337,16 @@ export function DuelDesClient({
               <DieFace
                 value={opRevealedRoll}
                 size={diceSize}
-                bg={opRevealedRoll !== null ? EA.pink : opRolled ? "#3d1f3d" : EA.violetMid}
-                dotColor={opRevealedRoll !== null ? EA.white : "rgba(255,255,255,0.5)"}
-                glowColor={opRevealedRoll !== null ? EA.pink : opRolled ? "rgba(200,100,200,0.6)" : undefined}
+                bg={opRevealedRoll !== null ? RR.pink : opRolled ? "#3d1f3d" : RR.violetMid}
+                dotColor={opRevealedRoll !== null ? RR.white : "rgba(255,255,255,0.5)"}
+                glowColor={opRevealedRoll !== null ? RR.pink : opRolled ? "rgba(200,100,200,0.6)" : undefined}
                 shaking={opShaking}
               />
               {opRolled && !bothRolled && (
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: d ? 12 : 10, fontWeight: 800, color: "rgba(255,255,255,0.45)" }}>✓ A lancé</span>
               )}
               {opRevealedRoll !== null && (
-                <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 32 : 24, color: EA.pink }}>{opRevealedRoll}</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 32 : 24, color: RR.pink }}>{opRevealedRoll}</span>
               )}
             </div>
           </div>
@@ -358,18 +358,18 @@ export function DuelDesClient({
                 onClick={handleRoll}
                 disabled={rolling}
                 style={{
-                  background: EA.cyan, border: `3px solid ${EA.ink}`,
+                  background: RR.cyan, border: `3px solid ${RR.ink}`,
                   borderRadius: d ? 20 : 16,
                   padding: d ? "20px 60px" : "16px 44px",
                   fontFamily: "var(--font-display)", fontSize: d ? 28 : 22,
-                  color: EA.ink, transform: "skewX(-6deg)",
-                  boxShadow: rolling ? "none" : `5px 5px 0 ${EA.ink}`,
+                  color: RR.ink, transform: "skewX(-6deg)",
+                  boxShadow: rolling ? "none" : `5px 5px 0 ${RR.ink}`,
                   cursor: rolling ? "wait" : "pointer",
                   opacity: rolling ? 0.7 : 1,
                   transition: "transform 0.1s, box-shadow 0.1s",
                 }}
                 onMouseDown={e => { if (!rolling) { e.currentTarget.style.transform = "skewX(-6deg) translate(5px,5px)"; e.currentTarget.style.boxShadow = "none"; }}}
-                onMouseUp={e => { if (!rolling) { e.currentTarget.style.transform = "skewX(-6deg)"; e.currentTarget.style.boxShadow = `5px 5px 0 ${EA.ink}`; }}}
+                onMouseUp={e => { if (!rolling) { e.currentTarget.style.transform = "skewX(-6deg)"; e.currentTarget.style.boxShadow = `5px 5px 0 ${RR.ink}`; }}}
               >
                 <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
                   🎲 LANCER !
@@ -381,7 +381,7 @@ export function DuelDesClient({
                 color: "rgba(255,255,255,0.55)", textAlign: "center",
                 display: "flex", alignItems: "center", gap: 8,
               }}>
-                <span style={{ animation: "ea-pulse 1s ease-in-out infinite" }}>⏳</span>
+                <span style={{ animation: "rr-pulse 1s ease-in-out infinite" }}>⏳</span>
                 {opponentPseudo} lance…
               </div>
             ) : null
@@ -390,7 +390,7 @@ export function DuelDesClient({
           {gameStatus === "finished" && (
             <div style={{
               fontFamily: "var(--font-display)", fontSize: d ? 22 : 17,
-              color: myWin ? EA.cyan : opWin ? EA.pink : EA.butter,
+              color: myWin ? RR.cyan : opWin ? RR.pink : RR.butter,
               transform: "skewX(-4deg)", textAlign: "center",
             }}>
               {myWin ? "🏆 VICTOIRE !" : opWin ? "💀 DÉFAITE !" : "🤝 ÉGALITÉ !"}
@@ -401,7 +401,7 @@ export function DuelDesClient({
         {/* Historique des manches */}
         {gameState.rounds.filter((r, i) => i < roundIdx && Object.keys(r.rolls).length === 2).length > 0 && (
           <div style={{
-            width: "100%", background: EA.violetDeep, border: `2px solid rgba(255,255,255,0.08)`,
+            width: "100%", background: RR.violetDeep, border: `2px solid rgba(255,255,255,0.08)`,
             borderRadius: d ? 20 : 16, padding: d ? "16px 20px" : "12px 16px",
           }}>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: d ? 11 : 9, fontWeight: 900, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 2, marginBottom: d ? 12 : 8 }}>
@@ -426,13 +426,13 @@ export function DuelDesClient({
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 12 : 9, color: "rgba(255,255,255,0.25)", width: 20 }}>M{i + 1}</span>
                         <span style={{ fontSize: d ? 22 : 16 }}>🎲</span>
-                        <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 22 : 17, color: EA.butter }}>{myR ?? "?"}</span>
+                        <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 22 : 17, color: RR.butter }}>{myR ?? "?"}</span>
                       </div>
-                      <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 13 : 10, color: rTie ? EA.butter : rWin ? EA.cyan : EA.pink, letterSpacing: 1 }}>
+                      <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 13 : 10, color: rTie ? RR.butter : rWin ? RR.cyan : RR.pink, letterSpacing: 1 }}>
                         {rTie ? "ÉGAL" : rWin ? "WIN" : "LOSE"}
                       </span>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 22 : 17, color: EA.pink }}>{opR ?? "?"}</span>
+                        <span style={{ fontFamily: "var(--font-display)", fontSize: d ? 22 : 17, color: RR.pink }}>{opR ?? "?"}</span>
                         <span style={{ fontSize: d ? 22 : 16 }}>🎲</span>
                       </div>
                     </div>

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { ScreenBg } from "@/components/ui/screen-bg";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact — ExpressionArena",
+  title: "Contact — RivalRush",
   description: "Une question, un bug, une idée ? Envoie-moi un message.",
 };
 
@@ -15,10 +15,10 @@ export default function ContactPage() {
   return (
     <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden" }}>
       <ScreenBg />
-      <SvgBlob color={EA.pink} style={{ width: 420, height: 380, top: -160, right: -120, opacity: 0.4, animation: "ea-float 7s ease-in-out infinite" }} />
-      <SvgBlob color={EA.butter} style={{ width: 300, height: 280, bottom: -100, left: -80, opacity: 0.3, animation: "ea-float 9s ease-in-out infinite reverse" }} />
-      <Star color={EA.cyan} size={32} style={{ top: "18%", left: "6%", animation: "ea-spin-slow 12s linear infinite" }} />
-      <Star color={EA.butter} size={20} style={{ bottom: "25%", right: "8%", animation: "ea-float 5s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 420, height: 380, top: -160, right: -120, opacity: 0.4, animation: "rr-float 7s ease-in-out infinite" }} />
+      <SvgBlob color={RR.butter} style={{ width: 300, height: 280, bottom: -100, left: -80, opacity: 0.3, animation: "rr-float 9s ease-in-out infinite reverse" }} />
+      <Star color={RR.cyan} size={32} style={{ top: "18%", left: "6%", animation: "rr-spin-slow 12s linear infinite" }} />
+      <Star color={RR.butter} size={20} style={{ bottom: "25%", right: "8%", animation: "rr-float 5s ease-in-out infinite" }} />
 
       <div style={{ position: "relative", zIndex: 10, maxWidth: 620, margin: "0 auto", padding: "40px 20px 80px" }}>
         {/* Header */}
@@ -28,18 +28,18 @@ export default function ContactPage() {
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 40, height: 40, borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)", border: `2px solid ${EA.ink}`,
-              color: EA.white, textDecoration: "none", fontSize: 18,
-              boxShadow: `2px 2px 0 ${EA.ink}`, flexShrink: 0,
+              background: "rgba(255,255,255,0.08)", border: `2px solid ${RR.ink}`,
+              color: RR.white, textDecoration: "none", fontSize: 18,
+              boxShadow: `2px 2px 0 ${RR.ink}`, flexShrink: 0,
             }}
           >
             ←
           </Link>
           <div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 2 }}>
-              ExpressionArena
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.pink, textTransform: "uppercase", letterSpacing: 2 }}>
+              RivalRush
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.cyan}`, lineHeight: 1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.cyan}`, lineHeight: 1 }}>
               CONTACT
             </div>
           </div>

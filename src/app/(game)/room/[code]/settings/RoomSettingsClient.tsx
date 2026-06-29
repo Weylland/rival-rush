@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { SvgBlob } from "@/components/ui/blob";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { updateRoomSettings, deleteRoom } from "../../actions";
@@ -70,17 +70,17 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
   };
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.25, backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.55) 1.4px, transparent 1.8px)", backgroundSize: "16px 16px" }} />
-      <SvgBlob color={EA.pink} style={{ width: 400, height: 360, top: -150, right: -100, opacity: 0.5, animation: "ea-float 7s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 400, height: 360, top: -150, right: -100, opacity: 0.5, animation: "rr-float 7s ease-in-out infinite" }} />
 
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 580 : "100%", margin: "0 auto", padding: desktop ? "28px 40px 80px" : "16px 16px 80px" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>Paramètres</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 30 : 22, color: EA.white, transform: "skewX(-6deg)", textShadow: `2px 2px 0 ${EA.pink}` }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>Paramètres</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 30 : 22, color: RR.white, transform: "skewX(-6deg)", textShadow: `2px 2px 0 ${RR.pink}` }}>
               {initial.name.toUpperCase()}
             </div>
           </div>
@@ -104,11 +104,11 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
               {([true, false] as const).map(pub => (
                 <button key={String(pub)} type="button" onClick={() => setIsPublic(pub)} style={{
                   flex: 1, padding: "12px 0", borderRadius: 14,
-                  background: isPublic === pub ? (pub ? EA.cyan : EA.butter) : "rgba(255,255,255,0.06)",
-                  border: `2px solid ${isPublic === pub ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                  background: isPublic === pub ? (pub ? RR.cyan : RR.butter) : "rgba(255,255,255,0.06)",
+                  border: `2px solid ${isPublic === pub ? RR.ink : "rgba(255,255,255,0.15)"}`,
                   fontFamily: "var(--font-display)", fontSize: 14,
-                  color: isPublic === pub ? EA.ink : "rgba(255,255,255,0.55)", cursor: "pointer",
-                  boxShadow: isPublic === pub ? `2px 2px 0 ${EA.ink}` : "none",
+                  color: isPublic === pub ? RR.ink : "rgba(255,255,255,0.55)", cursor: "pointer",
+                  boxShadow: isPublic === pub ? `2px 2px 0 ${RR.ink}` : "none",
                 }}>{pub ? "🌐 Publique" : "🔒 Privée"}</button>
               ))}
             </div>
@@ -168,9 +168,9 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
                     <button key={g} type="button" onClick={() => toggleGame(g)} style={{
                       padding: "7px 12px", borderRadius: 999,
                       background: selected ? "#4ADE80" : "rgba(255,255,255,0.06)",
-                      border: `2px solid ${selected ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                      border: `2px solid ${selected ? RR.ink : "rgba(255,255,255,0.15)"}`,
                       fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-                      color: selected ? EA.ink : "rgba(255,255,255,0.55)", cursor: "pointer",
+                      color: selected ? RR.ink : "rgba(255,255,255,0.55)", cursor: "pointer",
                     }}>{GAME_LABELS[g]}</button>
                   );
                 })}
@@ -178,14 +178,14 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
             )}
           </Toggle>
 
-          {error && <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.pink }}>⚠ {error}</div>}
+          {error && <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.pink }}>⚠ {error}</div>}
           {saved && <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "#4ADE80" }}>✓ Paramètres sauvegardés</div>}
 
           <button type="submit" disabled={savePending} style={{
-            background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 14, padding: "16px",
-            fontFamily: "var(--font-display)", fontSize: 17, color: EA.ink,
+            background: RR.cyan, border: `2.5px solid ${RR.ink}`, borderRadius: 14, padding: "16px",
+            fontFamily: "var(--font-display)", fontSize: 17, color: RR.ink,
             cursor: savePending ? "wait" : "pointer", opacity: savePending ? 0.7 : 1,
-            boxShadow: `4px 4px 0 ${EA.ink}`,
+            boxShadow: `4px 4px 0 ${RR.ink}`,
           }}>
             {savePending ? "Sauvegarde…" : "💾 SAUVEGARDER"}
           </button>
@@ -193,26 +193,26 @@ export function RoomSettingsClient({ room: initial }: { room: RoomInfo }) {
 
         {/* Danger zone */}
         <div style={{ marginTop: 32, borderTop: `2px solid rgba(255,30,140,0.2)`, paddingTop: 24 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.pink, textTransform: "uppercase", letterSpacing: 1.4, marginBottom: 12 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.pink, textTransform: "uppercase", letterSpacing: 1.4, marginBottom: 12 }}>
             Zone dangereuse
           </div>
           {!confirmDelete ? (
             <button onClick={() => setConfirmDelete(true)} style={{
-              background: "rgba(255,30,140,0.1)", border: `2px solid ${EA.pink}`,
+              background: "rgba(255,30,140,0.1)", border: `2px solid ${RR.pink}`,
               borderRadius: 12, padding: "12px 20px",
-              fontFamily: "var(--font-display)", fontSize: 15, color: EA.pink,
+              fontFamily: "var(--font-display)", fontSize: 15, color: RR.pink,
               cursor: "pointer",
             }}>🗑 Supprimer la salle</button>
           ) : (
-            <div style={{ background: "rgba(255,30,140,0.12)", border: `2px solid ${EA.pink}`, borderRadius: 16, padding: "18px 20px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white, marginBottom: 6 }}>Supprimer définitivement ?</div>
+            <div style={{ background: "rgba(255,30,140,0.12)", border: `2px solid ${RR.pink}`, borderRadius: 16, padding: "18px 20px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: RR.white, marginBottom: 6 }}>Supprimer définitivement ?</div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>
                 Tous les membres seront expulsés. Cette action est irréversible.
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={() => setConfirmDelete(false)} style={{ padding: "10px 18px", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: `2px solid rgba(255,255,255,0.2)`, fontFamily: "var(--font-display)", fontSize: 13, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>Annuler</button>
                 <button onClick={() => startDelete(async () => { await deleteRoom(initial.id); })} disabled={deletePending}
-                  style={{ padding: "10px 18px", borderRadius: 999, background: EA.pink, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`, opacity: deletePending ? 0.6 : 1 }}>
+                  style={{ padding: "10px 18px", borderRadius: 999, background: RR.pink, border: `2px solid ${RR.ink}`, fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}`, opacity: deletePending ? 0.6 : 1 }}>
                   {deletePending ? "Suppression…" : "Supprimer définitivement"}
                 </button>
               </div>
@@ -238,14 +238,14 @@ function Toggle({ label, description, checked, onChange, children }: {
   onChange: (v: boolean) => void; children?: React.ReactNode;
 }) {
   return (
-    <div style={{ background: "rgba(255,255,255,0.04)", border: `2px solid ${checked ? EA.cyan : "rgba(255,255,255,0.1)"}`, borderRadius: 14, padding: "14px 16px", transition: "border-color .15s" }}>
+    <div style={{ background: "rgba(255,255,255,0.04)", border: `2px solid ${checked ? RR.cyan : "rgba(255,255,255,0.1)"}`, borderRadius: 14, padding: "14px 16px", transition: "border-color .15s" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white }}>{label}</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white }}>{label}</div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{description}</div>
         </div>
-        <button type="button" onClick={() => onChange(!checked)} style={{ width: 44, height: 24, borderRadius: 12, flexShrink: 0, background: checked ? EA.cyan : "rgba(255,255,255,0.15)", border: `2px solid ${EA.ink}`, cursor: "pointer", position: "relative", transition: "background .2s" }}>
-          <span style={{ position: "absolute", top: 2, left: checked ? "calc(100% - 20px)" : 2, width: 16, height: 16, borderRadius: "50%", background: EA.white, transition: "left .2s" }} />
+        <button type="button" onClick={() => onChange(!checked)} style={{ width: 44, height: 24, borderRadius: 12, flexShrink: 0, background: checked ? RR.cyan : "rgba(255,255,255,0.15)", border: `2px solid ${RR.ink}`, cursor: "pointer", position: "relative", transition: "background .2s" }}>
+          <span style={{ position: "absolute", top: 2, left: checked ? "calc(100% - 20px)" : 2, width: 16, height: 16, borderRadius: "50%", background: RR.white, transition: "left .2s" }} />
         </button>
       </div>
       {checked && children}

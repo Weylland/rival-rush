@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { FLEET_DEFS } from "@/lib/battleship";
 import type { NavalShip } from "@/types/database";
 import type { CellKind } from "./grid";
@@ -16,11 +16,11 @@ export function NavalGrid({ cells, cellSize, interactive, shotCells, onShoot, ac
 
   return (
     <div style={{
-      background: EA.violetDeep,
-      border: `3px solid ${EA.ink}`,
+      background: RR.violetDeep,
+      border: `3px solid ${RR.ink}`,
       borderRadius: 16,
       padding: 6,
-      boxShadow: `5px 5px 0 ${accentColor}, 5px 5px 0 1px ${EA.ink}`,
+      boxShadow: `5px 5px 0 ${accentColor}, 5px 5px 0 1px ${RR.ink}`,
       display: "inline-block",
       position: "relative",
     }}>
@@ -52,12 +52,12 @@ export function NavalGrid({ cells, cellSize, interactive, shotCells, onShoot, ac
                 background:
                   kind === "water" ? "rgba(0,80,200,0.18)" :
                   kind === "ship"  ? `rgba(0,212,232,0.45)` :
-                  kind === "hit"   ? EA.pink :
+                  kind === "hit"   ? RR.pink :
                   kind === "sunk"  ? "#c0132a" :
                   /* miss */         "rgba(255,255,255,0.08)",
                 border: `1.5px solid ${
                   kind === "ship" ? "rgba(0,212,232,0.7)" :
-                  kind === "hit" || kind === "sunk" ? EA.ink :
+                  kind === "hit" || kind === "sunk" ? RR.ink :
                   "rgba(255,255,255,0.06)"
                 }`,
                 cursor: canShoot ? "crosshair" : "default",
@@ -74,7 +74,7 @@ export function NavalGrid({ cells, cellSize, interactive, shotCells, onShoot, ac
                 <div style={{ width: "38%", height: "38%", borderRadius: "50%", background: "rgba(255,255,255,0.35)" }} />
               )}
               {(kind === "hit" || kind === "sunk") && (
-                <span style={{ fontSize: cellSize * 0.52, lineHeight: 1, color: EA.white, fontWeight: 900 }}>✕</span>
+                <span style={{ fontSize: cellSize * 0.52, lineHeight: 1, color: RR.white, fontWeight: 900 }}>✕</span>
               )}
             </div>
           );
@@ -97,8 +97,8 @@ export function FleetTracker({ ships, shotCells, accent }: { ships: NavalShip[];
                 <div key={i} style={{
                   width: 10, height: 10, borderRadius: 2,
                   background: sunk ? "rgba(255,255,255,0.1)" : accent,
-                  border: `1.5px solid ${sunk ? "rgba(255,255,255,0.1)" : EA.ink}`,
-                  boxShadow: sunk ? "none" : `1px 1px 0 ${EA.ink}`,
+                  border: `1.5px solid ${sunk ? "rgba(255,255,255,0.1)" : RR.ink}`,
+                  boxShadow: sunk ? "none" : `1px 1px 0 ${RR.ink}`,
                   opacity: sunk ? 0.3 : 1,
                 }} />
               ))}
@@ -123,12 +123,12 @@ export function TurnPill({ isMyTurn, isFinished, iWon, isDraw, opPseudo, shotFee
     return (
       <div style={{
         background: isDraw ? "rgba(255,233,74,0.15)" : iWon ? "rgba(0,212,232,0.15)" : "rgba(255,30,140,0.15)",
-        border: `2px solid ${isDraw ? EA.butter : iWon ? EA.cyan : EA.pink}`,
+        border: `2px solid ${isDraw ? RR.butter : iWon ? RR.cyan : RR.pink}`,
         borderRadius: 999, padding: "8px 20px",
         display: "inline-flex", alignItems: "center", gap: 8,
-        boxShadow: `3px 3px 0 ${isDraw ? EA.butter : iWon ? EA.cyan : EA.pink}`,
+        boxShadow: `3px 3px 0 ${isDraw ? RR.butter : iWon ? RR.cyan : RR.pink}`,
       }}>
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 22, color: isDraw ? EA.butter : iWon ? EA.cyan : EA.pink, transform: "skewX(-6deg)" }}>
+        <span style={{ fontFamily: "var(--font-display)", fontSize: 22, color: isDraw ? RR.butter : iWon ? RR.cyan : RR.pink, transform: "skewX(-6deg)" }}>
           {isDraw ? "🤝 MATCH NUL !" : iWon ? "🏆 VICTOIRE !" : "💀 DÉFAITE !"}
         </span>
       </div>
@@ -136,19 +136,19 @@ export function TurnPill({ isMyTurn, isFinished, iWon, isDraw, opPseudo, shotFee
   }
   return (
     <div style={{
-      background: "rgba(26,15,94,0.7)", border: `2px solid ${EA.ink}`,
+      background: "rgba(26,15,94,0.7)", border: `2px solid ${RR.ink}`,
       borderRadius: 999, padding: "8px 18px",
       display: "inline-flex", alignItems: "center", gap: 10,
-      boxShadow: `3px 3px 0 ${EA.cyan}`,
+      boxShadow: `3px 3px 0 ${RR.cyan}`,
     }}>
       <span style={{
         width: 8, height: 8, borderRadius: "50%",
-        background: isMyTurn ? EA.butter : EA.cyan,
-        boxShadow: `0 0 10px ${isMyTurn ? EA.butter : EA.cyan}`,
-        animation: "ea-pulse 1.2s ease-in-out infinite",
+        background: isMyTurn ? RR.butter : RR.cyan,
+        boxShadow: `0 0 10px ${isMyTurn ? RR.butter : RR.cyan}`,
+        animation: "rr-pulse 1.2s ease-in-out infinite",
         flexShrink: 0,
       }} />
-      <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
+      <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: RR.white }}>
         {shotFeedback ?? (isMyTurn ? "À toi de jouer — vise bien !" : `${opPseudo} vise…`)}
       </span>
     </div>

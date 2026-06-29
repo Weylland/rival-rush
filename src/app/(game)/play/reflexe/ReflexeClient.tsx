@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { setReflexeReady, submitReflexeTap } from "./actions";
@@ -127,7 +127,7 @@ export function ReflexeClient({
     ? "#00c44f"                                             // vert explosion
     : isArmed
       ? "#1a0a00"                                           // noir danger
-      : EA.violet;                                          // normal
+      : RR.violet;                                          // normal
 
   const dotColor = isSignal
     ? "rgba(0,255,80,0.3)"
@@ -188,7 +188,7 @@ export function ReflexeClient({
         {/* Round counter */}
         <div style={{ flexShrink: 0, textAlign: "center" }}>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 9, color: isArmed ? "rgba(255,150,80,0.6)" : "rgba(255,255,255,0.35)", lineHeight: 1, letterSpacing: 1, transition: "color 0.3s" }}>MANCHE</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isSignal ? EA.ink : isArmed ? "#ff9940" : EA.cyan, lineHeight: 1, transition: "color 0.3s" }}>{tapState.current_round}</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: isSignal ? RR.ink : isArmed ? "#ff9940" : RR.cyan, lineHeight: 1, transition: "color 0.3s" }}>{tapState.current_round}</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 9, color: isArmed ? "rgba(255,150,80,0.4)" : "rgba(255,255,255,0.2)", letterSpacing: 0.5, transition: "color 0.3s" }}>/ 3</div>
         </div>
 
@@ -208,16 +208,16 @@ export function ReflexeClient({
         {lastRound && (
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 10,
-            background: EA.violetDeep,
-            border: `2.5px solid ${lastRound.winner_id === myId ? EA.cyan : EA.pink}`,
+            background: RR.violetDeep,
+            border: `2.5px solid ${lastRound.winner_id === myId ? RR.cyan : RR.pink}`,
             borderRadius: 999, padding: "7px 18px",
-            boxShadow: `3px 3px 0 ${lastRound.winner_id === myId ? EA.cyan : EA.pink}`,
+            boxShadow: `3px 3px 0 ${lastRound.winner_id === myId ? RR.cyan : RR.pink}`,
             animation: "reflexe-pop 0.3s cubic-bezier(0.175,0.885,0.32,1.6)",
           }}>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: lastRound.winner_id === myId ? EA.cyan : EA.pink, transform: "skewX(-4deg)" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: lastRound.winner_id === myId ? RR.cyan : RR.pink, transform: "skewX(-4deg)" }}>
               {lastRound.winner_id === myId ? "🏆 MANCHE GAGNÉE" : `${opPseudo.toUpperCase()} GAGNE`}
             </span>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.butter }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.butter }}>
               {lastRound.reaction_ms}ms
             </span>
           </div>
@@ -260,7 +260,7 @@ export function ReflexeClient({
           {/* Content */}
           {isFinished && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, position: "relative", zIndex: 2 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 44, color: winnerId === myId ? EA.cyan : EA.pink, transform: "skewX(-6deg)", textShadow: `4px 4px 0 ${EA.ink}`, textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 44, color: winnerId === myId ? RR.cyan : RR.pink, transform: "skewX(-6deg)", textShadow: `4px 4px 0 ${RR.ink}`, textAlign: "center" }}>
                 {winnerId === myId ? "🏆 VICTOIRE !" : "💀 DÉFAITE !"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
@@ -272,7 +272,7 @@ export function ReflexeClient({
           {!isFinished && tapState.phase === "idle" && !iAmReady && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative", zIndex: 2 }}>
               <div style={{ fontSize: 60, lineHeight: 1 }}>✋</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: EA.ink, transform: "skewX(-6deg)", textShadow: `3px 3px 0 rgba(0,0,0,0.15)` }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: RR.ink, transform: "skewX(-6deg)", textShadow: `3px 3px 0 rgba(0,0,0,0.15)` }}>
                 {submitting ? "…" : "PRÊT ?"}
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: "rgba(26,15,94,0.6)", textAlign: "center", padding: "0 24px" }}>
@@ -284,7 +284,7 @@ export function ReflexeClient({
           {!isFinished && tapState.phase === "idle" && iAmReady && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, position: "relative", zIndex: 2 }}>
               <div style={{ fontSize: 48, lineHeight: 1, animation: "reflexe-throb 1.4s ease-in-out infinite" }}>⏳</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: EA.white, transform: "skewX(-4deg)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: RR.white, transform: "skewX(-4deg)" }}>
                 En attente…
               </div>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.45)", textAlign: "center" }}>
@@ -317,7 +317,7 @@ export function ReflexeClient({
           {!isFinished && isSignal && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative", zIndex: 2 }}>
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: 72, color: EA.ink,
+                fontFamily: "var(--font-display)", fontSize: 72, color: RR.ink,
                 transform: "skewX(-8deg)", lineHeight: 1,
                 textShadow: `4px 4px 0 rgba(0,0,0,0.2)`,
                 animation: "reflexe-pop 0.2s cubic-bezier(0.175,0.885,0.32,1.6)",
@@ -377,14 +377,14 @@ function getZoneStyle(
   isFinished: boolean,
 ): React.CSSProperties {
   if (isFinished) return {
-    background: EA.violetDeep,
-    border: `2.5px solid ${EA.ink}`,
-    boxShadow: `4px 4px 0 ${EA.ink}`,
+    background: RR.violetDeep,
+    border: `2.5px solid ${RR.ink}`,
+    boxShadow: `4px 4px 0 ${RR.ink}`,
   };
   if (phase === "idle" && !iAmReady) return {
-    background: EA.butter,
-    border: `3px solid ${EA.ink}`,
-    boxShadow: `8px 8px 0 ${EA.cyan}, 8px 8px 0 1px ${EA.ink}`,
+    background: RR.butter,
+    border: `3px solid ${RR.ink}`,
+    boxShadow: `8px 8px 0 ${RR.cyan}, 8px 8px 0 1px ${RR.ink}`,
   };
   if (phase === "idle" && iAmReady) return {
     background: "rgba(255,255,255,0.05)",
@@ -398,7 +398,7 @@ function getZoneStyle(
   // Signal
   return {
     background: "rgba(0,180,60,0.18)",
-    border: `3px solid ${EA.ink}`,
+    border: `3px solid ${RR.ink}`,
     boxShadow: `0 0 48px rgba(0,255,100,0.4), 8px 8px 0 rgba(0,0,0,0.3)`,
   };
 }

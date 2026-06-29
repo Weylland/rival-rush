@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { useOpponentWatcher } from "@/hooks/useOpponentWatcher";
@@ -304,7 +304,7 @@ export function ChessClient({
     isMe: boolean; isActive: boolean; pseudo: string; avatarUrl: string | null;
     clabel: string; time: number | null;
   }) => {
-    const color = isMe ? EA.cyan : EA.pink;
+    const color = isMe ? RR.cyan : RR.pink;
     return (
       <div style={{
         display: "flex", alignItems: "center",
@@ -313,35 +313,35 @@ export function ChessClient({
         background: isActive ? `${color}30` : "rgba(255,255,255,0.04)",
         border: `3px solid ${isActive ? color : "rgba(255,255,255,0.08)"}`,
         borderRadius: 16,
-        boxShadow: isActive ? `4px 4px 0 ${color}, 4px 4px 0 1px ${EA.ink}` : "none",
+        boxShadow: isActive ? `4px 4px 0 ${color}, 4px 4px 0 1px ${RR.ink}` : "none",
         opacity: isFinished ? 0.75 : isActive ? 1 : 0.5,
         transition: "all 0.3s ease",
         width: desktop ? boardSize : undefined,
       }}>
-        <Avatar name={pseudo} src={avatarUrl} color={(isMe ? myAvatarColor : opAvatarColor) ?? color} size={desktop ? 44 : 34} ring={isActive ? EA.ink : "transparent"} />
+        <Avatar name={pseudo} src={avatarUrl} color={(isMe ? myAvatarColor : opAvatarColor) ?? color} size={desktop ? 44 : 34} ring={isActive ? RR.ink : "transparent"} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: EA.white, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: RR.white, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {pseudo.toUpperCase()}
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 10, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
             {clabel}
           </div>
         </div>
-        {/* Badge tour — pill EA quand c'est actif */}
+        {/* Badge tour — pill RR quand c'est actif */}
         {!isFinished && isActive && (
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: desktop ? 13 : 11,
-            color: EA.ink,
+            color: RR.ink,
             background: color,
-            border: `2px solid ${EA.ink}`,
+            border: `2px solid ${RR.ink}`,
             borderRadius: 999,
             padding: desktop ? "4px 14px" : "3px 10px",
             flexShrink: 0,
             letterSpacing: 0.5,
             transform: "skewX(-4deg)",
-            boxShadow: `2px 2px 0 ${EA.ink}`,
-            animation: "ea-pulse 1s ease-in-out infinite alternate",
+            boxShadow: `2px 2px 0 ${RR.ink}`,
+            animation: "rr-pulse 1s ease-in-out infinite alternate",
           }}>
             {isMe ? "TON TOUR ▶" : "joue…"}
           </div>
@@ -383,10 +383,10 @@ export function ChessClient({
         display: "grid",
         gridTemplateColumns: "repeat(8, 1fr)",
         containerType: "inline-size",
-        border: `3px solid ${EA.ink}`,
+        border: `3px solid ${RR.ink}`,
         borderRadius: 6,
         overflow: "hidden",
-        boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
+        boxShadow: `4px 4px 0 ${RR.cyan}, 4px 4px 0 1px ${RR.ink}`,
         userSelect: "none",
         cursor: isDragging ? "grabbing" : "default",
         touchAction: "none",
@@ -405,7 +405,7 @@ export function ChessClient({
         const isDragSource = dragState?.from === boardIdx && isDragging;
 
         let bg = squareColor(boardIdx);
-        if (isSelected) bg = EA.cyan;
+        if (isSelected) bg = RR.cyan;
         else if (isLastFrom || isLastTo) bg = "rgba(255,220,50,0.45)";
         if (isKingInCheck) bg = "rgba(255,30,140,0.7)";
 
@@ -504,9 +504,9 @@ export function ChessClient({
     : null;
 
   return (
-    <div style={{ minHeight: "100dvh", background: EA.violet, position: "relative", overflow: "hidden" }}>
-      <SvgBlob color={EA.cyan} style={{ width: 300, height: 260, top: -100, right: -80, opacity: 0.25, animation: "ea-float 9s ease-in-out infinite" }} />
-      <SvgBlob color={EA.pink} style={{ width: 240, height: 200, bottom: -80, left: -60, opacity: 0.2, animation: "ea-float 11s ease-in-out infinite reverse" }} />
+    <div style={{ minHeight: "100dvh", background: RR.violet, position: "relative", overflow: "hidden" }}>
+      <SvgBlob color={RR.cyan} style={{ width: 300, height: 260, top: -100, right: -80, opacity: 0.25, animation: "rr-float 9s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 240, height: 200, bottom: -80, left: -60, opacity: 0.2, animation: "rr-float 11s ease-in-out infinite reverse" }} />
 
       {desktop ? (
         /* ── Desktop : centré horizontalement + verticalement ── */
@@ -520,7 +520,7 @@ export function ChessClient({
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4, alignSelf: "stretch", justifyContent: "center" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: RR.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${RR.cyan}`, lineHeight: 1 }}>
                 ÉCHECS
               </div>
               {timeLabel && (
@@ -531,9 +531,9 @@ export function ChessClient({
             </div>
             {kingInCheck && (
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink,
-                background: EA.pink, border: `2px solid ${EA.ink}`,
-                borderRadius: 999, padding: "4px 14px", animation: "ea-pulse 0.8s ease-in-out infinite alternate",
+                fontFamily: "var(--font-display)", fontSize: 13, color: RR.ink,
+                background: RR.pink, border: `2px solid ${RR.ink}`,
+                borderRadius: 999, padding: "4px 14px", animation: "rr-pulse 0.8s ease-in-out infinite alternate",
               }}>
                 ÉCHEC !
               </div>
@@ -557,7 +557,7 @@ export function ChessClient({
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${EA.cyan}`, lineHeight: 1 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: RR.white, transform: "skewX(-8deg)", textShadow: `2px 2px 0 ${RR.cyan}`, lineHeight: 1 }}>
                   ÉCHECS
                 </div>
                 {timeLabel && (
@@ -568,9 +568,9 @@ export function ChessClient({
               </div>
               {kingInCheck && (
                 <div style={{
-                  fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink,
-                  background: EA.pink, border: `2px solid ${EA.ink}`,
-                  borderRadius: 999, padding: "3px 10px", animation: "ea-pulse 0.8s ease-in-out infinite alternate",
+                  fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink,
+                  background: RR.pink, border: `2px solid ${RR.ink}`,
+                  borderRadius: 999, padding: "3px 10px", animation: "rr-pulse 0.8s ease-in-out infinite alternate",
                 }}>
                   ÉCHEC !
                 </div>
@@ -601,12 +601,12 @@ export function ChessClient({
         }}>
           <div style={{
             background: "rgba(26,18,58,0.97)",
-            border: `2.5px solid ${EA.ink}`,
+            border: `2.5px solid ${RR.ink}`,
             borderRadius: 24, padding: "24px 20px",
-            boxShadow: `6px 6px 0 ${EA.butter}`,
+            boxShadow: `6px 6px 0 ${RR.butter}`,
             width: "100%", maxWidth: 320,
           }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-6deg)", marginBottom: 6 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.white, transform: "skewX(-6deg)", marginBottom: 6 }}>
               Promotion !
             </div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>
@@ -620,7 +620,7 @@ export function ChessClient({
                   onClick={() => doMove(pendingPromo.from, pendingPromo.to, p)}
                   style={{
                     background: "rgba(255,255,255,0.08)",
-                    border: `2px solid ${EA.ink}`, borderRadius: 14,
+                    border: `2px solid ${RR.ink}`, borderRadius: 14,
                     padding: "12px 0",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                     cursor: "pointer",

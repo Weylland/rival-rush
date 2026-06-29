@@ -1,4 +1,4 @@
-export const EA = {
+export const RR = {
   violet: "#2D1B8E",
   violetDeep: "#1A0F5E",
   violetMid: "#3D2BB0",

@@ -1,4 +1,4 @@
--- ExpressionArena — Schéma Supabase
+-- RivalRush — Schéma Supabase
 -- Colle ce SQL dans l'éditeur SQL de ton projet Supabase
 
 -- Extensions

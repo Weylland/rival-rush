@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { subscribePush } from "@/lib/push-client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 const PROMPTED_KEY = "ea_notif_prompted";
 
@@ -68,10 +68,10 @@ export function NotifPrompt() {
       {/* Label haut */}
       <div style={{
         position: "absolute", top: 30, left: "50%", transform: "translateX(-50%) rotate(-1.5deg)",
-        background: EA.cyan, border: `2.5px solid ${EA.ink}`,
+        background: RR.cyan, border: `2.5px solid ${RR.ink}`,
         borderRadius: 16, padding: "8px 18px",
-        fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, letterSpacing: 1.4,
-        boxShadow: `4px 4px 0 ${EA.butter}`,
+        fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink, letterSpacing: 1.4,
+        boxShadow: `4px 4px 0 ${RR.butter}`,
         whiteSpace: "nowrap",
       }}>
         🔔 NOTIFICATIONS
@@ -81,9 +81,9 @@ export function NotifPrompt() {
       <div style={{
         position: "absolute", left: "50%", top: 100, transform: "translateX(-50%)",
         width: "min(420px, calc(100% - 32px))",
-        background: EA.cyan, border: `3px solid ${EA.ink}`,
+        background: RR.cyan, border: `3px solid ${RR.ink}`,
         borderRadius: 28, padding: "24px 18px 20px",
-        boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+        boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`,
       }}>
         {/* Dot pattern */}
         <div aria-hidden style={{
@@ -97,22 +97,22 @@ export function NotifPrompt() {
           <div style={{ position: "relative", marginBottom: 4 }}>
             <div style={{
               position: "absolute", inset: -8, borderRadius: "50%",
-              border: `3px dashed ${EA.butter}`,
-              animation: "ea-spin 8s linear infinite",
+              border: `3px dashed ${RR.butter}`,
+              animation: "rr-spin 8s linear infinite",
             }} />
             <div style={{
               width: 84, height: 84, borderRadius: "50%",
-              background: EA.violetDeep, border: `3px solid ${EA.ink}`,
+              background: RR.violetDeep, border: `3px solid ${RR.ink}`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 40,
-              boxShadow: `4px 4px 0 ${EA.butter}`,
+              boxShadow: `4px 4px 0 ${RR.butter}`,
             }}>{iosNotPwa ? "🍎" : "🔔"}</div>
           </div>
 
           <div style={{
             fontFamily: "var(--font-display)", fontSize: iosNotPwa ? 22 : 26,
-            color: EA.ink, transform: "skewX(-8deg)",
-            textShadow: `2px 2px 0 ${EA.white}`,
+            color: RR.ink, transform: "skewX(-8deg)",
+            textShadow: `2px 2px 0 ${RR.white}`,
             textAlign: "center", lineHeight: 1.2,
           }}>
             {iosNotPwa ? "UNE ÉTAPE SUPPLÉMENTAIRE" : "RESTE DANS LA PARTIE !"}
@@ -120,9 +120,9 @@ export function NotifPrompt() {
 
           {/* Explication */}
           <div style={{
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
             borderRadius: 16, padding: "12px 16px",
-            boxShadow: `3px 3px 0 ${EA.butter}`,
+            boxShadow: `3px 3px 0 ${RR.butter}`,
             transform: "rotate(-0.5deg)",
             width: "100%",
           }}>
@@ -137,7 +137,7 @@ export function NotifPrompt() {
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <span style={{ fontSize: 16, flexShrink: 0 }}>⬆️</span>
                   <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
-                    Appuie sur <strong style={{ color: EA.cyan }}>Partager</strong> puis <strong style={{ color: EA.cyan }}>Sur l&apos;écran d&apos;accueil</strong>, puis rouvre l&apos;app.
+                    Appuie sur <strong style={{ color: RR.cyan }}>Partager</strong> puis <strong style={{ color: RR.cyan }}>Sur l&apos;écran d&apos;accueil</strong>, puis rouvre l&apos;app.
                   </span>
                 </div>
               </div>
@@ -166,10 +166,10 @@ export function NotifPrompt() {
                 onClick={handleLater}
                 style={{
                   flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.white, background: EA.violetDeep,
-                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.white, background: RR.violetDeep,
+                  border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                  cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
+                  cursor: "pointer", boxShadow: `3px 3px 0 ${RR.ink}`,
                 }}>
                 Plus tard
               </button>
@@ -178,11 +178,11 @@ export function NotifPrompt() {
                 onClick={() => localStorage.setItem(PROMPTED_KEY, "true")}
                 style={{
                   flex: 1.4, fontFamily: "var(--font-display)", fontSize: 15,
-                  color: EA.ink, background: EA.butter,
-                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.ink, background: RR.butter,
+                  border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.6,
                   textDecoration: "none", textAlign: "center",
-                  boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                  boxShadow: `4px 4px 0 ${RR.pink}, 4px 4px 0 1px ${RR.ink}`,
                   transform: "skewX(-4deg)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
@@ -198,10 +198,10 @@ export function NotifPrompt() {
                 disabled={requesting}
                 style={{
                   flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.white, background: EA.violetDeep,
-                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.white, background: RR.violetDeep,
+                  border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                  cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
+                  cursor: "pointer", boxShadow: `3px 3px 0 ${RR.ink}`,
                 }}>
                 Plus tard
               </button>
@@ -210,11 +210,11 @@ export function NotifPrompt() {
                 disabled={requesting}
                 style={{
                   flex: 1.4, fontFamily: "var(--font-display)", fontSize: 16,
-                  color: EA.ink, background: EA.butter,
-                  border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.ink, background: RR.butter,
+                  border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
                   cursor: requesting ? "wait" : "pointer",
-                  boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                  boxShadow: `4px 4px 0 ${RR.pink}, 4px 4px 0 1px ${RR.ink}`,
                   transform: "skewX(-4deg)",
                   opacity: requesting ? 0.7 : 1,
                 }}>

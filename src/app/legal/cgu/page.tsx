@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
-export const metadata: Metadata = { title: "CGU — ExpressionArena" };
+export const metadata: Metadata = { title: "CGU — RivalRush" };
 
 const h2: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: 20,
-  color: EA.cyan,
+  color: RR.cyan,
   transform: "skewX(-4deg)",
   marginTop: 32,
   marginBottom: 8,
@@ -24,14 +24,14 @@ const p: React.CSSProperties = {
 export default function CguPage() {
   return (
     <div>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginBottom: 8 }}>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 36, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, marginBottom: 8 }}>
         CGU
       </h1>
       <p style={{ ...p, color: "rgba(255,255,255,0.4)", fontSize: 12 }}>Conditions Générales d'Utilisation — Dernière mise à jour : mai 2026</p>
 
       <h2 style={h2}>1. Présentation</h2>
       <p style={p}>
-        ExpressionArena est une application de mini-jeux en duel destinée aux événements festifs en réseau local.
+        RivalRush est une application de mini-jeux en duel destinée aux événements festifs en réseau local.
         L'accès est réservé aux participants invités à la soirée.
       </p>
 

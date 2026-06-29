@@ -1,6 +1,6 @@
 "use client";
 
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export function AfficheClient() {
   function downloadPdf() {
@@ -25,7 +25,7 @@ export function AfficheClient() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 18,
-              color: EA.white,
+              color: RR.white,
               marginBottom: 6,
             }}
           >
@@ -40,9 +40,9 @@ export function AfficheClient() {
               lineHeight: 1.5,
             }}
           >
-            QR code vers <b style={{ color: EA.cyan }}>expression-arena.vercel.app</b>. Clique sur «
+            QR code vers <b style={{ color: RR.cyan }}>rival-rush.vercel.app</b>. Clique sur «
             Télécharger en PDF », puis dans la boîte d&apos;impression choisis{" "}
-            <b style={{ color: EA.butter }}>Destination → Enregistrer au format PDF</b> (format A4,
+            <b style={{ color: RR.butter }}>Destination → Enregistrer au format PDF</b> (format A4,
             marges « Aucune »).
           </div>
         </div>
@@ -54,8 +54,8 @@ export function AfficheClient() {
               fontFamily: "var(--font-sans)",
               fontWeight: 900,
               fontSize: 14,
-              color: EA.white,
-              background: `linear-gradient(135deg, ${EA.cyan} 0%, ${EA.pink} 100%)`,
+              color: RR.white,
+              background: `linear-gradient(135deg, ${RR.cyan} 0%, ${RR.pink} 100%)`,
               border: "none",
               borderRadius: 12,
               padding: "12px 22px",
@@ -73,7 +73,7 @@ export function AfficheClient() {
               fontFamily: "var(--font-sans)",
               fontWeight: 800,
               fontSize: 14,
-              color: EA.white,
+              color: RR.white,
               background: "rgba(255,255,255,0.06)",
               border: "1.5px solid rgba(255,255,255,0.15)",
               borderRadius: 12,

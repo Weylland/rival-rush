@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { cancelChallenge, deleteChallenge } from "./actions";
 import { GAME_LABELS } from "@/lib/game-labels";
 
@@ -21,10 +21,10 @@ const STATUS_META: Record<
   Challenge["status"],
   { label: string; color: string }
 > = {
-  pending: { label: "En attente", color: EA.cyan },
+  pending: { label: "En attente", color: RR.cyan },
   accepted: { label: "Accepté", color: "#4ade80" },
   declined: { label: "Refusé", color: "rgba(255,255,255,0.4)" },
-  cancelled: { label: "Annulé", color: EA.pink },
+  cancelled: { label: "Annulé", color: RR.pink },
 };
 
 function formatDate(iso: string) {
@@ -146,11 +146,11 @@ export function ChallengesClient() {
     count: number;
     color: string;
   }[] = [
-    { value: "pending", label: "En attente", count: counts.pending, color: EA.cyan },
+    { value: "pending", label: "En attente", count: counts.pending, color: RR.cyan },
     { value: "accepted", label: "Acceptés", count: counts.accepted, color: "#4ade80" },
     { value: "declined", label: "Refusés", count: counts.declined, color: "rgba(255,255,255,0.4)" },
-    { value: "cancelled", label: "Annulés", count: counts.cancelled, color: EA.pink },
-    { value: "all", label: "Tous", count: counts.all, color: EA.violet },
+    { value: "cancelled", label: "Annulés", count: counts.cancelled, color: RR.pink },
+    { value: "all", label: "Tous", count: counts.all, color: RR.violet },
   ];
 
   return (
@@ -174,7 +174,7 @@ export function ChallengesClient() {
                 fontFamily: "var(--font-sans)",
                 fontSize: 12,
                 fontWeight: 800,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.6)",
                 background: active ? t.color : "rgba(255,255,255,0.05)",
                 border: active
                   ? `1.5px solid ${t.color}`
@@ -226,14 +226,14 @@ export function ChallengesClient() {
         <div
           style={{
             background: "rgba(255,30,140,0.12)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 10,
             padding: "10px 14px",
             marginBottom: 12,
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: EA.pink,
+            color: RR.pink,
           }}
         >
           ⚠ {error}
@@ -301,9 +301,9 @@ export function ChallengesClient() {
                     fontFamily: "var(--font-sans)",
                     fontSize: 11,
                     fontWeight: 900,
-                    color: EA.butter,
+                    color: RR.butter,
                     background: "rgba(255,233,74,0.08)",
-                    border: `1.5px solid ${EA.butter}40`,
+                    border: `1.5px solid ${RR.butter}40`,
                     borderRadius: 999,
                     padding: "3px 10px",
                   }}
@@ -316,7 +316,7 @@ export function ChallengesClient() {
                     minWidth: 200,
                     fontFamily: "var(--font-display)",
                     fontSize: 14,
-                    color: EA.white,
+                    color: RR.white,
                     transform: "skewX(-4deg)",
                   }}
                 >
@@ -343,9 +343,9 @@ export function ChallengesClient() {
                         fontFamily: "var(--font-sans)",
                         fontSize: 11,
                         fontWeight: 800,
-                        color: EA.butter,
+                        color: RR.butter,
                         background: "rgba(255,233,74,0.1)",
-                        border: `1.5px solid ${EA.butter}`,
+                        border: `1.5px solid ${RR.butter}`,
                         borderRadius: 999,
                         padding: "6px 12px",
                         cursor: "pointer",
@@ -360,10 +360,10 @@ export function ChallengesClient() {
                     style={{
                       fontSize: 13,
                       background: "rgba(255,30,140,0.1)",
-                      border: `1.5px solid ${EA.pink}`,
+                      border: `1.5px solid ${RR.pink}`,
                       borderRadius: 8,
                       padding: "5px 10px",
-                      color: EA.pink,
+                      color: RR.pink,
                       cursor: "pointer",
                     }}
                   >

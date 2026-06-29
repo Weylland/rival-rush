@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
@@ -80,17 +80,17 @@ function ChooseGameModal({ opponent, allowedGames, onClose, onChoose, isPending,
   const desktop = useIsDesktop();
 
   const allGames = [
-    { type: "pfc" as GameType, icon: "✊", title: "PFC", sub: "Réflexes", color: EA.cyan, shadow: EA.pink },
-    { type: "morpion" as GameType, icon: "⨯⭕", title: "MORPION", sub: "Tactique", color: EA.pink, shadow: EA.butter },
-    { type: "puissance4" as GameType, icon: "🔴", title: "PUISSANCE 4", sub: "Stratégie", color: EA.butter, shadow: EA.cyan },
-    { type: "reflexe" as GameType, icon: "⚡", title: "RÉFLEXE", sub: "Vitesse", color: EA.pink, shadow: EA.butter },
-    { type: "naval" as GameType, icon: "🚢", title: "NAVAL", sub: "Stratégie", color: EA.cyan, shadow: EA.butter },
-    { type: "chess" as GameType, icon: "♟", title: "ÉCHECS", sub: "Réflexion", color: "#9b8ec4", shadow: EA.pink },
-    { type: "nim" as GameType, icon: "🔥", title: "NIM", sub: "Allumettes", color: EA.butter, shadow: EA.cyan },
-    { type: "pig" as GameType, icon: "🎲", title: "COCHON", sub: "Dé", color: EA.pink, shadow: EA.butter },
-    { type: "mastermind" as GameType, icon: "🎨", title: "MASTERMIND", sub: "Code", color: "#4ADE80", shadow: EA.pink },
-    { type: "plus-ou-moins" as GameType, icon: "🔢", title: "PLUS/MOINS", sub: "Nombre", color: EA.butter, shadow: EA.cyan },
-    { type: "duel-des" as GameType, icon: "🎲", title: "DUEL DÉS", sub: "Simultané", color: EA.cyan, shadow: EA.pink },
+    { type: "pfc" as GameType, icon: "✊", title: "PFC", sub: "Réflexes", color: RR.cyan, shadow: RR.pink },
+    { type: "morpion" as GameType, icon: "⨯⭕", title: "MORPION", sub: "Tactique", color: RR.pink, shadow: RR.butter },
+    { type: "puissance4" as GameType, icon: "🔴", title: "PUISSANCE 4", sub: "Stratégie", color: RR.butter, shadow: RR.cyan },
+    { type: "reflexe" as GameType, icon: "⚡", title: "RÉFLEXE", sub: "Vitesse", color: RR.pink, shadow: RR.butter },
+    { type: "naval" as GameType, icon: "🚢", title: "NAVAL", sub: "Stratégie", color: RR.cyan, shadow: RR.butter },
+    { type: "chess" as GameType, icon: "♟", title: "ÉCHECS", sub: "Réflexion", color: "#9b8ec4", shadow: RR.pink },
+    { type: "nim" as GameType, icon: "🔥", title: "NIM", sub: "Allumettes", color: RR.butter, shadow: RR.cyan },
+    { type: "pig" as GameType, icon: "🎲", title: "COCHON", sub: "Dé", color: RR.pink, shadow: RR.butter },
+    { type: "mastermind" as GameType, icon: "🎨", title: "MASTERMIND", sub: "Code", color: "#4ADE80", shadow: RR.pink },
+    { type: "plus-ou-moins" as GameType, icon: "🔢", title: "PLUS/MOINS", sub: "Nombre", color: RR.butter, shadow: RR.cyan },
+    { type: "duel-des" as GameType, icon: "🎲", title: "DUEL DÉS", sub: "Simultané", color: RR.cyan, shadow: RR.pink },
   ];
 
   const games = allowedGames
@@ -99,23 +99,23 @@ function ChooseGameModal({ opponent, allowedGames, onClose, onChoose, isPending,
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.8)", backdropFilter: "blur(3px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
-      <div style={{ width: "100%", maxWidth: 520, background: EA.violet, border: `3px solid ${EA.ink}`, borderRadius: 28, padding: "24px 20px", boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
-        <button onClick={onClose} style={{ position: "absolute", top: -12, right: -12, width: 34, height: 34, borderRadius: "50%", background: EA.white, border: `2.5px solid ${EA.ink}`, fontSize: 18, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
+      <div style={{ width: "100%", maxWidth: 520, background: RR.violet, border: `3px solid ${RR.ink}`, borderRadius: 28, padding: "24px 20px", boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`, position: "relative" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: -12, right: -12, width: 34, height: 34, borderRadius: "50%", background: RR.white, border: `2.5px solid ${RR.ink}`, fontSize: 18, color: RR.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}>×</button>
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>Défier</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white }}>{opponent.pseudo.toUpperCase()}</div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>Défier</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.white }}>{opponent.pseudo.toUpperCase()}</div>
         </div>
-        {error && <div style={{ background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`, borderRadius: 12, padding: "10px 14px", marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.white, textAlign: "center" }}>⚠ {error}</div>}
+        {error && <div style={{ background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`, borderRadius: 12, padding: "10px 14px", marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.white, textAlign: "center" }}>⚠ {error}</div>}
         {chessStep ? (
           <div>
             <button type="button" onClick={() => setChessStep(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 20, cursor: "pointer", marginBottom: 10 }}>← Cadence</button>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
               {TIME_CONTROLS.map(tc => (
                 <button key={String(tc.seconds)} type="button" onClick={() => !isPending && onChoose("chess", tc.seconds ?? null)} disabled={isPending}
-                  style={{ background: "#9b8ec4", border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: `3px 3px 0 ${EA.pink}`, cursor: "pointer" }}>
+                  style={{ background: "#9b8ec4", border: `2.5px solid ${RR.ink}`, borderRadius: 16, padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: `3px 3px 0 ${RR.pink}`, cursor: "pointer" }}>
                   <div style={{ fontSize: 28 }}>{tc.icon}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.ink }}>{tc.label}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.ink, opacity: 0.7 }}>{tc.sub}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.ink }}>{tc.label}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: RR.ink, opacity: 0.7 }}>{tc.sub}</div>
                 </button>
               ))}
             </div>
@@ -124,9 +124,9 @@ function ChooseGameModal({ opponent, allowedGames, onClose, onChoose, isPending,
           <div style={{ display: "grid", gridTemplateColumns: desktop ? "repeat(4,1fr)" : "repeat(3,1fr)", gap: 8 }}>
             {games.map(g => (
               <button key={g.type} onClick={() => { if (isPending) return; if (g.type === "chess") { setChessStep(true); return; } onChoose(g.type); }} disabled={isPending}
-                style={{ background: g.color, border: `2.5px solid ${EA.ink}`, borderRadius: 16, padding: "12px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: `3px 3px 0 ${g.shadow}, 3px 3px 0 1px ${EA.ink}`, cursor: "pointer", opacity: isPending ? 0.7 : 1 }}>
+                style={{ background: g.color, border: `2.5px solid ${RR.ink}`, borderRadius: 16, padding: "12px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: `3px 3px 0 ${g.shadow}, 3px 3px 0 1px ${RR.ink}`, cursor: "pointer", opacity: isPending ? 0.7 : 1 }}>
                 <div style={{ fontSize: 24 }}>{g.icon}</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink, textAlign: "center" }}>{g.title}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: RR.ink, textAlign: "center" }}>{g.title}</div>
               </button>
             ))}
           </div>
@@ -287,26 +287,26 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
     .forEach((m, i) => localRankMap.set(m.player_id, i as 0 | 1 | 2));
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.55) 1.4px, transparent 1.8px)", backgroundSize: "16px 16px" }} />
-      <SvgBlob color={EA.pink} style={{ width: 480, height: 420, top: -200, right: -150, opacity: 0.6, animation: "ea-float 6s ease-in-out infinite" }} />
-      <SvgBlob color={EA.butter} style={{ width: 360, height: 320, bottom: -160, left: -120, opacity: 0.4, animation: "ea-float 9s ease-in-out infinite reverse" }} />
-      <Star color={EA.cyan} size={28} style={{ top: "14%", left: "5%", animation: "ea-spin-slow 12s linear infinite" }} />
-      <Star color={EA.pink} size={18} style={{ top: "38%", right: "4%", animation: "ea-float 5s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 480, height: 420, top: -200, right: -150, opacity: 0.6, animation: "rr-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={RR.butter} style={{ width: 360, height: 320, bottom: -160, left: -120, opacity: 0.4, animation: "rr-float 9s ease-in-out infinite reverse" }} />
+      <Star color={RR.cyan} size={28} style={{ top: "14%", left: "5%", animation: "rr-spin-slow 12s linear infinite" }} />
+      <Star color={RR.pink} size={18} style={{ top: "38%", right: "4%", animation: "rr-float 5s ease-in-out infinite" }} />
 
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 700 : "100%", margin: "0 auto", padding: desktop ? "28px 40px 100px" : "12px 16px 100px" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: desktop ? 20 : 14 }}>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6, marginBottom: 2 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.6, marginBottom: 2 }}>
               {room.isPublic ? "🌐 Salle publique" : "🔒 Salle privée"}{room.hasPassword ? " · 🔑" : ""}
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 36 : 24, color: EA.white, transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 36 : 24, color: RR.white, transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1.1 }}>
               {room.name.toUpperCase()}
             </div>
             {countdown && (
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.butter, marginTop: 4 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.butter, marginTop: 4 }}>
                 ⏱ Expire dans {countdown}
               </div>
             )}
@@ -315,11 +315,11 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
           <div style={{ display: "flex", gap: 8, flexShrink: 0, alignItems: "center" }}>
             {/* Code badge — click to copy */}
             <button onClick={copyCode} title="Copier le code" style={{
-              background: copied ? "#4ADE80" : EA.butter, border: `2px solid ${EA.ink}`,
+              background: copied ? "#4ADE80" : RR.butter, border: `2px solid ${RR.ink}`,
               borderRadius: 12, padding: desktop ? "8px 14px" : "6px 10px",
               fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 13,
-              color: EA.ink, cursor: "pointer", letterSpacing: 3,
-              boxShadow: `2px 2px 0 ${EA.ink}`, transition: "background .2s",
+              color: RR.ink, cursor: "pointer", letterSpacing: 3,
+              boxShadow: `2px 2px 0 ${RR.ink}`, transition: "background .2s",
               transform: "rotate(1deg)",
             }}>
               {copied ? "✓ Copié !" : room.code}
@@ -340,21 +340,21 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
         {/* Stats bar (my room stats) */}
         {me && (
           <div style={{
-            background: EA.violetDeep, border: `2px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2px solid ${RR.ink}`,
             borderRadius: 16, padding: desktop ? "12px 18px" : "10px 14px",
             display: "flex", gap: desktop ? 20 : 12, alignItems: "center",
             marginBottom: 16,
-            boxShadow: `3px 3px 0 ${EA.cyan}`,
+            boxShadow: `3px 3px 0 ${RR.cyan}`,
           }}>
-            <Avatar name={myPseudo} src={me.avatar_url} color={me.avatar_color ?? EA.cyan} ring={EA.pink} size={desktop ? 40 : 32} podiumRank={localRankMap.get(myPlayerId)} />
+            <Avatar name={myPseudo} src={me.avatar_url} color={me.avatar_color ?? RR.cyan} ring={RR.pink} size={desktop ? 40 : 32} podiumRank={localRankMap.get(myPlayerId)} />
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Mes stats dans cette salle</div>
               <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
                 {[
                   { label: "V", value: me.roomWins, color: "#4ADE80" },
-                  { label: "D", value: me.roomLosses, color: EA.pink },
-                  { label: "=", value: me.roomDraws, color: EA.butter },
-                  { label: "pts", value: me.roomPoints, color: EA.cyan },
+                  { label: "D", value: me.roomLosses, color: RR.pink },
+                  { label: "=", value: me.roomDraws, color: RR.butter },
+                  { label: "pts", value: me.roomPoints, color: RR.cyan },
                 ].map(s => (
                   <div key={s.label} style={{ textAlign: "center" }}>
                     <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 16, color: s.color }}>{s.value}</div>
@@ -376,14 +376,14 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
         )}
 
         {/* Tabs */}
-        <div style={{ display: "flex", background: "rgba(26,15,94,0.55)", border: `2px solid ${EA.ink}`, borderRadius: 999, padding: 4, marginBottom: 16 }}>
+        <div style={{ display: "flex", background: "rgba(26,15,94,0.55)", border: `2px solid ${RR.ink}`, borderRadius: 999, padding: 4, marginBottom: 16 }}>
           {(["members", "ranking"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
-              flex: 1, background: tab === t ? EA.pink : "transparent",
+              flex: 1, background: tab === t ? RR.pink : "transparent",
               border: "none", borderRadius: 999, padding: desktop ? "11px 0" : "8px 0",
               fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13,
-              color: tab === t ? EA.white : "rgba(255,255,255,0.55)",
-              cursor: "pointer", boxShadow: tab === t ? `2px 2px 0 ${EA.cyan}` : "none",
+              color: tab === t ? RR.white : "rgba(255,255,255,0.55)",
+              cursor: "pointer", boxShadow: tab === t ? `2px 2px 0 ${RR.cyan}` : "none",
             }}>
               {t === "members" ? `👥 MEMBRES · ${members.length}${room.maxMembers ? `/${room.maxMembers}` : ""}` : "🏆 CLASSEMENT"}
             </button>
@@ -396,21 +396,21 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
             {members.filter(m => m.player_id !== myPlayerId).map((m, i) => {
               const inGame = m.status === "in-game";
               const offline = m.status === "offline";
-              const shadowColor = offline ? "transparent" : i % 2 === 0 ? EA.cyan : EA.pink;
+              const shadowColor = offline ? "transparent" : i % 2 === 0 ? RR.cyan : RR.pink;
 
               const isBlocked = myBlocks.has(m.player_id);
 
               // Menu items: everyone gets Message + Block + Report; host also gets Transfer + Kick
               const menuItems = [
-                { label: "💬 Message", action: () => { openDM(m.player_id, m.pseudo); setMemberMenu(null); }, color: EA.cyan },
+                { label: "💬 Message", action: () => { openDM(m.player_id, m.pseudo); setMemberMenu(null); }, color: RR.cyan },
                 ...(isHost ? [
-                  { label: "👑 Passer hôte", action: () => { startTransition(async () => { await transferHost(room.id, m.player_id); router.refresh(); }); setMemberMenu(null); }, color: EA.butter },
-                  { label: "🚫 Exclure", action: () => { startTransition(async () => { await kickMember(room.id, m.player_id); setMembers(prev => prev.filter(x => x.player_id !== m.player_id)); }); setMemberMenu(null); }, color: EA.pink },
+                  { label: "👑 Passer hôte", action: () => { startTransition(async () => { await transferHost(room.id, m.player_id); router.refresh(); }); setMemberMenu(null); }, color: RR.butter },
+                  { label: "🚫 Exclure", action: () => { startTransition(async () => { await kickMember(room.id, m.player_id); setMembers(prev => prev.filter(x => x.player_id !== m.player_id)); }); setMemberMenu(null); }, color: RR.pink },
                 ] : []),
                 isBlocked
                   ? { label: "🔓 Débloquer", action: () => { setMyBlocks(prev => { const n = new Set(prev); n.delete(m.player_id); return n; }); unblockPlayer(m.player_id); setMemberMenu(null); }, color: "#4ADE80" }
-                  : { label: "🔕 Bloquer", action: () => { setMyBlocks(prev => new Set([...prev, m.player_id])); blockPlayer(m.player_id); setMemberMenu(null); }, color: EA.butter },
-                { label: "⚠️ Signaler", action: () => { setReportTarget({ id: m.player_id, pseudo: m.pseudo }); setReportReason(""); setReportSent(false); setMemberMenu(null); }, color: EA.pink },
+                  : { label: "🔕 Bloquer", action: () => { setMyBlocks(prev => new Set([...prev, m.player_id])); blockPlayer(m.player_id); setMemberMenu(null); }, color: RR.butter },
+                { label: "⚠️ Signaler", action: () => { setReportTarget({ id: m.player_id, pseudo: m.pseudo }); setReportReason(""); setReportSent(false); setMemberMenu(null); }, color: RR.pink },
               ];
 
               const localRank = localRankMap.get(m.player_id);
@@ -418,8 +418,8 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 
               return (
                 <div key={m.player_id} style={{
-                  background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
-                  border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
+                  background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : RR.white,
+                  border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : RR.ink}`,
                   borderRadius: 20, padding: desktop ? "14px 18px" : "11px 14px",
                   display: "flex", alignItems: "center", gap: 12,
                   boxShadow: isBlocked || offline ? "none" : podium ? podium.shadow : `4px 4px 0 ${shadowColor}`,
@@ -428,23 +428,23 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                 }}>
                   <Avatar
                     name={m.pseudo} src={m.avatar_url}
-                    color={offline ? "rgba(255,255,255,0.2)" : (m.avatar_color ?? EA.cyan)}
-                    ring={offline ? "transparent" : i % 2 === 0 ? EA.pink : EA.cyan}
+                    color={offline ? "rgba(255,255,255,0.2)" : (m.avatar_color ?? RR.cyan)}
+                    ring={offline ? "transparent" : i % 2 === 0 ? RR.pink : RR.cyan}
                     size={desktop ? 50 : 40}
                     podiumRank={!offline ? localRank : undefined}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: offline ? "rgba(255,255,255,0.5)" : EA.ink, transform: "skewX(-3deg)" }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 15, color: offline ? "rgba(255,255,255,0.5)" : RR.ink, transform: "skewX(-3deg)" }}>
                         {m.pseudo}
                       </div>
                       {m.player_id === room.hostId && (
-                        <span style={{ background: EA.butter, border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "1px 7px", fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.ink, letterSpacing: 0.5 }}>HÔTE</span>
+                        <span style={{ background: RR.butter, border: `1.5px solid ${RR.ink}`, borderRadius: 999, padding: "1px 7px", fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: RR.ink, letterSpacing: 0.5 }}>HÔTE</span>
                       )}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
-                      <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 12 : 10, fontWeight: 800, color: offline ? "rgba(255,255,255,0.35)" : inGame ? EA.pink : EA.violetDeep, display: "flex", alignItems: "center", gap: 4 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: offline ? "rgba(255,255,255,0.2)" : inGame ? EA.pink : "#1ee29a", flexShrink: 0 }} />
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 12 : 10, fontWeight: 800, color: offline ? "rgba(255,255,255,0.35)" : inGame ? RR.pink : RR.violetDeep, display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: offline ? "rgba(255,255,255,0.2)" : inGame ? RR.pink : "#1ee29a", flexShrink: 0 }} />
                         {offline ? "Hors ligne" : inGame ? (m.game_type ? `En partie · ${GAME_LABELS[m.game_type] ?? m.game_type}` : "En partie") : "En ligne"}
                       </div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 800, color: offline ? "rgba(255,255,255,0.25)" : "rgba(26,15,94,0.55)" }}>
@@ -458,12 +458,12 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                     {!inGame && (
                       <button onClick={() => { setChallengeError(null); setChooseOpponent(m); }} style={{
                         fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 11,
-                        color: offline ? "rgba(255,255,255,0.7)" : EA.white,
-                        background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
-                        border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+                        color: offline ? "rgba(255,255,255,0.7)" : RR.white,
+                        background: offline ? "rgba(255,255,255,0.08)" : RR.pink,
+                        border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : RR.ink}`,
                         borderRadius: 999, padding: desktop ? "9px 18px" : "7px 12px",
                         cursor: "pointer", whiteSpace: "nowrap",
-                        boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
+                        boxShadow: offline ? "none" : `2px 2px 0 ${RR.cyan}`,
                       }}>Défier ⚔</button>
                     )}
 
@@ -474,13 +474,13 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                         style={{
                           width: desktop ? 34 : 30, height: desktop ? 34 : 30,
                           borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                          background: memberMenu === m.player_id ? EA.violetDeep : "rgba(0,0,0,0.1)",
-                          border: `2px solid ${memberMenu === m.player_id ? EA.ink : "rgba(0,0,0,0.15)"}`,
-                          color: memberMenu === m.player_id ? EA.white : EA.ink,
+                          background: memberMenu === m.player_id ? RR.violetDeep : "rgba(0,0,0,0.1)",
+                          border: `2px solid ${memberMenu === m.player_id ? RR.ink : "rgba(0,0,0,0.15)"}`,
+                          color: memberMenu === m.player_id ? RR.white : RR.ink,
                           fontSize: desktop ? 18 : 15, cursor: "pointer", fontWeight: 900,
                         }}>⋯</button>
                       {memberMenu === m.player_id && (
-                        <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 60, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, overflow: "hidden", boxShadow: `4px 4px 0 ${EA.ink}`, minWidth: 170 }}>
+                        <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 60, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 14, overflow: "hidden", boxShadow: `4px 4px 0 ${RR.ink}`, minWidth: 170 }}>
                           {menuItems.map(({ label, action, color }) => (
                             <button key={label} onClick={action}
                               style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: "var(--font-display)", fontSize: 13, color, cursor: "pointer", borderBottom: label !== menuItems[menuItems.length - 1].label ? "1px solid rgba(255,255,255,0.07)" : "none" }}
@@ -518,31 +518,31 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                   key={m.player_id}
                   onClick={() => setExpandedRankId(isExpanded ? null : m.player_id)}
                   style={{
-                    background: podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
-                    border: `2.5px solid ${podium ? podium.border : isMe ? EA.cyan : EA.ink}`,
+                    background: podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : RR.violetDeep,
+                    border: `2.5px solid ${podium ? podium.border : isMe ? RR.cyan : RR.ink}`,
                     borderRadius: 18, padding: desktop ? "12px 16px" : "10px 14px",
-                    boxShadow: podium ? podium.shadow : isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                    boxShadow: podium ? podium.shadow : isMe ? `3px 3px 0 ${RR.cyan}` : `2px 2px 0 ${RR.ink}`,
                     cursor: "pointer",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
-                    <Avatar name={m.pseudo} src={m.avatar_url} color={m.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} podiumRank={localRank} />
+                    <Avatar name={m.pseudo} src={m.avatar_url} color={m.avatar_color ?? RR.cyan} ring={isMe ? RR.cyan : "transparent"} size={desktop ? 38 : 32} podiumRank={localRank} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? RR.cyan : RR.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {m.pseudo.toUpperCase()}
-                        {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}
+                        {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: RR.cyan, marginLeft: 6 }}>TOI</span>}
                       </div>
                     </div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: i === 0 ? EA.butter : EA.cyan, flexShrink: 0, transform: "skewX(-4deg)" }}>{m.roomPoints}</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: i === 0 ? RR.butter : RR.cyan, flexShrink: 0, transform: "skewX(-4deg)" }}>{m.roomPoints}</div>
                   </div>
                   {isExpanded && (
                     <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1.5px solid rgba(255,255,255,0.1)", display: "flex", gap: 8, justifyContent: "space-around" }}>
                       {[
-                        { label: "Victoires", val: m.roomWins, color: EA.cyan },
-                        { label: "Défaites", val: m.roomLosses, color: EA.pink },
-                        { label: "Nuls", val: m.roomDraws, color: EA.butter },
-                        { label: "Points", val: m.roomPoints, color: EA.white },
+                        { label: "Victoires", val: m.roomWins, color: RR.cyan },
+                        { label: "Défaites", val: m.roomLosses, color: RR.pink },
+                        { label: "Nuls", val: m.roomDraws, color: RR.butter },
+                        { label: "Points", val: m.roomPoints, color: RR.white },
                       ].map(({ label, val, color }) => (
                         <div key={label} style={{ textAlign: "center" }}>
                           <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 18, color, transform: "skewX(-4deg)" }}>{val}</div>
@@ -562,11 +562,11 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
       <div style={{ position: "fixed", bottom: 20, left: desktop ? "50%" : 80, right: desktop ? "auto" : 16, transform: desktop ? "translateX(-50%)" : "none", width: desktop ? 660 : "auto", zIndex: 20, display: "flex", gap: 8 }}>
         {/* Invite button */}
         <button onClick={() => setShowInvite(true)} style={{
-          background: EA.cyan, border: `2.5px solid ${EA.ink}`,
+          background: RR.cyan, border: `2.5px solid ${RR.ink}`,
           borderRadius: 18, padding: desktop ? "14px 22px" : "0 16px",
           height: 56, display: "flex", alignItems: "center", gap: 8,
-          fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: EA.ink,
-          cursor: "pointer", boxShadow: `4px 4px 0 ${EA.ink}`, whiteSpace: "nowrap", flexShrink: 0,
+          fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: RR.ink,
+          cursor: "pointer", boxShadow: `4px 4px 0 ${RR.ink}`, whiteSpace: "nowrap", flexShrink: 0,
         }}>
           <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
@@ -576,11 +576,11 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
 
         {/* Leave / quit */}
         <button onClick={() => setConfirmLeave(true)} style={{
-          flex: 1, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+          flex: 1, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
           borderRadius: 18, padding: desktop ? "14px 20px" : "0 16px",
           height: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
           fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: "rgba(255,255,255,0.7)",
-          cursor: "pointer", boxShadow: `4px 4px 0 ${EA.pink}`,
+          cursor: "pointer", boxShadow: `4px 4px 0 ${RR.pink}`,
         }}>
           Quitter la salle →
         </button>
@@ -594,17 +594,17 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
           : onlinePlayers;
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.8)", backdropFilter: "blur(4px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-            <div style={{ width: "100%", maxWidth: 400, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "22px 20px", boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
-              <button onClick={() => { setShowInvite(false); setInviteSearch(""); }} style={{ position: "absolute", top: -12, right: -12, width: 32, height: 32, borderRadius: "50%", background: EA.white, border: `2px solid ${EA.ink}`, fontSize: 16, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
+            <div style={{ width: "100%", maxWidth: 400, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 24, padding: "22px 20px", boxShadow: `6px 6px 0 ${RR.cyan}, 6px 6px 0 1px ${RR.ink}`, position: "relative" }}>
+              <button onClick={() => { setShowInvite(false); setInviteSearch(""); }} style={{ position: "absolute", top: -12, right: -12, width: 32, height: 32, borderRadius: "50%", background: RR.white, border: `2px solid ${RR.ink}`, fontSize: 16, color: RR.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}>×</button>
 
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, marginBottom: 4 }}>👥 Inviter des joueurs</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>Code : <strong style={{ color: EA.butter, letterSpacing: 2 }}>{room.code}</strong></div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, marginBottom: 4 }}>👥 Inviter des joueurs</div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>Code : <strong style={{ color: RR.butter, letterSpacing: 2 }}>{room.code}</strong></div>
 
               {/* Search input */}
               <div style={{
                 display: "flex", alignItems: "center", gap: 8,
                 background: "rgba(255,255,255,0.07)",
-                border: `2px solid ${inviteSearch ? EA.cyan : "rgba(255,255,255,0.15)"}`,
+                border: `2px solid ${inviteSearch ? RR.cyan : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 12, padding: "8px 12px", marginBottom: 12,
                 transition: "border-color 0.15s",
               }}>
@@ -620,7 +620,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                   style={{
                     flex: 1, background: "none", border: "none", outline: "none",
                     fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-                    color: EA.white,
+                    color: RR.white,
                   }}
                 />
                 {inviteSearch && (
@@ -641,9 +641,9 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
               <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
                 {filtered.map(p => (
                   <div key={p.player_id} style={{ display: "flex", alignItems: "center", gap: 10, opacity: p.offline ? 0.65 : 1 }}>
-                    <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : (p.avatar_color ?? EA.cyan)} size={34} />
+                    <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.offline ? "rgba(255,255,255,0.25)" : (p.avatar_color ?? RR.cyan)} size={34} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: p.offline ? "rgba(255,255,255,0.55)" : RR.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.pseudo}</div>
                       {p.offline && (
                         <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Hors ligne</div>
                       )}
@@ -652,14 +652,14 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
                       onClick={() => handleInvite(p.player_id)}
                       disabled={invitePending.has(p.player_id) || inviteSent.has(p.player_id)}
                       style={{
-                        background: inviteSent.has(p.player_id) ? "#4ADE80" : p.offline ? "rgba(255,255,255,0.1)" : EA.pink,
-                        border: `2px solid ${inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+                        background: inviteSent.has(p.player_id) ? "#4ADE80" : p.offline ? "rgba(255,255,255,0.1)" : RR.pink,
+                        border: `2px solid ${inviteSent.has(p.player_id) ? RR.ink : p.offline ? "rgba(255,255,255,0.2)" : RR.ink}`,
                         borderRadius: 999,
                         padding: "7px 14px", fontFamily: "var(--font-display)", fontSize: 12,
-                        color: inviteSent.has(p.player_id) ? EA.ink : p.offline ? "rgba(255,255,255,0.6)" : EA.white,
+                        color: inviteSent.has(p.player_id) ? RR.ink : p.offline ? "rgba(255,255,255,0.6)" : RR.white,
                         cursor: invitePending.has(p.player_id) || inviteSent.has(p.player_id) ? "default" : "pointer",
                         opacity: invitePending.has(p.player_id) ? 0.6 : 1,
-                        boxShadow: inviteSent.has(p.player_id) || p.offline ? "none" : `2px 2px 0 ${EA.ink}`,
+                        boxShadow: inviteSent.has(p.player_id) || p.offline ? "none" : `2px 2px 0 ${RR.ink}`,
                         whiteSpace: "nowrap",
                       }}>
                       {inviteSent.has(p.player_id) ? "✓ Envoyé" : invitePending.has(p.player_id) ? "…" : p.offline ? "📬 Inviter" : "Inviter"}
@@ -675,9 +675,9 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
       {/* ── Confirm leave ── */}
       {confirmLeave && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.8)", backdropFilter: "blur(4px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ width: "100%", maxWidth: 340, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 22, padding: "24px 20px", boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`, textAlign: "center" }}>
+          <div style={{ width: "100%", maxWidth: 340, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 22, padding: "24px 20px", boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`, textAlign: "center" }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>👋</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, marginBottom: 6 }}>Quitter la salle ?</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.white, marginBottom: 6 }}>Quitter la salle ?</div>
             {isHost && members.length > 1 && (
               <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 14 }}>
                 Tu es l'hôte. Le rôle sera transféré automatiquement.
@@ -686,7 +686,7 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
             <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16 }}>
               <button onClick={() => setConfirmLeave(false)} style={{ padding: "10px 20px", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: `2px solid rgba(255,255,255,0.2)`, fontFamily: "var(--font-display)", fontSize: 14, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>Annuler</button>
               <button onClick={() => { startLeave(async () => { await leaveRoom(room.id); }); }} disabled={leavePending}
-                style={{ padding: "10px 20px", borderRadius: 999, background: EA.pink, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`, opacity: leavePending ? 0.6 : 1 }}>
+                style={{ padding: "10px 20px", borderRadius: 999, background: RR.pink, border: `2px solid ${RR.ink}`, fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}`, opacity: leavePending ? 0.6 : 1 }}>
                 {leavePending ? "Sortie…" : "Quitter →"}
               </button>
             </div>
@@ -697,29 +697,29 @@ export function RoomClient({ room, members: initialMembers, myPlayerId, myPseudo
       {/* ── Report modal ── */}
       {reportTarget && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.82)", backdropFilter: "blur(4px)", zIndex: 70, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ width: "100%", maxWidth: 400, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "24px 22px", boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`, position: "relative" }}>
-            <button onClick={() => setReportTarget(null)} style={{ position: "absolute", top: -12, right: -12, width: 34, height: 34, borderRadius: "50%", background: EA.white, border: `2px solid ${EA.ink}`, fontSize: 17, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>×</button>
+          <div style={{ width: "100%", maxWidth: 400, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 24, padding: "24px 22px", boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`, position: "relative" }}>
+            <button onClick={() => setReportTarget(null)} style={{ position: "absolute", top: -12, right: -12, width: 34, height: 34, borderRadius: "50%", background: RR.white, border: `2px solid ${RR.ink}`, fontSize: 17, color: RR.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}>×</button>
             {reportSent ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white }}>Signalement envoyé</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.white }}>Signalement envoyé</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Merci, nous examinerons la situation.</div>
-                <button onClick={() => setReportTarget(null)} style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: EA.cyan, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>Fermer</button>
+                <button onClick={() => setReportTarget(null)} style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: RR.cyan, border: `2px solid ${RR.ink}`, fontFamily: "var(--font-display)", fontSize: 15, color: RR.ink, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}>Fermer</button>
               </div>
             ) : (
               <>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.pink, marginBottom: 4 }}>⚠️ Signaler {reportTarget.pseudo}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.pink, marginBottom: 4 }}>⚠️ Signaler {reportTarget.pseudo}</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>Décris le problème rencontré</div>
                 <textarea
                   value={reportReason}
                   onChange={e => setReportReason(e.target.value)}
                   placeholder="Ex : comportement toxique, triche..."
                   maxLength={300} rows={4}
-                  style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `2px solid ${EA.ink}`, borderRadius: 14, padding: "10px 12px", resize: "none", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: EA.white, outline: "none" }}
+                  style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.06)", border: `2px solid ${RR.ink}`, borderRadius: 14, padding: "10px 12px", resize: "none", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: RR.white, outline: "none" }}
                 />
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
                   <button onClick={() => setReportTarget(null)} style={{ padding: "10px 18px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: `2px solid rgba(255,255,255,0.2)`, fontFamily: "var(--font-display)", fontSize: 14, color: "rgba(255,255,255,0.6)", cursor: "pointer" }}>Annuler</button>
-                  <button onClick={async () => { await reportPlayer(reportTarget.id, reportReason); setReportSent(true); }} style={{ padding: "10px 22px", borderRadius: 999, background: EA.pink, border: `2px solid ${EA.ink}`, fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}>Envoyer ⚠️</button>
+                  <button onClick={async () => { await reportPlayer(reportTarget.id, reportReason); setReportSent(true); }} style={{ padding: "10px 22px", borderRadius: 999, background: RR.pink, border: `2px solid ${RR.ink}`, fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}>Envoyer ⚠️</button>
                 </div>
               </>
             )}

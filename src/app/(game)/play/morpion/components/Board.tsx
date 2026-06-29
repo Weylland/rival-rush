@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { CellMark, CellX, CellO } from "./marks";
 
 interface Props {
@@ -16,11 +16,11 @@ interface Props {
 export function Board({ board, winLine, p1Id, iAmP1, isMyTurn, isFinished, submitting, onCellClick }: Props) {
   return (
     <div style={{
-      background: EA.violetDeep, border: `3px solid ${EA.ink}`,
+      background: RR.violetDeep, border: `3px solid ${RR.ink}`,
       borderRadius: 26, padding: 14,
       display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
       gap: 10,
-      boxShadow: `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}`,
+      boxShadow: `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}`,
       position: "relative",
       width: "100%",
     }}>
@@ -29,7 +29,7 @@ export function Board({ board, winLine, p1Id, iAmP1, isMyTurn, isFinished, submi
         const isWinCell = winLine?.includes(idx) ?? false;
         const isEmpty = cell === null;
         const canClick = isEmpty && isMyTurn && !isFinished && !submitting;
-        const accentColor = idx % 2 === 0 ? EA.cyan : EA.pink;
+        const accentColor = idx % 2 === 0 ? RR.cyan : RR.pink;
         return (
           <button
             key={idx}
@@ -38,12 +38,12 @@ export function Board({ board, winLine, p1Id, iAmP1, isMyTurn, isFinished, submi
             style={{
               aspectRatio: "1 / 1",
               width: "100%",
-              background: isWinCell ? EA.butter : EA.white,
-              border: `2.5px solid ${EA.ink}`,
+              background: isWinCell ? RR.butter : RR.white,
+              border: `2.5px solid ${RR.ink}`,
               borderRadius: 18,
               display: "flex", alignItems: "center", justifyContent: "center",
               position: "relative",
-              boxShadow: `3px 3px 0 ${isWinCell ? EA.pink : accentColor}`,
+              boxShadow: `3px 3px 0 ${isWinCell ? RR.pink : accentColor}`,
               cursor: canClick ? "pointer" : "default",
               transition: "transform 0.1s",
             }}

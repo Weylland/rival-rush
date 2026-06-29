@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { updateReportStatus } from "./actions";
 
 export type ReportStatus = "new" | "reviewed" | "ignored";
@@ -19,8 +19,8 @@ export interface Report {
 }
 
 const STATUS_CONFIG: Record<ReportStatus, { label: string; color: string; bg: string }> = {
-  new:      { label: "Nouveau",  color: EA.pink,   bg: "rgba(255,30,140,0.15)" },
-  reviewed: { label: "Traité",   color: EA.cyan,   bg: "rgba(0,212,232,0.12)" },
+  new:      { label: "Nouveau",  color: RR.pink,   bg: "rgba(255,30,140,0.15)" },
+  reviewed: { label: "Traité",   color: RR.cyan,   bg: "rgba(0,212,232,0.12)" },
   ignored:  { label: "Ignoré",   color: "rgba(255,255,255,0.35)", bg: "rgba(255,255,255,0.07)" },
 };
 
@@ -45,11 +45,11 @@ function ReportCard({ report, onStatusChange }: { report: Report; onStatusChange
 
   return (
     <div style={{
-      background: EA.violetDeep,
-      border: `2.5px solid ${report.status === "new" ? EA.pink : EA.ink}`,
+      background: RR.violetDeep,
+      border: `2.5px solid ${report.status === "new" ? RR.pink : RR.ink}`,
       borderRadius: 16,
       padding: "14px 16px",
-      boxShadow: report.status === "new" ? `3px 3px 0 ${EA.pink}` : `2px 2px 0 ${EA.ink}`,
+      boxShadow: report.status === "new" ? `3px 3px 0 ${RR.pink}` : `2px 2px 0 ${RR.ink}`,
       opacity: report.status === "ignored" ? 0.55 : 1,
       transition: "opacity .2s",
     }}>
@@ -57,13 +57,13 @@ function ReportCard({ report, onStatusChange }: { report: Report; onStatusChange
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: RR.white }}>
               🚩 {report.reporter_pseudo}
             </span>
             <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>
               signale
             </span>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.pink }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: RR.pink }}>
               {report.reported_pseudo}
             </span>
             <span style={{
@@ -106,7 +106,7 @@ function ReportCard({ report, onStatusChange }: { report: Report; onStatusChange
               disabled={pending || active}
               style={{
                 fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                color: active ? EA.violetDeep : c.color,
+                color: active ? RR.violetDeep : c.color,
                 background: active ? c.color : c.bg,
                 border: `2px solid ${c.color}`,
                 borderRadius: 999, padding: "6px 14px",
@@ -123,7 +123,7 @@ function ReportCard({ report, onStatusChange }: { report: Report; onStatusChange
       </div>
 
       {error && (
-        <div style={{ marginTop: 6, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.pink }}>
+        <div style={{ marginTop: 6, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.pink }}>
           ⚠ {error}
         </div>
       )}
@@ -159,9 +159,9 @@ export function ReportsClient({ reports, onStatusChange }: ReportsClientProps) {
               onClick={() => setFilter(value)}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 13,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
-                background: active ? EA.pink : "rgba(255,255,255,0.08)",
-                border: `2px solid ${active ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.6)",
+                background: active ? RR.pink : "rgba(255,255,255,0.08)",
+                border: `2px solid ${active ? RR.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 999, padding: "7px 16px",
                 cursor: "pointer", transform: "skewX(-3deg)",
               }}
@@ -169,7 +169,7 @@ export function ReportsClient({ reports, onStatusChange }: ReportsClientProps) {
               <span style={{ display: "inline-block", transform: "skewX(3deg)" }}>
                 {label}
                 {value === "new" && newCount > 0 && (
-                  <span style={{ marginLeft: 6, background: EA.pink, color: EA.white, borderRadius: 999, padding: "1px 7px", fontSize: 11, fontWeight: 900 }}>
+                  <span style={{ marginLeft: 6, background: RR.pink, color: RR.white, borderRadius: 999, padding: "1px 7px", fontSize: 11, fontWeight: 900 }}>
                     {newCount}
                   </span>
                 )}

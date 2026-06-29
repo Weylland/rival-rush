@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { deleteRoom, updateRoom } from "./actions";
 import { GAME_LABELS } from "@/lib/game-labels";
 
@@ -71,7 +71,7 @@ function Toggle({
     >
       <span style={{
         position: "absolute", top: 2, left: value ? 22 : 2,
-        width: 16, height: 16, borderRadius: "50%", background: EA.white,
+        width: 16, height: 16, borderRadius: "50%", background: RR.white,
         transition: "left .2s", display: "block",
       }} />
     </button>
@@ -162,7 +162,7 @@ function RoomDetailPanel({
     fontFamily: "var(--font-sans)",
     fontSize: 14,
     fontWeight: 700,
-    color: EA.white,
+    color: RR.white,
     background: "rgba(255,255,255,0.06)",
     border: "1.5px solid rgba(255,255,255,0.15)",
     borderRadius: 10,
@@ -236,7 +236,7 @@ function RoomDetailPanel({
           <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "4px 14px" }}>
             <div style={rowStyle}>
               <div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: EA.white }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: RR.white }}>
                   Salon ouvert
                 </div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
@@ -247,14 +247,14 @@ function RoomDetailPanel({
             </div>
             <div style={{ ...rowStyle, borderBottom: "none" }}>
               <div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: EA.white }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: RR.white }}>
                   Salon public
                 </div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
                   Visible dans la liste des salons
                 </div>
               </div>
-              <Toggle value={isPublic} onChange={setIsPublic} colorOn={EA.cyan} disabled={pending} />
+              <Toggle value={isPublic} onChange={setIsPublic} colorOn={RR.cyan} disabled={pending} />
             </div>
           </div>
 
@@ -285,9 +285,9 @@ function RoomDetailPanel({
                     onClick={() => toggleGame(key)}
                     style={{
                       fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-                      color: active ? EA.violetDeep : "rgba(255,255,255,0.5)",
-                      background: active ? EA.cyan : "rgba(255,255,255,0.05)",
-                      border: `1.5px solid ${active ? EA.cyan : "rgba(255,255,255,0.12)"}`,
+                      color: active ? RR.violetDeep : "rgba(255,255,255,0.5)",
+                      background: active ? RR.cyan : "rgba(255,255,255,0.05)",
+                      border: `1.5px solid ${active ? RR.cyan : "rgba(255,255,255,0.12)"}`,
                       borderRadius: 999, padding: "5px 12px", cursor: "pointer",
                       transition: "all .15s",
                     }}
@@ -300,7 +300,7 @@ function RoomDetailPanel({
           </div>
 
           {error && (
-            <div style={{ background: "rgba(255,30,140,0.12)", border: `1.5px solid ${EA.pink}`, borderRadius: 10, padding: "10px 14px", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: EA.pink }}>
+            <div style={{ background: "rgba(255,30,140,0.12)", border: `1.5px solid ${RR.pink}`, borderRadius: 10, padding: "10px 14px", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: RR.pink }}>
               ⚠ {error}
             </div>
           )}
@@ -312,11 +312,11 @@ function RoomDetailPanel({
               disabled={!hasChanges || pending}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 14,
-                color: EA.violetDeep, background: hasChanges ? EA.cyan : "rgba(255,255,255,0.15)",
-                border: `2px solid ${hasChanges ? EA.ink : "transparent"}`,
+                color: RR.violetDeep, background: hasChanges ? RR.cyan : "rgba(255,255,255,0.15)",
+                border: `2px solid ${hasChanges ? RR.ink : "transparent"}`,
                 borderRadius: 999, padding: "10px 24px",
                 cursor: !hasChanges || pending ? "default" : "pointer",
-                boxShadow: hasChanges ? `3px 3px 0 ${EA.ink}` : "none",
+                boxShadow: hasChanges ? `3px 3px 0 ${RR.ink}` : "none",
                 opacity: pending ? 0.6 : 1,
                 transition: "all .2s",
               }}
@@ -329,8 +329,8 @@ function RoomDetailPanel({
                 onClick={() => setConfirmDelete(true)}
                 style={{
                   fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.pink, background: "rgba(255,30,140,0.1)",
-                  border: `2px solid ${EA.pink}`, borderRadius: 999,
+                  color: RR.pink, background: "rgba(255,30,140,0.1)",
+                  border: `2px solid ${RR.pink}`, borderRadius: 999,
                   padding: "10px 20px", cursor: "pointer",
                 }}
               >
@@ -340,14 +340,14 @@ function RoomDetailPanel({
               <>
                 <button
                   onClick={() => setConfirmDelete(false)}
-                  style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "10px 16px", cursor: "pointer" }}
+                  style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "10px 16px", cursor: "pointer" }}
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={pending}
-                  style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, background: EA.pink, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "10px 16px", cursor: pending ? "wait" : "pointer", boxShadow: `2px 2px 0 ${EA.ink}` }}
+                  style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, background: RR.pink, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "10px 16px", cursor: pending ? "wait" : "pointer", boxShadow: `2px 2px 0 ${RR.ink}` }}
                 >
                   Confirmer la suppression
                 </button>
@@ -373,7 +373,7 @@ function RoomDetailPanel({
             ].map(({ label, value }) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>{label}</span>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: EA.white }}>{value}</span>
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: RR.white }}>{value}</span>
               </div>
             ))}
           </div>
@@ -398,7 +398,7 @@ function RoomDetailPanel({
                       borderRadius: 10, padding: "8px 12px",
                     }}
                   >
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.white }}>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.white }}>
                       {m.player_id === room.host_id ? "👑 " : ""}{m.pseudo}
                     </span>
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>
@@ -549,14 +549,14 @@ export function RoomsAdminClient() {
         style={{
           width: "100%", boxSizing: "border-box",
           fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-          color: EA.white, background: "rgba(255,255,255,0.06)",
+          color: RR.white, background: "rgba(255,255,255,0.06)",
           border: "2px solid rgba(255,255,255,0.15)", borderRadius: 10,
           padding: "10px 14px", outline: "none", marginBottom: 12,
         }}
       />
 
       {error && (
-        <div style={{ background: "rgba(255,30,140,0.12)", border: `2px solid ${EA.pink}`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: EA.pink }}>
+        <div style={{ background: "rgba(255,30,140,0.12)", border: `2px solid ${RR.pink}`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800, color: RR.pink }}>
           ⚠ {error}
         </div>
       )}
@@ -577,11 +577,11 @@ export function RoomsAdminClient() {
               <div
                 key={room.id}
                 style={{
-                  background: isExpanded ? "rgba(45,27,142,0.5)" : EA.violetDeep,
-                  border: `2px solid ${isExpanded ? EA.cyan + "60" : EA.ink}`,
+                  background: isExpanded ? "rgba(45,27,142,0.5)" : RR.violetDeep,
+                  border: `2px solid ${isExpanded ? RR.cyan + "60" : RR.ink}`,
                   borderRadius: 16,
                   overflow: "hidden",
-                  boxShadow: isExpanded ? `0 0 30px rgba(0,212,232,0.1)` : `2px 2px 0 ${EA.ink}`,
+                  boxShadow: isExpanded ? `0 0 30px rgba(0,212,232,0.1)` : `2px 2px 0 ${RR.ink}`,
                   transition: "all .2s",
                 }}
               >
@@ -597,23 +597,23 @@ export function RoomsAdminClient() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {/* Name + badges */}
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>
+                        <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: RR.white }}>
                           {room.name}
                         </span>
-                        <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, background: "rgba(0,212,232,0.12)", borderRadius: 999, padding: "2px 8px" }}>
+                        <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, background: "rgba(0,212,232,0.12)", borderRadius: 999, padding: "2px 8px" }}>
                           #{room.code}
                         </span>
                         <span style={{
                           fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
-                          color: room.is_open ? "#4ade80" : EA.pink,
+                          color: room.is_open ? "#4ade80" : RR.pink,
                           background: room.is_open ? "rgba(74,222,128,0.12)" : "rgba(255,30,140,0.12)",
-                          border: `1.5px solid ${room.is_open ? "#4ade80" : EA.pink}`,
+                          border: `1.5px solid ${room.is_open ? "#4ade80" : RR.pink}`,
                           borderRadius: 999, padding: "2px 8px", textTransform: "uppercase",
                         }}>
                           {room.is_open ? "Ouverte" : "Fermée"}
                         </span>
                         {!room.is_public && (
-                          <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.butter, background: "rgba(255,233,74,0.1)", border: `1.5px solid ${EA.butter}`, borderRadius: 999, padding: "2px 8px" }}>
+                          <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: RR.butter, background: "rgba(255,233,74,0.1)", border: `1.5px solid ${RR.butter}`, borderRadius: 999, padding: "2px 8px" }}>
                             🔒 Privée
                           </span>
                         )}
@@ -642,7 +642,7 @@ export function RoomsAdminClient() {
                     {/* Chevron */}
                     <span style={{
                       fontFamily: "var(--font-sans)", fontSize: 18,
-                      color: isExpanded ? EA.cyan : "rgba(255,255,255,0.3)",
+                      color: isExpanded ? RR.cyan : "rgba(255,255,255,0.3)",
                       transform: isExpanded ? "rotate(180deg)" : "none",
                       transition: "transform .2s, color .2s",
                       flexShrink: 0, marginTop: 2,

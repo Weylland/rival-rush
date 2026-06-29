@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 const STEPS = [
   {
@@ -17,7 +17,7 @@ const STEPS = [
     num: "3",
     icon: "📲",
     title: "Ouvre l'app depuis l'accueil",
-    desc: "Ferme Safari et lance Expression Arena depuis l'icône sur ton écran d'accueil.",
+    desc: "Ferme Safari et lance Rival Rush depuis l'icône sur ton écran d'accueil.",
   },
   {
     num: "4",
@@ -31,7 +31,7 @@ export default function IosPwaPage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       position: "relative",
       overflow: "hidden",
     }}>
@@ -46,12 +46,12 @@ export default function IosPwaPage() {
         {/* Header */}
         <div style={{ marginBottom: 32, textAlign: "center" }}>
           <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 12 }}>🍎</div>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>
             iOS · Safari
           </div>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 32, color: EA.white,
-            transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1.1,
+            fontFamily: "var(--font-display)", fontSize: 32, color: RR.white,
+            transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1.1,
           }}>
             ACTIVER LES NOTIFS
           </div>
@@ -64,25 +64,25 @@ export default function IosPwaPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {STEPS.map((step) => (
             <div key={step.num} style={{
-              background: EA.violetDeep,
-              border: `2.5px solid ${EA.ink}`,
+              background: RR.violetDeep,
+              border: `2.5px solid ${RR.ink}`,
               borderRadius: 20, padding: "16px 18px",
-              boxShadow: `4px 4px 0 ${EA.cyan}`,
+              boxShadow: `4px 4px 0 ${RR.cyan}`,
               display: "flex", alignItems: "flex-start", gap: 14,
             }}>
               <div style={{
                 flexShrink: 0, width: 36, height: 36, borderRadius: "50%",
-                background: EA.pink, border: `2px solid ${EA.ink}`,
+                background: RR.pink, border: `2px solid ${RR.ink}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontSize: 18, color: EA.white,
-                boxShadow: `2px 2px 0 ${EA.ink}`, transform: "skewX(-4deg)",
+                fontFamily: "var(--font-display)", fontSize: 18, color: RR.white,
+                boxShadow: `2px 2px 0 ${RR.ink}`, transform: "skewX(-4deg)",
               }}>
                 {step.num}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 18 }}>{step.icon}</span>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white, transform: "skewX(-4deg)" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: RR.white, transform: "skewX(-4deg)" }}>
                     {step.title}
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export default function IosPwaPage() {
         {/* Note */}
         <div style={{
           marginTop: 20,
-          background: `${EA.butter}22`, border: `2px solid ${EA.butter}`,
+          background: `${RR.butter}22`, border: `2px solid ${RR.butter}`,
           borderRadius: 16, padding: "12px 16px",
           display: "flex", gap: 10, alignItems: "flex-start",
         }}>
@@ -110,9 +110,9 @@ export default function IosPwaPage() {
         {/* Back link */}
         <div style={{ marginTop: 28, textAlign: "center" }}>
           <a href="/lobby" style={{
-            fontFamily: "var(--font-display)", fontSize: 16, color: EA.cyan,
+            fontFamily: "var(--font-display)", fontSize: 16, color: RR.cyan,
             textDecoration: "none", display: "inline-block",
-            transform: "skewX(-4deg)", borderBottom: `2px solid ${EA.cyan}`, paddingBottom: 2,
+            transform: "skewX(-4deg)", borderBottom: `2px solid ${RR.cyan}`, paddingBottom: 2,
           }}>
             ← RETOUR AU LOBBY
           </a>

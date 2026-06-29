@@ -1,11 +1,11 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 function Bone({ w = "100%", h = 20, radius = 8 }: { w?: string | number; h?: number; radius?: number }) {
   return (
     <div style={{
       width: w, height: h, borderRadius: radius,
       background: "rgba(255,255,255,0.07)",
-      animation: "ea-pulse 1.4s ease-in-out infinite",
+      animation: "rr-pulse 1.4s ease-in-out infinite",
     }} />
   );
 }
@@ -14,7 +14,7 @@ export default function RoomLoading() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       padding: "12px 16px 100px",
       maxWidth: 700,
       margin: "0 auto",
@@ -22,7 +22,7 @@ export default function RoomLoading() {
       flexDirection: "column",
       gap: 14,
     }}>
-      <style>{`@keyframes ea-pulse { 0%,100%{opacity:.45} 50%{opacity:1} }`}</style>
+      <style>{`@keyframes rr-pulse { 0%,100%{opacity:.45} 50%{opacity:1} }`}</style>
 
       {/* Room header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 4 }}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { signinToAdmin, type AuthState } from "./actions";
 
 export function AdminLoginPage() {
@@ -34,14 +34,14 @@ export function AdminLoginPage() {
         <div style={{ textAlign: "center" }}>
           <div style={{
             width: 56, height: 56, borderRadius: 16, margin: "0 auto 16px",
-            background: `linear-gradient(135deg, ${EA.cyan} 0%, ${EA.pink} 100%)`,
+            background: `linear-gradient(135deg, ${RR.cyan} 0%, ${RR.pink} 100%)`,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 24,
             boxShadow: `0 8px 32px rgba(255,30,140,0.4)`,
           }}>◆</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 22, color: EA.white,
+            fontSize: 22, color: RR.white,
             transform: "skewX(-4deg)",
             letterSpacing: 0.5,
           }}>ADMIN PANEL</div>
@@ -68,7 +68,7 @@ export function AdminLoginPage() {
             <label style={{
               display: "block",
               fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-              color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.5,
+              color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.5,
               marginBottom: 8,
             }}>Email</label>
             <input
@@ -84,10 +84,10 @@ export function AdminLoginPage() {
                 border: `1.5px solid rgba(255,255,255,0.12)`,
                 borderRadius: 12, outline: "none",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                color: EA.white,
+                color: RR.white,
                 transition: "border-color .15s",
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = EA.cyan; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = RR.cyan; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
             />
           </div>
@@ -96,7 +96,7 @@ export function AdminLoginPage() {
             <label style={{
               display: "block",
               fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-              color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.5,
+              color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.5,
               marginBottom: 8,
             }}>Mot de passe</label>
             <input
@@ -112,10 +112,10 @@ export function AdminLoginPage() {
                 border: `1.5px solid rgba(255,255,255,0.12)`,
                 borderRadius: 12, outline: "none",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                color: EA.white,
+                color: RR.white,
                 transition: "border-color .15s",
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = EA.cyan; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = RR.cyan; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
             />
           </div>
@@ -126,7 +126,7 @@ export function AdminLoginPage() {
               border: `1.5px solid rgba(255,30,140,0.35)`,
               borderRadius: 10, padding: "10px 14px",
               fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-              color: EA.pink, textAlign: "center",
+              color: RR.pink, textAlign: "center",
             }}>
               {state.error}
             </div>
@@ -137,10 +137,10 @@ export function AdminLoginPage() {
             disabled={pending}
             style={{
               padding: "13px 0",
-              background: pending ? "rgba(0,212,232,0.3)" : EA.cyan,
+              background: pending ? "rgba(0,212,232,0.3)" : RR.cyan,
               border: "none", borderRadius: 12,
               fontFamily: "var(--font-display)", fontSize: 14,
-              color: EA.ink, fontWeight: 900, letterSpacing: 0.5,
+              color: RR.ink, fontWeight: 900, letterSpacing: 0.5,
               cursor: pending ? "not-allowed" : "pointer",
               transition: "opacity .15s",
               opacity: pending ? 0.7 : 1,

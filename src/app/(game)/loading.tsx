@@ -1,11 +1,11 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 // Generic neutral fallback — specific routes have their own loading.tsx
 export default function GameLoading() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -14,11 +14,11 @@ export default function GameLoading() {
         <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
         <circle
           cx={24} cy={24} r={20} fill="none"
-          stroke={EA.cyan} strokeWidth={4} strokeLinecap="round"
+          stroke={RR.cyan} strokeWidth={4} strokeLinecap="round"
           strokeDasharray="80 45"
-          style={{ transformOrigin: "center", animation: "ea-spin 0.9s linear infinite" }}
+          style={{ transformOrigin: "center", animation: "rr-spin 0.9s linear infinite" }}
         />
-        <style>{`@keyframes ea-spin { to { transform: rotate(360deg); } }`}</style>
+        <style>{`@keyframes rr-spin { to { transform: rotate(360deg); } }`}</style>
       </svg>
     </div>
   );

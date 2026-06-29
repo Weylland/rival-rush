@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 interface Props {
   enabled: boolean;
@@ -48,12 +48,12 @@ export function PreventLeave({ enabled, gameId }: Props) {
       padding: 24,
     }}>
       <div style={{
-        background: EA.violetDeep,
-        border: `3px solid ${EA.ink}`,
+        background: RR.violetDeep,
+        border: `3px solid ${RR.ink}`,
         borderRadius: 24,
         padding: "28px 24px",
         maxWidth: 320, width: "100%",
-        boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+        boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`,
         position: "relative",
       }}>
         <div aria-hidden style={{
@@ -65,8 +65,8 @@ export function PreventLeave({ enabled, gameId }: Props) {
         <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🚪</div>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 24, color: EA.white,
-            transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.pink}`,
+            fontFamily: "var(--font-display)", fontSize: 24, color: RR.white,
+            transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${RR.pink}`,
             marginBottom: 8,
           }}>
             QUITTER ?
@@ -83,10 +83,10 @@ export function PreventLeave({ enabled, gameId }: Props) {
               onClick={() => setShowModal(false)}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 16,
-                color: EA.violetDeep, background: EA.cyan,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                color: RR.violetDeep, background: RR.cyan,
+                border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                 padding: "13px 0", cursor: "pointer",
-                boxShadow: `3px 3px 0 ${EA.ink}`,
+                boxShadow: `3px 3px 0 ${RR.ink}`,
                 transform: "skewX(-4deg)", textTransform: "uppercase",
                 width: "100%",
               }}
@@ -101,9 +101,9 @@ export function PreventLeave({ enabled, gameId }: Props) {
               disabled={abandoning}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 14,
-                color: abandoning ? "rgba(255,255,255,0.3)" : EA.pink,
+                color: abandoning ? "rgba(255,255,255,0.3)" : RR.pink,
                 background: "none",
-                border: `2px solid ${abandoning ? "rgba(255,255,255,0.15)" : EA.pink}`,
+                border: `2px solid ${abandoning ? "rgba(255,255,255,0.15)" : RR.pink}`,
                 borderRadius: 999,
                 padding: "11px 0", cursor: abandoning ? "not-allowed" : "pointer",
                 width: "100%", textTransform: "uppercase",

@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
-import { EAButton } from "@/components/ui/ea-button";
+import { RR } from "@/lib/design";
+import { RRButton } from "@/components/ui/rr-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
-// EAButton used for the submit button below
+// RRButton used for the submit button below
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.35,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.4px, transparent 1.8px)",
@@ -81,13 +81,13 @@ export default function ResetPasswordPage() {
         <div style={{ textAlign: "center" }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36,
-            color: EA.white, transform: "skewX(-8deg)",
-            textShadow: `3px 3px 0 ${EA.pink}`,
+            color: RR.white, transform: "skewX(-8deg)",
+            textShadow: `3px 3px 0 ${RR.pink}`,
           }}>NOUVEAU</div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36,
-            color: EA.cyan, transform: "skewX(-8deg)",
-            textShadow: `3px 3px 0 ${EA.violetDeep}`,
+            color: RR.cyan, transform: "skewX(-8deg)",
+            textShadow: `3px 3px 0 ${RR.violetDeep}`,
             marginTop: -4,
           }}>MOT DE PASSE</div>
         </div>
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
             borderRadius: 16, padding: "20px", textAlign: "center",
           }}>
             <div style={{ fontSize: 36, marginBottom: 10 }}>✅</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white }}>
               Mot de passe modifié !
             </div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
@@ -109,12 +109,12 @@ export default function ResetPasswordPage() {
 
         {!success && exchangeError && (
           <div style={{
-            background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+            background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
             borderRadius: 16, padding: "20px", textAlign: "center",
             display: "flex", flexDirection: "column", gap: 14,
           }}>
             <div style={{ fontSize: 32 }}>⚠️</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 800, color: EA.white }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 800, color: RR.white }}>
               {exchangeError}
             </div>
             <a
@@ -122,11 +122,11 @@ export default function ResetPasswordPage() {
               style={{
                 display: "inline-block",
                 fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: 0.6,
-                color: EA.white, background: EA.pink,
-                border: `2px solid ${EA.ink}`, borderRadius: 999,
+                color: RR.white, background: RR.pink,
+                border: `2px solid ${RR.ink}`, borderRadius: 999,
                 padding: "14px 24px", textDecoration: "none",
                 textAlign: "center",
-                boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
+                boxShadow: `4px 4px 0 ${RR.cyan}, 4px 4px 0 1px ${RR.ink}`,
                 transform: "skewX(-4deg)", textTransform: "uppercase",
               }}
             >
@@ -148,7 +148,7 @@ export default function ResetPasswordPage() {
             <div>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: 1.4,
-                color: EA.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
+                color: RR.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
               }}>Nouveau mot de passe</div>
               <PasswordInput
                 name="password"
@@ -156,15 +156,15 @@ export default function ResetPasswordPage() {
                 required
                 autoFocus
                 wrapperStyle={{
-                  background: EA.white, border: `2.5px solid ${EA.ink}`,
-                  borderRadius: 16, boxShadow: `4px 4px 0 ${EA.cyan}`,
+                  background: RR.white, border: `2.5px solid ${RR.ink}`,
+                  borderRadius: 16, boxShadow: `4px 4px 0 ${RR.cyan}`,
                 }}
                 style={{
                   display: "block", width: "100%",
                   padding: "12px 16px", background: "transparent",
                   border: "none", outline: "none",
                   fontFamily: "var(--font-sans)", fontSize: 16,
-                  fontWeight: 800, color: EA.ink, boxSizing: "border-box",
+                  fontWeight: 800, color: RR.ink, boxSizing: "border-box",
                 }}
               />
             </div>
@@ -172,48 +172,48 @@ export default function ResetPasswordPage() {
             <div>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: 1.4,
-                color: EA.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
+                color: RR.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
               }}>Confirmer le mot de passe</div>
               <PasswordInput
                 name="confirm"
                 placeholder="Répète le mot de passe"
                 required
                 wrapperStyle={{
-                  background: EA.white, border: `2.5px solid ${EA.ink}`,
-                  borderRadius: 16, boxShadow: `4px 4px 0 ${EA.pink}`,
+                  background: RR.white, border: `2.5px solid ${RR.ink}`,
+                  borderRadius: 16, boxShadow: `4px 4px 0 ${RR.pink}`,
                 }}
                 style={{
                   display: "block", width: "100%",
                   padding: "12px 16px", background: "transparent",
                   border: "none", outline: "none",
                   fontFamily: "var(--font-sans)", fontSize: 16,
-                  fontWeight: 800, color: EA.ink, boxSizing: "border-box",
+                  fontWeight: 800, color: RR.ink, boxSizing: "border-box",
                 }}
               />
             </div>
 
             {submitError && (
               <div style={{
-                background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+                background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
                 borderRadius: 12, padding: "10px 14px",
                 fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-                color: EA.white, textAlign: "center",
+                color: RR.white, textAlign: "center",
               }}>
                 {submitError}
               </div>
             )}
 
-            <EAButton
+            <RRButton
               type="submit"
               full
               size="lg"
-              color={EA.pink}
-              shadow={EA.cyan}
+              color={RR.pink}
+              shadow={RR.cyan}
               disabled={pending}
               style={{ opacity: pending ? 0.7 : 1 }}
             >
               {pending ? "Sauvegarde…" : "🔐 Enregistrer le mot de passe"}
-            </EAButton>
+            </RRButton>
           </form>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 interface ScreenBgProps {
   children?: React.ReactNode;
@@ -10,7 +10,7 @@ export function ScreenBg({ children }: ScreenBgProps) {
       style={{
         position: "absolute",
         inset: 0,
-        background: EA.violet,
+        background: RR.violet,
         overflow: "hidden",
       }}
     >

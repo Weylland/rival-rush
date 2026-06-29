@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export default function GlobalError({
   error,
@@ -17,7 +17,7 @@ export default function GlobalError({
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violetDeep,
+      background: RR.violetDeep,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -31,8 +31,8 @@ export default function GlobalError({
         fontFamily: "var(--font-righteous)",
         fontSize: "clamp(80px, 20vw, 130px)",
         lineHeight: 1,
-        color: EA.butter,
-        textShadow: `6px 6px 0 ${EA.pink}`,
+        color: RR.butter,
+        textShadow: `6px 6px 0 ${RR.pink}`,
         transform: "skewX(-8deg)",
         userSelect: "none",
       }}>
@@ -43,7 +43,7 @@ export default function GlobalError({
         <div style={{
           fontFamily: "var(--font-righteous)",
           fontSize: "clamp(16px, 5vw, 24px)",
-          color: EA.white,
+          color: RR.white,
           transform: "skewX(-4deg)",
         }}>
           ERREUR SERVEUR
@@ -77,13 +77,13 @@ export default function GlobalError({
           style={{
             fontFamily: "var(--font-righteous)",
             fontSize: 14,
-            color: EA.ink,
-            background: EA.butter,
-            border: `2.5px solid ${EA.ink}`,
+            color: RR.ink,
+            background: RR.butter,
+            border: `2.5px solid ${RR.ink}`,
             borderRadius: 999,
             padding: "13px 28px",
             cursor: "pointer",
-            boxShadow: `4px 4px 0 ${EA.pink}`,
+            boxShadow: `4px 4px 0 ${RR.pink}`,
             transform: "skewX(-4deg)",
             letterSpacing: 0.5,
           }}
@@ -98,7 +98,7 @@ export default function GlobalError({
           style={{
             fontFamily: "var(--font-righteous)",
             fontSize: 14,
-            color: EA.white,
+            color: RR.white,
             background: "rgba(255,255,255,0.08)",
             border: `2.5px solid rgba(255,255,255,0.2)`,
             borderRadius: 999,

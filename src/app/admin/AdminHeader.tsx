@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 interface Props {
   title: string;
@@ -66,7 +66,7 @@ export function AdminHeader({
             borderRadius: 10,
             background: "rgba(255,255,255,0.06)",
             border: `1.5px solid rgba(255,255,255,0.1)`,
-            color: EA.white,
+            color: RR.white,
             cursor: "pointer",
             display: "flex",
             flexDirection: "column",
@@ -136,7 +136,7 @@ export function AdminHeader({
               margin: 0,
               fontFamily: "var(--font-display)",
               fontSize: 22,
-              color: EA.white,
+              color: RR.white,
               transform: "skewX(-4deg)",
               lineHeight: 1.1,
               overflow: "hidden",
@@ -200,7 +200,7 @@ export function AdminHeader({
             e.currentTarget.style.borderColor = "rgba(0,212,232,0.25)";
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: EA.cyan }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: RR.cyan }}>
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
             <polyline points="15 3 21 3 21 9" />
             <line x1="10" y1="14" x2="21" y2="3" />
@@ -208,7 +208,7 @@ export function AdminHeader({
           <span style={{
             fontFamily: "var(--font-sans)",
             fontSize: 11, fontWeight: 900,
-            color: EA.cyan,
+            color: RR.cyan,
             textTransform: "uppercase",
             letterSpacing: 0.8,
           }}>
@@ -224,19 +224,19 @@ export function AdminHeader({
               gap: 6,
               padding: "6px 12px",
               background: "rgba(255,30,140,0.12)",
-              border: `1.5px solid ${EA.pink}50`,
+              border: `1.5px solid ${RR.pink}50`,
               borderRadius: 999,
             }}
             title={`${alerts} alerte${alerts > 1 ? "s" : ""} en attente`}
           >
             <span
-              className="ea-admin-pulse-dot"
+              className="rr-admin-pulse-dot"
               style={{
                 width: 7,
                 height: 7,
                 borderRadius: 999,
-                background: EA.pink,
-                boxShadow: `0 0 8px ${EA.pink}`,
+                background: RR.pink,
+                boxShadow: `0 0 8px ${RR.pink}`,
                 display: "inline-block",
               }}
             />
@@ -245,7 +245,7 @@ export function AdminHeader({
                 fontFamily: "var(--font-sans)",
                 fontSize: 11,
                 fontWeight: 900,
-                color: EA.pink,
+                color: RR.pink,
               }}
             >
               {alerts}
@@ -266,7 +266,7 @@ export function AdminHeader({
           }}
         >
           <span
-            className="ea-admin-pulse-dot"
+            className="rr-admin-pulse-dot"
             style={{
               width: 7,
               height: 7,

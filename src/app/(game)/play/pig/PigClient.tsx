@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -139,7 +139,7 @@ export function PigClient({
 
   // Niveau de "chaleur" de la cagnotte : 0 = vide, 1 = chaud, 2 = brûlant
   const heat = turnTotal === 0 ? 0 : turnTotal < 20 ? 1 : 2;
-  const cagnotteColor = heat === 2 ? EA.pink : heat === 1 ? EA.butter : "rgba(255,255,255,0.15)";
+  const cagnotteColor = heat === 2 ? RR.pink : heat === 1 ? RR.butter : "rgba(255,255,255,0.15)";
 
   return (
     <div style={{
@@ -147,7 +147,7 @@ export function PigClient({
       background: `
         radial-gradient(ellipse at 20% 10%, rgba(0,212,232,0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 85% 90%, rgba(255,45,140,0.13) 0%, transparent 50%),
-        linear-gradient(180deg, ${EA.violet} 0%, ${EA.violetDeep} 100%)
+        linear-gradient(180deg, ${RR.violet} 0%, ${RR.violetDeep} 100%)
       `,
       display: "flex", flexDirection: "column", alignItems: "center",
       padding: desktop ? "24px 24px 100px" : "14px 14px 100px",
@@ -174,11 +174,11 @@ export function PigClient({
           }}>{bust ? "😵" : "🐷"}</div>
           <div>
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: 24, color: EA.white,
-              transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${EA.pink}`,
+              fontFamily: "var(--font-display)", fontSize: 24, color: RR.white,
+              transform: "skewX(-6deg)", textShadow: `3px 3px 0 ${RR.pink}`,
               lineHeight: 1,
             }}>JEU DU COCHON</div>
-            <div style={{ fontSize: 9, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2, marginTop: 4 }}>
+            <div style={{ fontSize: 9, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2, marginTop: 4 }}>
               Premier à 100 gagne
             </div>
           </div>
@@ -188,11 +188,11 @@ export function PigClient({
         <div style={{ display: "flex", gap: 10, width: "100%" }}>
           <PlayerCard
             score={myScore} pseudo={myPseudo} avatarUrl={myAvatarUrl}
-            color={EA.cyan} avatarColor={myAvatarColor} isActive={isMyTurn && !isFinished} isMe side="left"
+            color={RR.cyan} avatarColor={myAvatarColor} isActive={isMyTurn && !isFinished} isMe side="left"
           />
           <PlayerCard
             score={opScore} pseudo={opPseudo} avatarUrl={opAvatarUrl}
-            color={EA.pink} avatarColor={opAvatarColor} isActive={!isMyTurn && !isFinished} isMe={false} side="right"
+            color={RR.pink} avatarColor={opAvatarColor} isActive={!isMyTurn && !isFinished} isMe={false} side="right"
           />
         </div>
 
@@ -200,15 +200,15 @@ export function PigClient({
         <div style={{
           width: "100%",
           background: heat > 0
-            ? `radial-gradient(circle at 50% 50%, ${cagnotteColor}22 0%, ${EA.violetDeep} 75%)`
-            : EA.violetDeep,
-          border: `3px solid ${heat > 0 ? cagnotteColor : EA.ink}`,
+            ? `radial-gradient(circle at 50% 50%, ${cagnotteColor}22 0%, ${RR.violetDeep} 75%)`
+            : RR.violetDeep,
+          border: `3px solid ${heat > 0 ? cagnotteColor : RR.ink}`,
           borderRadius: 22, padding: "14px 20px",
           boxShadow: heat === 2
-            ? `0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${EA.pink}`
+            ? `0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${RR.pink}`
             : heat === 1
-              ? `0 0 24px rgba(255,233,74,0.3), 3px 3px 0 ${EA.butter}`
-              : `2px 2px 0 ${EA.ink}`,
+              ? `0 0 24px rgba(255,233,74,0.3), 3px 3px 0 ${RR.butter}`
+              : `2px 2px 0 ${RR.ink}`,
           display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
           transition: "all 0.3s",
           animation: heat === 2 ? "cagnotte-pulse 1s ease-in-out infinite" : "none",
@@ -224,7 +224,7 @@ export function PigClient({
           <div style={{
             fontFamily: "var(--font-display)", fontSize: desktop ? 56 : 48,
             color: heat > 0 ? cagnotteColor : "rgba(255,255,255,0.18)",
-            textShadow: heat > 0 ? `4px 4px 0 ${EA.ink}` : "none",
+            textShadow: heat > 0 ? `4px 4px 0 ${RR.ink}` : "none",
             transform: "skewX(-8deg)", lineHeight: 1,
             transition: "color 0.3s",
           }}>
@@ -235,7 +235,7 @@ export function PigClient({
               fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
               color: "rgba(255,255,255,0.55)", marginTop: 2,
             }}>
-              🏦 Banque pour <strong style={{ color: EA.cyan }}>{myScore + turnTotal}</strong> pts
+              🏦 Banque pour <strong style={{ color: RR.cyan }}>{myScore + turnTotal}</strong> pts
             </div>
           )}
         </div>
@@ -249,11 +249,11 @@ export function PigClient({
 
           {bustMsg && (
             <div style={{
-              background: `rgba(255,30,140,0.25)`, border: `2px solid ${EA.pink}`,
+              background: `rgba(255,30,140,0.25)`, border: `2px solid ${RR.pink}`,
               borderRadius: 14, padding: "8px 18px",
-              fontFamily: "var(--font-display)", fontSize: 13, color: EA.white,
+              fontFamily: "var(--font-display)", fontSize: 13, color: RR.white,
               transform: "skewX(-4deg)",
-              boxShadow: `3px 3px 0 ${EA.ink}`,
+              boxShadow: `3px 3px 0 ${RR.ink}`,
               animation: "pig-fadein 0.25s ease",
             }}>
               💥 {bustMsg}
@@ -271,15 +271,15 @@ export function PigClient({
               onClick={handleRoll}
               style={{
                 flex: 1, height: desktop ? 64 : 58,
-                background: !isMyTurn || submitting ? "rgba(255,255,255,0.06)" : EA.cyan,
-                border: `3px solid ${EA.ink}`,
+                background: !isMyTurn || submitting ? "rgba(255,255,255,0.06)" : RR.cyan,
+                border: `3px solid ${RR.ink}`,
                 borderRadius: 18,
                 boxShadow: !isMyTurn || submitting
-                  ? `2px 2px 0 ${EA.ink}`
-                  : `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}`,
+                  ? `2px 2px 0 ${RR.ink}`
+                  : `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}`,
                 cursor: !isMyTurn || submitting ? "not-allowed" : "pointer",
                 fontFamily: "var(--font-display)", fontSize: 16,
-                color: !isMyTurn || submitting ? "rgba(255,255,255,0.3)" : EA.ink,
+                color: !isMyTurn || submitting ? "rgba(255,255,255,0.3)" : RR.ink,
                 opacity: !isMyTurn || submitting ? 0.55 : 1,
                 transition: "all 0.1s",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -297,15 +297,15 @@ export function PigClient({
               onClick={handleHold}
               style={{
                 flex: 1, height: desktop ? 64 : 58,
-                background: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.06)" : EA.butter,
-                border: `3px solid ${EA.ink}`,
+                background: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.06)" : RR.butter,
+                border: `3px solid ${RR.ink}`,
                 borderRadius: 18,
                 boxShadow: (!isMyTurn || submitting || turnTotal === 0)
-                  ? `2px 2px 0 ${EA.ink}`
-                  : `5px 5px 0 ${EA.cyan}, 5px 5px 0 1px ${EA.ink}`,
+                  ? `2px 2px 0 ${RR.ink}`
+                  : `5px 5px 0 ${RR.cyan}, 5px 5px 0 1px ${RR.ink}`,
                 cursor: (!isMyTurn || submitting || turnTotal === 0) ? "not-allowed" : "pointer",
                 fontFamily: "var(--font-display)", fontSize: 16,
-                color: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.3)" : EA.ink,
+                color: (!isMyTurn || submitting || turnTotal === 0) ? "rgba(255,255,255,0.3)" : RR.ink,
                 opacity: (!isMyTurn || submitting || turnTotal === 0) ? 0.55 : 1,
                 transition: "all 0.1s",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -356,8 +356,8 @@ export function PigClient({
           to   { opacity: 1; transform: translateY(0) skewX(-4deg); }
         }
         @keyframes cagnotte-pulse {
-          0%, 100% { box-shadow: 0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${EA.pink}; }
-          50%      { box-shadow: 0 0 60px rgba(255,45,140,0.7),  6px 6px 0 ${EA.pink}; }
+          0%, 100% { box-shadow: 0 0 40px rgba(255,45,140,0.45), 4px 4px 0 ${RR.pink}; }
+          50%      { box-shadow: 0 0 60px rgba(255,45,140,0.7),  6px 6px 0 ${RR.pink}; }
         }
       `}</style>
     </div>

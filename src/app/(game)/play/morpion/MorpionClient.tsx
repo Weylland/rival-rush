@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { Star } from "@/components/ui/star";
 import { SvgBlob } from "@/components/ui/blob";
@@ -122,25 +122,25 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
   // ── DESKTOP LAYOUT ─────────────────────────────────────────────────────────
   if (desktop) {
     return (
-      <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <RulesButton gameType="morpion" />
         {/* BG */}
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
-        <SvgBlob color={EA.pink} style={{ width: 580, height: 500, top: -230, left: -180, opacity: 0.65, animation: "ea-float 6s ease-in-out infinite" }} />
-        <SvgBlob color={EA.cyan} style={{ width: 520, height: 440, bottom: -180, right: -160, opacity: 0.55, animation: "ea-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-        <SvgBlob color={EA.butter} style={{ width: 340, height: 300, top: "35%", right: -140, opacity: 0.2, animation: "ea-float 11s ease-in-out infinite" }} />
-        <Star color={EA.butter} size={38} style={{ top: "7%", right: "5%", transform: "rotate(15deg)", animation: "ea-spin-slow 10s linear infinite" }} />
-        <Star color={EA.white} size={22} style={{ bottom: "10%", left: "4%", animation: "ea-float 6s ease-in-out infinite" }} />
-        <Star color={EA.cyan} size={18} style={{ top: "45%", right: "3%", animation: "ea-spin-slow 14s linear infinite reverse" }} />
-        <Star color={EA.pink} size={14} style={{ bottom: "28%", right: "6%", transform: "rotate(-15deg)", animation: "ea-float 8s ease-in-out infinite" }} />
-        <Star color={EA.butter} size={12} style={{ top: "25%", left: "3%", animation: "ea-spin-slow 9s linear infinite" }} />
+        <SvgBlob color={RR.pink} style={{ width: 580, height: 500, top: -230, left: -180, opacity: 0.65, animation: "rr-float 6s ease-in-out infinite" }} />
+        <SvgBlob color={RR.cyan} style={{ width: 520, height: 440, bottom: -180, right: -160, opacity: 0.55, animation: "rr-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+        <SvgBlob color={RR.butter} style={{ width: 340, height: 300, top: "35%", right: -140, opacity: 0.2, animation: "rr-float 11s ease-in-out infinite" }} />
+        <Star color={RR.butter} size={38} style={{ top: "7%", right: "5%", transform: "rotate(15deg)", animation: "rr-spin-slow 10s linear infinite" }} />
+        <Star color={RR.white} size={22} style={{ bottom: "10%", left: "4%", animation: "rr-float 6s ease-in-out infinite" }} />
+        <Star color={RR.cyan} size={18} style={{ top: "45%", right: "3%", animation: "rr-spin-slow 14s linear infinite reverse" }} />
+        <Star color={RR.pink} size={14} style={{ bottom: "28%", right: "6%", transform: "rotate(-15deg)", animation: "rr-float 8s ease-in-out infinite" }} />
+        <Star color={RR.butter} size={12} style={{ top: "25%", left: "3%", animation: "rr-spin-slow 9s linear infinite" }} />
 
         {/* Content wrapper — max-width, bg stays full-screen */}
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
         {/* Header */}
         <div style={{ textAlign: "center", padding: "32px 40px 0" }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 72, color: EA.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${EA.pink}`, lineHeight: 1, marginTop: 4 }}>MORPION !</div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 72, color: RR.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${RR.pink}`, lineHeight: 1, marginTop: 4 }}>MORPION !</div>
         </div>
 
         {/* Main 3-column */}
@@ -152,7 +152,7 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
               isActive={currentTurn === myId && !isFinished} isWinner={winnerId === myId} isFinished={isFinished}
             />
             {isMyTurn && !isFinished && (
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: EA.butter, letterSpacing: 1, textTransform: "uppercase", animation: "ea-pulse 1.2s ease-in-out infinite" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: RR.butter, letterSpacing: 1, textTransform: "uppercase", animation: "rr-pulse 1.2s ease-in-out infinite" }}>
                 Clique sur une case !
               </div>
             )}
@@ -188,45 +188,45 @@ export function MorpionClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1
   const opActive = !isMyTurn && !isFinished;
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <RulesButton gameType="morpion" />
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
-      <SvgBlob color={EA.pink} style={{ width: 220, height: 200, top: -90, left: -70, opacity: 0.85, animation: "ea-float 4s ease-in-out infinite" }} />
-      <SvgBlob color={EA.cyan} style={{ width: 200, height: 180, bottom: -70, right: -50, opacity: 0.85, animation: "ea-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-      <Star color={EA.butter} size={20} style={{ top: "35%", right: 18, transform: "rotate(15deg)", animation: "ea-spin-slow 10s linear infinite" }} />
-      <Star color={EA.white} size={14} style={{ top: "42%", left: 14, animation: "ea-float 5s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 220, height: 200, top: -90, left: -70, opacity: 0.85, animation: "rr-float 4s ease-in-out infinite" }} />
+      <SvgBlob color={RR.cyan} style={{ width: 200, height: 180, bottom: -70, right: -50, opacity: 0.85, animation: "rr-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+      <Star color={RR.butter} size={20} style={{ top: "35%", right: 18, transform: "rotate(15deg)", animation: "rr-spin-slow 10s linear infinite" }} />
+      <Star color={RR.white} size={14} style={{ top: "42%", left: 14, animation: "rr-float 5s ease-in-out infinite" }} />
 
       {/* All content in flex column — no absolute offsets */}
       <div style={{ position: "relative", zIndex: 5, flex: 1, display: "flex", flexDirection: "column", padding: "20px 16px 24px", gap: 16 }}>
 
         {/* Title */}
         <div style={{ textAlign: "center", flexShrink: 0 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1 }}>MORPION !</div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1 }}>MORPION !</div>
         </div>
 
         {/* Player headers */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
-            <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={myPseudo} color={myAvatarColor ?? EA.butter} ring={EA.ink} size={32} src={myAvatarUrl} />
+            {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: RR.butter, border: `2px solid ${RR.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: RR.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${RR.ink}` }}>TON TOUR</div>}
+            <div style={{ background: RR.pink, border: `2.5px solid ${RR.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${RR.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
+              <Avatar name={myPseudo} color={myAvatarColor ?? RR.butter} ring={RR.ink} size={32} src={myAvatarUrl} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.white, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "×" : "○"}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: RR.white, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "×" : "○"}</div>
               </div>
             </div>
           </div>
-          <div style={{ flexShrink: 0, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, padding: "6px 10px", fontFamily: "var(--font-display)", fontSize: 16, color: EA.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.pink}` }}>
+          <div style={{ flexShrink: 0, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 14, padding: "6px 10px", fontFamily: "var(--font-display)", fontSize: 16, color: RR.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${RR.pink}` }}>
             {board.filter(c => c === myId).length}—{board.filter(c => c === opponentId).length}
           </div>
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
-            <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={opPseudo} color={opAvatarColor ?? EA.pink} ring={EA.ink} size={32} src={opAvatarUrl} />
+            {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: RR.butter, border: `2px solid ${RR.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: RR.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${RR.ink}` }}>SON TOUR</div>}
+            <div style={{ background: RR.cyan, border: `2.5px solid ${RR.ink}`, borderRadius: 18, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, minWidth: 0, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${RR.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
+              <Avatar name={opPseudo} color={opAvatarColor ?? RR.pink} ring={RR.ink} size={32} src={opAvatarUrl} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: EA.ink, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "○" : "×"}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 900, color: RR.ink, marginTop: 1, lineHeight: 1 }}>{iAmP1 ? "○" : "×"}</div>
               </div>
             </div>
           </div>

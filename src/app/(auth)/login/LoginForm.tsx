@@ -2,19 +2,19 @@
 
 import { useActionState, useState } from "react";
 import { signup, signin, signinAsGuest, type AuthState } from "./actions";
-import { EAButton } from "@/components/ui/ea-button";
+import { RRButton } from "@/components/ui/rr-button";
 import { PasswordInput } from "@/components/ui/password-input";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 function TabSwitch({ active, onSwitch }: { active: "signup" | "signin"; onSwitch: (t: "signup" | "signin") => void }) {
   return (
     <div style={{
       display: "flex", gap: 6,
       background: "rgba(26,15,94,0.65)",
-      border: `2.5px solid ${EA.ink}`,
+      border: `2.5px solid ${RR.ink}`,
       borderRadius: 999,
       padding: 5,
-      boxShadow: `3px 3px 0 ${EA.cyan}`,
+      boxShadow: `3px 3px 0 ${RR.cyan}`,
       width: "100%",
     }}>
       {(["signup", "signin"] as const).map((tab) => {
@@ -27,15 +27,15 @@ function TabSwitch({ active, onSwitch }: { active: "signup" | "signin"; onSwitch
             style={{
               flex: isActive ? 1.4 : 1,
               textAlign: "center",
-              background: isActive ? EA.pink : "transparent",
+              background: isActive ? RR.pink : "transparent",
               border: "none",
               borderRadius: 999,
               padding: "11px 0",
               fontFamily: "var(--font-display)",
               fontSize: isActive ? 16 : 13,
-              color: isActive ? EA.white : "rgba(255,255,255,0.6)",
+              color: isActive ? RR.white : "rgba(255,255,255,0.6)",
               letterSpacing: 1,
-              boxShadow: isActive ? `2px 2px 0 ${EA.cyan}` : "none",
+              boxShadow: isActive ? `2px 2px 0 ${RR.cyan}` : "none",
               transform: isActive ? "skewX(-4deg)" : "none",
               cursor: "pointer",
               transition: "all 0.15s",
@@ -68,7 +68,7 @@ function FieldY2K({
       <div style={{
         fontFamily: "var(--font-display)",
         fontSize: 12, letterSpacing: 1.4,
-        color: EA.cyan,
+        color: RR.cyan,
         textTransform: "uppercase",
         marginBottom: 6,
         marginLeft: 14,
@@ -79,10 +79,10 @@ function FieldY2K({
         {hint && <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 10 }}>{hint}</span>}
       </div>
       <div style={{
-        background: EA.white,
-        border: `2.5px solid ${EA.ink}`,
+        background: RR.white,
+        border: `2.5px solid ${RR.ink}`,
         borderRadius: 16,
-        boxShadow: focused ? `4px 4px 0 ${EA.pink}` : `4px 4px 0 ${EA.cyan}`,
+        boxShadow: focused ? `4px 4px 0 ${RR.pink}` : `4px 4px 0 ${RR.cyan}`,
         transition: "box-shadow 0.15s",
       }}>
         <input
@@ -102,7 +102,7 @@ function FieldY2K({
             fontFamily: "var(--font-sans)",
             fontSize: 16,
             fontWeight: 800,
-            color: EA.ink,
+            color: RR.ink,
           }}
         />
       </div>
@@ -121,10 +121,10 @@ function LogoMark({ size = 72 }: { size?: number }) {
   return (
     <div style={{ position: "relative", width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: "absolute" }} aria-hidden>
-        <path d={starPath(size)} fill={EA.cyan} />
+        <path d={starPath(size)} fill={RR.cyan} />
         <path
           d={starPath(size * 0.7)}
-          fill={EA.pink}
+          fill={RR.pink}
           transform={`translate(${size * 0.15}, ${size * 0.15}) rotate(22, ${size * 0.35}, ${size * 0.35})`}
         />
       </svg>
@@ -133,10 +133,10 @@ function LogoMark({ size = 72 }: { size?: number }) {
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "var(--font-display)",
         fontSize: size * 0.35,
-        color: EA.ink,
+        color: RR.ink,
         transform: "skewX(-8deg)",
-        textShadow: `2px 2px 0 ${EA.white}`,
-      }}>EA</div>
+        textShadow: `2px 2px 0 ${RR.white}`,
+      }}>RR</div>
     </div>
   );
 }
@@ -154,7 +154,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
   return (
     <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden" }}>
       {/* Fond violet + dots */}
-      <div style={{ position: "absolute", inset: 0, background: EA.violet }} />
+      <div style={{ position: "absolute", inset: 0, background: RR.violet }} />
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.35,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.4px, transparent 1.8px)",
@@ -163,15 +163,15 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
 
       {/* Blobs */}
       <svg viewBox="0 0 200 200" style={{ position: "absolute", width: 260, height: 240, top: -90, right: -90, opacity: 0.95 }} preserveAspectRatio="none" aria-hidden>
-        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={EA.pink} />
+        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={RR.pink} />
       </svg>
       <svg viewBox="0 0 200 200" style={{ position: "absolute", width: 200, height: 200, bottom: -80, left: -60, opacity: 0.85 }} preserveAspectRatio="none" aria-hidden>
-        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={EA.cyan} />
+        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={RR.cyan} />
       </svg>
 
       {/* Décos */}
       <svg width="70" height="26" viewBox="0 0 60 60" style={{ position: "absolute", top: 130, left: 24 }} aria-hidden>
-        <path d="M 5 30 Q 15 10 25 30 T 45 30 T 60 30" stroke={EA.butter} strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M 5 30 Q 15 10 25 30 T 45 30 T 60 30" stroke={RR.butter} strokeWidth="3" fill="none" strokeLinecap="round" />
       </svg>
 
       {/* Logo + titre */}
@@ -187,23 +187,23 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: 32, lineHeight: 0.9, textAlign: "center",
-          color: EA.white, transform: "skewX(-8deg)",
-          textShadow: `3px 3px 0 ${EA.pink}`,
+          color: RR.white, transform: "skewX(-8deg)",
+          textShadow: `3px 3px 0 ${RR.pink}`,
           marginTop: 8,
         }}>EXPRESSION</div>
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: 32, lineHeight: 0.9,
-          color: EA.cyan, transform: "skewX(-8deg)",
-          textShadow: `3px 3px 0 ${EA.violetDeep}`,
+          color: RR.cyan, transform: "skewX(-8deg)",
+          textShadow: `3px 3px 0 ${RR.violetDeep}`,
           marginTop: -2,
         }}>ARENA</div>
         <div style={{
           fontFamily: "var(--font-sans)",
           fontSize: 11, fontWeight: 800, fontStyle: "italic",
-          color: EA.white, opacity: 0.85,
+          color: RR.white, opacity: 0.85,
           marginTop: 4,
-          background: EA.violetDeep,
+          background: RR.violetDeep,
           padding: "3px 10px",
           borderRadius: 20,
           transform: "rotate(-2deg)",
@@ -240,7 +240,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
             <div style={{
               fontFamily: "var(--font-display)",
               fontSize: 12, letterSpacing: 1.4,
-              color: EA.cyan, textTransform: "uppercase",
+              color: RR.cyan, textTransform: "uppercase",
               marginBottom: 6, marginLeft: 14,
             }}>Mot de passe</div>
             <PasswordInput
@@ -248,10 +248,10 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               placeholder="Top secret"
               required
               wrapperStyle={{
-                background: EA.white,
-                border: `2.5px solid ${EA.ink}`,
+                background: RR.white,
+                border: `2.5px solid ${RR.ink}`,
                 borderRadius: 16,
-                boxShadow: `4px 4px 0 ${EA.cyan}`,
+                boxShadow: `4px 4px 0 ${RR.cyan}`,
               }}
               style={{
                 display: "block",
@@ -263,7 +263,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
                 fontFamily: "var(--font-sans)",
                 fontSize: 16,
                 fontWeight: 800,
-                color: EA.ink,
+                color: RR.ink,
                 boxSizing: "border-box",
               }}
             />
@@ -272,24 +272,24 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           {state?.error && (
             <div style={{
               background: "rgba(255,30,140,0.15)",
-              border: `2px solid ${EA.pink}`,
+              border: `2px solid ${RR.pink}`,
               borderRadius: 12,
               padding: "10px 14px",
               fontFamily: "var(--font-sans)",
               fontSize: 13, fontWeight: 800,
-              color: EA.white,
+              color: RR.white,
               textAlign: "center",
             }}>
               {state.error}
             </div>
           )}
 
-          <EAButton
+          <RRButton
             type="submit"
             full
             size="lg"
-            color={EA.pink}
-            shadow={EA.cyan}
+            color={RR.pink}
+            shadow={RR.cyan}
             disabled={pending}
             style={{ marginTop: 6, opacity: pending ? 0.7 : 1 }}
           >
@@ -298,7 +298,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               : tab === "signup"
               ? "🎉 Créer mon compte"
               : "🎮 Se connecter"}
-          </EAButton>
+          </RRButton>
 
           {tab === "signup" && (
             <p style={{
@@ -342,7 +342,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
                 border: `2px solid rgba(255,255,255,0.18)`,
                 borderRadius: 14, outline: "none",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                color: EA.white,
+                color: RR.white,
               }}
             />
             <span style={{
@@ -351,21 +351,21 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               color: "rgba(255,255,255,0.25)", pointerEvents: "none",
             }}>#????</span>
           </div>
-          <EAButton
+          <RRButton
             type="submit"
             full
             size="md"
-            color={EA.violet}
-            shadow={EA.cyan}
+            color={RR.violet}
+            shadow={RR.cyan}
             disabled={guestPending}
             style={{ opacity: guestPending ? 0.7 : 1 }}
           >
             {guestPending ? "..." : "👻 Jouer en invité (sans compte)"}
-          </EAButton>
+          </RRButton>
           {guestState?.error && (
             <div style={{
               fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-              color: EA.pink, textAlign: "center",
+              color: RR.pink, textAlign: "center",
             }}>
               {guestState.error}
             </div>
@@ -382,7 +382,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
             <>Déjà inscrit·e ?{" "}
               <button type="button" onClick={() => setTab("signin")} style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: EA.cyan, textDecoration: "underline", fontWeight: 900,
+                color: RR.cyan, textDecoration: "underline", fontWeight: 900,
                 fontFamily: "var(--font-sans)", fontSize: 12,
               }}>Connecte-toi</button>
             </>
@@ -391,7 +391,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
               <span>Pas encore de compte ?{" "}
                 <button type="button" onClick={() => setTab("signup")} style={{
                   background: "none", border: "none", cursor: "pointer",
-                  color: EA.cyan, textDecoration: "underline", fontWeight: 900,
+                  color: RR.cyan, textDecoration: "underline", fontWeight: 900,
                   fontFamily: "var(--font-sans)", fontSize: 12,
                 }}>Inscris-toi</button>
               </span>
@@ -422,10 +422,10 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           <div style={{
             marginTop: 28,
             display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-            background: "rgba(26,15,94,0.55)", border: `2px dashed ${EA.cyan}`,
+            background: "rgba(26,15,94,0.55)", border: `2px dashed ${RR.cyan}`,
             borderRadius: 20, padding: "16px 20px",
           }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, letterSpacing: 1.6, textTransform: "uppercase" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, letterSpacing: 1.6, textTransform: "uppercase" }}>
               📱 Rejoins depuis ton téléphone
             </div>
             <div

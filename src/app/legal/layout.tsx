@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export default function LegalLayout({ children }: { children: ReactNode }) {
   return (
-    <div style={{ minHeight: "100dvh", background: EA.violetDeep, color: EA.white }}>
+    <div style={{ minHeight: "100dvh", background: RR.violetDeep, color: RR.white }}>
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px 80px" }}>
         <div style={{ marginBottom: 32 }}>
           <Link

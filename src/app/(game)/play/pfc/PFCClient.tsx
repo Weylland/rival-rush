@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { Star } from "@/components/ui/star";
 import { submitPFCMove } from "./actions";
@@ -164,23 +164,23 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
         position: "absolute", inset: 0, opacity: 0.3,
         backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px`,
       }} />
-      <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: desktop ? 620 : 380, height: desktop ? 520 : 280, top: -180, right: -120, opacity: 0.75, pointerEvents: "none", animation: "ea-float 7s ease-in-out infinite" }} preserveAspectRatio="none">
-        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={EA.pink} />
+      <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: desktop ? 620 : 380, height: desktop ? 520 : 280, top: -180, right: -120, opacity: 0.75, pointerEvents: "none", animation: "rr-float 7s ease-in-out infinite" }} preserveAspectRatio="none">
+        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={RR.pink} />
       </svg>
-      <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: desktop ? 520 : 320, height: desktop ? 440 : 260, bottom: -150, left: -100, opacity: 0.55, pointerEvents: "none", animation: "ea-float 9s ease-in-out infinite reverse" }} preserveAspectRatio="none">
-        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={EA.cyan} />
+      <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: desktop ? 520 : 320, height: desktop ? 440 : 260, bottom: -150, left: -100, opacity: 0.55, pointerEvents: "none", animation: "rr-float 9s ease-in-out infinite reverse" }} preserveAspectRatio="none">
+        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={RR.cyan} />
       </svg>
       {desktop && (
-        <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: 380, height: 340, top: "30%", left: -160, opacity: 0.2, pointerEvents: "none", animation: "ea-float 12s ease-in-out infinite" }} preserveAspectRatio="none">
-          <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={EA.butter} />
+        <svg viewBox="0 0 200 200" aria-hidden style={{ position: "absolute", width: 380, height: 340, top: "30%", left: -160, opacity: 0.2, pointerEvents: "none", animation: "rr-float 12s ease-in-out infinite" }} preserveAspectRatio="none">
+          <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={RR.butter} />
         </svg>
       )}
-      <Star color={EA.butter} size={desktop ? 36 : 24} style={{ top: desktop ? "7%" : 100, right: desktop ? "5%" : 28, transform: "rotate(20deg)", animation: "ea-spin-slow 10s linear infinite" }} />
-      <Star color={EA.white} size={desktop ? 22 : 16} style={{ top: desktop ? "22%" : 180, left: desktop ? "4%" : 20, animation: "ea-float 5s ease-in-out infinite" }} />
-      <Star color={EA.cyan} size={desktop ? 18 : 14} style={{ bottom: desktop ? "18%" : 180, right: desktop ? "7%" : 22, transform: "rotate(-10deg)", animation: "ea-spin-slow 14s linear infinite reverse" }} />
-      <Star color={EA.butter} size={desktop ? 14 : 10} style={{ bottom: desktop ? "12%" : 120, left: desktop ? "6%" : 18, animation: "ea-float 7s ease-in-out infinite" }} />
-      {desktop && <Star color={EA.pink} size={20} style={{ top: "45%", right: "3%", animation: "ea-spin-slow 12s linear infinite" }} />}
-      {desktop && <Star color={EA.white} size={12} style={{ top: "60%", left: "3%", transform: "rotate(30deg)", animation: "ea-float 6s ease-in-out infinite reverse" }} />}
+      <Star color={RR.butter} size={desktop ? 36 : 24} style={{ top: desktop ? "7%" : 100, right: desktop ? "5%" : 28, transform: "rotate(20deg)", animation: "rr-spin-slow 10s linear infinite" }} />
+      <Star color={RR.white} size={desktop ? 22 : 16} style={{ top: desktop ? "22%" : 180, left: desktop ? "4%" : 20, animation: "rr-float 5s ease-in-out infinite" }} />
+      <Star color={RR.cyan} size={desktop ? 18 : 14} style={{ bottom: desktop ? "18%" : 180, right: desktop ? "7%" : 22, transform: "rotate(-10deg)", animation: "rr-spin-slow 14s linear infinite reverse" }} />
+      <Star color={RR.butter} size={desktop ? 14 : 10} style={{ bottom: desktop ? "12%" : 120, left: desktop ? "6%" : 18, animation: "rr-float 7s ease-in-out infinite" }} />
+      {desktop && <Star color={RR.pink} size={20} style={{ top: "45%", right: "3%", animation: "rr-spin-slow 12s linear infinite" }} />}
+      {desktop && <Star color={RR.white} size={12} style={{ top: "60%", left: "3%", transform: "rotate(30deg)", animation: "rr-float 6s ease-in-out infinite reverse" }} />}
     </>
   );
 
@@ -188,17 +188,17 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
   if (desktop) {
     if (phase === "revealing" && revealingRound) {
       return (
-        <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {BG}
           <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />
           <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 60px", gap: 36 }}>
             {/* Round label */}
-            <div style={{ display: "inline-block", background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "6px 24px", fontFamily: "var(--font-display)", fontSize: 16, color: EA.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${EA.pink}` }}>
+            <div style={{ display: "inline-block", background: RR.violetDeep, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "6px 24px", fontFamily: "var(--font-display)", fontSize: 16, color: RR.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${RR.pink}` }}>
               MANCHE {revealingRound.round} / 3 — RÉVÉLATION
             </div>
             {/* Result banner */}
-            <div style={{ background: revealDraw ? EA.butter : revealWin ? EA.butter : EA.pink, border: `3px solid ${EA.ink}`, borderRadius: 24, padding: "16px 48px", transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${revealWin ? EA.pink : EA.cyan}, 6px 6px 0 1px ${EA.ink}` }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: EA.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.white}` }}>
+            <div style={{ background: revealDraw ? RR.butter : revealWin ? RR.butter : RR.pink, border: `3px solid ${RR.ink}`, borderRadius: 24, padding: "16px 48px", transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${revealWin ? RR.pink : RR.cyan}, 6px 6px 0 1px ${RR.ink}` }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: RR.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.white}` }}>
                 {getRoundWinnerLabel(revealingRound)}
               </div>
             </div>
@@ -206,27 +206,27 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
             <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
               {/* My hand */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative" }}>
-                {revealWin && <div style={{ position: "absolute", top: -32, left: "50%", transform: "translateX(-50%) rotate(-8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "5px 18px", fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>🏆 GAGNE</div>}
-                <div style={{ width: 200, height: 200, borderRadius: 44, background: revealWin ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 120, boxShadow: revealWin ? `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}` : `4px 4px 0 ${EA.violetDeep}`, transform: revealWin ? "rotate(-3deg) scale(1.05)" : (!revealDraw ? "rotate(4deg) scale(0.9)" : "none"), opacity: (!revealWin && !revealDraw) ? 0.65 : 1 }}>
+                {revealWin && <div style={{ position: "absolute", top: -32, left: "50%", transform: "translateX(-50%) rotate(-8deg)", background: RR.butter, border: `2.5px solid ${RR.ink}`, borderRadius: 999, padding: "5px 18px", fontFamily: "var(--font-display)", fontSize: 15, color: RR.ink, boxShadow: `3px 3px 0 ${RR.ink}`, whiteSpace: "nowrap" }}>🏆 GAGNE</div>}
+                <div style={{ width: 200, height: 200, borderRadius: 44, background: revealWin ? RR.butter : RR.white, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 120, boxShadow: revealWin ? `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}` : `4px 4px 0 ${RR.violetDeep}`, transform: revealWin ? "rotate(-3deg) scale(1.05)" : (!revealDraw ? "rotate(4deg) scale(0.9)" : "none"), opacity: (!revealWin && !revealDraw) ? 0.65 : 1 }}>
                   {revealMyMove ? MOVES.find(m => m.id === revealMyMove)?.emoji : "?"}
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: EA.white, transform: "skewX(-4deg)" }}>{myPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: RR.white, transform: "skewX(-4deg)" }}>{myPseudo.toUpperCase()}</div>
               </div>
               {/* VS */}
-              <div style={{ width: 96, height: 96, borderRadius: "50%", background: EA.pink, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `4px 4px 0 ${EA.cyan}`, flexShrink: 0 }}>VS</div>
+              <div style={{ width: 96, height: 96, borderRadius: "50%", background: RR.pink, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 28, color: RR.white, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `4px 4px 0 ${RR.cyan}`, flexShrink: 0 }}>VS</div>
               {/* Opponent hand */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative" }}>
-                {!revealWin && !revealDraw && <div style={{ position: "absolute", top: -32, left: "50%", transform: "translateX(-50%) rotate(8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "5px 18px", fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>🏆 GAGNE</div>}
-                <div style={{ width: 200, height: 200, borderRadius: 44, background: (!revealWin && !revealDraw) ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 120, boxShadow: (!revealWin && !revealDraw) ? `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}` : `4px 4px 0 ${EA.violetDeep}`, transform: (!revealWin && !revealDraw) ? "rotate(3deg) scale(1.05)" : (revealWin ? "rotate(-4deg) scale(0.9)" : "none"), opacity: (revealWin && !revealDraw) ? 0.65 : 1 }}>
+                {!revealWin && !revealDraw && <div style={{ position: "absolute", top: -32, left: "50%", transform: "translateX(-50%) rotate(8deg)", background: RR.butter, border: `2.5px solid ${RR.ink}`, borderRadius: 999, padding: "5px 18px", fontFamily: "var(--font-display)", fontSize: 15, color: RR.ink, boxShadow: `3px 3px 0 ${RR.ink}`, whiteSpace: "nowrap" }}>🏆 GAGNE</div>}
+                <div style={{ width: 200, height: 200, borderRadius: 44, background: (!revealWin && !revealDraw) ? RR.butter : RR.white, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 120, boxShadow: (!revealWin && !revealDraw) ? `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}` : `4px 4px 0 ${RR.violetDeep}`, transform: (!revealWin && !revealDraw) ? "rotate(3deg) scale(1.05)" : (revealWin ? "rotate(-4deg) scale(0.9)" : "none"), opacity: (revealWin && !revealDraw) ? 0.65 : 1 }}>
                   {revealOpMove ? MOVES.find(m => m.id === revealOpMove)?.emoji : "?"}
                 </div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "rgba(255,255,255,0.7)", transform: "skewX(-4deg)" }}>{opPseudo.toUpperCase()}</div>
               </div>
             </div>
             {/* Score */}
-            <div style={{ background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 20, padding: "18px 40px", boxShadow: `4px 4px 0 ${EA.cyan}`, textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>Score du match</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: EA.white, transform: "skewX(-6deg)", marginTop: 6 }}>
+            <div style={{ background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 20, padding: "18px 40px", boxShadow: `4px 4px 0 ${RR.cyan}`, textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.5 }}>Score du match</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: RR.white, transform: "skewX(-6deg)", marginTop: 6 }}>
                 {myPseudo.toUpperCase()} {myScore} — {opScore} {opPseudo.toUpperCase()}
               </div>
             </div>
@@ -238,27 +238,27 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
 
     // Desktop picking / waiting
     return (
-      <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {BG}
         <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />
         {/* Content wrapper — max-width, bg stays full-screen */}
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
         {/* Top bar */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "24px 48px" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.cyan, transform: "skewX(-6deg)", letterSpacing: 1 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.cyan, transform: "skewX(-6deg)", letterSpacing: 1 }}>
             PIERRE · FEUILLE · CISEAUX
           </div>
           {/* Round dots */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-            <div style={{ display: "inline-block", background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "6px 20px", fontFamily: "var(--font-display)", fontSize: 15, color: EA.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${EA.pink}` }}>
+            <div style={{ display: "inline-block", background: RR.violetDeep, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "6px 20px", fontFamily: "var(--font-display)", fontSize: 15, color: RR.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${RR.pink}` }}>
               MANCHE {activeRoundNum} / 3
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               {[0, 1, 2].map(i => {
                 const r = pfcState.rounds[i];
                 const resolved = r && Object.keys(r.moves).length === 2;
-                const bg = resolved ? (!r.winner_id ? EA.butter : r.winner_id === myId ? EA.cyan : EA.pink) : "rgba(255,255,255,0.2)";
-                return <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: bg, border: `2px solid ${EA.ink}` }} />;
+                const bg = resolved ? (!r.winner_id ? RR.butter : r.winner_id === myId ? RR.cyan : RR.pink) : "rgba(255,255,255,0.2)";
+                return <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: bg, border: `2px solid ${RR.ink}` }} />;
               })}
             </div>
           </div>
@@ -272,11 +272,11 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
           {/* LEFT — Opponent */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 28, padding: "32px 56px 32px 0", borderRight: `2px solid rgba(255,255,255,0.08)` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Avatar name={opPseudo} src={opAvatarUrl} color={opAvatarColor ?? EA.cyan} ring={EA.pink} size={72} />
+              <Avatar name={opPseudo} src={opAvatarUrl} color={opAvatarColor ?? RR.cyan} ring={RR.pink} size={72} />
               <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                  {opponentChose ? <><span style={{ width: 9, height: 9, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 8px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: RR.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{opPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 800, color: opponentChose ? RR.cyan : "rgba(255,255,255,0.4)", marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                  {opponentChose ? <><span style={{ width: 9, height: 9, borderRadius: "50%", background: RR.cyan, boxShadow: `0 0 8px ${RR.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
                 </div>
               </div>
             </div>
@@ -285,23 +285,23 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
 
           {/* CENTER — VS */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 40px", flexShrink: 0 }}>
-            <div style={{ width: 100, height: 100, borderRadius: "50%", background: EA.butter, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 34, color: EA.ink, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `4px 4px 0 ${EA.pink}` }}>VS</div>
+            <div style={{ width: 100, height: 100, borderRadius: "50%", background: RR.butter, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 34, color: RR.ink, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `4px 4px 0 ${RR.pink}` }}>VS</div>
           </div>
 
           {/* RIGHT — Me */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 28, padding: "32px 0 32px 56px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={72} />
+              <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? RR.butter} ring={RR.cyan} size={72} />
               <div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: EA.cyan, letterSpacing: 1, marginTop: 6 }}>MOI</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: RR.white, transform: "skewX(-4deg)", lineHeight: 1 }}>{myPseudo.toUpperCase()}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: RR.cyan, letterSpacing: 1, marginTop: 6 }}>MOI</div>
               </div>
             </div>
             <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 42, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}`, marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 42, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.violetDeep}`, marginBottom: 8 }}>
                 {phase === "waiting" ? "EN ATTENTE…" : "À TOI DE JOUER !"}
               </div>
-              <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 17, fontWeight: 800, color: EA.cyan, marginBottom: 24 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 17, fontWeight: 800, color: RR.cyan, marginBottom: 24 }}>
                 {phase === "waiting" ? `${opPseudo} doit encore choisir 🔒` : "Tape pour choisir — révélation simultanée 🔒"}
               </div>
               <ChoiceButtons vertical phase={phase} myMove={myMove} submitting={submitting} onPick={handlePick} />
@@ -318,7 +318,7 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
 
   // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
   return (
-    <div style={{ position: "absolute", inset: 0, background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "absolute", inset: 0, background: RR.violet, overflow: "hidden" }}>
       <RulesButton gameType="pfc" />
       {BG}
 
@@ -326,35 +326,35 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
         <>
           <div style={{ position: "absolute", top: 56, left: 0, right: 0, padding: "0 18px" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-              <div style={{ background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "4px 14px", fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${EA.pink}` }}>MANCHE {activeRoundNum} / 3</div>
+              <div style={{ background: RR.violetDeep, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "4px 14px", fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${RR.pink}` }}>MANCHE {activeRoundNum} / 3</div>
             </div>
-            <div style={{ background: "rgba(26,15,94,0.55)", border: `2.5px solid ${EA.ink}`, borderRadius: 22, padding: "14px 14px 16px" }}>
+            <div style={{ background: "rgba(26,15,94,0.55)", border: `2.5px solid ${RR.ink}`, borderRadius: 22, padding: "14px 14px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-                  <Avatar name={opPseudo} src={opAvatarUrl} color={opAvatarColor ?? EA.cyan} ring={EA.pink} size={36} />
+                  <Avatar name={opPseudo} src={opAvatarUrl} color={opAvatarColor ?? RR.cyan} ring={RR.pink} size={36} />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
-                    <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: opponentChose ? EA.cyan : "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
-                      {opponentChose ? <><span style={{ width: 6, height: 6, borderRadius: "50%", background: EA.cyan, boxShadow: `0 0 6px ${EA.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
+                    <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: opponentChose ? RR.cyan : "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
+                      {opponentChose ? <><span style={{ width: 6, height: 6, borderRadius: "50%", background: RR.cyan, boxShadow: `0 0 6px ${RR.cyan}`, display: "inline-block" }} />A choisi !</> : "Réfléchit…"}
                     </div>
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.cyan, transform: "skewX(-8deg)", flexShrink: 0 }}>{opScore} — {myScore}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.cyan, transform: "skewX(-8deg)", flexShrink: 0 }}>{opScore} — {myScore}</div>
               </div>
               <FaceDownCard chose={opponentChose} height={96} />
             </div>
           </div>
 
           <div style={{ position: "absolute", top: 332, left: "50%", transform: "translate(-50%, -50%)", zIndex: 10 }}>
-            <div style={{ width: 70, height: 70, borderRadius: "50%", background: EA.butter, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 26, color: EA.ink, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `3px 3px 0 ${EA.pink}` }}>VS</div>
+            <div style={{ width: 70, height: 70, borderRadius: "50%", background: RR.butter, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 26, color: RR.ink, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `3px 3px 0 ${RR.pink}` }}>VS</div>
           </div>
 
           <div style={{ position: "absolute", bottom: 50, left: 0, right: 0, padding: "0 18px", zIndex: 5 }}>
             <div style={{ textAlign: "center", marginBottom: 10 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}` }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.violetDeep}` }}>
                 {phase === "waiting" ? "EN ATTENTE…" : "À TOI DE JOUER !"}
               </div>
-              <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 800, color: EA.cyan, marginTop: 4 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 800, color: RR.cyan, marginTop: 4 }}>
                 {phase === "waiting" ? `${opPseudo} doit encore choisir` : "tape pour choisir — révélation simultanée 🔒"}
               </div>
             </div>
@@ -369,39 +369,39 @@ export function PFCClient({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo, p1Avat
       {phase === "revealing" && revealingRound && (
         <>
           <div style={{ position: "absolute", top: 60, left: 0, right: 0, textAlign: "center", zIndex: 5 }}>
-            <div style={{ display: "inline-block", background: EA.violetDeep, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "4px 14px", fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${EA.pink}` }}>MANCHE {revealingRound.round} / 3 — RÉVÉLATION</div>
+            <div style={{ display: "inline-block", background: RR.violetDeep, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "4px 14px", fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, letterSpacing: 1.4, boxShadow: `2px 2px 0 ${RR.pink}` }}>MANCHE {revealingRound.round} / 3 — RÉVÉLATION</div>
           </div>
           <div style={{ position: "absolute", top: 110, left: 16, right: 16, textAlign: "center", zIndex: 8 }}>
-            <div style={{ display: "inline-block", background: revealDraw ? EA.butter : revealWin ? EA.butter : EA.pink, border: `3px solid ${EA.ink}`, borderRadius: 18, padding: "8px 20px", transform: "rotate(-2deg)", boxShadow: `5px 5px 0 ${revealWin ? EA.pink : EA.cyan}, 5px 5px 0 1px ${EA.ink}` }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: EA.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.white}` }}>{getRoundWinnerLabel(revealingRound)}</div>
+            <div style={{ display: "inline-block", background: revealDraw ? RR.butter : revealWin ? RR.butter : RR.pink, border: `3px solid ${RR.ink}`, borderRadius: 18, padding: "8px 20px", transform: "rotate(-2deg)", boxShadow: `5px 5px 0 ${revealWin ? RR.pink : RR.cyan}, 5px 5px 0 1px ${RR.ink}` }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: RR.ink, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.white}` }}>{getRoundWinnerLabel(revealingRound)}</div>
             </div>
           </div>
           <div style={{ position: "absolute", top: 240, left: 12, right: 12, display: "flex", alignItems: "center", gap: 8, zIndex: 5 }}>
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
-              {revealWin && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(-8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
-              <div style={{ width: 110, height: 110, borderRadius: 28, background: revealWin ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: revealWin ? `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}` : `3px 3px 0 ${EA.violetDeep}`, transform: revealWin ? "rotate(-3deg) scale(1.05)" : (!revealDraw ? "rotate(4deg) scale(0.92)" : "none"), opacity: (!revealWin && !revealDraw) ? 0.7 : 1 }}>
+              {revealWin && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(-8deg)", background: RR.butter, border: `2.5px solid ${RR.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink, boxShadow: `3px 3px 0 ${RR.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
+              <div style={{ width: 110, height: 110, borderRadius: 28, background: revealWin ? RR.butter : RR.white, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: revealWin ? `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}` : `3px 3px 0 ${RR.violetDeep}`, transform: revealWin ? "rotate(-3deg) scale(1.05)" : (!revealDraw ? "rotate(4deg) scale(0.92)" : "none"), opacity: (!revealWin && !revealDraw) ? 0.7 : 1 }}>
                 {revealMyMove ? MOVES.find(m => m.id === revealMyMove)?.emoji : "?"}
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (!revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, transform: "skewX(-4deg)", opacity: (!revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
             </div>
-            <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: "50%", background: EA.pink, border: `2.5px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `3px 3px 0 ${EA.cyan}` }}>VS</div>
+            <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: "50%", background: RR.pink, border: `2.5px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, transform: "skewX(-8deg) rotate(-6deg)", boxShadow: `3px 3px 0 ${RR.cyan}` }}>VS</div>
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
-              {!revealWin && !revealDraw && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(8deg)", background: EA.butter, border: `2.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, boxShadow: `3px 3px 0 ${EA.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
-              <div style={{ width: 110, height: 110, borderRadius: 28, background: (!revealWin && !revealDraw) ? EA.butter : EA.white, border: `3px solid ${EA.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: (!revealWin && !revealDraw) ? `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}` : `3px 3px 0 ${EA.violetDeep}`, transform: (!revealWin && !revealDraw) ? "rotate(3deg) scale(1.05)" : (revealWin ? "rotate(-4deg) scale(0.92)" : "none"), opacity: (revealWin && !revealDraw) ? 0.7 : 1 }}>
+              {!revealWin && !revealDraw && <div style={{ position: "absolute", top: -22, left: "50%", transform: "translateX(-50%) rotate(8deg)", background: RR.butter, border: `2.5px solid ${RR.ink}`, borderRadius: 999, padding: "4px 12px", fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink, boxShadow: `3px 3px 0 ${RR.ink}`, whiteSpace: "nowrap", zIndex: 5 }}>🏆 GAGNE</div>}
+              <div style={{ width: 110, height: 110, borderRadius: 28, background: (!revealWin && !revealDraw) ? RR.butter : RR.white, border: `3px solid ${RR.ink}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 62, boxShadow: (!revealWin && !revealDraw) ? `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}` : `3px 3px 0 ${RR.violetDeep}`, transform: (!revealWin && !revealDraw) ? "rotate(3deg) scale(1.05)" : (revealWin ? "rotate(-4deg) scale(0.92)" : "none"), opacity: (revealWin && !revealDraw) ? 0.7 : 1 }}>
                 {revealOpMove ? MOVES.find(m => m.id === revealOpMove)?.emoji : "?"}
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)", opacity: (revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, transform: "skewX(-4deg)", opacity: (revealWin && !revealDraw) ? 0.6 : 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
             </div>
           </div>
-          <div style={{ position: "absolute", top: 420, left: 24, right: 24, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `4px 4px 0 ${EA.cyan}`, zIndex: 5 }}>
+          <div style={{ position: "absolute", top: 420, left: 24, right: 24, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 18, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `4px 4px 0 ${RR.cyan}`, zIndex: 5 }}>
             <div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.2 }}>Score du match</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-8deg)", marginTop: 2 }}>{myPseudo.toUpperCase()} {myScore} — {opScore} {opPseudo.toUpperCase()}</div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.2 }}>Score du match</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.white, transform: "skewX(-8deg)", marginTop: 2 }}>{myPseudo.toUpperCase()} {myScore} — {opScore} {opPseudo.toUpperCase()}</div>
             </div>
           </div>
           <div style={{ position: "absolute", bottom: 50, left: 24, right: 24, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.55)", zIndex: 5 }}>auto dans 3 sec...</div>
-          <Star color={EA.butter} size={22} style={{ top: 200, left: 24, transform: "rotate(15deg)" }} />
-          <Star color={EA.white} size={14} style={{ top: 180, right: 30 }} />
+          <Star color={RR.butter} size={22} style={{ top: 200, left: 24, transform: "rotate(15deg)" }} />
+          <Star color={RR.white} size={14} style={{ top: 180, right: 30 }} />
         </>
       )}
       <PreventLeave enabled={initialStatus !== "finished"} gameId={gameId} />

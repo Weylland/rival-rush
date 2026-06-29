@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export default function NotFound() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violetDeep,
+      background: RR.violetDeep,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -19,8 +19,8 @@ export default function NotFound() {
         fontFamily: "var(--font-righteous)",
         fontSize: "clamp(96px, 25vw, 160px)",
         lineHeight: 1,
-        color: EA.pink,
-        textShadow: `6px 6px 0 ${EA.cyan}`,
+        color: RR.pink,
+        textShadow: `6px 6px 0 ${RR.cyan}`,
         transform: "skewX(-8deg)",
         userSelect: "none",
       }}>
@@ -31,7 +31,7 @@ export default function NotFound() {
         <div style={{
           fontFamily: "var(--font-righteous)",
           fontSize: "clamp(18px, 5vw, 28px)",
-          color: EA.white,
+          color: RR.white,
           transform: "skewX(-4deg)",
         }}>
           PAGE INTROUVABLE
@@ -53,13 +53,13 @@ export default function NotFound() {
         style={{
           fontFamily: "var(--font-righteous)",
           fontSize: 15,
-          color: EA.ink,
-          background: EA.cyan,
-          border: `2.5px solid ${EA.ink}`,
+          color: RR.ink,
+          background: RR.cyan,
+          border: `2.5px solid ${RR.ink}`,
           borderRadius: 999,
           padding: "14px 32px",
           textDecoration: "none",
-          boxShadow: `4px 4px 0 ${EA.pink}`,
+          boxShadow: `4px 4px 0 ${RR.pink}`,
           transform: "skewX(-4deg)",
           display: "inline-block",
           transition: "transform 0.1s, box-shadow 0.1s",

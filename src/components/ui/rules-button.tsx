@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import type { GameType } from "@/types/database";
 
@@ -147,11 +147,11 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
           // au-dessus de lui pour ne rien recouvrir (ni le chat, ni les contrôles à droite).
           position: "fixed", bottom: desktop ? 16 : 86, left: 16, zIndex: 200,
           width: 36, height: 36, borderRadius: "50%",
-          background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
-          color: EA.cyan, cursor: "pointer",
+          background: RR.violetDeep, border: `2.5px solid ${RR.cyan}`,
+          color: RR.cyan, cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "var(--font-display)", fontSize: 16,
-          boxShadow: `3px 3px 0 ${EA.cyan}`,
+          boxShadow: `3px 3px 0 ${RR.cyan}`,
         }}
       >?</button>
 
@@ -163,16 +163,16 @@ export function RulesButton({ gameType }: { gameType: GameType }) {
           <div
             style={{
               width: "100%", maxWidth: 440,
-              background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+              background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
               borderRadius: 24, padding: "20px 18px",
-              boxShadow: `5px 5px 0 ${EA.cyan}, 5px 5px 0 1px ${EA.ink}`,
+              boxShadow: `5px 5px 0 ${RR.cyan}, 5px 5px 0 1px ${RR.ink}`,
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 24, lineHeight: 1 }}>{rules.icon}</span>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, transform: "skewX(-4deg)" }}>
                   {rules.title.toUpperCase()}
                 </div>
               </div>

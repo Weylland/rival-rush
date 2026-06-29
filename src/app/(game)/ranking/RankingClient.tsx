@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import type { LeaderboardEntry } from "@/types/database";
 
@@ -147,19 +147,19 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
             width: "100%",
             fontFamily: "var(--font-display)",
             fontSize: 16,
-            color: EA.white,
-            background: EA.violetDeep,
-            border: `2.5px solid ${EA.pink}`,
+            color: RR.white,
+            background: RR.violetDeep,
+            border: `2.5px solid ${RR.pink}`,
             borderRadius: 14,
             padding: "13px 48px 13px 18px",
             appearance: "none",
             cursor: "pointer",
-            boxShadow: `3px 3px 0 ${EA.pink}`,
+            boxShadow: `3px 3px 0 ${RR.pink}`,
             outline: "none",
           }}
         >
           {(Object.keys(TAB_LABELS) as Tab[]).map(t => (
-            <option key={t} value={t} style={{ background: EA.violetDeep, color: EA.white }}>
+            <option key={t} value={t} style={{ background: RR.violetDeep, color: RR.white }}>
               {TAB_LABELS[t]}
             </option>
           ))}
@@ -167,7 +167,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         {/* Chevron */}
         <span aria-hidden style={{
           position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
-          fontSize: 16, color: EA.pink, pointerEvents: "none",
+          fontSize: 16, color: RR.pink, pointerEvents: "none",
         }}>▾</span>
       </div>
 
@@ -183,7 +183,7 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
         marginBottom: 10, padding: "0 14px",
       }}>
         <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>JOUEUR</div>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>V</div>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>V</div>
       </div>
 
       {/* Rows */}
@@ -198,11 +198,11 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
           const isExpanded = expandedId === row.playerId || (expandedId === null && i === 0);
           const podium = i < 3 ? PODIUM_STYLES[i] : null;
 
-          const borderColor = podium ? podium.border : isMe ? EA.cyan : EA.ink;
-          const bgColor     = podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep;
+          const borderColor = podium ? podium.border : isMe ? RR.cyan : RR.ink;
+          const bgColor     = podium ? podium.bg : isMe ? "rgba(0,212,232,0.12)" : RR.violetDeep;
           const boxShadow   = isMe && !podium
-            ? `3px 3px 0 ${EA.cyan}`
-            : podium ? `3px 3px 0 ${podium.border}` : `2px 2px 0 ${EA.ink}`;
+            ? `3px 3px 0 ${RR.cyan}`
+            : podium ? `3px 3px 0 ${podium.border}` : `2px 2px 0 ${RR.ink}`;
 
           return (
             <div
@@ -222,13 +222,13 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 48px", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <span style={{ fontSize: 20, minWidth: 26, flexShrink: 0 }}>{MEDALS[i] ?? `#${i + 1}`}</span>
-                  <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={34} podiumRank={podium ? i as 0 | 1 | 2 : undefined} />
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
+                  <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? RR.cyan} ring={isMe ? RR.cyan : "transparent"} size={34} podiumRank={podium ? i as 0 | 1 | 2 : undefined} />
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: isMe ? RR.cyan : RR.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
                     {row.pseudo.toUpperCase()}
-                    {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 5 }}>TOI</span>}
+                    {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: RR.cyan, marginLeft: 5 }}>TOI</span>}
                   </div>
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.cyan, textAlign: "center", transform: "skewX(-4deg)" }}>{row.wins}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.cyan, textAlign: "center", transform: "skewX(-4deg)" }}>{row.wins}</div>
               </div>
 
               {/* Détails (expandable) */}
@@ -239,10 +239,10 @@ export function RankingClient({ myPlayerId, initialEntries }: Props) {
                   display: "flex", gap: 8, justifyContent: "space-around",
                 }}>
                   {[
-                    { label: "Victoires", val: row.wins, color: EA.cyan },
-                    { label: "Défaites",  val: row.losses, color: EA.pink },
-                    { label: "Nuls",      val: row.draws, color: EA.butter },
-                    ...(tab === "global" ? [{ label: "Points", val: row.pts ?? 0, color: EA.white }] : []),
+                    { label: "Victoires", val: row.wins, color: RR.cyan },
+                    { label: "Défaites",  val: row.losses, color: RR.pink },
+                    { label: "Nuls",      val: row.draws, color: RR.butter },
+                    ...(tab === "global" ? [{ label: "Points", val: row.pts ?? 0, color: RR.white }] : []),
                   ].map(({ label, val, color }) => (
                     <div key={label} style={{ textAlign: "center" }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color, transform: "skewX(-4deg)" }}>{val}</div>

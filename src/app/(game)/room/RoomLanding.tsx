@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
@@ -95,26 +95,26 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.3,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.55) 1.4px, transparent 1.8px)",
         backgroundSize: "16px 16px",
       }} />
-      <SvgBlob color={EA.pink} style={{ width: 500, height: 440, top: -200, right: -160, opacity: 0.65, animation: "ea-float 6s ease-in-out infinite" }} />
-      <SvgBlob color={EA.butter} style={{ width: 380, height: 340, bottom: -160, left: -130, opacity: 0.45, animation: "ea-float 8s ease-in-out infinite reverse" }} />
-      <Star color={EA.cyan} size={32} style={{ top: "12%", left: "6%", animation: "ea-spin-slow 12s linear infinite" }} />
-      <Star color={EA.pink} size={20} style={{ top: "40%", right: "4%", animation: "ea-float 5s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 500, height: 440, top: -200, right: -160, opacity: 0.65, animation: "rr-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={RR.butter} style={{ width: 380, height: 340, bottom: -160, left: -130, opacity: 0.45, animation: "rr-float 8s ease-in-out infinite reverse" }} />
+      <Star color={RR.cyan} size={32} style={{ top: "12%", left: "6%", animation: "rr-spin-slow 12s linear infinite" }} />
+      <Star color={RR.pink} size={20} style={{ top: "40%", right: "4%", animation: "rr-float 5s ease-in-out infinite" }} />
 
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 80px" : "16px 16px 80px" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: desktop ? 28 : 18 }}>
           <div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 13 : 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 13 : 10, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>
               Salles privées
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 48 : 30, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 48 : 30, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1 }}>
               LES SALLES
             </div>
           </div>
@@ -129,16 +129,16 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
         {/* Tabs */}
         <div style={{
           display: "flex", background: "rgba(26,15,94,0.55)",
-          border: `2px solid ${EA.ink}`, borderRadius: 999, padding: 4, marginBottom: 20,
+          border: `2px solid ${RR.ink}`, borderRadius: 999, padding: 4, marginBottom: 20,
         }}>
           {(["join", "create"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
-              flex: 1, background: tab === t ? (t === "create" ? EA.cyan : EA.pink) : "transparent",
+              flex: 1, background: tab === t ? (t === "create" ? RR.cyan : RR.pink) : "transparent",
               border: "none", borderRadius: 999, padding: desktop ? "12px 0" : "9px 0",
               fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13,
-              color: tab === t ? (t === "create" ? EA.ink : EA.white) : "rgba(255,255,255,0.55)",
+              color: tab === t ? (t === "create" ? RR.ink : RR.white) : "rgba(255,255,255,0.55)",
               cursor: "pointer",
-              boxShadow: tab === t ? `2px 2px 0 ${EA.ink}` : "none",
+              boxShadow: tab === t ? `2px 2px 0 ${RR.ink}` : "none",
             }}>
               {t === "join" ? "🔍 REJOINDRE" : "✨ CRÉER"}
             </button>
@@ -150,11 +150,11 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Join by code */}
             <div style={{
-              background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+              background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
               borderRadius: 22, padding: desktop ? "22px 24px" : "16px 18px",
-              boxShadow: `4px 4px 0 ${EA.pink}`,
+              boxShadow: `4px 4px 0 ${RR.pink}`,
             }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 16, color: EA.white, marginBottom: 14 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 16, color: RR.white, marginBottom: 14 }}>
                 🔑 Rejoindre par code
               </div>
               <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -164,9 +164,9 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                   placeholder="Ex : ARENA7"
                   maxLength={6}
                   style={{
-                    background: "rgba(255,255,255,0.07)", border: `2px solid ${EA.ink}`,
+                    background: "rgba(255,255,255,0.07)", border: `2px solid ${RR.ink}`,
                     borderRadius: 14, padding: "12px 16px",
-                    fontFamily: "var(--font-display)", fontSize: 22, color: EA.white,
+                    fontFamily: "var(--font-display)", fontSize: 22, color: RR.white,
                     textAlign: "center", letterSpacing: 6, textTransform: "uppercase",
                     outline: "none", width: "100%", boxSizing: "border-box",
                   }}
@@ -177,26 +177,26 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                     onChange={e => setJoinPassword(e.target.value)}
                     placeholder="Mot de passe de la salle"
                     style={{
-                      background: "rgba(255,255,255,0.07)", border: `2px solid ${EA.butter}`,
+                      background: "rgba(255,255,255,0.07)", border: `2px solid ${RR.butter}`,
                       borderRadius: 14, padding: "12px 16px",
-                      fontFamily: "var(--font-sans)", fontSize: 15, color: EA.white,
+                      fontFamily: "var(--font-sans)", fontSize: 15, color: RR.white,
                       outline: "none", width: "100%", boxSizing: "border-box",
                     }}
                   />
                 )}
                 {joinError && (
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.pink }}>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.pink }}>
                     ⚠ {joinError}
                   </div>
                 )}
                 <button type="submit" disabled={joiningPending || joinCode.length !== 6}
                   style={{
-                    background: EA.pink, border: `2.5px solid ${EA.ink}`,
+                    background: RR.pink, border: `2.5px solid ${RR.ink}`,
                     borderRadius: 14, padding: "14px",
-                    fontFamily: "var(--font-display)", fontSize: 17, color: EA.white,
+                    fontFamily: "var(--font-display)", fontSize: 17, color: RR.white,
                     cursor: joiningPending || joinCode.length !== 6 ? "default" : "pointer",
                     opacity: joinCode.length !== 6 ? 0.45 : 1,
-                    boxShadow: `3px 3px 0 ${EA.ink}`, transition: "opacity .15s",
+                    boxShadow: `3px 3px 0 ${RR.ink}`, transition: "opacity .15s",
                   }}>
                   {joiningPending ? "Connexion…" : needsPassword ? "Entrer avec le mot de passe →" : "Rejoindre →"}
                 </button>
@@ -213,28 +213,28 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                   {publicRooms.map(r => (
                     <Link key={r.id} href={`/room/${r.code}`} style={{ textDecoration: "none" }}>
                       <div style={{
-                        background: EA.white, border: `2.5px solid ${EA.ink}`,
+                        background: RR.white, border: `2.5px solid ${RR.ink}`,
                         borderRadius: 18, padding: desktop ? "14px 18px" : "12px 14px",
-                        boxShadow: `3px 3px 0 ${EA.cyan}`,
+                        boxShadow: `3px 3px 0 ${RR.cyan}`,
                         display: "flex", alignItems: "center", gap: 12,
                         transition: "transform .1s, box-shadow .1s",
                         cursor: "pointer",
                       }}
                         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translate(3px,3px)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = `3px 3px 0 ${EA.cyan}`; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = `3px 3px 0 ${RR.cyan}`; }}
                       >
                         <div style={{
                           width: 44, height: 44, borderRadius: 12,
-                          background: EA.cyan, border: `2px solid ${EA.ink}`,
+                          background: RR.cyan, border: `2px solid ${RR.ink}`,
                           display: "flex", alignItems: "center", justifyContent: "center",
-                          fontFamily: "var(--font-display)", fontSize: 11, color: EA.ink,
+                          fontFamily: "var(--font-display)", fontSize: 11, color: RR.ink,
                           letterSpacing: 1, fontWeight: 900, flexShrink: 0,
                         }}>{r.code}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 15, color: EA.ink, transform: "skewX(-3deg)" }}>
+                          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 15, color: RR.ink, transform: "skewX(-3deg)" }}>
                             {r.name}
                           </div>
-                          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: EA.violetDeep, marginTop: 2 }}>
+                          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: RR.violetDeep, marginTop: 2 }}>
                             🏠 {r.hostPseudo} · {r.memberCount} joueur{r.memberCount > 1 ? "s" : ""}{r.maxMembers ? ` / ${r.maxMembers}` : ""}
                           </div>
                         </div>
@@ -276,12 +276,12 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                   <button key={String(pub)} type="button" onClick={() => setIsPublic(pub)}
                     style={{
                       flex: 1, padding: "12px 0", borderRadius: 14,
-                      background: isPublic === pub ? (pub ? EA.cyan : EA.butter) : "rgba(255,255,255,0.06)",
-                      border: `2px solid ${isPublic === pub ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                      background: isPublic === pub ? (pub ? RR.cyan : RR.butter) : "rgba(255,255,255,0.06)",
+                      border: `2px solid ${isPublic === pub ? RR.ink : "rgba(255,255,255,0.15)"}`,
                       fontFamily: "var(--font-display)", fontSize: 14,
-                      color: isPublic === pub ? EA.ink : "rgba(255,255,255,0.55)",
+                      color: isPublic === pub ? RR.ink : "rgba(255,255,255,0.55)",
                       cursor: "pointer",
-                      boxShadow: isPublic === pub ? `2px 2px 0 ${EA.ink}` : "none",
+                      boxShadow: isPublic === pub ? `2px 2px 0 ${RR.ink}` : "none",
                     }}>
                     {pub ? "🌐 Publique" : "🔒 Privée"}
                   </button>
@@ -331,12 +331,12 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                   <button key={opt.value} type="button" onClick={() => setExpiration(opt.value)}
                     style={{
                       padding: "9px 16px", borderRadius: 999,
-                      background: expiration === opt.value ? EA.pink : "rgba(255,255,255,0.06)",
-                      border: `2px solid ${expiration === opt.value ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                      background: expiration === opt.value ? RR.pink : "rgba(255,255,255,0.06)",
+                      border: `2px solid ${expiration === opt.value ? RR.ink : "rgba(255,255,255,0.15)"}`,
                       fontFamily: "var(--font-display)", fontSize: 13,
-                      color: expiration === opt.value ? EA.white : "rgba(255,255,255,0.55)",
+                      color: expiration === opt.value ? RR.white : "rgba(255,255,255,0.55)",
                       cursor: "pointer",
-                      boxShadow: expiration === opt.value ? `2px 2px 0 ${EA.ink}` : "none",
+                      boxShadow: expiration === opt.value ? `2px 2px 0 ${RR.ink}` : "none",
                     }}>
                     {opt.label}
                   </button>
@@ -360,9 +360,9 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
                         style={{
                           padding: "7px 12px", borderRadius: 999,
                           background: selected ? "#4ADE80" : "rgba(255,255,255,0.06)",
-                          border: `2px solid ${selected ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                          border: `2px solid ${selected ? RR.ink : "rgba(255,255,255,0.15)"}`,
                           fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800,
-                          color: selected ? EA.ink : "rgba(255,255,255,0.55)",
+                          color: selected ? RR.ink : "rgba(255,255,255,0.55)",
                           cursor: "pointer",
                         }}>
                         {GAME_LABELS[g]}
@@ -374,19 +374,19 @@ export function RoomLanding({ publicRooms }: { myPlayerId: string; publicRooms: 
             </ToggleField>
 
             {createError && (
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: EA.pink }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800, color: RR.pink }}>
                 ⚠ {createError}
               </div>
             )}
 
             <button type="submit" disabled={createPending || !roomName.trim()}
               style={{
-                background: EA.cyan, border: `2.5px solid ${EA.ink}`,
+                background: RR.cyan, border: `2.5px solid ${RR.ink}`,
                 borderRadius: 16, padding: "16px",
-                fontFamily: "var(--font-display)", fontSize: 18, color: EA.ink,
+                fontFamily: "var(--font-display)", fontSize: 18, color: RR.ink,
                 cursor: createPending || !roomName.trim() ? "default" : "pointer",
                 opacity: !roomName.trim() ? 0.45 : 1,
-                boxShadow: `4px 4px 0 ${EA.ink}`,
+                boxShadow: `4px 4px 0 ${RR.ink}`,
                 transition: "opacity .15s, transform .1s",
               }}>
               {createPending ? "Création…" : "✨ CRÉER LA SALLE"}
@@ -417,12 +417,12 @@ function ToggleField({ label, description, checked, onChange, children }: {
 }) {
   return (
     <div style={{
-      background: "rgba(255,255,255,0.04)", border: `2px solid ${checked ? EA.cyan : "rgba(255,255,255,0.1)"}`,
+      background: "rgba(255,255,255,0.04)", border: `2px solid ${checked ? RR.cyan : "rgba(255,255,255,0.1)"}`,
       borderRadius: 16, padding: "14px 16px", transition: "border-color .15s",
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white }}>{label}</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white }}>{label}</div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{description}</div>
         </div>
         <button
@@ -430,8 +430,8 @@ function ToggleField({ label, description, checked, onChange, children }: {
           onClick={() => onChange(!checked)}
           style={{
             width: 44, height: 24, borderRadius: 12, flexShrink: 0,
-            background: checked ? EA.cyan : "rgba(255,255,255,0.15)",
-            border: `2px solid ${EA.ink}`, cursor: "pointer",
+            background: checked ? RR.cyan : "rgba(255,255,255,0.15)",
+            border: `2px solid ${RR.ink}`, cursor: "pointer",
             position: "relative", transition: "background .2s",
           }}
         >
@@ -439,7 +439,7 @@ function ToggleField({ label, description, checked, onChange, children }: {
             position: "absolute", top: 2,
             left: checked ? "calc(100% - 20px)" : 2,
             width: 16, height: 16, borderRadius: "50%",
-            background: EA.white, transition: "left .2s",
+            background: RR.white, transition: "left .2s",
           }} />
         </button>
       </div>

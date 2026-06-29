@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
@@ -155,7 +155,7 @@ export function PlusOuMoinsClient({
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       display: "flex", flexDirection: "column",
       alignItems: "center",
       padding: "20px 16px 60px",
@@ -174,10 +174,10 @@ export function PlusOuMoinsClient({
 
       {/* Blob déco (couleur selon chaleur) */}
       <svg viewBox="0 0 200 200" aria-hidden style={{ position: "fixed", width: 360, height: 280, top: -130, right: -100, opacity: 0.3, pointerEvents: "none", zIndex: 0 }} preserveAspectRatio="none">
-        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={showHeat ? heat.color : EA.cyan} style={{ transition: "fill 0.8s" }} />
+        <path d="M 40 60 Q 30 20 80 25 Q 140 10 165 50 Q 195 90 175 140 Q 155 185 100 180 Q 40 190 25 140 Q 5 95 40 60 Z" fill={showHeat ? heat.color : RR.cyan} style={{ transition: "fill 0.8s" }} />
       </svg>
       <svg viewBox="0 0 200 200" aria-hidden style={{ position: "fixed", width: 300, height: 240, bottom: -100, left: -80, opacity: 0.22, pointerEvents: "none", zIndex: 0 }} preserveAspectRatio="none">
-        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={EA.pink} />
+        <path d="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" fill={RR.pink} />
       </svg>
 
       {/* ── HEADER : joueurs + scores ── */}
@@ -187,15 +187,15 @@ export function PlusOuMoinsClient({
         position: "relative", zIndex: 2,
       }}>
         {/* Moi */}
-        <PlayerScore pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} accent={EA.cyan} avatarColor={myAvatarColor ?? EA.butter} active={isMyTurn && !isFinished} />
+        <PlayerScore pseudo={myPseudo} avatarUrl={myAvatarUrl} score={myScore} accent={RR.cyan} avatarColor={myAvatarColor ?? RR.butter} active={isMyTurn && !isFinished} />
 
         {/* Centre */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
           <div style={{
-            background: EA.violetDeep, border: `2px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2px solid ${RR.ink}`,
             borderRadius: 999, padding: "4px 14px",
-            fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, letterSpacing: 1.4,
-            boxShadow: `2px 2px 0 ${EA.pink}`,
+            fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, letterSpacing: 1.4,
+            boxShadow: `2px 2px 0 ${RR.pink}`,
             animation: flashRound ? "pom-flash 0.4s ease" : "none",
           }}>
             MANCHE {current_round} / 3
@@ -204,7 +204,7 @@ export function PlusOuMoinsClient({
         </div>
 
         {/* Adversaire */}
-        <PlayerScore pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} accent={EA.pink} avatarColor={opAvatarColor ?? EA.pink} active={!isMyTurn && !isFinished} />
+        <PlayerScore pseudo={opPseudo} avatarUrl={opAvatarUrl} score={opScore} accent={RR.pink} avatarColor={opAvatarColor ?? RR.pink} active={!isMyTurn && !isFinished} />
       </div>
 
       {/* ── BARRE DE RANGE ── */}
@@ -212,7 +212,7 @@ export function PlusOuMoinsClient({
         width: "100%", maxWidth: 480,
         position: "relative", zIndex: 2,
         background: "rgba(255,255,255,0.06)",
-        border: `2px solid ${barTension ? (showHeat ? heat.color : EA.pink) : "rgba(255,255,255,0.12)"}`,
+        border: `2px solid ${barTension ? (showHeat ? heat.color : RR.pink) : "rgba(255,255,255,0.12)"}`,
         borderRadius: 20, padding: "16px 16px 14px",
         boxShadow: barTension ? `0 0 20px rgba(255,30,140,0.2)` : "none",
         transition: "border-color 0.4s, box-shadow 0.4s",
@@ -236,7 +236,7 @@ export function PlusOuMoinsClient({
             height: "100%",
             background: showHeat
               ? `linear-gradient(90deg, ${heat.color}99, ${heat.color})`
-              : `linear-gradient(90deg, ${EA.cyan}99, ${EA.cyan})`,
+              : `linear-gradient(90deg, ${RR.cyan}99, ${RR.cyan})`,
             borderRadius: 999,
             boxShadow: showHeat ? `0 0 12px ${heat.glow}` : `0 0 8px rgba(0,212,232,0.4)`,
             transition: "left 0.4s ease, width 0.4s ease, background 0.6s, box-shadow 0.6s",
@@ -257,8 +257,8 @@ export function PlusOuMoinsClient({
                   transform: "translate(-50%, -50%)",
                   width: 10, height: 10,
                   borderRadius: "50%",
-                  background: isMe ? EA.butter : EA.pink,
-                  border: `2px solid ${EA.ink}`,
+                  background: isMe ? RR.butter : RR.pink,
+                  border: `2px solid ${RR.ink}`,
                   zIndex: 3,
                 }}
               />
@@ -270,7 +270,7 @@ export function PlusOuMoinsClient({
         <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
           <div style={{
             fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
-            color: barTension ? (showHeat ? heat.color : EA.pink) : "rgba(255,255,255,0.35)",
+            color: barTension ? (showHeat ? heat.color : RR.pink) : "rgba(255,255,255,0.35)",
             textTransform: "uppercase", letterSpacing: 1.2,
             transition: "color 0.4s",
             animation: barTension ? "pom-pulse 1.5s ease-in-out infinite" : "none",
@@ -296,9 +296,9 @@ export function PlusOuMoinsClient({
             {/* Feedback principal */}
             <div style={{
               fontFamily: "var(--font-display)", fontSize: 36,
-              color: lastFeedback.feedback === "plus" ? EA.cyan : EA.pink,
+              color: lastFeedback.feedback === "plus" ? RR.cyan : RR.pink,
               transform: "skewX(-6deg)",
-              textShadow: `3px 3px 0 ${EA.ink}`,
+              textShadow: `3px 3px 0 ${RR.ink}`,
               letterSpacing: 2,
             }}>
               {lastFeedback.feedback === "plus" ? "PLUS ↑" : "MOINS ↓"}
@@ -324,9 +324,9 @@ export function PlusOuMoinsClient({
         {lastFeedback?.feedback === "exact" && (
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36,
-            color: EA.butter,
+            color: RR.butter,
             transform: "skewX(-6deg) rotate(-2deg)",
-            textShadow: `3px 3px 0 ${EA.ink}`,
+            textShadow: `3px 3px 0 ${RR.ink}`,
             animation: "pom-pop 0.3s cubic-bezier(0.175,0.885,0.32,1.6)",
           }}>
             🎯 TROUVÉ !
@@ -356,7 +356,7 @@ export function PlusOuMoinsClient({
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
             {visibleGuesses.map((g, i) => {
               const isMe = g.player_id === myId;
-              const feedbackColor = g.feedback === "exact" ? EA.butter : g.feedback === "plus" ? EA.cyan : EA.pink;
+              const feedbackColor = g.feedback === "exact" ? RR.butter : g.feedback === "plus" ? RR.cyan : RR.pink;
               const feedbackIcon = g.feedback === "exact" ? "🎯" : g.feedback === "plus" ? "↑" : "↓";
               return (
                 <div key={i} style={{
@@ -365,10 +365,10 @@ export function PlusOuMoinsClient({
                   border: `1.5px solid ${isMe ? "rgba(255,233,74,0.3)" : "rgba(255,30,140,0.3)"}`,
                   borderRadius: 999, padding: "4px 12px",
                 }}>
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: isMe ? EA.butter : EA.pink }}>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: isMe ? RR.butter : RR.pink }}>
                     {isMe ? "Toi" : opPseudo.slice(0, 4)}
                   </span>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white }}>{g.value}</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white }}>{g.value}</span>
                   <span style={{ fontFamily: "var(--font-display)", fontSize: 13, color: feedbackColor }}>{feedbackIcon}</span>
                 </div>
               );
@@ -383,7 +383,7 @@ export function PlusOuMoinsClient({
           width: "100%", maxWidth: 480,
           position: "relative", zIndex: 2,
           background: isMyTurn ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.03)",
-          border: `2.5px solid ${isMyTurn ? EA.cyan : "rgba(255,255,255,0.1)"}`,
+          border: `2.5px solid ${isMyTurn ? RR.cyan : "rgba(255,255,255,0.1)"}`,
           borderRadius: 24, padding: "20px 16px 18px",
           boxShadow: isMyTurn ? `0 0 24px rgba(0,212,232,0.15)` : "none",
           transition: "all 0.3s",
@@ -406,7 +406,7 @@ export function PlusOuMoinsClient({
                     borderRadius: 12,
                     background: !isMyTurn ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.1)",
                     border: `2px solid ${!isMyTurn ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.2)"}`,
-                    color: !isMyTurn ? "rgba(255,255,255,0.2)" : EA.white,
+                    color: !isMyTurn ? "rgba(255,255,255,0.2)" : RR.white,
                     fontFamily: "var(--font-display)", fontSize: 14,
                     cursor: !isMyTurn ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center",
@@ -422,9 +422,9 @@ export function PlusOuMoinsClient({
             <div style={{
               flex: 1, textAlign: "center",
               fontFamily: "var(--font-display)", fontSize: 64,
-              color: isMyTurn ? EA.white : "rgba(255,255,255,0.3)",
+              color: isMyTurn ? RR.white : "rgba(255,255,255,0.3)",
               transform: "skewX(-6deg)",
-              textShadow: isMyTurn ? `3px 3px 0 ${EA.violetDeep}` : "none",
+              textShadow: isMyTurn ? `3px 3px 0 ${RR.violetDeep}` : "none",
               lineHeight: 1,
               transition: "color 0.3s",
               userSelect: "none",
@@ -445,7 +445,7 @@ export function PlusOuMoinsClient({
                     borderRadius: 12,
                     background: !isMyTurn ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.1)",
                     border: `2px solid ${!isMyTurn ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.2)"}`,
-                    color: !isMyTurn ? "rgba(255,255,255,0.2)" : EA.white,
+                    color: !isMyTurn ? "rgba(255,255,255,0.2)" : RR.white,
                     fontFamily: "var(--font-display)", fontSize: 14,
                     cursor: !isMyTurn ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center",
@@ -468,7 +468,7 @@ export function PlusOuMoinsClient({
               onChange={e => setInputValue(Number(e.target.value))}
               style={{
                 width: "100%", marginBottom: 14,
-                accentColor: EA.cyan,
+                accentColor: RR.cyan,
                 cursor: "pointer",
               }}
             />
@@ -483,9 +483,9 @@ export function PlusOuMoinsClient({
               width: "100%",
               padding: "16px 0 14px",
               borderRadius: 18,
-              background: !isMyTurn ? "rgba(255,255,255,0.06)" : submitting ? EA.cyan : EA.cyan,
-              border: `3px solid ${!isMyTurn ? "rgba(255,255,255,0.1)" : EA.ink}`,
-              boxShadow: !isMyTurn ? "none" : `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}`,
+              background: !isMyTurn ? "rgba(255,255,255,0.06)" : submitting ? RR.cyan : RR.cyan,
+              border: `3px solid ${!isMyTurn ? "rgba(255,255,255,0.1)" : RR.ink}`,
+              boxShadow: !isMyTurn ? "none" : `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}`,
               transform: !isMyTurn ? "none" : "skewX(-4deg)",
               cursor: !isMyTurn ? "not-allowed" : submitting ? "wait" : "pointer",
               transition: "all 0.15s",
@@ -494,7 +494,7 @@ export function PlusOuMoinsClient({
           >
             <span style={{
               fontFamily: "var(--font-display)", fontSize: 20,
-              color: !isMyTurn ? "rgba(255,255,255,0.2)" : EA.ink,
+              color: !isMyTurn ? "rgba(255,255,255,0.2)" : RR.ink,
               letterSpacing: 1.5,
               transform: "skewX(4deg)",
             }}>
@@ -568,8 +568,8 @@ export function PlusOuMoinsClient({
           -webkit-appearance: none;
           width: 22px; height: 22px;
           border-radius: 50%;
-          background: ${EA.cyan};
-          border: 3px solid ${EA.ink};
+          background: ${RR.cyan};
+          border: 3px solid ${RR.ink};
           cursor: pointer;
           box-shadow: 0 0 8px rgba(0,212,232,0.5);
         }

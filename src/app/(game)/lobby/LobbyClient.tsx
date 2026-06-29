@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { sendChallenge } from "./actions";
 import { logout } from "@/app/(auth)/login/actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
@@ -93,9 +93,9 @@ function ChooseGameModal({
     }}>
       <div style={{
         width: "100%", maxWidth: desktop ? 580 : 343,
-        background: EA.violet, border: `3px solid ${EA.ink}`,
+        background: RR.violet, border: `3px solid ${RR.ink}`,
         borderRadius: 28, padding: desktop ? "28px 28px 24px" : "22px 18px 20px",
-        boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+        boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`,
         position: "relative", marginTop: "auto", marginBottom: "auto",
         flexShrink: 0,
       }}>
@@ -108,28 +108,28 @@ function ChooseGameModal({
         <button onClick={onClose} style={{
           position: "absolute", top: -12, right: -12,
           width: 36, height: 36, borderRadius: "50%",
-          background: EA.white, border: `2.5px solid ${EA.ink}`,
-          fontSize: 18, color: EA.ink, cursor: "pointer",
-          boxShadow: `2px 2px 0 ${EA.ink}`, zIndex: 5,
+          background: RR.white, border: `2.5px solid ${RR.ink}`,
+          fontSize: 18, color: RR.ink, cursor: "pointer",
+          boxShadow: `2px 2px 0 ${RR.ink}`, zIndex: 5,
         }}>×</button>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, position: "relative", zIndex: 2 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.6 }}>
             Tu défies
           </div>
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
-            background: EA.violetDeep, border: `2px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2px solid ${RR.ink}`,
             borderRadius: 999, padding: "6px 18px 6px 6px",
-            boxShadow: `3px 3px 0 ${EA.cyan}`,
+            boxShadow: `3px 3px 0 ${RR.cyan}`,
           }}>
-            <Avatar name={opponent.pseudo} src={opponent.avatar_url} color={opponent.avatar_color ?? EA.cyan} ring={EA.pink} size={36} />
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+            <Avatar name={opponent.pseudo} src={opponent.avatar_url} color={opponent.avatar_color ?? RR.cyan} ring={RR.pink} size={36} />
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, transform: "skewX(-4deg)" }}>
               {opponent.pseudo.toUpperCase()}
             </div>
           </div>
 
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginTop: 12 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, marginTop: 12 }}>
             CHOISIS TON JEU
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", textAlign: "center" }}>
@@ -139,10 +139,10 @@ function ChooseGameModal({
 
         {error && (
           <div style={{
-            background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+            background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
             borderRadius: 12, padding: "10px 14px", marginTop: 8,
             fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-            color: EA.white, textAlign: "center", position: "relative", zIndex: 2,
+            color: RR.white, textAlign: "center", position: "relative", zIndex: 2,
           }}>⚠ {error}</div>
         )}
 
@@ -155,7 +155,7 @@ function ChooseGameModal({
                 onClick={() => setChessStep(false)}
                 style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 20, cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
               >←</button>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, transform: "skewX(-4deg)" }}>
                 CADENCE ♟
               </div>
             </div>
@@ -167,34 +167,34 @@ function ChooseGameModal({
                   onClick={() => !isPending && onChoose("chess", tc.seconds ?? null)}
                   disabled={isPending}
                   style={{
-                    background: "#9b8ec4", border: `2.5px solid ${EA.ink}`,
+                    background: "#9b8ec4", border: `2.5px solid ${RR.ink}`,
                     borderRadius: 18, padding: "16px 12px",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-                    boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+                    boxShadow: `4px 4px 0 ${RR.pink}, 4px 4px 0 1px ${RR.ink}`,
                     cursor: isPending ? "wait" : "pointer",
                     opacity: isPending ? 0.7 : 1,
                   }}
                 >
                   <div style={{ fontSize: 32, lineHeight: 1 }}>{tc.icon}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.ink, transform: "skewX(-4deg)" }}>{tc.label}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.ink, opacity: 0.7, textTransform: "uppercase" }}>{tc.sub}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: RR.ink, transform: "skewX(-4deg)" }}>{tc.label}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.ink, opacity: 0.7, textTransform: "uppercase" }}>{tc.sub}</div>
                 </button>
               ))}
             </div>
           </div>
         ) : (() => {
           const games = [
-            { type: "pfc" as GameType,      icon: "✊",  title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes",  color: EA.cyan,    shadow: EA.pink,   badge: "HOT 🔥" },
-            { type: "morpion" as GameType,   icon: "⨯⭕", title: "MORPION",                  sub: "Tactique",  color: EA.pink,    shadow: EA.butter, badge: undefined },
-            { type: "puissance4" as GameType,icon: "🔴",  title: "PUISSANCE 4",              sub: "Stratégie", color: EA.butter,  shadow: EA.cyan,   badge: undefined },
-            { type: "reflexe" as GameType,   icon: "⚡",  title: "RÉFLEXE",                  sub: "Vitesse",   color: EA.pink,    shadow: EA.butter, badge: undefined },
-            { type: "naval" as GameType,     icon: "🚢",  title: "BATAILLE\nNAVALE",         sub: "Stratégie", color: EA.cyan,    shadow: EA.butter, badge: undefined },
-            { type: "chess" as GameType,     icon: "♟",   title: "ÉCHECS",                   sub: "Réflexion", color: "#9b8ec4",  shadow: EA.pink,   badge: undefined },
-            { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Prends la dernière allumette et tu perds", color: EA.butter, shadow: EA.cyan, badge: undefined },
-            { type: "pig" as GameType,        icon: "🎲",  title: "COCHON",                    sub: "Lance le dé, mais gare au 1 !", color: EA.pink,   shadow: EA.butter, badge: undefined },
-            { type: "mastermind" as GameType,     icon: "🎨",  title: "MASTER\nMIND",               sub: "Décode la combinaison",         color: "#4ADE80", shadow: EA.pink,   badge: undefined },
-            { type: "plus-ou-moins" as GameType,  icon: "🔢",  title: "PLUS OU\nMOINS",             sub: "Trouve le nombre mystère",      color: EA.butter, shadow: EA.cyan,   badge: undefined },
-            { type: "duel-des" as GameType,       icon: "🎲",  title: "DUEL\nDE DÉS",               sub: "Lance le dé, le plus haut gagne !",  color: EA.cyan,   shadow: EA.pink,   badge: "NEW ✨" },
+            { type: "pfc" as GameType,      icon: "✊",  title: "PIERRE\nFEUILLE\nCISEAUX", sub: "Réflexes",  color: RR.cyan,    shadow: RR.pink,   badge: "HOT 🔥" },
+            { type: "morpion" as GameType,   icon: "⨯⭕", title: "MORPION",                  sub: "Tactique",  color: RR.pink,    shadow: RR.butter, badge: undefined },
+            { type: "puissance4" as GameType,icon: "🔴",  title: "PUISSANCE 4",              sub: "Stratégie", color: RR.butter,  shadow: RR.cyan,   badge: undefined },
+            { type: "reflexe" as GameType,   icon: "⚡",  title: "RÉFLEXE",                  sub: "Vitesse",   color: RR.pink,    shadow: RR.butter, badge: undefined },
+            { type: "naval" as GameType,     icon: "🚢",  title: "BATAILLE\nNAVALE",         sub: "Stratégie", color: RR.cyan,    shadow: RR.butter, badge: undefined },
+            { type: "chess" as GameType,     icon: "♟",   title: "ÉCHECS",                   sub: "Réflexion", color: "#9b8ec4",  shadow: RR.pink,   badge: undefined },
+            { type: "nim" as GameType,       icon: "🔥",  title: "NIM",                      sub: "Prends la dernière allumette et tu perds", color: RR.butter, shadow: RR.cyan, badge: undefined },
+            { type: "pig" as GameType,        icon: "🎲",  title: "COCHON",                    sub: "Lance le dé, mais gare au 1 !", color: RR.pink,   shadow: RR.butter, badge: undefined },
+            { type: "mastermind" as GameType,     icon: "🎨",  title: "MASTER\nMIND",               sub: "Décode la combinaison",         color: "#4ADE80", shadow: RR.pink,   badge: undefined },
+            { type: "plus-ou-moins" as GameType,  icon: "🔢",  title: "PLUS OU\nMOINS",             sub: "Trouve le nombre mystère",      color: RR.butter, shadow: RR.cyan,   badge: undefined },
+            { type: "duel-des" as GameType,       icon: "🎲",  title: "DUEL\nDE DÉS",               sub: "Lance le dé, le plus haut gagne !",  color: RR.cyan,   shadow: RR.pink,   badge: "NEW ✨" },
           ] as { type: GameType; icon: string; title: string; sub: string; color: string; shadow: string; badge?: string }[];
 
           return (
@@ -214,29 +214,29 @@ function ChooseGameModal({
                   }}
                   disabled={isPending}
                   style={{
-                    background: g.color, border: `2.5px solid ${EA.ink}`,
+                    background: g.color, border: `2.5px solid ${RR.ink}`,
                     borderRadius: 20,
                     padding: desktop ? "18px 12px" : "12px 8px",
                     display: "flex", flexDirection: "column",
                     alignItems: "center", justifyContent: "center",
                     gap: desktop ? 6 : 5,
-                    boxShadow: `4px 4px 0 ${g.shadow}, 4px 4px 0 1px ${EA.ink}`,
+                    boxShadow: `4px 4px 0 ${g.shadow}, 4px 4px 0 1px ${RR.ink}`,
                     cursor: isPending ? "wait" : "pointer", position: "relative",
                     opacity: isPending ? 0.7 : 1,
                   }}>
                   {g.badge && (
                     <div style={{
                       position: "absolute", top: -10, right: -8,
-                      background: EA.violet, border: `2px solid ${EA.ink}`,
+                      background: RR.violet, border: `2px solid ${RR.ink}`,
                       padding: "3px 8px", borderRadius: 999,
-                      fontFamily: "var(--font-display)", fontSize: 9, color: EA.white,
+                      fontFamily: "var(--font-display)", fontSize: 9, color: RR.white,
                       letterSpacing: 0.6, transform: "rotate(8deg)",
-                      boxShadow: `2px 2px 0 ${EA.ink}`,
+                      boxShadow: `2px 2px 0 ${RR.ink}`,
                     }}>{g.badge}</div>
                   )}
                   <div style={{ fontSize: desktop ? 30 : 26, lineHeight: 1 }}>{g.icon}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 13 : 11, color: EA.ink, textAlign: "center", transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: "pre-line" }}>{g.title}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 800, color: EA.ink, opacity: 0.65, textTransform: "uppercase", letterSpacing: 0.6 }}>{g.sub}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 13 : 11, color: RR.ink, textAlign: "center", transform: "skewX(-4deg)", lineHeight: 1.1, whiteSpace: "pre-line" }}>{g.title}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 800, color: RR.ink, opacity: 0.65, textTransform: "uppercase", letterSpacing: 0.6 }}>{g.sub}</div>
                 </button>
               ))}
             </div>
@@ -267,7 +267,7 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
   const inGame  = p.status === "in-game";
   const offline = p.status === "offline";
   const podium  = rank !== undefined ? PODIUM_RANK_STYLES[rank] : null;
-  const shadowColor = isBlocked ? "transparent" : offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? EA.cyan : EA.pink;
+  const shadowColor = isBlocked ? "transparent" : offline ? "rgba(255,255,255,0.08)" : idx % 2 === 0 ? RR.cyan : RR.pink;
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -281,8 +281,8 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
   return (
     <div style={{
       position: "relative",
-      background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : EA.white,
-      border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : EA.ink}`,
+      background: isBlocked ? "rgba(255,255,255,0.03)" : offline ? "rgba(255,255,255,0.04)" : RR.white,
+      border: `2.5px solid ${isBlocked || offline ? "rgba(255,255,255,0.1)" : podium ? podium.border : RR.ink}`,
       borderRadius: 22, padding: desktop ? "16px 20px" : "12px 14px",
       display: "flex", alignItems: "center", gap: desktop ? 16 : 12,
       boxShadow: isBlocked || offline ? "none" : `4px 4px 0 ${podium ? podium.border : shadowColor}`,
@@ -293,23 +293,23 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
       <Avatar
         name={p.pseudo}
         src={p.avatar_url}
-        color={isBlocked || offline ? "rgba(255,255,255,0.2)" : (p.avatar_color ?? EA.cyan)}
-        ring={isBlocked || offline ? "transparent" : idx % 2 === 0 ? EA.pink : EA.cyan}
+        color={isBlocked || offline ? "rgba(255,255,255,0.2)" : (p.avatar_color ?? RR.cyan)}
+        ring={isBlocked || offline ? "transparent" : idx % 2 === 0 ? RR.pink : RR.cyan}
         size={desktop ? 56 : 44}
         podiumRank={!isBlocked && !offline ? rank : undefined}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: isBlocked || offline ? "rgba(255,255,255,0.5)" : EA.ink, transform: "skewX(-4deg)" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 17, color: isBlocked || offline ? "rgba(255,255,255,0.5)" : RR.ink, transform: "skewX(-4deg)" }}>
           {p.pseudo}
         </div>
-        <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 12, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 6, color: isBlocked ? "rgba(255,255,255,0.3)" : offline ? "rgba(255,255,255,0.35)" : inGame ? EA.pink : EA.violetDeep }}>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 12, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 6, color: isBlocked ? "rgba(255,255,255,0.3)" : offline ? "rgba(255,255,255,0.35)" : inGame ? RR.pink : RR.violetDeep }}>
           {isBlocked ? (
             <span style={{ color: "rgba(255,255,255,0.3)" }}>🚫 Bloqué</span>
           ) : (
             <>
               <span style={{
                 width: 8, height: 8, borderRadius: "50%",
-                background: offline ? "rgba(255,255,255,0.25)" : inGame ? EA.pink : "#1ee29a",
+                background: offline ? "rgba(255,255,255,0.25)" : inGame ? RR.pink : "#1ee29a",
                 boxShadow: offline || inGame ? "none" : "0 0 6px #1ee29a",
                 flexShrink: 0,
               }} />
@@ -330,12 +330,12 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
           onClick={onChallenge}
           style={{
             fontFamily: "var(--font-display)", fontSize: desktop ? 17 : 13, letterSpacing: 0.6,
-            color: offline ? "rgba(255,255,255,0.7)" : EA.white,
-            background: offline ? "rgba(255,255,255,0.08)" : EA.pink,
-            border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : EA.ink}`,
+            color: offline ? "rgba(255,255,255,0.7)" : RR.white,
+            background: offline ? "rgba(255,255,255,0.08)" : RR.pink,
+            border: `2px solid ${offline ? "rgba(255,255,255,0.2)" : RR.ink}`,
             borderRadius: 999, padding: desktop ? "12px 22px" : "8px 14px",
             textTransform: "uppercase", cursor: "pointer",
-            boxShadow: offline ? "none" : `2px 2px 0 ${EA.cyan}`,
+            boxShadow: offline ? "none" : `2px 2px 0 ${RR.cyan}`,
             whiteSpace: "nowrap",
           }}>
           {offline ? "Inviter 📬" : "Défier ⚔"}
@@ -349,12 +349,12 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
           style={{
             width: desktop ? 36 : 30, height: desktop ? 36 : 30,
             borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-            background: menuOpen ? EA.violetDeep : "rgba(0,0,0,0.12)",
-            border: `2px solid ${menuOpen ? EA.ink : "rgba(0,0,0,0.15)"}`,
-            color: menuOpen ? EA.white : EA.ink,
+            background: menuOpen ? RR.violetDeep : "rgba(0,0,0,0.12)",
+            border: `2px solid ${menuOpen ? RR.ink : "rgba(0,0,0,0.15)"}`,
+            color: menuOpen ? RR.white : RR.ink,
             fontSize: desktop ? 18 : 15, cursor: "pointer",
             fontWeight: 900, lineHeight: 1,
-            boxShadow: menuOpen ? `2px 2px 0 ${EA.ink}` : "none",
+            boxShadow: menuOpen ? `2px 2px 0 ${RR.ink}` : "none",
             transition: "background 0.15s",
           }}
         >⋯</button>
@@ -362,17 +362,17 @@ function PlayerRow({ p, idx, rank, isBlocked, onChallenge, onDM, onBlock, onUnbl
         {menuOpen && (
           <div style={{
             position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 50,
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
             borderRadius: 16, overflow: "hidden",
-            boxShadow: `4px 4px 0 ${EA.ink}`,
+            boxShadow: `4px 4px 0 ${RR.ink}`,
             minWidth: 180,
           }}>
             {[
-              { label: "💬 Message", action: () => { onDM(); setMenuOpen(false); }, color: EA.cyan },
+              { label: "💬 Message", action: () => { onDM(); setMenuOpen(false); }, color: RR.cyan },
               !isBlocked
-                ? { label: "🚫 Bloquer", action: () => { onBlock(); setMenuOpen(false); }, color: EA.butter }
+                ? { label: "🚫 Bloquer", action: () => { onBlock(); setMenuOpen(false); }, color: RR.butter }
                 : { label: "🔓 Débloquer", action: () => { onUnblock(); setMenuOpen(false); }, color: "#4ADE80" },
-              { label: "⚠️ Signaler", action: () => { onReport(); setMenuOpen(false); }, color: EA.pink },
+              { label: "⚠️ Signaler", action: () => { onReport(); setMenuOpen(false); }, color: RR.pink },
             ].map(({ label, action, color }) => (
               <button
                 key={label}
@@ -661,7 +661,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       {/* Dot bg */}
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.3,
@@ -669,23 +669,23 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
         backgroundSize: "16px 16px",
       }} />
 
-      <SvgBlob color={EA.pink} style={{ width: 520, height: 460, top: -220, right: -180, opacity: 0.7, animation: "ea-float 6s ease-in-out infinite" }} />
-      <SvgBlob color={EA.butter} style={{ width: 420, height: 380, bottom: -180, left: -150, opacity: 0.5, animation: "ea-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-      <SvgBlob color={EA.cyan} style={{ width: 320, height: 280, top: "38%", left: -130, opacity: 0.25, animation: "ea-float 11s ease-in-out infinite" }} />
-      <Star color={EA.butter} size={38} style={{ top: "16%", left: "7%", animation: "ea-spin-slow 10s linear infinite" }} />
-      <Star color={EA.cyan} size={26} style={{ top: "32%", right: "5%", animation: "ea-float 4s ease-in-out infinite" }} />
-      <Star color={EA.white} size={20} style={{ bottom: "30%", left: "4%", transform: "rotate(15deg)", animation: "ea-spin-slow 16s linear infinite reverse" }} />
-      <Star color={EA.pink} size={16} style={{ bottom: "14%", right: "7%", animation: "ea-float 7s ease-in-out infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 520, height: 460, top: -220, right: -180, opacity: 0.7, animation: "rr-float 6s ease-in-out infinite" }} />
+      <SvgBlob color={RR.butter} style={{ width: 420, height: 380, bottom: -180, left: -150, opacity: 0.5, animation: "rr-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+      <SvgBlob color={RR.cyan} style={{ width: 320, height: 280, top: "38%", left: -130, opacity: 0.25, animation: "rr-float 11s ease-in-out infinite" }} />
+      <Star color={RR.butter} size={38} style={{ top: "16%", left: "7%", animation: "rr-spin-slow 10s linear infinite" }} />
+      <Star color={RR.cyan} size={26} style={{ top: "32%", right: "5%", animation: "rr-float 4s ease-in-out infinite" }} />
+      <Star color={RR.white} size={20} style={{ bottom: "30%", left: "4%", transform: "rotate(15deg)", animation: "rr-spin-slow 16s linear infinite reverse" }} />
+      <Star color={RR.pink} size={16} style={{ bottom: "14%", right: "7%", animation: "rr-float 7s ease-in-out infinite" }} />
 
       {/* Header */}
       <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "32px 40px 0" : "8px 20px 0" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           {/* Left: title */}
           <div style={{ flexShrink: 0 }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 16 : 12, fontWeight: 800, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.4 }}>
               Salut {myPseudo}
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1, marginTop: 2 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 32, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1, marginTop: 2 }}>
               LE LOBBY
             </div>
           </div>
@@ -694,12 +694,12 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
           <div style={{ display: "flex", alignItems: "center", gap: desktop ? 10 : 8 }}>
             {/* Points badge */}
             <div style={{
-              background: EA.cyan, border: `2px solid ${EA.ink}`,
+              background: RR.cyan, border: `2px solid ${RR.ink}`,
               borderRadius: 14, padding: desktop ? "8px 16px" : "5px 10px",
-              transform: "rotate(2deg)", boxShadow: `2px 2px 0 ${EA.ink}`, flexShrink: 0,
+              transform: "rotate(2deg)", boxShadow: `2px 2px 0 ${RR.ink}`, flexShrink: 0,
             }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: EA.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>Pts</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: EA.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 11 : 9, fontWeight: 900, color: RR.violetDeep, textTransform: "uppercase", letterSpacing: 1 }}>Pts</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: RR.violetDeep, transform: "skewX(-8deg)", lineHeight: 1 }}>
                 {myPoints.toLocaleString("fr-FR")}
               </div>
             </div>
@@ -707,7 +707,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
 
             {/* Avatar → settings (toujours visible) */}
             <Link href="/settings" title={`${myPseudo} · Paramètres`} style={{ textDecoration: "none", flexShrink: 0 }}>
-              <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={desktop ? 48 : 36} />
+              <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? RR.butter} ring={RR.cyan} size={desktop ? 48 : 36} />
             </Link>
 
             {/* Burger (toujours visible — salles + nav) */}
@@ -716,15 +716,15 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
               style={{
                 width: desktop ? 44 : 36, height: desktop ? 44 : 36,
                 borderRadius: "50%", background: "rgba(255,255,255,0.1)",
-                border: `2.5px solid ${EA.ink}`, color: EA.white,
+                border: `2.5px solid ${RR.ink}`, color: RR.white,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, boxShadow: `2px 2px 0 ${EA.ink}`, position: "relative",
+                flexShrink: 0, boxShadow: `2px 2px 0 ${RR.ink}`, position: "relative",
               }}>
               <svg width={desktop ? 18 : 16} height={desktop ? 18 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
                 <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
               {notifPermission === "default" && (
-                <span style={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", background: EA.pink, border: `1.5px solid ${EA.ink}` }} />
+                <span style={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", background: RR.pink, border: `1.5px solid ${RR.ink}` }} />
               )}
             </button>
           </div>
@@ -733,7 +733,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
         {/* Tab bar */}
         <div style={{
           marginTop: desktop ? 24 : 18, display: "flex", gap: 8,
-          background: "rgba(26,15,94,0.55)", border: `2px solid ${EA.ink}`,
+          background: "rgba(26,15,94,0.55)", border: `2px solid ${RR.ink}`,
           borderRadius: 999, padding: 4,
         }}>
           {(["joueurs", "classement"] as const).map((t) => (
@@ -741,12 +741,12 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
               onClick={() => setMainTab(t)}
               style={{
                 flex: 1, textAlign: "center",
-                background: t === mainTab ? EA.pink : "transparent",
+                background: t === mainTab ? RR.pink : "transparent",
                 border: "none", borderRadius: 999, padding: desktop ? "12px 0" : "8px 0",
                 fontFamily: "var(--font-display)", fontSize: desktop ? 18 : 13,
-                color: t === mainTab ? EA.white : "rgba(255,255,255,0.65)",
+                color: t === mainTab ? RR.white : "rgba(255,255,255,0.65)",
                 letterSpacing: 0.6, cursor: "pointer",
-                boxShadow: t === mainTab ? `2px 2px 0 ${EA.cyan}` : "none",
+                boxShadow: t === mainTab ? `2px 2px 0 ${RR.cyan}` : "none",
               }}>
               {t === "joueurs" ? `JOUEURS · ${availableCount}` : "🏆 CLASSEMENT"}
             </button>
@@ -758,7 +758,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
           {/* Search input */}
           <div style={{
             flex: 1, display: "flex", alignItems: "center", gap: 8,
-            background: "rgba(255,255,255,0.07)", border: `2px solid ${searchQuery ? EA.cyan : "rgba(255,255,255,0.2)"}`,
+            background: "rgba(255,255,255,0.07)", border: `2px solid ${searchQuery ? RR.cyan : "rgba(255,255,255,0.2)"}`,
             borderRadius: 14, padding: "8px 12px",
             transition: "border-color 0.15s",
           }}>
@@ -773,7 +773,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
               style={{
                 flex: 1, background: "none", border: "none", outline: "none",
                 fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-                color: EA.white,
+                color: RR.white,
               }}
             />
             {searchQuery && (
@@ -790,11 +790,11 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
             title={showOffline ? "Masquer les joueurs hors ligne" : "Voir tous les joueurs"}
             style={{
               flexShrink: 0,
-              background: showOffline ? EA.cyan : "rgba(255,255,255,0.07)",
-              border: `2px solid ${showOffline ? EA.cyan : "rgba(255,255,255,0.2)"}`,
+              background: showOffline ? RR.cyan : "rgba(255,255,255,0.07)",
+              border: `2px solid ${showOffline ? RR.cyan : "rgba(255,255,255,0.2)"}`,
               borderRadius: 12, padding: "8px 12px",
               fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900,
-              color: showOffline ? EA.ink : "rgba(255,255,255,0.55)",
+              color: showOffline ? RR.ink : "rgba(255,255,255,0.55)",
               cursor: "pointer", letterSpacing: 0.5, textTransform: "uppercase",
               whiteSpace: "nowrap",
               transition: "all 0.15s",
@@ -809,18 +809,18 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
         <div style={{ position: "relative", zIndex: 10, maxWidth: desktop ? 680 : "100%", margin: "0 auto", padding: desktop ? "0 40px" : "0 16px", display: "flex", flexDirection: "column", gap: 8, marginBottom: 4 }}>
           {pendingInvitations.map(inv => (
             <div key={inv.id} style={{
-              background: `linear-gradient(135deg, ${EA.violetDeep}, rgba(26,15,94,0.95))`,
-              border: `2.5px solid ${EA.cyan}`,
+              background: `linear-gradient(135deg, ${RR.violetDeep}, rgba(26,15,94,0.95))`,
+              border: `2.5px solid ${RR.cyan}`,
               borderRadius: 20, padding: desktop ? "14px 18px" : "12px 14px",
               display: "flex", alignItems: "center", gap: 12,
-              boxShadow: `4px 4px 0 ${EA.cyan}`,
-              animation: "ea-float 3s ease-in-out infinite",
+              boxShadow: `4px 4px 0 ${RR.cyan}`,
+              animation: "rr-float 3s ease-in-out infinite",
             }}>
               <div style={{ fontSize: desktop ? 28 : 24, flexShrink: 0 }}>🏠</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: EA.white, lineHeight: 1.2 }}>
-                  <span style={{ color: EA.cyan }}>{inv.inviterPseudo}</span> t'invite dans{" "}
-                  <span style={{ color: EA.butter }}>"{inv.roomName}"</span>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 13, color: RR.white, lineHeight: 1.2 }}>
+                  <span style={{ color: RR.cyan }}>{inv.inviterPseudo}</span> t'invite dans{" "}
+                  <span style={{ color: RR.butter }}>"{inv.roomName}"</span>
                 </div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
                   Code : <strong style={{ letterSpacing: 1.5, color: "rgba(255,255,255,0.65)" }}>{inv.roomCode}</strong>
@@ -851,11 +851,11 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                   }}
                   disabled={inviteResponding === inv.id}
                   style={{
-                    background: EA.cyan, border: `2px solid ${EA.ink}`,
+                    background: RR.cyan, border: `2px solid ${RR.ink}`,
                     borderRadius: 999, padding: desktop ? "9px 18px" : "7px 14px",
                     fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 12,
-                    color: EA.ink, cursor: inviteResponding === inv.id ? "wait" : "pointer",
-                    boxShadow: `2px 2px 0 ${EA.ink}`,
+                    color: RR.ink, cursor: inviteResponding === inv.id ? "wait" : "pointer",
+                    boxShadow: `2px 2px 0 ${RR.ink}`,
                     opacity: inviteResponding === inv.id ? 0.7 : 1,
                     whiteSpace: "nowrap",
                   }}>
@@ -935,31 +935,31 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                     key={row.playerId}
                     onClick={() => setExpandedRankId(isExpanded ? null : row.playerId)}
                     style={{
-                      background: isMe ? "rgba(0,212,232,0.12)" : EA.violetDeep,
-                      border: `2.5px solid ${isMe ? EA.cyan : EA.ink}`,
+                      background: isMe ? "rgba(0,212,232,0.12)" : RR.violetDeep,
+                      border: `2.5px solid ${isMe ? RR.cyan : RR.ink}`,
                       borderRadius: 18, padding: desktop ? "12px 16px" : "10px 14px",
-                      boxShadow: isMe ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+                      boxShadow: isMe ? `3px 3px 0 ${RR.cyan}` : `2px 2px 0 ${RR.ink}`,
                       cursor: "pointer",
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span style={{ fontSize: desktop ? 22 : 18, minWidth: 30, flexShrink: 0 }}>{medal}</span>
-                      <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? EA.cyan} ring={isMe ? EA.cyan : "transparent"} size={desktop ? 38 : 32} />
+                      <Avatar name={row.pseudo} src={row.avatar_url} color={row.avatar_color ?? RR.cyan} ring={isMe ? RR.cyan : "transparent"} size={desktop ? 38 : 32} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? EA.cyan : EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 14, color: isMe ? RR.cyan : RR.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {row.pseudo.toUpperCase()}
-                          {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: EA.cyan, marginLeft: 6 }}>TOI</span>}
+                          {isMe && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900, color: RR.cyan, marginLeft: 6 }}>TOI</span>}
                         </div>
                       </div>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: EA.cyan, transform: "skewX(-4deg)", flexShrink: 0 }}>{row.wins}</div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 20, color: RR.cyan, transform: "skewX(-4deg)", flexShrink: 0 }}>{row.wins}</div>
                     </div>
                     {isExpanded && (
                       <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1.5px solid rgba(255,255,255,0.1)", display: "flex", gap: 8, justifyContent: "space-around" }}>
                         {[
-                          { label: "Victoires", val: row.wins, color: EA.cyan },
-                          { label: "Défaites", val: row.losses, color: EA.pink },
-                          { label: "Nuls", val: row.draws, color: EA.butter },
-                          { label: "Points", val: row.points, color: EA.white },
+                          { label: "Victoires", val: row.wins, color: RR.cyan },
+                          { label: "Défaites", val: row.losses, color: RR.pink },
+                          { label: "Nuls", val: row.draws, color: RR.butter },
+                          { label: "Points", val: row.points, color: RR.white },
                         ].map(({ label, val, color }) => (
                           <div key={label} style={{ textAlign: "center" }}>
                             <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 18, color, transform: "skewX(-4deg)" }}>{val}</div>
@@ -987,11 +987,11 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
         {/* Erreur quick match */}
         {quickMatchError && (
           <div style={{
-            background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+            background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
             borderRadius: 14, padding: "10px 16px", marginBottom: 8,
             fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-            color: EA.white, textAlign: "center",
-            boxShadow: `3px 3px 0 ${EA.ink}`,
+            color: RR.white, textAlign: "center",
+            boxShadow: `3px 3px 0 ${RR.ink}`,
           }}>
             😕 {quickMatchError}
           </div>
@@ -1001,24 +1001,24 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
           onClick={handleQuickMatch}
           style={{
             width: "100%",
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
             borderRadius: 22, padding: desktop ? "14px 20px" : "0 14px",
             height: desktop ? "auto" : 56,
             display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
-            boxShadow: `4px 4px 0 ${EA.pink}`,
+            boxShadow: `4px 4px 0 ${RR.pink}`,
             cursor: "pointer",
             textAlign: "left",
           }}>
           <div style={{
             width: desktop ? 48 : 36, height: desktop ? 48 : 36, borderRadius: 10,
-            background: hasChallengeable ? EA.cyan : "rgba(255,255,255,0.12)",
+            background: hasChallengeable ? RR.cyan : "rgba(255,255,255,0.12)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: desktop ? 24 : 18, border: `2px solid ${EA.ink}`,
+            fontSize: desktop ? 24 : 18, border: `2px solid ${RR.ink}`,
             flexShrink: 0,
             transition: "background 0.3s",
           }}>🎲</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 14, color: EA.white, lineHeight: 1 }}>MATCH RAPIDE</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 20 : 14, color: RR.white, lineHeight: 1 }}>MATCH RAPIDE</div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 700, color: hasChallengeable ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginTop: 2 }}>
               {availableCount > 0
                 ? `${availableCount} joueur${availableCount > 1 ? "s" : ""} disponible${availableCount > 1 ? "s" : ""}`
@@ -1029,7 +1029,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
           </div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: desktop ? 24 : 18,
-            color: hasChallengeable ? EA.cyan : "rgba(255,255,255,0.2)",
+            color: hasChallengeable ? RR.cyan : "rgba(255,255,255,0.2)",
             transform: "skewX(-6deg)",
             flexShrink: 0,
             transition: "color 0.2s",
@@ -1047,23 +1047,23 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
         }}>
           <div style={{
             width: "100%", maxWidth: 400,
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
             borderRadius: 24, padding: "24px 22px",
-            boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+            boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`,
             position: "relative",
           }}>
             <button onClick={() => setReportTarget(null)} style={{
               position: "absolute", top: -12, right: -12,
               width: 34, height: 34, borderRadius: "50%",
-              background: EA.white, border: `2px solid ${EA.ink}`,
-              fontSize: 17, color: EA.ink, cursor: "pointer",
-              boxShadow: `2px 2px 0 ${EA.ink}`,
+              background: RR.white, border: `2px solid ${RR.ink}`,
+              fontSize: 17, color: RR.ink, cursor: "pointer",
+              boxShadow: `2px 2px 0 ${RR.ink}`,
             }}>×</button>
 
             {reportSent ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white }}>Signalement envoyé</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.white }}>Signalement envoyé</div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
                   Merci, nous examinerons la situation.
                 </div>
@@ -1071,16 +1071,16 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                   onClick={() => setReportTarget(null)}
                   style={{
                     marginTop: 20, padding: "10px 24px", borderRadius: 999,
-                    background: EA.cyan, border: `2px solid ${EA.ink}`,
-                    fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink,
-                    cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
+                    background: RR.cyan, border: `2px solid ${RR.ink}`,
+                    fontFamily: "var(--font-display)", fontSize: 15, color: RR.ink,
+                    cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}`,
                   }}>
                   Fermer
                 </button>
               </div>
             ) : (
               <>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.pink, marginBottom: 4 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.pink, marginBottom: 4 }}>
                   ⚠️ Signaler {reportTarget.pseudo}
                 </div>
                 <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>
@@ -1094,10 +1094,10 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                   rows={4}
                   style={{
                     width: "100%", boxSizing: "border-box",
-                    background: "rgba(255,255,255,0.06)", border: `2px solid ${EA.ink}`,
+                    background: "rgba(255,255,255,0.06)", border: `2px solid ${RR.ink}`,
                     borderRadius: 14, padding: "10px 12px", resize: "none",
                     fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
-                    color: EA.white, outline: "none",
+                    color: RR.white, outline: "none",
                   }}
                 />
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
@@ -1118,9 +1118,9 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                     }}
                     style={{
                       padding: "10px 22px", borderRadius: 999,
-                      background: EA.pink, border: `2px solid ${EA.ink}`,
-                      fontFamily: "var(--font-display)", fontSize: 14, color: EA.white,
-                      cursor: "pointer", boxShadow: `2px 2px 0 ${EA.ink}`,
+                      background: RR.pink, border: `2px solid ${RR.ink}`,
+                      fontFamily: "var(--font-display)", fontSize: 14, color: RR.white,
+                      cursor: "pointer", boxShadow: `2px 2px 0 ${RR.ink}`,
                     }}>
                     Envoyer ⚠️
                   </button>
@@ -1159,8 +1159,8 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
           <div style={{
             position: "fixed", top: 0, right: 0, bottom: 0,
             width: "min(88vw, 320px)",
-            background: EA.violetDeep,
-            border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep,
+            border: `2.5px solid ${RR.ink}`,
             borderRight: "none",
             borderRadius: "24px 0 0 24px",
             zIndex: 90,
@@ -1175,13 +1175,13 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
               display: "flex", alignItems: "center", gap: 14,
             }}>
               <Link href="/settings" onClick={() => setBurgerOpen(false)} style={{ textDecoration: "none", flexShrink: 0 }}>
-                <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={48} />
+                <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? RR.butter} ring={RR.cyan} size={48} />
               </Link>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.white, transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {myPseudo}
                 </div>
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1 }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1 }}>
                   {myPoints.toLocaleString("fr-FR")} pts
                 </div>
               </div>
@@ -1199,7 +1199,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
 
             {/* Mes salles */}
             <div style={{ padding: "18px 20px 8px" }}>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1.6, marginBottom: 10 }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1.6, marginBottom: 10 }}>
                 🏠 Mes salles
               </div>
               {myRooms.length === 0 ? (
@@ -1215,21 +1215,21 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                       onClick={() => setBurgerOpen(false)}
                       style={{
                         display: "flex", alignItems: "center", gap: 10,
-                        background: "rgba(0,212,232,0.1)", border: `2px solid ${EA.cyan}`,
+                        background: "rgba(0,212,232,0.1)", border: `2px solid ${RR.cyan}`,
                         borderRadius: 14, padding: "10px 14px",
                         textDecoration: "none",
-                        boxShadow: `2px 2px 0 ${EA.cyan}`,
+                        boxShadow: `2px 2px 0 ${RR.cyan}`,
                       }}
                     >
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: RR.white, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {room.name}
                         </div>
-                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.cyan, letterSpacing: 1.4, marginTop: 2 }}>
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: RR.cyan, letterSpacing: 1.4, marginTop: 2 }}>
                           {room.code}
                         </div>
                       </div>
-                      <span style={{ color: EA.cyan, fontSize: 14, flexShrink: 0 }}>→</span>
+                      <span style={{ color: RR.cyan, fontSize: 14, flexShrink: 0 }}>→</span>
                     </Link>
                   ))}
                 </div>
@@ -1263,7 +1263,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     background: notifPermission === "denied" ? "transparent" : "rgba(255,233,74,0.1)",
-                    border: `2px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.1)" : EA.butter}`,
+                    border: `2px solid ${notifPermission === "denied" ? "rgba(255,255,255,0.1)" : RR.butter}`,
                     borderRadius: 14, padding: "12px 14px",
                     cursor: notifPermission === "denied" ? "not-allowed" : "pointer",
                     textAlign: "left", width: "100%",
@@ -1271,7 +1271,7 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                 >
                   <span style={{ fontSize: 20 }}>🔔</span>
                   <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : EA.butter }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: notifPermission === "denied" ? "rgba(255,255,255,0.25)" : RR.butter }}>
                       {notifPermission === "denied" ? "Notifications bloquées" : "Activer les notifications"}
                     </div>
                     {notifPermission !== "denied" && (
@@ -1311,15 +1311,15 @@ export function LobbyClient({ myPlayerId, myPseudo, myAvatarUrl, myAvatarColor, 
                   type="submit"
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
-                    background: "rgba(255,30,140,0.1)", border: `2px solid ${EA.pink}`,
+                    background: "rgba(255,30,140,0.1)", border: `2px solid ${RR.pink}`,
                     borderRadius: 14, padding: "12px 14px",
                     width: "100%", cursor: "pointer", marginTop: 4,
                   }}
                 >
-                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={EA.pink} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={RR.pink} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" /><line x1="12" y1="2" x2="12" y2="12" />
                   </svg>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: EA.pink }}>Se déconnecter</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, color: RR.pink }}>Se déconnecter</span>
                 </button>
               </form>
             </div>

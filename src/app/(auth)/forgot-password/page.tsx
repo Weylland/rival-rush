@@ -3,14 +3,14 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { requestPasswordReset } from "./actions";
-import { EA } from "@/lib/design";
-import { EAButton } from "@/components/ui/ea-button";
+import { RR } from "@/lib/design";
+import { RRButton } from "@/components/ui/rr-button";
 
 export default function ForgotPasswordPage() {
   const [state, action, pending] = useActionState(requestPasswordReset, null);
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden" }}>
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.35,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.4px, transparent 1.8px)",
@@ -27,15 +27,15 @@ export default function ForgotPasswordPage() {
         <div style={{ textAlign: "center" }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36,
-            color: EA.white, transform: "skewX(-8deg)",
-            textShadow: `3px 3px 0 ${EA.pink}`,
+            color: RR.white, transform: "skewX(-8deg)",
+            textShadow: `3px 3px 0 ${RR.pink}`,
           }}>
             MOT DE PASSE
           </div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36,
-            color: EA.cyan, transform: "skewX(-8deg)",
-            textShadow: `3px 3px 0 ${EA.violetDeep}`,
+            color: RR.cyan, transform: "skewX(-8deg)",
+            textShadow: `3px 3px 0 ${RR.violetDeep}`,
             marginTop: -4,
           }}>
             OUBLIÉ ?
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
           }}>
             <div style={{ fontSize: 36, marginBottom: 10 }}>📬</div>
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, marginBottom: 6,
+              fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, marginBottom: 6,
             }}>
               Email envoyé !
             </div>
@@ -72,11 +72,11 @@ export default function ForgotPasswordPage() {
             <div>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 12, letterSpacing: 1.4,
-                color: EA.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
+                color: RR.cyan, textTransform: "uppercase", marginBottom: 6, marginLeft: 14,
               }}>Email</div>
               <div style={{
-                background: EA.white, border: `2.5px solid ${EA.ink}`,
-                borderRadius: 16, boxShadow: `4px 4px 0 ${EA.cyan}`,
+                background: RR.white, border: `2.5px solid ${RR.ink}`,
+                borderRadius: 16, boxShadow: `4px 4px 0 ${RR.cyan}`,
               }}>
                 <input
                   name="email"
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
                     padding: "12px 16px", background: "transparent",
                     border: "none", outline: "none",
                     fontFamily: "var(--font-sans)", fontSize: 16,
-                    fontWeight: 800, color: EA.ink, boxSizing: "border-box",
+                    fontWeight: 800, color: RR.ink, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -97,33 +97,33 @@ export default function ForgotPasswordPage() {
 
             {state?.error && (
               <div style={{
-                background: "rgba(255,30,140,0.15)", border: `2px solid ${EA.pink}`,
+                background: "rgba(255,30,140,0.15)", border: `2px solid ${RR.pink}`,
                 borderRadius: 12, padding: "10px 14px",
                 fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-                color: EA.white, textAlign: "center",
+                color: RR.white, textAlign: "center",
               }}>
                 {state.error}
               </div>
             )}
 
-            <EAButton
+            <RRButton
               type="submit"
               full
               size="lg"
-              color={EA.pink}
-              shadow={EA.cyan}
+              color={RR.pink}
+              shadow={RR.cyan}
               disabled={pending}
               style={{ opacity: pending ? 0.7 : 1 }}
             >
               {pending ? "Envoi…" : "📨 Envoyer le lien"}
-            </EAButton>
+            </RRButton>
           </form>
         )}
 
         <div style={{ textAlign: "center" }}>
           <Link href="/login" style={{
             fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-            color: EA.cyan, textDecoration: "underline", textUnderlineOffset: 3,
+            color: RR.cyan, textDecoration: "underline", textUnderlineOffset: 3,
           }}>
             ← Retour à la connexion
           </Link>

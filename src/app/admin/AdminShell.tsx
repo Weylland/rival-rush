@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar, type SectionId } from "./AdminSidebar";
 import { AdminHeader } from "./AdminHeader";
@@ -159,7 +159,7 @@ export function AdminShell({
       group: "APERÇU",
       label: "Dashboard",
       icon: "📊",
-      accent: EA.cyan,
+      accent: RR.cyan,
       title: "Tableau de bord",
       subtitle: "Vue d'ensemble en temps réel",
     },
@@ -168,7 +168,7 @@ export function AdminShell({
       group: "APERÇU",
       label: "Activité",
       icon: "📡",
-      accent: EA.cyan,
+      accent: RR.cyan,
       title: "Flux d'activité",
       subtitle: "Événements récents en direct",
     },
@@ -178,7 +178,7 @@ export function AdminShell({
       label: "Joueurs",
       icon: "👥",
       badge: players.length,
-      accent: EA.violet,
+      accent: RR.violet,
       title: "Joueurs",
       subtitle: `${players.length} comptes inscrits`,
     },
@@ -188,7 +188,7 @@ export function AdminShell({
       label: "Admins",
       icon: "👑",
       badge: adminPlayerIds.length,
-      accent: EA.butter,
+      accent: RR.butter,
       title: "Administrateurs",
       subtitle: "Gérer les accès admin",
     },
@@ -198,8 +198,8 @@ export function AdminShell({
       label: "Avertissements",
       icon: "⚠️",
       badge: warningCount,
-      badgeColor: warningCount > 0 ? EA.pink : undefined,
-      accent: EA.pink,
+      badgeColor: warningCount > 0 ? RR.pink : undefined,
+      accent: RR.pink,
       title: "Avertissements",
       subtitle: "Notifications envoyées aux joueurs",
     },
@@ -219,7 +219,7 @@ export function AdminShell({
       group: "MODÉRATION",
       label: "Chats",
       icon: "💬",
-      accent: EA.cyan,
+      accent: RR.cyan,
       title: "Modération du chat",
       subtitle: "Lobby, salles et messages privés",
     },
@@ -229,8 +229,8 @@ export function AdminShell({
       label: "Signalements",
       icon: "🚩",
       badge: newReports,
-      badgeColor: newReports > 0 ? EA.pink : undefined,
-      accent: EA.pink,
+      badgeColor: newReports > 0 ? RR.pink : undefined,
+      accent: RR.pink,
       title: "Signalements",
       subtitle: "Rapports envoyés par les joueurs",
     },
@@ -239,7 +239,7 @@ export function AdminShell({
       group: "ESPACES",
       label: "Salles",
       icon: "🏠",
-      accent: EA.butter,
+      accent: RR.butter,
       title: "Salles privées",
       subtitle: "Toutes les salles créées",
     },
@@ -248,7 +248,7 @@ export function AdminShell({
       group: "JEUX",
       label: "Configuration",
       icon: "⚙️",
-      accent: EA.butter,
+      accent: RR.butter,
       title: "Configuration des jeux",
       subtitle: "Activer / désactiver, ajuster les points",
     },
@@ -258,8 +258,8 @@ export function AdminShell({
       label: "Parties",
       icon: "🎯",
       badge: activeGames,
-      badgeColor: activeGames > 0 ? EA.cyan : undefined,
-      accent: EA.butter,
+      badgeColor: activeGames > 0 ? RR.cyan : undefined,
+      accent: RR.butter,
       title: "Toutes les parties",
       subtitle: "Historique, parties en cours, force end",
     },
@@ -269,8 +269,8 @@ export function AdminShell({
       label: "Défis",
       icon: "⚔️",
       badge: pendingChallenges,
-      badgeColor: pendingChallenges > 0 ? EA.cyan : undefined,
-      accent: EA.butter,
+      badgeColor: pendingChallenges > 0 ? RR.cyan : undefined,
+      accent: RR.butter,
       title: "Défis",
       subtitle: "Challenges en attente, refusés, annulés",
     },
@@ -280,8 +280,8 @@ export function AdminShell({
       label: "Messages",
       icon: "📩",
       badge: newContacts,
-      badgeColor: newContacts > 0 ? EA.pink : undefined,
-      accent: EA.pink,
+      badgeColor: newContacts > 0 ? RR.pink : undefined,
+      accent: RR.pink,
       title: "Messages de contact",
       subtitle: "Formulaire public reçu",
     },
@@ -290,7 +290,7 @@ export function AdminShell({
       group: "OUTILS",
       label: "Affiche",
       icon: "🖼️",
-      accent: EA.cyan,
+      accent: RR.cyan,
       title: "Affiche de la soirée",
       subtitle: "QR code à imprimer ou télécharger en PDF",
     },
@@ -324,41 +324,41 @@ export function AdminShell({
       style={{
         minHeight: "100dvh",
         background: "#0a0218",
-        color: EA.white,
+        color: RR.white,
         position: "relative",
       }}
     >
       {/* Global admin styles */}
       <style>{`
-        .ea-admin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-        .ea-admin-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .ea-admin-scroll::-webkit-scrollbar-thumb {
+        .rr-admin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .rr-admin-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .rr-admin-scroll::-webkit-scrollbar-thumb {
           background: rgba(255,255,255,0.1);
           border-radius: 4px;
         }
-        .ea-admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-        @keyframes ea-admin-pulse {
+        .rr-admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        @keyframes rr-admin-pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.15); }
         }
-        @keyframes ea-admin-glow {
+        @keyframes rr-admin-glow {
           0%, 100% { box-shadow: 0 0 0 rgba(0,212,232,0); }
           50% { box-shadow: 0 0 20px rgba(0,212,232,0.4); }
         }
-        @keyframes ea-admin-shimmer {
+        @keyframes rr-admin-shimmer {
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
-        @keyframes ea-admin-fade-in {
+        @keyframes rr-admin-fade-in {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes ea-admin-slide-in {
+        @keyframes rr-admin-slide-in {
           from { transform: translateX(-100%); }
           to { transform: translateX(0); }
         }
-        .ea-admin-section { animation: ea-admin-fade-in .3s ease-out; }
-        .ea-admin-pulse-dot { animation: ea-admin-pulse 1.6s ease-in-out infinite; }
+        .rr-admin-section { animation: rr-admin-fade-in .3s ease-out; }
+        .rr-admin-pulse-dot { animation: rr-admin-pulse 1.6s ease-in-out infinite; }
       `}</style>
 
       {/* Subtle bg pattern */}
@@ -398,7 +398,7 @@ export function AdminShell({
             background: "rgba(0,0,0,0.6)",
             backdropFilter: "blur(4px)",
             zIndex: 50,
-            animation: "ea-admin-fade-in .2s",
+            animation: "rr-admin-fade-in .2s",
           }}
         />
       )}
@@ -434,14 +434,14 @@ export function AdminShell({
         />
 
         <main
-          className="ea-admin-scroll"
+          className="rr-admin-scroll"
           style={{
             padding: isDesktop ? "32px 40px 60px" : "20px 16px 60px",
             maxWidth: 1400,
             margin: "0 auto",
           }}
         >
-          <div key={current.id} className="ea-admin-section">
+          <div key={current.id} className="rr-admin-section">
             {current.id === "dashboard" && <DashboardClient />}
             {current.id === "activity" && <ActivityClient />}
             {current.id === "players" && <AdminClient players={players} />}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { Star } from "@/components/ui/star";
 import { SvgBlob } from "@/components/ui/blob";
@@ -96,8 +96,8 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   const isDraw = isFinished && !winnerId;
   const winCells = winnerId ? connect4WinningCells(board) : null;
 
-  const myColor = iAmP1 ? EA.pink : EA.cyan;
-  const opColor = iAmP1 ? EA.cyan : EA.pink;
+  const myColor = iAmP1 ? RR.pink : RR.cyan;
+  const opColor = iAmP1 ? RR.cyan : RR.pink;
 
   async function handleColClick(col: number) {
     if (!isMyTurn || submitting || isFinished) return;
@@ -123,18 +123,18 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
 
   function cellColor(value: string | null): string | null {
     if (!value) return null;
-    return value === p1Id ? EA.pink : EA.cyan;
+    return value === p1Id ? RR.pink : RR.cyan;
   }
 
   function Board({ cellSize }: { cellSize: number }) {
     const gap = Math.max(4, Math.round(cellSize * 0.1));
     return (
       <div style={{
-        background: EA.violetDeep,
-        border: `3px solid ${EA.ink}`,
+        background: RR.violetDeep,
+        border: `3px solid ${RR.ink}`,
         borderRadius: 20,
         padding: gap + 2,
-        boxShadow: `5px 5px 0 ${EA.pink}, 5px 5px 0 1px ${EA.ink}`,
+        boxShadow: `5px 5px 0 ${RR.pink}, 5px 5px 0 1px ${RR.ink}`,
         display: "inline-block",
         position: "relative",
       }}>
@@ -164,7 +164,7 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
                       width: cellSize * 0.72, height: cellSize * 0.72,
                       borderRadius: "50%",
                       background: myColor,
-                      border: `2px solid ${EA.ink}`,
+                      border: `2px solid ${RR.ink}`,
                       opacity: 0.55,
                     }} />
                   )}
@@ -183,10 +183,10 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
                         width: cellSize, height: cellSize,
                         marginBottom: row < ROWS - 1 ? gap : 0,
                         borderRadius: "50%",
-                        background: isWin ? EA.butter : (color ?? "rgba(255,255,255,0.08)"),
-                        border: `2.5px solid ${isWin ? EA.ink : (color ? EA.ink : "rgba(255,255,255,0.18)")}`,
+                        background: isWin ? RR.butter : (color ?? "rgba(255,255,255,0.08)"),
+                        border: `2.5px solid ${isWin ? RR.ink : (color ? RR.ink : "rgba(255,255,255,0.18)")}`,
                         boxShadow: isWin
-                          ? `0 0 0 3px ${EA.butter}, inset 0 2px 4px rgba(0,0,0,0.3)`
+                          ? `0 0 0 3px ${RR.butter}, inset 0 2px 4px rgba(0,0,0,0.3)`
                           : color
                             ? `inset 0 -3px 6px rgba(0,0,0,0.35), inset 0 2px 4px rgba(255,255,255,0.2)`
                             : "inset 0 2px 6px rgba(0,0,0,0.4)",
@@ -207,17 +207,17 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   function TurnPill() {
     if (isFinished) {
       return (
-        <div style={{ background: isDraw ? `rgba(255,233,74,0.15)` : winnerId === myId ? `rgba(0,212,232,0.15)` : `rgba(255,30,140,0.15)`, border: `2px solid ${isDraw ? EA.butter : winnerId === myId ? EA.cyan : EA.pink}`, borderRadius: 999, padding: "8px 20px", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: `3px 3px 0 ${isDraw ? EA.butter : winnerId === myId ? EA.cyan : EA.pink}` }}>
-          <span style={{ fontFamily: "var(--font-display)", fontSize: 22, color: isDraw ? EA.butter : winnerId === myId ? EA.cyan : EA.pink, transform: "skewX(-6deg)" }}>
+        <div style={{ background: isDraw ? `rgba(255,233,74,0.15)` : winnerId === myId ? `rgba(0,212,232,0.15)` : `rgba(255,30,140,0.15)`, border: `2px solid ${isDraw ? RR.butter : winnerId === myId ? RR.cyan : RR.pink}`, borderRadius: 999, padding: "8px 20px", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: `3px 3px 0 ${isDraw ? RR.butter : winnerId === myId ? RR.cyan : RR.pink}` }}>
+          <span style={{ fontFamily: "var(--font-display)", fontSize: 22, color: isDraw ? RR.butter : winnerId === myId ? RR.cyan : RR.pink, transform: "skewX(-6deg)" }}>
             {isDraw ? "🤝 MATCH NUL !" : winnerId === myId ? "🏆 VICTOIRE !" : "💀 DÉFAITE !"}
           </span>
         </div>
       );
     }
     return (
-      <div style={{ background: "rgba(26,15,94,0.7)", border: `2px solid ${EA.ink}`, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 10, boxShadow: `3px 3px 0 ${EA.cyan}` }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: isMyTurn ? EA.butter : EA.cyan, boxShadow: `0 0 10px ${isMyTurn ? EA.butter : EA.cyan}`, animation: "ea-pulse 1.2s ease-in-out infinite", flexShrink: 0 }} />
-        <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
+      <div style={{ background: "rgba(26,15,94,0.7)", border: `2px solid ${RR.ink}`, borderRadius: 999, padding: "8px 18px", display: "inline-flex", alignItems: "center", gap: 10, boxShadow: `3px 3px 0 ${RR.cyan}` }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: isMyTurn ? RR.butter : RR.cyan, boxShadow: `0 0 10px ${isMyTurn ? RR.butter : RR.cyan}`, animation: "rr-pulse 1.2s ease-in-out infinite", flexShrink: 0 }} />
+        <span style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: RR.white }}>
           {isMyTurn ? "À toi de jouer !" : `${opPseudo} réfléchit…`}
         </span>
       </div>
@@ -229,10 +229,10 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
     const isActive = pid === currentTurn && !isFinished;
     const isWinner = winnerId === pid;
     const pseudo = isMe ? myPseudo : opPseudo;
-    const bgColor = isMe ? EA.pink : EA.cyan;
-    const shadowColor = isMe ? EA.cyan : EA.pink;
-    const textColor = isMe ? EA.white : EA.ink;
-    const avatarBg = isMe ? EA.butter : EA.pink;
+    const bgColor = isMe ? RR.pink : RR.cyan;
+    const shadowColor = isMe ? RR.cyan : RR.pink;
+    const textColor = isMe ? RR.white : RR.ink;
+    const avatarBg = isMe ? RR.butter : RR.pink;
     const rotation = isMe ? "rotate(-1deg)" : "rotate(1.5deg)";
     const tagText = isActive ? (isMe ? "TON TOUR" : "SON TOUR") : isWinner ? "🏆 GAGNE" : null;
     const tagRotate = isMe ? "rotate(-8deg)" : "rotate(8deg)";
@@ -244,14 +244,14 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
     return (
       <div style={{ position: "relative", display: "inline-block" }}>
         {tagText && (
-          <div style={{ position: "absolute", top: -14, ...tagSide, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: EA.ink, letterSpacing: 0.6, transform: tagRotate, boxShadow: `2px 2px 0 ${EA.ink}`, whiteSpace: "nowrap" }}>
+          <div style={{ position: "absolute", top: -14, ...tagSide, zIndex: 5, background: RR.butter, border: `2px solid ${RR.ink}`, padding: "3px 12px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 13, color: RR.ink, letterSpacing: 0.6, transform: tagRotate, boxShadow: `2px 2px 0 ${RR.ink}`, whiteSpace: "nowrap" }}>
             {tagText}
           </div>
         )}
-        <div style={{ background: bgColor, border: `2.5px solid ${EA.ink}`, borderRadius: 24, padding: "20px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: rotation, boxShadow: `4px 4px 0 ${shadowColor}`, opacity: !isActive && !isFinished ? 0.6 : 1, transition: "opacity 0.3s", minWidth: 140 }}>
-          <Avatar name={pseudo} color={(isMe ? myAvatarColor : opAvatarColor) ?? avatarBg} ring={EA.ink} size={64} src={isMe ? myAvatarUrl : opAvatarUrl} />
+        <div style={{ background: bgColor, border: `2.5px solid ${RR.ink}`, borderRadius: 24, padding: "20px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, transform: rotation, boxShadow: `4px 4px 0 ${shadowColor}`, opacity: !isActive && !isFinished ? 0.6 : 1, transition: "opacity 0.3s", minWidth: 140 }}>
+          <Avatar name={pseudo} color={(isMe ? myAvatarColor : opAvatarColor) ?? avatarBg} ring={RR.ink} size={64} src={isMe ? myAvatarUrl : opAvatarUrl} />
           <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: textColor, transform: "skewX(-4deg)", lineHeight: 1, textAlign: "center" }}>{pseudo.toUpperCase()}</div>
-          <div style={{ width: 28, height: 28, borderRadius: "50%", background: discColor, border: `2.5px solid ${EA.ink}`, boxShadow: `2px 2px 0 ${EA.ink}` }} />
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: discColor, border: `2.5px solid ${RR.ink}`, boxShadow: `2px 2px 0 ${RR.ink}` }} />
         </div>
       </div>
     );
@@ -260,27 +260,27 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   // ── DESKTOP ────────────────────────────────────────────────────────────────
   if (desktop) {
     return (
-      <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <RulesButton gameType="puissance4" />
         <PreventLeave enabled={!isFinished} gameId={gameId} />
         <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
-        <SvgBlob color={EA.pink} style={{ width: 560, height: 480, top: -210, left: -170, opacity: 0.6, animation: "ea-float 6s ease-in-out infinite" }} />
-        <SvgBlob color={EA.cyan} style={{ width: 500, height: 420, bottom: -170, right: -150, opacity: 0.5, animation: "ea-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-        <Star color={EA.butter} size={36} style={{ top: "7%", right: "5%", transform: "rotate(15deg)", animation: "ea-spin-slow 10s linear infinite" }} />
-        <Star color={EA.white} size={20} style={{ bottom: "10%", left: "4%", animation: "ea-float 6s ease-in-out infinite" }} />
-        <Star color={EA.cyan} size={16} style={{ top: "50%", right: "3%", animation: "ea-spin-slow 14s linear infinite reverse" }} />
+        <SvgBlob color={RR.pink} style={{ width: 560, height: 480, top: -210, left: -170, opacity: 0.6, animation: "rr-float 6s ease-in-out infinite" }} />
+        <SvgBlob color={RR.cyan} style={{ width: 500, height: 420, bottom: -170, right: -150, opacity: 0.5, animation: "rr-float 8s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+        <Star color={RR.butter} size={36} style={{ top: "7%", right: "5%", transform: "rotate(15deg)", animation: "rr-spin-slow 10s linear infinite" }} />
+        <Star color={RR.white} size={20} style={{ bottom: "10%", left: "4%", animation: "rr-float 6s ease-in-out infinite" }} />
+        <Star color={RR.cyan} size={16} style={{ top: "50%", right: "3%", animation: "rr-spin-slow 14s linear infinite reverse" }} />
 
         <div style={{ position: "relative", zIndex: 5, flex: 1, maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
           <div style={{ textAlign: "center", padding: "28px 40px 0" }}>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 64, color: EA.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${EA.pink}`, lineHeight: 1, marginTop: 4 }}>PUISSANCE 4 !</div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 64, color: RR.white, transform: "skewX(-8deg)", textShadow: `4px 4px 0 ${RR.pink}`, lineHeight: 1, marginTop: 4 }}>PUISSANCE 4 !</div>
           </div>
 
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 56, padding: "20px 60px 40px" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
               <PlayerCard isMe align="left" />
               {isMyTurn && !isFinished && (
-                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: EA.butter, letterSpacing: 1, textTransform: "uppercase", animation: "ea-pulse 1.2s ease-in-out infinite" }}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 900, color: RR.butter, letterSpacing: 1, textTransform: "uppercase", animation: "rr-pulse 1.2s ease-in-out infinite" }}>
                   Choisis une colonne !
                 </div>
               )}
@@ -310,42 +310,42 @@ export function Puissance4Client({ gameId, myId, p1Id, p2Id, p1Pseudo, p2Pseudo,
   const opActive = !isMyTurn && !isFinished;
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <RulesButton gameType="puissance4" />
       <div aria-hidden style={{ position: "absolute", inset: 0, opacity: 0.3, backgroundImage: `radial-gradient(circle, rgba(0,212,232,0.5) 1.2px, transparent 1.6px) 0 0 / 16px 16px` }} />
-      <SvgBlob color={EA.pink} style={{ width: 200, height: 180, top: -80, left: -60, opacity: 0.85, animation: "ea-float 4s ease-in-out infinite" }} />
-      <SvgBlob color={EA.cyan} style={{ width: 180, height: 160, bottom: -60, right: -40, opacity: 0.85, animation: "ea-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-      <Star color={EA.butter} size={18} style={{ top: "30%", right: 16, transform: "rotate(15deg)", animation: "ea-spin-slow 10s linear infinite" }} />
+      <SvgBlob color={RR.pink} style={{ width: 200, height: 180, top: -80, left: -60, opacity: 0.85, animation: "rr-float 4s ease-in-out infinite" }} />
+      <SvgBlob color={RR.cyan} style={{ width: 180, height: 160, bottom: -60, right: -40, opacity: 0.85, animation: "rr-float 6s ease-in-out infinite reverse" }} path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
+      <Star color={RR.butter} size={18} style={{ top: "30%", right: 16, transform: "rotate(15deg)", animation: "rr-spin-slow 10s linear infinite" }} />
 
       <div style={{ position: "relative", zIndex: 5, flex: 1, display: "flex", flexDirection: "column", padding: "16px 12px 20px", gap: 12 }}>
         {/* Title */}
         <div style={{ textAlign: "center", flexShrink: 0 }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, lineHeight: 1 }}>PUISSANCE 4 !</div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2 }}>JEU EN COURS</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, lineHeight: 1 }}>PUISSANCE 4 !</div>
         </div>
 
         {/* Player headers */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexShrink: 0 }}>
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>TON TOUR</div>}
-            <div style={{ background: EA.pink, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${EA.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={myPseudo} color={myAvatarColor ?? EA.butter} ring={EA.ink} size={30} src={myAvatarUrl} />
+            {meActive && <div style={{ position: "absolute", top: -10, left: -6, zIndex: 5, background: RR.butter, border: `2px solid ${RR.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: RR.ink, letterSpacing: 0.6, transform: "rotate(-8deg)", boxShadow: `2px 2px 0 ${RR.ink}` }}>TON TOUR</div>}
+            <div style={{ background: RR.pink, border: `2.5px solid ${RR.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(-1deg)", boxShadow: `3px 3px 0 ${RR.cyan}`, opacity: !meActive && !isFinished ? 0.65 : 1 }}>
+              <Avatar name={myPseudo} color={myAvatarColor ?? RR.butter} ring={RR.ink} size={30} src={myAvatarUrl} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
-                <div style={{ width: 14, height: 14, borderRadius: "50%", background: myColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: RR.white, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{myPseudo.toUpperCase()}</div>
+                <div style={{ width: 14, height: 14, borderRadius: "50%", background: myColor, border: `2px solid ${RR.ink}`, marginTop: 3 }} />
               </div>
             </div>
           </div>
-          <div style={{ flexShrink: 0, background: EA.violetDeep, border: `2.5px solid ${EA.ink}`, borderRadius: 14, padding: "5px 8px", fontFamily: "var(--font-display)", fontSize: 14, color: EA.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.pink}` }}>
+          <div style={{ flexShrink: 0, background: RR.violetDeep, border: `2.5px solid ${RR.ink}`, borderRadius: 14, padding: "5px 8px", fontFamily: "var(--font-display)", fontSize: 14, color: RR.cyan, transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${RR.pink}` }}>
             {board.filter(c => c === myId).length}—{board.filter(c => c === opponentId).length}
           </div>
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: EA.butter, border: `2px solid ${EA.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}` }}>SON TOUR</div>}
-            <div style={{ background: EA.cyan, border: `2.5px solid ${EA.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${EA.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
-              <Avatar name={opPseudo} color={opAvatarColor ?? EA.pink} ring={EA.ink} size={30} src={opAvatarUrl} />
+            {opActive && <div style={{ position: "absolute", top: -10, right: -6, zIndex: 5, background: RR.butter, border: `2px solid ${RR.ink}`, padding: "2px 7px", borderRadius: 999, fontFamily: "var(--font-display)", fontSize: 9, color: RR.ink, letterSpacing: 0.6, transform: "rotate(8deg)", boxShadow: `2px 2px 0 ${RR.ink}` }}>SON TOUR</div>}
+            <div style={{ background: RR.cyan, border: `2.5px solid ${RR.ink}`, borderRadius: 18, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8, transform: "rotate(1.5deg)", boxShadow: `3px 3px 0 ${RR.pink}`, opacity: !opActive && !isFinished ? 0.65 : 1 }}>
+              <Avatar name={opPseudo} color={opAvatarColor ?? RR.pink} ring={RR.ink} size={30} src={opAvatarUrl} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
-                <div style={{ width: 14, height: 14, borderRadius: "50%", background: opColor, border: `2px solid ${EA.ink}`, marginTop: 3 }} />
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink, transform: "skewX(-4deg)", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opPseudo.toUpperCase()}</div>
+                <div style={{ width: 14, height: 14, borderRadius: "50%", background: opColor, border: `2px solid ${RR.ink}`, marginTop: 3 }} />
               </div>
             </div>
           </div>

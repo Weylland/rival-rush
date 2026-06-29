@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { acceptChallenge, declineChallenge } from "@/app/(game)/lobby/actions";
 import { useGameSounds } from "@/hooks/useGameSounds";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import type { GameType } from "@/types/database";
 import { GAME_LABELS } from "@/lib/game-labels";
@@ -24,7 +24,7 @@ interface IncomingChallenge {
   expires_at: string;
 }
 
-// Draws a favicon matching the EA logo, with an optional pink badge
+// Draws a favicon matching the RR logo, with an optional pink badge
 function setFaviconBadge(active: boolean) {
   const S = 64;
   const canvas = document.createElement("canvas");
@@ -228,13 +228,13 @@ export function ChallengeNotifier({ playerId }: Props) {
   // Blinking tab title + favicon badge while a challenge is pending
   useEffect(() => {
     if (!incoming) {
-      document.title = "Expression Arena";
+      document.title = "Rival Rush";
       setFaviconBadge(false);
       return;
     }
     setFaviconBadge(true);
     const alert = `⚔ Défi de ${incoming.challenger_pseudo} !`;
-    const original = "Expression Arena";
+    const original = "Rival Rush";
     let show = true;
     const interval = setInterval(() => {
       document.title = show ? alert : original;
@@ -257,10 +257,10 @@ export function ChallengeNotifier({ playerId }: Props) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(26,15,94,0.7)", zIndex: 100 }}>
       <div style={{
         position: "absolute", top: 30, left: "50%", transform: "translateX(-50%) rotate(-1.5deg)",
-        background: EA.butter, border: `2.5px solid ${EA.ink}`,
+        background: RR.butter, border: `2.5px solid ${RR.ink}`,
         borderRadius: 16, padding: "8px 18px",
-        fontFamily: "var(--font-display)", fontSize: 12, color: EA.ink, letterSpacing: 1.4,
-        boxShadow: `4px 4px 0 ${EA.pink}`,
+        fontFamily: "var(--font-display)", fontSize: 12, color: RR.ink, letterSpacing: 1.4,
+        boxShadow: `4px 4px 0 ${RR.pink}`,
       }}>
         ⚡ DÉFI ENTRANT ⚡
       </div>
@@ -268,9 +268,9 @@ export function ChallengeNotifier({ playerId }: Props) {
       <div style={{
         position: "absolute", left: "50%", top: 100, transform: "translateX(-50%)",
         width: "min(420px, calc(100% - 32px))",
-        background: EA.pink, border: `3px solid ${EA.ink}`,
+        background: RR.pink, border: `3px solid ${RR.ink}`,
         borderRadius: 28, padding: "24px 18px 20px",
-        boxShadow: `6px 6px 0 ${EA.cyan}, 6px 6px 0 1px ${EA.ink}`,
+        boxShadow: `6px 6px 0 ${RR.cyan}, 6px 6px 0 1px ${RR.ink}`,
       }}>
         <div aria-hidden style={{
           position: "absolute", inset: 4, borderRadius: 24,
@@ -282,29 +282,29 @@ export function ChallengeNotifier({ playerId }: Props) {
           <div style={{ position: "relative", marginBottom: 4 }}>
             <div style={{
               position: "absolute", inset: -8, borderRadius: "50%",
-              border: `3px dashed ${EA.butter}`,
-              animation: "ea-spin 6s linear infinite",
+              border: `3px dashed ${RR.butter}`,
+              animation: "rr-spin 6s linear infinite",
             }} />
-            <Avatar name={incoming.challenger_pseudo} src={incoming.challenger_avatar_url} color={incoming.challenger_avatar_color ?? EA.cyan} ring={EA.butter} size={84} />
+            <Avatar name={incoming.challenger_pseudo} src={incoming.challenger_avatar_url} color={incoming.challenger_avatar_color ?? RR.cyan} ring={RR.butter} size={84} />
           </div>
 
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.violetDeep}` }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.violetDeep}` }}>
             {incoming.challenger_pseudo.toUpperCase()}
           </div>
-          <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: EA.white }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 14, fontWeight: 800, color: RR.white }}>
             te défie sur
           </div>
 
           <div style={{
-            background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
             borderRadius: 16, padding: "8px 16px", marginTop: 4,
             display: "flex", alignItems: "center", gap: 8,
-            boxShadow: `3px 3px 0 ${EA.butter}`, transform: "rotate(-1deg)",
+            boxShadow: `3px 3px 0 ${RR.butter}`, transform: "rotate(-1deg)",
           }}>
             <div style={{ fontSize: 22 }}>{gameIcon}</div>
             <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white, transform: "skewX(-4deg)" }}>{gameLabel}</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: EA.cyan, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white, transform: "skewX(-4deg)" }}>{gameLabel}</div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800, color: RR.cyan, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 }}>
                 Duel en temps réel
               </div>
             </div>
@@ -315,10 +315,10 @@ export function ChallengeNotifier({ playerId }: Props) {
               auto-refus dans
             </div>
             <div style={{
-              background: EA.white, border: `2px solid ${EA.ink}`,
+              background: RR.white, border: `2px solid ${RR.ink}`,
               borderRadius: 10, padding: "2px 8px",
-              fontFamily: "var(--font-display)", fontSize: 16, color: countdown <= 5 ? EA.pink : EA.ink,
-              transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${EA.cyan}`,
+              fontFamily: "var(--font-display)", fontSize: 16, color: countdown <= 5 ? RR.pink : RR.ink,
+              transform: "skewX(-8deg)", boxShadow: `2px 2px 0 ${RR.cyan}`,
             }}>{String(Math.floor(countdown / 60)).padStart(1, "0")}:{String(countdown % 60).padStart(2, "0")}</div>
           </div>
 
@@ -328,21 +328,21 @@ export function ChallengeNotifier({ playerId }: Props) {
               disabled={isPending}
               style={{
                 flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                color: EA.white, background: EA.violetDeep,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                color: RR.white, background: RR.violetDeep,
+                border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                 padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
-                cursor: "pointer", boxShadow: `3px 3px 0 ${EA.ink}`,
+                cursor: "pointer", boxShadow: `3px 3px 0 ${RR.ink}`,
               }}>Refuser</button>
             <button
               onClick={handleAccept}
               disabled={isPending}
               style={{
                 flex: 1.4, fontFamily: "var(--font-display)", fontSize: 16,
-                color: EA.ink, background: EA.butter,
-                border: `2.5px solid ${EA.ink}`, borderRadius: 999,
+                color: RR.ink, background: RR.butter,
+                border: `2.5px solid ${RR.ink}`, borderRadius: 999,
                 padding: "12px 0", textTransform: "uppercase", letterSpacing: 0.8,
                 cursor: isPending ? "wait" : "pointer",
-                boxShadow: `4px 4px 0 ${EA.cyan}, 4px 4px 0 1px ${EA.ink}`,
+                boxShadow: `4px 4px 0 ${RR.cyan}, 4px 4px 0 1px ${RR.ink}`,
                 transform: "skewX(-4deg)",
                 opacity: isPending ? 0.7 : 1,
               }}>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export function GuestBanner() {
   const [dismissed, setDismissed] = useState(false);
@@ -17,10 +17,10 @@ export function GuestBanner() {
       zIndex: 200,
       width: "calc(100% - 32px)",
       maxWidth: 480,
-      background: EA.violetDeep,
-      border: `2.5px solid ${EA.pink}`,
+      background: RR.violetDeep,
+      border: `2.5px solid ${RR.pink}`,
       borderRadius: 16,
-      boxShadow: `4px 4px 0 ${EA.pink}`,
+      boxShadow: `4px 4px 0 ${RR.pink}`,
       padding: "14px 16px",
       display: "flex",
       alignItems: "center",
@@ -32,7 +32,7 @@ export function GuestBanner() {
           fontFamily: "var(--font-sans)",
           fontSize: 13,
           fontWeight: 800,
-          color: EA.white,
+          color: RR.white,
           lineHeight: 1.4,
         }}>
           Compte invité — temporaire
@@ -53,14 +53,14 @@ export function GuestBanner() {
           flexShrink: 0,
           fontFamily: "var(--font-display)",
           fontSize: 12,
-          color: EA.violetDeep,
-          background: EA.pink,
-          border: `2px solid ${EA.ink}`,
+          color: RR.violetDeep,
+          background: RR.pink,
+          border: `2px solid ${RR.ink}`,
           borderRadius: 999,
           padding: "8px 14px",
           textDecoration: "none",
           textTransform: "uppercase",
-          boxShadow: `2px 2px 0 ${EA.ink}`,
+          boxShadow: `2px 2px 0 ${RR.ink}`,
           transform: "skewX(-4deg)",
           display: "inline-block",
           whiteSpace: "nowrap",

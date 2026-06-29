@@ -4,7 +4,7 @@ import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cancelChallenge } from "@/app/(game)/lobby/actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { SvgBlob } from "@/components/ui/blob";
 import { Star } from "@/components/ui/star";
@@ -177,22 +177,22 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, myAvatarColo
   }, [challengeId, router]);
 
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", background: EA.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "relative", minHeight: "100dvh", background: RR.violet, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div aria-hidden style={{
         position: "absolute", inset: 0, opacity: 0.3,
         backgroundImage: "radial-gradient(circle, rgba(0,212,232,0.5) 1.4px, transparent 1.8px)",
         backgroundSize: "16px 16px",
       }} />
-      <SvgBlob color={EA.pink} style={{ width: desktop ? 560 : 300, height: desktop ? 480 : 260, top: -160, right: -130, opacity: 0.8, animation: "ea-float 4s ease-in-out infinite" }} />
-      <SvgBlob color={EA.cyan} style={{ width: desktop ? 480 : 280, height: desktop ? 420 : 240, bottom: -160, left: -120, opacity: 0.75, animation: "ea-float 6s ease-in-out infinite reverse" }}
+      <SvgBlob color={RR.pink} style={{ width: desktop ? 560 : 300, height: desktop ? 480 : 260, top: -160, right: -130, opacity: 0.8, animation: "rr-float 4s ease-in-out infinite" }} />
+      <SvgBlob color={RR.cyan} style={{ width: desktop ? 480 : 280, height: desktop ? 420 : 240, bottom: -160, left: -120, opacity: 0.75, animation: "rr-float 6s ease-in-out infinite reverse" }}
         path="M 50 30 Q 90 5 140 30 Q 195 50 180 110 Q 175 175 110 175 Q 30 180 25 120 Q 10 60 50 30 Z" />
-      <SvgBlob color={EA.butter} style={{ width: desktop ? 320 : 200, height: desktop ? 280 : 180, top: "40%", left: -120, opacity: 0.35, animation: "ea-float 9s ease-in-out infinite" }}
+      <SvgBlob color={RR.butter} style={{ width: desktop ? 320 : 200, height: desktop ? 280 : 180, top: "40%", left: -120, opacity: 0.35, animation: "rr-float 9s ease-in-out infinite" }}
         path="M 40 20 Q 80 0 130 25 Q 190 55 170 120 Q 155 180 85 175 Q 15 170 10 105 Q -5 45 40 20 Z" />
-      <Star color={EA.butter} size={desktop ? 34 : 20} style={{ top: "10%", left: "6%", animation: "ea-spin-slow 12s linear infinite" }} />
-      <Star color={EA.white} size={desktop ? 20 : 14} style={{ top: "7%", right: "8%", animation: "ea-spin-slow 16s linear infinite reverse" }} />
-      <Star color={EA.cyan} size={desktop ? 18 : 12} style={{ bottom: "20%", right: "6%", animation: "ea-float 5s ease-in-out infinite" }} />
-      <Star color={EA.pink} size={desktop ? 15 : 10} style={{ top: "35%", right: "5%", animation: "ea-spin-slow 10s linear infinite" }} />
-      <Star color={EA.butter} size={desktop ? 13 : 9} style={{ bottom: "8%", left: "9%", transform: "rotate(-20deg)" }} />
+      <Star color={RR.butter} size={desktop ? 34 : 20} style={{ top: "10%", left: "6%", animation: "rr-spin-slow 12s linear infinite" }} />
+      <Star color={RR.white} size={desktop ? 20 : 14} style={{ top: "7%", right: "8%", animation: "rr-spin-slow 16s linear infinite reverse" }} />
+      <Star color={RR.cyan} size={desktop ? 18 : 12} style={{ bottom: "20%", right: "6%", animation: "rr-float 5s ease-in-out infinite" }} />
+      <Star color={RR.pink} size={desktop ? 15 : 10} style={{ top: "35%", right: "5%", animation: "rr-spin-slow 10s linear infinite" }} />
+      <Star color={RR.butter} size={desktop ? 13 : 9} style={{ bottom: "8%", left: "9%", transform: "rotate(-20deg)" }} />
 
       {/* Centered content */}
       <div style={{
@@ -207,10 +207,10 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, myAvatarColo
 
         {/* Title */}
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 900, color: EA.cyan, textTransform: "uppercase", letterSpacing: 2 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 14 : 11, fontWeight: 900, color: RR.cyan, textTransform: "uppercase", letterSpacing: 2 }}>
             MATCHMAKING
           </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 28, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginTop: 4 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 52 : 28, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, marginTop: 4 }}>
             ON ATTEND...
           </div>
         </div>
@@ -218,38 +218,38 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, myAvatarColo
         {/* Players VS */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: desktop ? 40 : 12, width: "100%" }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: desktop ? 10 : 6 }}>
-            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? EA.butter} ring={EA.cyan} size={desktop ? 96 : 72} />
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 15, color: EA.white, transform: "skewX(-4deg)" }}>
+            <Avatar name={myPseudo} src={myAvatarUrl} color={myAvatarColor ?? RR.butter} ring={RR.cyan} size={desktop ? 96 : 72} />
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 15, color: RR.white, transform: "skewX(-4deg)" }}>
               {myPseudo.toUpperCase()}
             </div>
-            <div style={{ background: EA.cyan, border: `2px solid ${EA.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: EA.ink, letterSpacing: 1, boxShadow: `2px 2px 0 ${EA.ink}` }}>
+            <div style={{ background: RR.cyan, border: `2px solid ${RR.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: RR.ink, letterSpacing: 1, boxShadow: `2px 2px 0 ${RR.ink}` }}>
               ✓ PRÊT·E
             </div>
           </div>
 
           <div style={{
             width: desktop ? 72 : 50, height: desktop ? 72 : 50, borderRadius: "50%",
-            background: EA.pink, border: `2.5px solid ${EA.ink}`,
+            background: RR.pink, border: `2.5px solid ${RR.ink}`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: EA.white,
+            fontFamily: "var(--font-display)", fontSize: desktop ? 26 : 18, color: RR.white,
             transform: "skewX(-8deg) rotate(-6deg)",
-            boxShadow: `3px 3px 0 ${EA.butter}`, flexShrink: 0,
+            boxShadow: `3px 3px 0 ${RR.butter}`, flexShrink: 0,
           }}>VS</div>
 
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: desktop ? 10 : 6 }}>
             <div style={{
               width: desktop ? 96 : 72, height: desktop ? 96 : 72, borderRadius: "50%",
               background: "rgba(255,255,255,0.15)",
-              border: `2.5px dashed ${opponentIsOffline ? EA.butter : EA.cyan}`,
+              border: `2.5px dashed ${opponentIsOffline ? RR.butter : RR.cyan}`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontFamily: "var(--font-display)", fontSize: desktop ? 40 : 28,
-              color: opponentIsOffline ? EA.butter : EA.cyan,
-              animation: "ea-pulse 1.4s ease-in-out infinite",
+              color: opponentIsOffline ? RR.butter : RR.cyan,
+              animation: "rr-pulse 1.4s ease-in-out infinite",
             }}>{opponentIsOffline ? "📬" : "?"}</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 22 : 15, color: "rgba(255,255,255,0.5)", transform: "skewX(-4deg)" }}>
               {opponentPseudo.toUpperCase()}
             </div>
-            <div style={{ background: opponentIsOffline ? "rgba(255,233,74,0.15)" : "rgba(26,15,94,0.55)", border: `2px solid ${opponentIsOffline ? EA.butter : EA.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: opponentIsOffline ? EA.butter : EA.cyan, letterSpacing: 1 }}>
+            <div style={{ background: opponentIsOffline ? "rgba(255,233,74,0.15)" : "rgba(26,15,94,0.55)", border: `2px solid ${opponentIsOffline ? RR.butter : RR.ink}`, borderRadius: 999, padding: desktop ? "5px 16px" : "3px 10px", fontFamily: "var(--font-display)", fontSize: desktop ? 14 : 10, color: opponentIsOffline ? RR.butter : RR.cyan, letterSpacing: 1 }}>
               {opponentIsOffline ? "📵 HORS LIGNE" : "⏳ ARRIVE"}
             </div>
           </div>
@@ -260,14 +260,14 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, myAvatarColo
           {[0, 1, 2].map((i) => (
             <div key={i} style={{
               width: desktop ? 18 : 14, height: desktop ? 18 : 14, borderRadius: "50%",
-              background: i === 0 ? EA.cyan : i === 1 ? EA.pink : EA.butter,
-              border: `2px solid ${EA.ink}`,
-              animation: `ea-bounce 1.2s ease-in-out infinite ${i * 0.2}s`,
+              background: i === 0 ? RR.cyan : i === 1 ? RR.pink : RR.butter,
+              border: `2px solid ${RR.ink}`,
+              animation: `rr-bounce 1.2s ease-in-out infinite ${i * 0.2}s`,
             }} />
           ))}
         </div>
 
-        <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: desktop ? 18 : 14, fontWeight: 800, color: EA.white, opacity: 0.85, textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: desktop ? 18 : 14, fontWeight: 800, color: RR.white, opacity: 0.85, textAlign: "center" }}>
           {opponentIsOffline
             ? `Invitation envoyée à ${opponentPseudo} — il a 5 min pour accepter`
             : `${opponentPseudo} se connecte au match...`}
@@ -276,15 +276,15 @@ export function WaitingClient({ challengeId, myPseudo, myAvatarUrl, myAvatarColo
         {/* Tip */}
         <div style={{
           width: "100%",
-          background: EA.violetDeep, border: `2.5px solid ${EA.ink}`,
+          background: RR.violetDeep, border: `2.5px solid ${RR.ink}`,
           borderRadius: desktop ? 22 : 18, padding: desktop ? "16px 20px" : "12px 14px",
           display: "flex", alignItems: "center", gap: desktop ? 14 : 10,
-          boxShadow: `4px 4px 0 ${EA.cyan}`,
+          boxShadow: `4px 4px 0 ${RR.cyan}`,
         }}>
-          <div style={{ background: EA.butter, border: `2px solid ${EA.ink}`, width: desktop ? 44 : 32, height: desktop ? 44 : 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: desktop ? 22 : 16, flexShrink: 0 }}>💡</div>
+          <div style={{ background: RR.butter, border: `2px solid ${RR.ink}`, width: desktop ? 44 : 32, height: desktop ? 44 : 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: desktop ? 22 : 16, flexShrink: 0 }}>💡</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 12, color: EA.cyan, letterSpacing: 1 }}>ASTUCE</div>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 11, fontWeight: 800, color: EA.white, opacity: 0.85, marginTop: 1 }}>{tip}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: desktop ? 16 : 12, color: RR.cyan, letterSpacing: 1 }}>ASTUCE</div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: desktop ? 15 : 11, fontWeight: 800, color: RR.white, opacity: 0.85, marginTop: 1 }}>{tip}</div>
           </div>
         </div>
 

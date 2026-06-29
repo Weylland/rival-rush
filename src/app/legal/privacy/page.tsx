@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
-export const metadata: Metadata = { title: "Politique de confidentialité — ExpressionArena" };
+export const metadata: Metadata = { title: "Politique de confidentialité — RivalRush" };
 
 const h2: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: 20,
-  color: EA.cyan,
+  color: RR.cyan,
   transform: "skewX(-4deg)",
   marginTop: 32,
   marginBottom: 8,
@@ -24,14 +24,14 @@ const p: React.CSSProperties = {
 export default function PrivacyPage() {
   return (
     <div>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 36, color: EA.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${EA.pink}`, marginBottom: 8 }}>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 36, color: RR.white, transform: "skewX(-8deg)", textShadow: `3px 3px 0 ${RR.pink}`, marginBottom: 8 }}>
         CONFIDENTIALITÉ
       </h1>
       <p style={{ ...p, color: "rgba(255,255,255,0.4)", fontSize: 12 }}>Dernière mise à jour : mai 2026</p>
 
       <h2 style={h2}>Données collectées</h2>
       <p style={p}>
-        ExpressionArena collecte uniquement les données strictement nécessaires au fonctionnement du jeu :
+        RivalRush collecte uniquement les données strictement nécessaires au fonctionnement du jeu :
       </p>
       <ul style={{ ...p, paddingLeft: 20, marginTop: 8 }}>
         <li><strong>Pseudo</strong> — nom d'affichage choisi librement, sans lien avec votre identité réelle.</li>
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
       <h2 style={h2}>Vos droits (RGPD)</h2>
       <p style={p}>
         Vous disposez d'un droit d'accès, de rectification et de suppression de vos données.
-        Pour toute demande : <a href={`mailto:${process.env.CONTACT_EMAIL}`} style={{ color: EA.cyan }}>{process.env.CONTACT_EMAIL}</a>
+        Pour toute demande : <a href={`mailto:${process.env.CONTACT_EMAIL}`} style={{ color: RR.cyan }}>{process.env.CONTACT_EMAIL}</a>
       </p>
 
       <h2 style={h2}>Contact DPA</h2>

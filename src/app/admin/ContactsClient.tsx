@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { updateContactStatus, deleteContact, type ContactStatus } from "./actions";
 
 const PAGE_SIZE = 15;
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export interface Contact {
   id: string;
@@ -17,10 +17,10 @@ export interface Contact {
 }
 
 const STATUS_CONFIG: Record<ContactStatus, { label: string; color: string; bg: string }> = {
-  new:         { label: "Nouveau",    color: EA.cyan,   bg: "rgba(0,212,232,0.15)" },
-  in_progress: { label: "En cours",  color: EA.butter, bg: "rgba(255,233,74,0.15)" },
+  new:         { label: "Nouveau",    color: RR.cyan,   bg: "rgba(0,212,232,0.15)" },
+  in_progress: { label: "En cours",  color: RR.butter, bg: "rgba(255,233,74,0.15)" },
   done:        { label: "Traité",     color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.08)" },
-  spam:        { label: "Spam",       color: EA.pink,   bg: "rgba(255,30,140,0.15)" },
+  spam:        { label: "Spam",       color: RR.pink,   bg: "rgba(255,30,140,0.15)" },
 };
 
 const ALL_STATUSES: ContactStatus[] = ["new", "in_progress", "done", "spam"];
@@ -62,10 +62,10 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
 
   return (
     <div style={{
-      background: EA.violetDeep,
-      border: `2.5px solid ${status === "new" ? EA.cyan : EA.ink}`,
+      background: RR.violetDeep,
+      border: `2.5px solid ${status === "new" ? RR.cyan : RR.ink}`,
       borderRadius: 18, overflow: "hidden",
-      boxShadow: status === "new" ? `3px 3px 0 ${EA.cyan}` : `2px 2px 0 ${EA.ink}`,
+      boxShadow: status === "new" ? `3px 3px 0 ${RR.cyan}` : `2px 2px 0 ${RR.ink}`,
       opacity: status === "spam" ? 0.5 : 1,
       transition: "opacity .2s",
     }}>
@@ -79,7 +79,7 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: EA.white }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: RR.white }}>
               {contact.name}
             </span>
             <span style={{
@@ -124,7 +124,7 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
                   disabled={pending || active}
                   style={{
                     fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                    color: active ? EA.violetDeep : c.color,
+                    color: active ? RR.violetDeep : c.color,
                     background: active ? c.color : c.bg,
                     border: `2px solid ${c.color}`,
                     borderRadius: 999, padding: "6px 14px",
@@ -143,8 +143,8 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
               href={`mailto:${contact.email}?subject=Re: ${encodeURIComponent(contact.subject ?? "Votre message")}`}
               style={{
                 fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                color: EA.white, background: "rgba(255,255,255,0.1)",
-                border: `2px solid ${EA.ink}`,
+                color: RR.white, background: "rgba(255,255,255,0.1)",
+                border: `2px solid ${RR.ink}`,
                 borderRadius: 999, padding: "6px 14px",
                 textDecoration: "none", marginLeft: "auto",
               }}
@@ -158,8 +158,8 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
                 disabled={pending}
                 style={{
                   fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                  color: EA.pink, background: "rgba(255,30,140,0.12)",
-                  border: `2px solid ${EA.pink}`, borderRadius: 999, padding: "6px 12px",
+                  color: RR.pink, background: "rgba(255,30,140,0.12)",
+                  border: `2px solid ${RR.pink}`, borderRadius: 999, padding: "6px 12px",
                   cursor: "pointer",
                 }}
               >🗑</button>
@@ -169,11 +169,11 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
                   Supprimer ?
                 </span>
                 <button onClick={() => setConfirmDelete(false)} disabled={pending}
-                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.08)", border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
+                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.08)", border: `1.5px solid ${RR.ink}`, borderRadius: 999, padding: "4px 10px", cursor: "pointer" }}>
                   Non
                 </button>
                 <button onClick={handleDelete} disabled={pending}
-                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.white, background: EA.pink, border: `1.5px solid ${EA.ink}`, borderRadius: 999, padding: "4px 10px", cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1 }}>
+                  style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.white, background: RR.pink, border: `1.5px solid ${RR.ink}`, borderRadius: 999, padding: "4px 10px", cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1 }}>
                   Oui
                 </button>
               </div>
@@ -181,7 +181,7 @@ function ContactCard({ contact, onStatusChange, onDelete }: {
           </div>
 
           {error && (
-            <div style={{ marginTop: 8, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: EA.pink }}>
+            <div style={{ marginTop: 8, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 800, color: RR.pink }}>
               ⚠ {error}
             </div>
           )}
@@ -227,9 +227,9 @@ export function ContactsClient({ contacts, onStatusChange, onDelete }: ContactsC
               onClick={() => { setFilter(value); setPage(1); }}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 13,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
-                background: active ? EA.cyan : "rgba(255,255,255,0.08)",
-                border: `2px solid ${active ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.6)",
+                background: active ? RR.cyan : "rgba(255,255,255,0.08)",
+                border: `2px solid ${active ? RR.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 999, padding: "7px 16px",
                 cursor: "pointer", transform: "skewX(-3deg)",
                 position: "relative",
@@ -239,7 +239,7 @@ export function ContactsClient({ contacts, onStatusChange, onDelete }: ContactsC
                 {label}
                 {isNew && (
                   <span style={{
-                    marginLeft: 6, background: EA.pink, color: EA.white,
+                    marginLeft: 6, background: RR.pink, color: RR.white,
                     borderRadius: 999, padding: "1px 7px", fontSize: 11, fontWeight: 900,
                   }}>
                     {newCount}

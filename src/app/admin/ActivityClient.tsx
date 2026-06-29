@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 type EventKind =
   | "player"
@@ -25,13 +25,13 @@ const KIND_META: Record<
   EventKind,
   { icon: string; color: string; label: string }
 > = {
-  player: { icon: "👤", color: EA.cyan, label: "Joueur" },
-  game: { icon: "🎯", color: EA.butter, label: "Partie" },
-  report: { icon: "🚩", color: EA.pink, label: "Signalement" },
-  contact: { icon: "📩", color: EA.pink, label: "Contact" },
-  room: { icon: "🏠", color: EA.violet, label: "Salle" },
-  warning: { icon: "⚠️", color: EA.pink, label: "Avertissement" },
-  challenge: { icon: "⚔️", color: EA.cyan, label: "Défi" },
+  player: { icon: "👤", color: RR.cyan, label: "Joueur" },
+  game: { icon: "🎯", color: RR.butter, label: "Partie" },
+  report: { icon: "🚩", color: RR.pink, label: "Signalement" },
+  contact: { icon: "📩", color: RR.pink, label: "Contact" },
+  room: { icon: "🏠", color: RR.violet, label: "Salle" },
+  warning: { icon: "⚠️", color: RR.pink, label: "Avertissement" },
+  challenge: { icon: "⚔️", color: RR.cyan, label: "Défi" },
 };
 
 function timeAgo(iso: string) {
@@ -275,10 +275,10 @@ export function ActivityClient() {
                 fontFamily: "var(--font-sans)",
                 fontSize: 12,
                 fontWeight: 800,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.55)",
-                background: active ? EA.cyan : "rgba(255,255,255,0.05)",
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.55)",
+                background: active ? RR.cyan : "rgba(255,255,255,0.05)",
                 border: active
-                  ? `1.5px solid ${EA.cyan}`
+                  ? `1.5px solid ${RR.cyan}`
                   : "1.5px solid rgba(255,255,255,0.1)",
                 borderRadius: 999,
                 padding: "6px 14px",
@@ -389,7 +389,7 @@ export function ActivityClient() {
                           fontFamily: "var(--font-sans)",
                           fontSize: 13,
                           fontWeight: 800,
-                          color: EA.white,
+                          color: RR.white,
                         }}
                       >
                         {event.title}

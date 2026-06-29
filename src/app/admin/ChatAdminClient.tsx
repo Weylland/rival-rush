@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import {
   deleteLobbyChatMessage,
   deleteLobbyChatByPlayer,
@@ -70,13 +70,13 @@ const msgCardStyle: React.CSSProperties = {
 
 const deleteBtnStyle: React.CSSProperties = {
   background: "rgba(255,30,140,0.1)",
-  border: `1.5px solid ${EA.pink}`,
+  border: `1.5px solid ${RR.pink}`,
   borderRadius: 8,
   padding: "4px 10px",
   fontSize: 13,
   cursor: "pointer",
   flexShrink: 0,
-  color: EA.pink,
+  color: RR.pink,
   lineHeight: 1.4,
 };
 
@@ -84,9 +84,9 @@ const deleteBulkBtnStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans)",
   fontSize: 12,
   fontWeight: 800,
-  color: EA.pink,
+  color: RR.pink,
   background: "rgba(255,30,140,0.08)",
-  border: `2px solid ${EA.pink}`,
+  border: `2px solid ${RR.pink}`,
   borderRadius: 999,
   padding: "6px 14px",
   cursor: "pointer",
@@ -110,7 +110,7 @@ const searchInputStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans)",
   fontSize: 13,
   fontWeight: 700,
-  color: EA.white,
+  color: RR.white,
   background: "rgba(255,255,255,0.06)",
   border: `2px solid rgba(255,255,255,0.15)`,
   borderRadius: 10,
@@ -121,14 +121,14 @@ const searchInputStyle: React.CSSProperties = {
 
 const errorStyle: React.CSSProperties = {
   background: "rgba(255,30,140,0.12)",
-  border: `2px solid ${EA.pink}`,
+  border: `2px solid ${RR.pink}`,
   borderRadius: 10,
   padding: "10px 14px",
   marginBottom: 12,
   fontFamily: "var(--font-sans)",
   fontSize: 12,
   fontWeight: 800,
-  color: EA.pink,
+  color: RR.pink,
 };
 
 const emptyStyle: React.CSSProperties = {
@@ -302,7 +302,7 @@ function LobbyTab() {
                   style={{
                     fontFamily: "var(--font-display)",
                     fontSize: 13,
-                    color: EA.cyan,
+                    color: RR.cyan,
                   }}
                 >
                   {msg.pseudo}
@@ -456,7 +456,7 @@ function RoomsTab() {
                 onClick={() => selectRoom(room)}
                 style={{
                   background: "rgba(255,255,255,0.06)",
-                  border: `2px solid ${EA.ink}`,
+                  border: `2px solid ${RR.ink}`,
                   borderRadius: 12,
                   padding: "12px 16px",
                   cursor: "pointer",
@@ -471,7 +471,7 @@ function RoomsTab() {
                   style={{
                     fontFamily: "var(--font-display)",
                     fontSize: 15,
-                    color: EA.white,
+                    color: RR.white,
                   }}
                 >
                   {room.name}
@@ -481,7 +481,7 @@ function RoomsTab() {
                     fontFamily: "var(--font-sans)",
                     fontSize: 11,
                     fontWeight: 900,
-                    color: EA.cyan,
+                    color: RR.cyan,
                     background: "rgba(0,212,232,0.12)",
                     borderRadius: 999,
                     padding: "2px 8px",
@@ -530,11 +530,11 @@ function RoomsTab() {
           style={{
             fontFamily: "var(--font-display)",
             fontSize: 16,
-            color: EA.white,
+            color: RR.white,
           }}
         >
           {selectedRoom.name}{" "}
-          <span style={{ color: EA.cyan, fontSize: 13 }}>
+          <span style={{ color: RR.cyan, fontSize: 13 }}>
             #{selectedRoom.code}
           </span>
         </span>
@@ -601,7 +601,7 @@ function RoomsTab() {
                   style={{
                     fontFamily: "var(--font-display)",
                     fontSize: 13,
-                    color: EA.cyan,
+                    color: RR.cyan,
                   }}
                 >
                   {msg.pseudo}
@@ -801,7 +801,7 @@ function DMsTab() {
                     style={{
                       fontFamily: "var(--font-display)",
                       fontSize: 14,
-                      color: EA.white,
+                      color: RR.white,
                     }}
                   >
                     {conv.p1_pseudo}{" "}
@@ -876,7 +876,7 @@ function DMsTab() {
           style={{
             fontFamily: "var(--font-display)",
             fontSize: 16,
-            color: EA.white,
+            color: RR.white,
           }}
         >
           {selected.p1_pseudo} ↔ {selected.p2_pseudo}
@@ -898,9 +898,9 @@ function DMsTab() {
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: EA.pink,
+            color: RR.pink,
             background: "rgba(255,30,140,0.1)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 999,
             padding: "6px 14px",
             cursor: "pointer",
@@ -926,7 +926,7 @@ function DMsTab() {
                   style={{
                     fontFamily: "var(--font-display)",
                     fontSize: 13,
-                    color: EA.cyan,
+                    color: RR.cyan,
                   }}
                 >
                   {msg.pseudo}
@@ -996,13 +996,13 @@ export function ChatAdminClient() {
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: 13,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
-                background: active ? EA.cyan : "rgba(255,255,255,0.08)",
-                border: `2px solid ${active ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.6)",
+                background: active ? RR.cyan : "rgba(255,255,255,0.08)",
+                border: `2px solid ${active ? RR.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 999,
                 padding: "8px 18px",
                 cursor: active ? "default" : "pointer",
-                boxShadow: active ? `2px 2px 0 ${EA.ink}` : "none",
+                boxShadow: active ? `2px 2px 0 ${RR.ink}` : "none",
                 transition: "all .15s",
               }}
             >

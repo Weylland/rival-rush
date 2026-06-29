@@ -1,11 +1,11 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 /** Couleur de la pile selon le danger (peu d'allumettes = rouge). */
 export function getPileColor(pile: number) {
-  if (pile <= 1) return EA.pink;
+  if (pile <= 1) return RR.pink;
   if (pile <= 3) return "#ff6b35";
-  if (pile <= 6) return EA.butter;
-  return EA.cyan;
+  if (pile <= 6) return RR.butter;
+  return RR.cyan;
 }
 
 function Allumette({ highlight, danger, size = 1 }: { highlight: boolean; danger: boolean; size?: number }) {
@@ -13,9 +13,9 @@ function Allumette({ highlight, danger, size = 1 }: { highlight: boolean; danger
   const stickW = Math.round(7 * size);
   const stickH = Math.round(48 * size);
 
-  const headColor = danger ? EA.pink : highlight ? "#ff6b35" : "#e85d04";
+  const headColor = danger ? RR.pink : highlight ? "#ff6b35" : "#e85d04";
   const stickTop = danger
-    ? `linear-gradient(180deg, ${EA.pink} 0%, #c8a063 50%)`
+    ? `linear-gradient(180deg, ${RR.pink} 0%, #c8a063 50%)`
     : highlight
       ? `linear-gradient(180deg, #ff6b35 0%, #c8a063 50%)`
       : `linear-gradient(180deg, #d4874a 0%, #8b5e3c 100%)`;
@@ -26,9 +26,9 @@ function Allumette({ highlight, danger, size = 1 }: { highlight: boolean; danger
       <div style={{
         width: headSize, height: headSize, borderRadius: "50%",
         background: headColor,
-        border: `2px solid ${EA.ink}`,
+        border: `2px solid ${RR.ink}`,
         boxShadow: danger
-          ? `0 0 10px ${EA.pink}, 0 0 20px rgba(255,30,140,0.6)`
+          ? `0 0 10px ${RR.pink}, 0 0 20px rgba(255,30,140,0.6)`
           : highlight
             ? `0 0 8px #ff6b35`
             : "none",
@@ -39,7 +39,7 @@ function Allumette({ highlight, danger, size = 1 }: { highlight: boolean; danger
       <div style={{
         width: stickW, height: stickH,
         background: stickTop,
-        border: `1.5px solid ${EA.ink}`,
+        border: `1.5px solid ${RR.ink}`,
         borderTop: "none",
         borderRadius: "0 0 3px 3px",
         transition: "background 0.2s",

@@ -8,7 +8,7 @@ import {
   setPlayerStats,
   sendPlayerWarning,
 } from "./actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 
 const PAGE_SIZE = 15;
@@ -136,7 +136,7 @@ function PlayerCard({
     fontFamily: "var(--font-sans)",
     fontSize: 13,
     fontWeight: 700,
-    color: EA.white,
+    color: RR.white,
     background: "rgba(255,255,255,0.08)",
     border: `2px solid rgba(255,255,255,0.2)`,
     borderRadius: 8,
@@ -149,13 +149,13 @@ function PlayerCard({
   const saveBtnStyle: React.CSSProperties = {
     fontFamily: "var(--font-display)",
     fontSize: 13,
-    color: EA.violetDeep,
-    background: EA.cyan,
-    border: `2px solid ${EA.ink}`,
+    color: RR.violetDeep,
+    background: RR.cyan,
+    border: `2px solid ${RR.ink}`,
     borderRadius: 999,
     padding: "8px 18px",
     cursor: pending ? "wait" : "pointer",
-    boxShadow: `2px 2px 0 ${EA.ink}`,
+    boxShadow: `2px 2px 0 ${RR.ink}`,
     opacity: pending ? 0.7 : 1,
   };
 
@@ -164,10 +164,10 @@ function PlayerCard({
       style={{
         position: "relative",
         overflow: "hidden",
-        background: EA.violetDeep,
-        border: `2.5px solid ${EA.ink}`,
+        background: RR.violetDeep,
+        border: `2.5px solid ${RR.ink}`,
         borderRadius: 18,
-        boxShadow: `2px 2px 0 ${EA.ink}`,
+        boxShadow: `2px 2px 0 ${RR.ink}`,
       }}
     >
       {/* Temp password overlay */}
@@ -177,8 +177,8 @@ function PlayerCard({
             position: "absolute",
             inset: 0,
             borderRadius: 18,
-            background: EA.violetDeep,
-            border: `2.5px solid ${EA.cyan}`,
+            background: RR.violetDeep,
+            border: `2.5px solid ${RR.cyan}`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -193,7 +193,7 @@ function PlayerCard({
               fontFamily: "var(--font-sans)",
               fontSize: 11,
               fontWeight: 900,
-              color: EA.cyan,
+              color: RR.cyan,
               textTransform: "uppercase",
               letterSpacing: 1,
             }}
@@ -204,7 +204,7 @@ function PlayerCard({
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 28,
-              color: EA.butter,
+              color: RR.butter,
               letterSpacing: 6,
               transform: "skewX(-4deg)",
             }}
@@ -218,7 +218,7 @@ function PlayerCard({
               fontSize: 11,
               fontWeight: 800,
               background: "rgba(255,255,255,0.1)",
-              border: `1.5px solid ${EA.ink}`,
+              border: `1.5px solid ${RR.ink}`,
               borderRadius: 999,
               padding: "5px 12px",
               color: "rgba(255,255,255,0.6)",
@@ -242,7 +242,7 @@ function PlayerCard({
         <Avatar
           name={player.pseudo}
           src={player.avatar_url}
-          color={player.avatar_color ?? EA.pink}
+          color={player.avatar_color ?? RR.pink}
           ring="transparent"
           size={42}
         />
@@ -252,7 +252,7 @@ function PlayerCard({
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 17,
-              color: EA.white,
+              color: RR.white,
               transform: "skewX(-4deg)",
             }}
           >
@@ -287,12 +287,12 @@ function PlayerCard({
                 fontSize: 13,
                 background:
                   expanded === "rename"
-                    ? EA.cyan
+                    ? RR.cyan
                     : "rgba(0,212,232,0.12)",
-                border: `2px solid ${EA.cyan}`,
+                border: `2px solid ${RR.cyan}`,
                 borderRadius: 999,
                 padding: "7px 12px",
-                color: expanded === "rename" ? EA.violetDeep : EA.cyan,
+                color: expanded === "rename" ? RR.violetDeep : RR.cyan,
                 cursor: "pointer",
               }}
             >
@@ -307,12 +307,12 @@ function PlayerCard({
                 fontSize: 13,
                 background:
                   expanded === "stats"
-                    ? EA.butter
+                    ? RR.butter
                     : "rgba(255,233,74,0.1)",
-                border: `2px solid ${EA.butter}`,
+                border: `2px solid ${RR.butter}`,
                 borderRadius: 999,
                 padding: "7px 12px",
-                color: expanded === "stats" ? EA.violetDeep : EA.butter,
+                color: expanded === "stats" ? RR.violetDeep : RR.butter,
                 cursor: "pointer",
               }}
             >
@@ -327,12 +327,12 @@ function PlayerCard({
                 fontSize: 13,
                 background:
                   expanded === "warning"
-                    ? EA.pink
+                    ? RR.pink
                     : "rgba(255,30,140,0.1)",
-                border: `2px solid ${EA.pink}`,
+                border: `2px solid ${RR.pink}`,
                 borderRadius: 999,
                 padding: "7px 12px",
-                color: expanded === "warning" ? EA.white : EA.pink,
+                color: expanded === "warning" ? RR.white : RR.pink,
                 cursor: "pointer",
               }}
             >
@@ -346,10 +346,10 @@ function PlayerCard({
                 fontFamily: "var(--font-display)",
                 fontSize: 13,
                 background: "rgba(255,233,74,0.1)",
-                border: `2px solid ${EA.butter}`,
+                border: `2px solid ${RR.butter}`,
                 borderRadius: 999,
                 padding: "7px 12px",
-                color: EA.butter,
+                color: RR.butter,
                 cursor: pending ? "wait" : "pointer",
                 opacity: pending ? 0.6 : 1,
               }}
@@ -363,10 +363,10 @@ function PlayerCard({
                 fontFamily: "var(--font-display)",
                 fontSize: 13,
                 background: "rgba(255,30,140,0.1)",
-                border: `2px solid ${EA.pink}`,
+                border: `2px solid ${RR.pink}`,
                 borderRadius: 999,
                 padding: "7px 12px",
-                color: EA.pink,
+                color: RR.pink,
                 cursor: "pointer",
               }}
             >
@@ -382,10 +382,10 @@ function PlayerCard({
                 fontFamily: "var(--font-display)",
                 fontSize: 12,
                 background: "rgba(255,255,255,0.1)",
-                border: `2px solid ${EA.ink}`,
+                border: `2px solid ${RR.ink}`,
                 borderRadius: 999,
                 padding: "8px 14px",
-                color: EA.white,
+                color: RR.white,
                 cursor: "pointer",
               }}
             >
@@ -397,13 +397,13 @@ function PlayerCard({
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: 12,
-                background: EA.pink,
-                border: `2px solid ${EA.ink}`,
+                background: RR.pink,
+                border: `2px solid ${RR.ink}`,
                 borderRadius: 999,
                 padding: "8px 14px",
-                color: EA.white,
+                color: RR.white,
                 cursor: pending ? "wait" : "pointer",
-                boxShadow: `2px 2px 0 ${EA.ink}`,
+                boxShadow: `2px 2px 0 ${RR.ink}`,
                 opacity: pending ? 0.7 : 1,
               }}
             >
@@ -421,7 +421,7 @@ function PlayerCard({
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: error ? EA.pink : "#4ade80",
+            color: error ? RR.pink : "#4ade80",
           }}
         >
           {error ? `⚠ ${error}` : `✓ ${success}`}
@@ -495,13 +495,13 @@ function PlayerCard({
                 label: "Défaites",
                 value: statsLosses,
                 set: setStatsLosses,
-                color: EA.pink,
+                color: RR.pink,
               },
               {
                 label: "Nuls",
                 value: statsDraws,
                 set: setStatsDraws,
-                color: EA.butter,
+                color: RR.butter,
               },
             ].map(({ label, value, set, color }) => (
               <div
@@ -594,10 +594,10 @@ function PlayerCard({
             disabled={pending}
             style={{
               ...saveBtnStyle,
-              background: EA.pink,
-              border: `2px solid ${EA.ink}`,
-              color: EA.white,
-              boxShadow: `2px 2px 0 ${EA.ink}`,
+              background: RR.pink,
+              border: `2px solid ${RR.ink}`,
+              color: RR.white,
+              boxShadow: `2px 2px 0 ${RR.ink}`,
             }}
           >
             ⚠️ Envoyer l&apos;avertissement
@@ -639,7 +639,7 @@ export function AdminClient({ players: initialPlayers }: { players: Player[] }) 
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={EA.white}
+          stroke={RR.white}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -660,9 +660,9 @@ export function AdminClient({ players: initialPlayers }: { players: Player[] }) 
             fontFamily: "var(--font-sans)",
             fontSize: 14,
             fontWeight: 700,
-            color: EA.white,
+            color: RR.white,
             background: "rgba(255,255,255,0.06)",
-            border: `2px solid ${search ? EA.cyan : EA.ink}`,
+            border: `2px solid ${search ? RR.cyan : RR.ink}`,
             borderRadius: 12,
             padding: "12px 16px 12px 42px",
             outline: "none",

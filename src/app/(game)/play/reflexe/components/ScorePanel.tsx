@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 
 interface Props {
@@ -15,9 +15,9 @@ interface Props {
 /** En-tête joueur du jeu Réflexe (carte + score), symétrique gauche/droite. */
 export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady, avatarColor }: Props) {
   const isMe = side === "left";
-  const cardBg = isArmed ? "rgba(255,80,0,0.15)" : isMe ? EA.pink : EA.cyan;
-  const textColor = isArmed ? "rgba(255,200,150,0.7)" : isMe ? EA.white : EA.ink;
-  const scoreColor = isArmed ? EA.butter : isMe ? EA.white : EA.ink;
+  const cardBg = isArmed ? "rgba(255,80,0,0.15)" : isMe ? RR.pink : RR.cyan;
+  const textColor = isArmed ? "rgba(255,200,150,0.7)" : isMe ? RR.white : RR.ink;
+  const scoreColor = isArmed ? RR.butter : isMe ? RR.white : RR.ink;
 
   const nameEl = (
     <div style={{ minWidth: 0, ...(isMe ? {} : { textAlign: "right" as const }) }}>
@@ -26,7 +26,7 @@ export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady,
     </div>
   );
   const avatarEl = (
-    <Avatar name={pseudo} color={avatarColor ?? (isMe ? EA.butter : EA.pink)} ring={EA.ink} size={32} src={avatarUrl} />
+    <Avatar name={pseudo} color={avatarColor ?? (isMe ? RR.butter : RR.pink)} ring={RR.ink} size={32} src={avatarUrl} />
   );
 
   return (
@@ -34,20 +34,20 @@ export function ScorePanel({ pseudo, avatarUrl, score, side, isArmed, showReady,
       {showReady && (
         <div style={{
           position: "absolute", top: -10, [isMe ? "left" : "right"]: -6, zIndex: 10,
-          background: EA.cyan, border: `2px solid ${EA.ink}`,
+          background: RR.cyan, border: `2px solid ${RR.ink}`,
           padding: "2px 8px", borderRadius: 999,
-          fontFamily: "var(--font-display)", fontSize: 9, color: EA.ink,
-          transform: isMe ? "rotate(-8deg)" : "rotate(8deg)", boxShadow: `2px 2px 0 ${EA.ink}`,
+          fontFamily: "var(--font-display)", fontSize: 9, color: RR.ink,
+          transform: isMe ? "rotate(-8deg)" : "rotate(8deg)", boxShadow: `2px 2px 0 ${RR.ink}`,
         }}>✓ PRÊT</div>
       )}
       <div style={{
         background: cardBg,
-        border: `2.5px solid ${isArmed ? "rgba(255,80,0,0.5)" : EA.ink}`,
+        border: `2.5px solid ${isArmed ? "rgba(255,80,0,0.5)" : RR.ink}`,
         borderRadius: 18, padding: "10px 12px",
         display: "flex", alignItems: "center", gap: 8,
         transform: isMe ? "rotate(-0.8deg)" : "rotate(0.8deg)",
         ...(isMe ? {} : { justifyContent: "flex-end" as const }),
-        boxShadow: isArmed ? `3px 3px 0 rgba(255,80,0,0.4)` : `3px 3px 0 ${isMe ? EA.cyan : EA.pink}`,
+        boxShadow: isArmed ? `3px 3px 0 rgba(255,80,0,0.4)` : `3px 3px 0 ${isMe ? RR.cyan : RR.pink}`,
         transition: "all 0.3s",
       }}>
         {isMe ? <>{avatarEl}{nameEl}</> : <>{nameEl}{avatarEl}</>}

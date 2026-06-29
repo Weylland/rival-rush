@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 interface Props {
   playerId: string;
@@ -103,15 +103,15 @@ export function WarningNotifier({ playerId }: Props) {
           top: 28,
           left: "50%",
           transform: "translateX(-50%) rotate(-1.5deg)",
-          background: EA.pink,
-          border: `2.5px solid ${EA.ink}`,
+          background: RR.pink,
+          border: `2.5px solid ${RR.ink}`,
           borderRadius: 16,
           padding: "7px 18px",
           fontFamily: "var(--font-display)",
           fontSize: 12,
-          color: EA.white,
+          color: RR.white,
           letterSpacing: 1.4,
-          boxShadow: `4px 4px 0 ${EA.ink}`,
+          boxShadow: `4px 4px 0 ${RR.ink}`,
           whiteSpace: "nowrap",
           textTransform: "uppercase",
         }}
@@ -123,11 +123,11 @@ export function WarningNotifier({ playerId }: Props) {
       <div
         style={{
           width: "min(460px, calc(100% - 32px))",
-          background: EA.violetDeep,
-          border: `3px solid ${EA.ink}`,
+          background: RR.violetDeep,
+          border: `3px solid ${RR.ink}`,
           borderRadius: 28,
           padding: "28px 24px 22px",
-          boxShadow: `6px 6px 0 ${EA.pink}, 6px 6px 0 1px ${EA.ink}`,
+          boxShadow: `6px 6px 0 ${RR.pink}, 6px 6px 0 1px ${RR.ink}`,
           position: "relative",
         }}
       >
@@ -162,12 +162,12 @@ export function WarningNotifier({ playerId }: Props) {
               height: 72,
               borderRadius: "50%",
               background: "rgba(255,30,140,0.15)",
-              border: `3px solid ${EA.pink}`,
+              border: `3px solid ${RR.pink}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 36,
-              boxShadow: `0 0 24px rgba(255,30,140,0.3), 4px 4px 0 ${EA.ink}`,
+              boxShadow: `0 0 24px rgba(255,30,140,0.3), 4px 4px 0 ${RR.ink}`,
             }}
           >
             🚨
@@ -177,9 +177,9 @@ export function WarningNotifier({ playerId }: Props) {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 22,
-              color: EA.white,
+              color: RR.white,
               transform: "skewX(-6deg)",
-              textShadow: `2px 2px 0 ${EA.pink}`,
+              textShadow: `2px 2px 0 ${RR.pink}`,
               textAlign: "center",
             }}
           >
@@ -191,7 +191,7 @@ export function WarningNotifier({ playerId }: Props) {
             style={{
               width: "100%",
               background: "rgba(255,30,140,0.1)",
-              border: `2px solid ${EA.pink}40`,
+              border: `2px solid ${RR.pink}40`,
               borderRadius: 16,
               padding: "16px 18px",
               fontFamily: "var(--font-sans)",
@@ -226,15 +226,15 @@ export function WarningNotifier({ playerId }: Props) {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 16,
-              color: EA.ink,
-              background: EA.butter,
-              border: `2.5px solid ${EA.ink}`,
+              color: RR.ink,
+              background: RR.butter,
+              border: `2.5px solid ${RR.ink}`,
               borderRadius: 999,
               padding: "12px 32px",
               textTransform: "uppercase",
               letterSpacing: 0.8,
               cursor: "pointer",
-              boxShadow: `4px 4px 0 ${EA.pink}, 4px 4px 0 1px ${EA.ink}`,
+              boxShadow: `4px 4px 0 ${RR.pink}, 4px 4px 0 1px ${RR.ink}`,
               transform: "skewX(-4deg)",
             }}
           >

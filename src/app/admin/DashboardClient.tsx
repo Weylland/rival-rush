@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { GAME_LABELS } from "@/lib/game-labels";
 import { getMaintenanceMode, setMaintenanceMode } from "@/app/admin/actions";
 
 /* ─── constants ─────────────────────────────────────────────────── */
 
 const PALETTE = [
-  EA.cyan, EA.pink, EA.butter, "#4ade80", "#a78bfa",
+  RR.cyan, RR.pink, RR.butter, "#4ade80", "#a78bfa",
   "#fb923c", "#34d399", "#f472b6", "#60a5fa", "#c084fc",
 ];
 
@@ -68,7 +68,7 @@ function getLast14Days(): string[] {
 
 /* ─── SVG: Bar chart (games per day) ─────────────────────────────── */
 
-function BarChart({ data, color = EA.cyan }: { data: DayCount[]; color?: string }) {
+function BarChart({ data, color = RR.cyan }: { data: DayCount[]; color?: string }) {
   const max = Math.max(...data.map((d) => d.count), 1);
   const W = 320, H = 160, PAD_B = 24, PAD_T = 12;
   const barArea = H - PAD_B - PAD_T;
@@ -123,7 +123,7 @@ function BarChart({ data, color = EA.cyan }: { data: DayCount[]; color?: string 
             <text
               x={slotW * i + slotW / 2} y={H - 5}
               textAnchor="middle"
-              fill={isToday ? EA.white : "rgba(255,255,255,0.4)"}
+              fill={isToday ? RR.white : "rgba(255,255,255,0.4)"}
               fontSize={10} fontFamily="var(--font-sans)"
               fontWeight={isToday ? 800 : 600}
             >
@@ -138,7 +138,7 @@ function BarChart({ data, color = EA.cyan }: { data: DayCount[]; color?: string 
 
 /* ─── SVG: Area sparkline ─────────────────────────────────────────── */
 
-function AreaChart({ data, color = EA.pink }: { data: number[]; color?: string }) {
+function AreaChart({ data, color = RR.pink }: { data: number[]; color?: string }) {
   const max = Math.max(...data, 1);
   const W = 320, H = 90;
   const n = data.length;
@@ -199,7 +199,7 @@ function DonutChart({
         <text
           x={CX} y={CY}
           textAnchor="middle" dominantBaseline="central"
-          fill={EA.white} fontSize={17}
+          fill={RR.white} fontSize={17}
           fontFamily="var(--font-display)"
         >
           {total > 0 ? `${Math.round(ratio * 100)}%` : "—"}
@@ -283,21 +283,21 @@ function Panel({
 /* ─── KPI card ────────────────────────────────────────────────────── */
 
 function KpiCard({
-  label, value, sub, color = EA.white, alert = false,
+  label, value, sub, color = RR.white, alert = false,
 }: {
   label: string; value: number | string; sub?: string; color?: string; alert?: boolean;
 }) {
   return (
     <div style={{
       background: alert ? "rgba(255,30,140,0.12)" : "rgba(255,255,255,0.05)",
-      border: `1.5px solid ${alert ? EA.pink + "60" : "rgba(255,255,255,0.09)"}`,
+      border: `1.5px solid ${alert ? RR.pink + "60" : "rgba(255,255,255,0.09)"}`,
       borderRadius: 16,
       padding: "14px 16px",
       boxShadow: alert ? `0 0 24px rgba(255,30,140,0.2)` : "none",
     }}>
       <div style={{
         fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
-        color: alert ? EA.pink : "rgba(255,255,255,0.38)",
+        color: alert ? RR.pink : "rgba(255,255,255,0.38)",
         textTransform: "uppercase", letterSpacing: 1, marginBottom: 5,
       }}>
         {label}
@@ -329,7 +329,7 @@ function Skeleton({ h = 80 }: { h?: number }) {
       border: "1.5px solid rgba(255,255,255,0.07)",
       borderRadius: 16,
       height: h,
-      animation: "ea-pulse 1.5s ease-in-out infinite",
+      animation: "rr-pulse 1.5s ease-in-out infinite",
     }} />
   );
 }
@@ -487,7 +487,7 @@ export function DashboardClient() {
 
       {/* ── Header ── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-4deg)" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.white, transform: "skewX(-4deg)" }}>
           Vue d&apos;ensemble
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -498,9 +498,9 @@ export function DashboardClient() {
             disabled={maintenance === null || maintenanceLoading}
             style={{
               fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-              color: maintenance ? EA.pink : "rgba(255,255,255,0.5)",
+              color: maintenance ? RR.pink : "rgba(255,255,255,0.5)",
               background: maintenance ? "rgba(255,30,140,0.15)" : "rgba(255,255,255,0.07)",
-              border: `2px solid ${maintenance ? EA.pink + "60" : "rgba(255,255,255,0.14)"}`,
+              border: `2px solid ${maintenance ? RR.pink + "60" : "rgba(255,255,255,0.14)"}`,
               borderRadius: 999,
               padding: "8px 18px", cursor: (maintenance === null || maintenanceLoading) ? "wait" : "pointer",
               opacity: (maintenance === null || maintenanceLoading) ? 0.5 : 1,
@@ -536,12 +536,12 @@ export function DashboardClient() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(135px, 1fr))", gap: 10 }}>
         {stats ? (
           <>
-            <KpiCard label="Joueurs" value={stats.totalPlayers} color={EA.cyan} sub={`${stats.onlinePlayers} en ligne`} />
-            <KpiCard label="Parties" value={stats.finishedGames + stats.activeGames} color={EA.white} sub={`${stats.activeGames} en cours`} />
-            <KpiCard label="Salles" value={stats.totalRooms} color={EA.white} sub={`${stats.openRooms} ouvertes`} />
-            <KpiCard label="Messages" value={stats.lobbyChatMessages + stats.totalDMs} color={EA.white} sub="lobby + DMs" />
-            <KpiCard label="Rapports" value={stats.newReports} alert={stats.newReports > 0} color={stats.newReports > 0 ? EA.pink : "rgba(255,255,255,0.4)"} sub={stats.newReports > 0 ? "en attente ⚠" : "RAS"} />
-            <KpiCard label="Contacts" value={stats.newContacts} alert={stats.newContacts > 0} color={stats.newContacts > 0 ? EA.pink : "rgba(255,255,255,0.4)"} sub={stats.newContacts > 0 ? "non traités ⚠" : "RAS"} />
+            <KpiCard label="Joueurs" value={stats.totalPlayers} color={RR.cyan} sub={`${stats.onlinePlayers} en ligne`} />
+            <KpiCard label="Parties" value={stats.finishedGames + stats.activeGames} color={RR.white} sub={`${stats.activeGames} en cours`} />
+            <KpiCard label="Salles" value={stats.totalRooms} color={RR.white} sub={`${stats.openRooms} ouvertes`} />
+            <KpiCard label="Messages" value={stats.lobbyChatMessages + stats.totalDMs} color={RR.white} sub="lobby + DMs" />
+            <KpiCard label="Rapports" value={stats.newReports} alert={stats.newReports > 0} color={stats.newReports > 0 ? RR.pink : "rgba(255,255,255,0.4)"} sub={stats.newReports > 0 ? "en attente ⚠" : "RAS"} />
+            <KpiCard label="Contacts" value={stats.newContacts} alert={stats.newContacts > 0} color={stats.newContacts > 0 ? RR.pink : "rgba(255,255,255,0.4)"} sub={stats.newContacts > 0 ? "non traités ⚠" : "RAS"} />
           </>
         ) : (
           Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} h={82} />)
@@ -552,7 +552,7 @@ export function DashboardClient() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
         <Panel title="Parties par jour — 7 derniers jours" icon="📊">
           {gamesPerDay.length > 0
-            ? <BarChart data={gamesPerDay} color={EA.cyan} />
+            ? <BarChart data={gamesPerDay} color={RR.cyan} />
             : <Skeleton h={160} />
           }
         </Panel>
@@ -594,7 +594,7 @@ export function DashboardClient() {
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {topPlayers.map((p, i) => {
                 const podiumColor =
-                  i === 0 ? EA.butter : i === 1 ? "rgba(200,200,210,0.9)" : i === 2 ? "#cd7c2f" : "rgba(255,255,255,0.35)";
+                  i === 0 ? RR.butter : i === 1 ? "rgba(200,200,210,0.9)" : i === 2 ? "#cd7c2f" : "rgba(255,255,255,0.35)";
                 const medal = ["🥇", "🥈", "🥉"][i] ?? `#${i + 1}`;
                 return (
                   <div key={p.player_id} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -603,7 +603,7 @@ export function DashboardClient() {
                         <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: podiumColor }}>
                           {medal}
                         </span>
-                        <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: EA.white }}>
+                        <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: RR.white }}>
                           {p.pseudo}
                         </span>
                       </div>
@@ -641,7 +641,7 @@ export function DashboardClient() {
               <DonutChart
                 value={stats.finishedGames}
                 total={totalGames}
-                color={EA.cyan}
+                color={RR.cyan}
                 label={`${stats.finishedGames} parties terminées`}
               />
               <DonutChart
@@ -653,7 +653,7 @@ export function DashboardClient() {
               <DonutChart
                 value={stats.onlinePlayers}
                 total={stats.totalPlayers}
-                color={EA.violet}
+                color={RR.violet}
                 label={`${stats.onlinePlayers} / ${stats.totalPlayers} en ligne`}
               />
             </div>
@@ -669,7 +669,7 @@ export function DashboardClient() {
       <Panel title="Nouvelles inscriptions — 14 derniers jours" icon="📈">
         {playersPerDay.length > 0 ? (
           <>
-            <AreaChart data={playersPerDay} color={EA.pink} />
+            <AreaChart data={playersPerDay} color={RR.pink} />
             <div style={{
               display: "flex", justifyContent: "space-between",
               fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
@@ -702,7 +702,7 @@ export function DashboardClient() {
               <KpiCard
                 label="Invités actifs"
                 value={stats.guestPlayers}
-                color={EA.white}
+                color={RR.white}
                 sub="comptes anonymes"
               />
               <KpiCard

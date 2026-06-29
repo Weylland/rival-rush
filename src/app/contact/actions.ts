@@ -39,13 +39,13 @@ export async function sendContact(_prev: ContactState, formData: FormData): Prom
   }
 
   const { error: sendError } = await resend.emails.send({
-    from: "ExpressionArena <onboarding@resend.dev>",
+    from: "RivalRush <onboarding@resend.dev>",
     to: DEST_EMAIL,
     replyTo: email,
-    subject: `[Contact EA] ${subject || "Nouveau message"} — ${name}`,
+    subject: `[Contact RR] ${subject || "Nouveau message"} — ${name}`,
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#1A0F5E;color:#fff;border-radius:12px">
-        <h2 style="color:#00D4E8;margin:0 0 24px">Nouveau message — ExpressionArena</h2>
+        <h2 style="color:#00D4E8;margin:0 0 24px">Nouveau message — RivalRush</h2>
         <table style="width:100%;border-collapse:collapse">
           <tr><td style="padding:8px 0;color:rgba(255,255,255,0.5);font-size:13px;width:100px">Nom</td><td style="padding:8px 0;font-weight:700">${name}</td></tr>
           <tr><td style="padding:8px 0;color:rgba(255,255,255,0.5);font-size:13px">Email</td><td style="padding:8px 0;font-weight:700"><a href="mailto:${email}" style="color:#00D4E8">${email}</a></td></tr>
@@ -54,7 +54,7 @@ export async function sendContact(_prev: ContactState, formData: FormData): Prom
         <div style="margin-top:24px;padding:20px;background:rgba(255,255,255,0.07);border-radius:8px;border-left:4px solid #FF1E8C">
           <p style="margin:0;line-height:1.7;white-space:pre-wrap">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
         </div>
-        <p style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.3)">Envoyé depuis le formulaire de contact ExpressionArena</p>
+        <p style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.3)">Envoyé depuis le formulaire de contact RivalRush</p>
       </div>
     `,
   });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { AvatarRankFrame } from "./avatar-rank-frame";
 
 interface AvatarProps {
@@ -16,9 +16,9 @@ interface AvatarProps {
 export function Avatar({
   name = "?",
   src,
-  color = EA.cyan,
+  color = RR.cyan,
   size = 44,
-  ring = EA.pink,
+  ring = RR.pink,
   podiumRank,
 }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
@@ -33,7 +33,7 @@ export function Avatar({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: `2px 2px 0 ${EA.ink}`,
+    boxShadow: `2px 2px 0 ${RR.ink}`,
     overflow: "hidden",
   };
 
@@ -67,7 +67,7 @@ export function Avatar({
     // Fallback initiale
     const initial = (name || "?").trim().charAt(0).toUpperCase();
     return (
-      <div style={{ ...circleStyle, fontFamily: "var(--font-display)", fontSize: size * 0.45, color: EA.ink }}>
+      <div style={{ ...circleStyle, fontFamily: "var(--font-display)", fontSize: size * 0.45, color: RR.ink }}>
         {initial}
       </div>
     );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { forceEndGame, deleteGame } from "./actions";
 import { GAME_LABELS } from "@/lib/game-labels";
 
@@ -172,10 +172,10 @@ export function GamesBrowserClient() {
     );
 
   const filterTabs: { value: typeof filter; label: string; count: number; color: string }[] = [
-    { value: "playing", label: "En cours", count: counts.playing, color: EA.cyan },
-    { value: "waiting", label: "En attente", count: counts.waiting, color: EA.butter },
+    { value: "playing", label: "En cours", count: counts.playing, color: RR.cyan },
+    { value: "waiting", label: "En attente", count: counts.waiting, color: RR.butter },
     { value: "finished", label: "Terminées", count: counts.finished, color: "rgba(255,255,255,0.5)" },
-    { value: "all", label: "Toutes", count: counts.all, color: EA.violet },
+    { value: "all", label: "Toutes", count: counts.all, color: RR.violet },
   ];
 
   return (
@@ -199,7 +199,7 @@ export function GamesBrowserClient() {
                 fontFamily: "var(--font-sans)",
                 fontSize: 12,
                 fontWeight: 800,
-                color: active ? EA.violetDeep : "rgba(255,255,255,0.6)",
+                color: active ? RR.violetDeep : "rgba(255,255,255,0.6)",
                 background: active ? t.color : "rgba(255,255,255,0.05)",
                 border: active
                   ? `1.5px solid ${t.color}`
@@ -258,7 +258,7 @@ export function GamesBrowserClient() {
           fontFamily: "var(--font-sans)",
           fontSize: 13,
           fontWeight: 700,
-          color: EA.white,
+          color: RR.white,
           background: "rgba(255,255,255,0.04)",
           border: `1.5px solid rgba(255,255,255,0.1)`,
           borderRadius: 10,
@@ -272,14 +272,14 @@ export function GamesBrowserClient() {
         <div
           style={{
             background: "rgba(255,30,140,0.12)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 10,
             padding: "10px 14px",
             marginBottom: 12,
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: EA.pink,
+            color: RR.pink,
           }}
         >
           ⚠ {error}
@@ -319,10 +319,10 @@ export function GamesBrowserClient() {
                 : g.p2_pseudo
               : null;
             const statusColor = isPlaying
-              ? EA.cyan
+              ? RR.cyan
               : isFinished
                 ? "rgba(255,255,255,0.4)"
-                : EA.butter;
+                : RR.butter;
             return (
               <div
                 key={g.id}
@@ -362,7 +362,7 @@ export function GamesBrowserClient() {
                   >
                     {isPlaying && (
                       <span
-                        className="ea-admin-pulse-dot"
+                        className="rr-admin-pulse-dot"
                         style={{
                           display: "inline-block",
                           width: 5,
@@ -381,9 +381,9 @@ export function GamesBrowserClient() {
                       fontFamily: "var(--font-sans)",
                       fontSize: 11,
                       fontWeight: 900,
-                      color: EA.butter,
+                      color: RR.butter,
                       background: "rgba(255,233,74,0.08)",
-                      border: `1.5px solid ${EA.butter}40`,
+                      border: `1.5px solid ${RR.butter}40`,
                       borderRadius: 999,
                       padding: "3px 10px",
                       flexShrink: 0,
@@ -398,7 +398,7 @@ export function GamesBrowserClient() {
                       minWidth: 200,
                       fontFamily: "var(--font-display)",
                       fontSize: 14,
-                      color: EA.white,
+                      color: RR.white,
                       transform: "skewX(-4deg)",
                     }}
                   >
@@ -420,7 +420,7 @@ export function GamesBrowserClient() {
                           marginLeft: 8,
                           fontFamily: "var(--font-sans)",
                           fontSize: 11,
-                          color: EA.butter,
+                          color: RR.butter,
                         }}
                       >
                         (égalité)
@@ -451,7 +451,7 @@ export function GamesBrowserClient() {
                       borderRadius: 8,
                       background: "rgba(255,255,255,0.06)",
                       border: `1.5px solid rgba(255,255,255,0.1)`,
-                      color: EA.white,
+                      color: RR.white,
                       cursor: "pointer",
                       flexShrink: 0,
                       fontSize: 16,
@@ -516,9 +516,9 @@ export function GamesBrowserClient() {
                             fontFamily: "var(--font-sans)",
                             fontSize: 11,
                             fontWeight: 800,
-                            color: EA.butter,
+                            color: RR.butter,
                             background: "rgba(255,233,74,0.1)",
-                            border: `1.5px solid ${EA.butter}`,
+                            border: `1.5px solid ${RR.butter}`,
                             borderRadius: 999,
                             padding: "6px 12px",
                             cursor: "pointer",
@@ -535,9 +535,9 @@ export function GamesBrowserClient() {
                         fontFamily: "var(--font-sans)",
                         fontSize: 11,
                         fontWeight: 800,
-                        color: EA.pink,
+                        color: RR.pink,
                         background: "rgba(255,30,140,0.1)",
-                        border: `1.5px solid ${EA.pink}`,
+                        border: `1.5px solid ${RR.pink}`,
                         borderRadius: 999,
                         padding: "6px 12px",
                         cursor: "pointer",

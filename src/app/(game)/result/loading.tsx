@@ -1,11 +1,11 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 function Bone({ w = "100%", h = 20, radius = 8 }: { w?: string | number; h?: number; radius?: number }) {
   return (
     <div style={{
       width: w, height: h, borderRadius: radius,
       background: "rgba(255,255,255,0.07)",
-      animation: "ea-pulse 1.4s ease-in-out infinite",
+      animation: "rr-pulse 1.4s ease-in-out infinite",
     }} />
   );
 }
@@ -14,7 +14,7 @@ export default function ResultLoading() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violetDeep,
+      background: RR.violetDeep,
       padding: "24px 20px",
       maxWidth: 480,
       margin: "0 auto",
@@ -23,7 +23,7 @@ export default function ResultLoading() {
       gap: 16,
       alignItems: "center",
     }}>
-      <style>{`@keyframes ea-pulse { 0%,100%{opacity:.45} 50%{opacity:1} }`}</style>
+      <style>{`@keyframes rr-pulse { 0%,100%{opacity:.45} 50%{opacity:1} }`}</style>
 
       {/* Result badge (victoire / défaite / nul) */}
       <Bone w={220} h={52} radius={20} />

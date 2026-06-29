@@ -1,10 +1,10 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export default function RootLoading() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violetDeep,
+      background: RR.violetDeep,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -27,13 +27,13 @@ function Spinner() {
         <circle
           cx={24} cy={24} r={20}
           fill="none"
-          stroke={EA.cyan}
+          stroke={RR.cyan}
           strokeWidth={4}
           strokeLinecap="round"
           strokeDasharray="80 45"
-          style={{ transformOrigin: "center", animation: "ea-spin 0.9s linear infinite" }}
+          style={{ transformOrigin: "center", animation: "rr-spin 0.9s linear infinite" }}
         />
-        <style>{`@keyframes ea-spin { to { transform: rotate(360deg); } }`}</style>
+        <style>{`@keyframes rr-spin { to { transform: rotate(360deg); } }`}</style>
       </svg>
       <div style={{
         fontFamily: "var(--font-righteous)",

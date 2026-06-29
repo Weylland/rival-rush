@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { PIG_WIN_SCORE } from "@/lib/games/pig";
 
@@ -11,10 +11,10 @@ export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, si
   return (
     <div style={{
       flex: 1, minWidth: 0,
-      background: isActive ? `${color}1f` : EA.violetDeep,
-      border: `2.5px solid ${isActive ? color : EA.ink}`,
+      background: isActive ? `${color}1f` : RR.violetDeep,
+      border: `2.5px solid ${isActive ? color : RR.ink}`,
       borderRadius: 18, padding: "12px 14px",
-      boxShadow: isActive ? `3px 3px 0 ${color}` : `2px 2px 0 ${EA.ink}`,
+      boxShadow: isActive ? `3px 3px 0 ${color}` : `2px 2px 0 ${RR.ink}`,
       transition: "all 0.3s",
       display: "flex", flexDirection: "column", gap: 8,
     }}>
@@ -26,7 +26,7 @@ export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, si
         <Avatar name={pseudo} src={avatarUrl} color={avatarColor ?? color} ring={isActive ? color : "transparent"} size={38} />
         <div style={{ flex: 1, minWidth: 0, textAlign: side }}>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 12, color: EA.white,
+            fontFamily: "var(--font-display)", fontSize: 12, color: RR.white,
             transform: "skewX(-4deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {pseudo.toUpperCase()}
@@ -34,7 +34,7 @@ export function PlayerCard({ score, pseudo, avatarUrl, color, isActive, isMe, si
           </div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 32,
-            color: EA.white, transform: "skewX(-6deg)",
+            color: RR.white, transform: "skewX(-6deg)",
             textShadow: `2px 2px 0 ${color}`, lineHeight: 1,
             marginTop: 2,
           }}>{score}</div>

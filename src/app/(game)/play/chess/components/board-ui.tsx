@@ -29,7 +29,7 @@ export function Clock({ seconds, active }: { seconds: number | null; active: boo
       minWidth: 58,
       textAlign: "right",
       color: danger ? "#ff1e8c" : low ? "#ffe94a" : "rgba(255,255,255,0.9)",
-      animation: danger && active ? "ea-pulse 0.5s ease-in-out infinite alternate" : "none",
+      animation: danger && active ? "rr-pulse 0.5s ease-in-out infinite alternate" : "none",
       flexShrink: 0,
     }}>
       {formatTime(seconds)}

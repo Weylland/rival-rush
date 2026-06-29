@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { updateGameSetting } from "./actions";
 
 interface GameSetting {
@@ -146,7 +146,7 @@ export function GameConfigClient() {
         <div
           style={{
             background: "rgba(255,30,140,0.12)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 14,
             padding: "20px 24px",
             marginBottom: 24,
@@ -156,7 +156,7 @@ export function GameConfigClient() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 18,
-              color: EA.pink,
+              color: RR.pink,
               marginBottom: 10,
             }}
           >
@@ -239,13 +239,13 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
             marginTop: 16,
             fontFamily: "var(--font-display)",
             fontSize: 14,
-            color: EA.violetDeep,
-            background: EA.cyan,
-            border: `2.5px solid ${EA.ink}`,
+            color: RR.violetDeep,
+            background: RR.cyan,
+            border: `2.5px solid ${RR.ink}`,
             borderRadius: 999,
             padding: "10px 24px",
             cursor: "pointer",
-            boxShadow: `3px 3px 0 ${EA.ink}`,
+            boxShadow: `3px 3px 0 ${RR.ink}`,
           }}
         >
           ↻ Réessayer
@@ -301,14 +301,14 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
         <div
           style={{
             background: "rgba(255,30,140,0.12)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 10,
             padding: "10px 14px",
             marginBottom: 12,
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: EA.pink,
+            color: RR.pink,
           }}
         >
           ⚠ {error}
@@ -336,12 +336,12 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
               key={s.game_type}
               style={{
                 background: s.is_active
-                  ? EA.violetDeep
+                  ? RR.violetDeep
                   : "rgba(255,255,255,0.03)",
-                border: `2.5px solid ${s.is_active ? EA.ink : "rgba(255,255,255,0.1)"}`,
+                border: `2.5px solid ${s.is_active ? RR.ink : "rgba(255,255,255,0.1)"}`,
                 borderRadius: 14,
                 padding: "12px 16px",
-                boxShadow: s.is_active ? `2px 2px 0 ${EA.ink}` : "none",
+                boxShadow: s.is_active ? `2px 2px 0 ${RR.ink}` : "none",
                 opacity: s.is_active ? 1 : 0.55,
                 transition: "all .2s",
               }}
@@ -365,9 +365,9 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                     width: 46,
                     height: 26,
                     borderRadius: 999,
-                    border: `2px solid ${s.is_active ? EA.cyan : "rgba(255,255,255,0.2)"}`,
+                    border: `2px solid ${s.is_active ? RR.cyan : "rgba(255,255,255,0.2)"}`,
                     background: s.is_active
-                      ? EA.cyan
+                      ? RR.cyan
                       : "rgba(255,255,255,0.1)",
                     cursor: pending ? "wait" : "pointer",
                     flexShrink: 0,
@@ -384,7 +384,7 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                       width: 18,
                       height: 18,
                       borderRadius: "50%",
-                      background: EA.white,
+                      background: RR.white,
                       transition: "left .2s",
                       display: "block",
                     }}
@@ -397,7 +397,7 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                     style={{
                       fontFamily: "var(--font-display)",
                       fontSize: 16,
-                      color: EA.white,
+                      color: RR.white,
                       display: "inline-block",
                       transform: "skewX(-4deg)",
                     }}
@@ -409,7 +409,7 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                       fontFamily: "var(--font-sans)",
                       fontSize: 10,
                       fontWeight: 900,
-                      color: s.is_active ? EA.cyan : "rgba(255,255,255,0.3)",
+                      color: s.is_active ? RR.cyan : "rgba(255,255,255,0.3)",
                       marginLeft: 8,
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
@@ -495,7 +495,7 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                         fontFamily: "var(--font-sans)",
                         fontSize: 9,
                         fontWeight: 900,
-                        color: EA.butter,
+                        color: RR.butter,
                         textTransform: "uppercase",
                         letterSpacing: 0.5,
                       }}
@@ -518,9 +518,9 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                         fontFamily: "var(--font-display)",
                         fontSize: 20,
                         fontWeight: 700,
-                        color: EA.butter,
+                        color: RR.butter,
                         background: "rgba(255,233,74,0.1)",
-                        border: `2px solid ${edit.draw_pts !== String(s.draw_pts) ? EA.butter : "rgba(255,233,74,0.25)"}`,
+                        border: `2px solid ${edit.draw_pts !== String(s.draw_pts) ? RR.butter : "rgba(255,233,74,0.25)"}`,
                         borderRadius: 8,
                         padding: "4px 0",
                         textAlign: "center",
@@ -554,7 +554,7 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                         fontFamily: "var(--font-sans)",
                         fontSize: 9,
                         fontWeight: 900,
-                        color: EA.pink,
+                        color: RR.pink,
                         textTransform: "uppercase",
                         letterSpacing: 0.5,
                       }}
@@ -577,9 +577,9 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                         fontFamily: "var(--font-display)",
                         fontSize: 20,
                         fontWeight: 700,
-                        color: EA.pink,
+                        color: RR.pink,
                         background: "rgba(255,30,140,0.1)",
-                        border: `2px solid ${edit.loss_pts !== String(s.loss_pts) ? EA.pink : "rgba(255,30,140,0.25)"}`,
+                        border: `2px solid ${edit.loss_pts !== String(s.loss_pts) ? RR.pink : "rgba(255,30,140,0.25)"}`,
                         borderRadius: 8,
                         padding: "4px 0",
                         textAlign: "center",
@@ -607,13 +607,13 @@ CREATE POLICY "pn delete" ON public.player_notifications FOR DELETE USING (true)
                       style={{
                         fontFamily: "var(--font-display)",
                         fontSize: 12,
-                        color: EA.violetDeep,
-                        background: EA.cyan,
-                        border: `2px solid ${EA.ink}`,
+                        color: RR.violetDeep,
+                        background: RR.cyan,
+                        border: `2px solid ${RR.ink}`,
                         borderRadius: 999,
                         padding: "7px 14px",
                         cursor: pending ? "wait" : "pointer",
-                        boxShadow: `2px 2px 0 ${EA.ink}`,
+                        boxShadow: `2px 2px 0 ${RR.ink}`,
                         opacity: pending ? 0.7 : 1,
                         transition: "opacity .15s",
                         marginBottom: 0,

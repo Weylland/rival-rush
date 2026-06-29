@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updatePseudo, updatePassword, deleteAccount } from "./actions";
 import { convertGuestAccount } from "@/app/(auth)/login/actions";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import type { SettingsState } from "./actions";
 import type { AuthState } from "@/app/(auth)/login/actions";
 import { subscribePush, unsubscribePush, NOTIF_KEY } from "@/lib/push-client";
@@ -18,9 +18,9 @@ function inputStyle(focused: boolean): React.CSSProperties {
     fontFamily: "var(--font-sans)",
     fontSize: 15,
     fontWeight: 700,
-    color: EA.white,
+    color: RR.white,
     background: "rgba(255,255,255,0.07)",
-    border: `2px solid ${focused ? EA.cyan : EA.ink}`,
+    border: `2px solid ${focused ? RR.cyan : RR.ink}`,
     borderRadius: 12,
     padding: "12px 16px",
     width: "100%",
@@ -30,11 +30,11 @@ function inputStyle(focused: boolean): React.CSSProperties {
   };
 }
 
-function SectionCard({ children, accent = EA.cyan }: { children: React.ReactNode; accent?: string }) {
+function SectionCard({ children, accent = RR.cyan }: { children: React.ReactNode; accent?: string }) {
   return (
     <div style={{
-      background: EA.violetDeep,
-      border: `2.5px solid ${EA.ink}`,
+      background: RR.violetDeep,
+      border: `2.5px solid ${RR.ink}`,
       borderRadius: 20,
       padding: "24px 20px",
       boxShadow: `4px 4px 0 ${accent}`,
@@ -49,7 +49,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     <div style={{
       fontFamily: "var(--font-display)",
       fontSize: 18,
-      color: EA.white,
+      color: RR.white,
       transform: "skewX(-4deg)",
       marginBottom: 16,
     }}>
@@ -67,11 +67,11 @@ function Feedback({ state }: { state: SettingsState }) {
       padding: "10px 14px",
       borderRadius: 10,
       background: isError ? "rgba(255,30,140,0.15)" : "rgba(0,212,232,0.15)",
-      border: `2px solid ${isError ? EA.pink : EA.cyan}`,
+      border: `2px solid ${isError ? RR.pink : RR.cyan}`,
       fontFamily: "var(--font-sans)",
       fontSize: 13,
       fontWeight: 800,
-      color: EA.white,
+      color: RR.white,
     }}>
       {state.error ?? state.success}
     </div>
@@ -90,7 +90,7 @@ function FocusInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
-function SubmitButton({ pending, label, color = EA.cyan }: { pending: boolean; label: string; color?: string }) {
+function SubmitButton({ pending, label, color = RR.cyan }: { pending: boolean; label: string; color?: string }) {
   return (
     <button
       type="submit"
@@ -99,13 +99,13 @@ function SubmitButton({ pending, label, color = EA.cyan }: { pending: boolean; l
         marginTop: 12,
         fontFamily: "var(--font-display)",
         fontSize: 14,
-        color: EA.violetDeep,
+        color: RR.violetDeep,
         background: pending ? "rgba(255,255,255,0.2)" : color,
-        border: `2px solid ${EA.ink}`,
+        border: `2px solid ${RR.ink}`,
         borderRadius: 999,
         padding: "11px 24px",
         cursor: pending ? "wait" : "pointer",
-        boxShadow: pending ? "none" : `3px 3px 0 ${EA.ink}`,
+        boxShadow: pending ? "none" : `3px 3px 0 ${RR.ink}`,
         transform: "skewX(-4deg)",
         textTransform: "uppercase",
         transition: "all .1s",
@@ -383,7 +383,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
       {/* Avatar */}
-      <SectionCard accent={EA.pink}>
+      <SectionCard accent={RR.pink}>
         <SectionTitle>🖼 Photo de profil</SectionTitle>
 
         {/* Preview + boutons actions */}
@@ -391,10 +391,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
           <div style={{
             width: 72, height: 72, borderRadius: "50%",
             background: avatarUrl && !avatarUrl.startsWith("preset:") ? "transparent" : avatarColor,
-            border: `2.5px solid ${EA.ink}`, flexShrink: 0,
+            border: `2.5px solid ${RR.ink}`, flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: avatarUrl?.startsWith("preset:") ? 36 : 28,
-            overflow: "hidden", boxShadow: `3px 3px 0 ${EA.cyan}`,
+            overflow: "hidden", boxShadow: `3px 3px 0 ${RR.cyan}`,
           }}>
             {avatarUrl?.startsWith("preset:") ? avatarUrl.slice(7)
               : avatarUrl ? (
@@ -409,10 +409,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               disabled={avatarSaving}
               style={{
                 fontFamily: "var(--font-display)", fontSize: 13,
-                color: EA.ink, background: EA.cyan,
-                border: `2px solid ${EA.ink}`, borderRadius: 999,
+                color: RR.ink, background: RR.cyan,
+                border: `2px solid ${RR.ink}`, borderRadius: 999,
                 padding: "8px 16px", cursor: "pointer",
-                boxShadow: `2px 2px 0 ${EA.ink}`, textTransform: "uppercase",
+                boxShadow: `2px 2px 0 ${RR.ink}`, textTransform: "uppercase",
               }}>
               📷 Uploader
             </button>
@@ -454,10 +454,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               disabled={avatarSaving}
               style={{
                 fontSize: 22, padding: "5px 0",
-                background: currentEmoji === emoji ? EA.butter : "rgba(255,255,255,0.08)",
-                border: `2px solid ${currentEmoji === emoji ? EA.ink : "rgba(255,255,255,0.15)"}`,
+                background: currentEmoji === emoji ? RR.butter : "rgba(255,255,255,0.08)",
+                border: `2px solid ${currentEmoji === emoji ? RR.ink : "rgba(255,255,255,0.15)"}`,
                 borderRadius: 12, cursor: "pointer",
-                boxShadow: currentEmoji === emoji ? `2px 2px 0 ${EA.ink}` : "none",
+                boxShadow: currentEmoji === emoji ? `2px 2px 0 ${RR.ink}` : "none",
                 transition: "all 0.1s",
               }}>
               {emoji}
@@ -476,26 +476,26 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
             cursor: "pointer", textTransform: "uppercase", letterSpacing: 1,
             transition: "color .15s, border-color .15s",
           }}
-          onMouseOver={e => { e.currentTarget.style.color = EA.cyan; e.currentTarget.style.borderColor = EA.cyan; }}
+          onMouseOver={e => { e.currentTarget.style.color = RR.cyan; e.currentTarget.style.borderColor = RR.cyan; }}
           onMouseOut={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
         >
           {showAllPresets ? "▲ Réduire" : `▼ Voir les ${PRESETS.length} avatars`}
         </button>
 
         {avatarSaving && (
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: EA.cyan, marginTop: 10 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: RR.cyan, marginTop: 10 }}>
             Sauvegarde...
           </div>
         )}
         {avatarError && (
-          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: EA.pink, marginTop: 10 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: RR.pink, marginTop: 10 }}>
             {avatarError}
           </div>
         )}
       </SectionCard>
 
       {/* Couleur de fond */}
-      <SectionCard accent={EA.butter}>
+      <SectionCard accent={RR.butter}>
         <SectionTitle>🎨 Couleur de fond</SectionTitle>
 
         {/* Presets */}
@@ -511,8 +511,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 aspectRatio: "1",
                 borderRadius: 10,
                 background: color,
-                border: `2.5px solid ${avatarColor === color ? EA.white : "rgba(255,255,255,0.15)"}`,
-                boxShadow: avatarColor === color ? `0 0 0 2px ${EA.cyan}` : "none",
+                border: `2.5px solid ${avatarColor === color ? RR.white : "rgba(255,255,255,0.15)"}`,
+                boxShadow: avatarColor === color ? `0 0 0 2px ${RR.cyan}` : "none",
                 cursor: "pointer",
                 transition: "border-color .1s, box-shadow .1s",
               }}
@@ -528,7 +528,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               width: 44, height: 44, borderRadius: 10,
               background: avatarColor,
               border: `2.5px solid rgba(255,255,255,0.3)`,
-              boxShadow: `2px 2px 0 ${EA.ink}`,
+              boxShadow: `2px 2px 0 ${RR.ink}`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 18,
             }}>🎨</div>
@@ -567,11 +567,11 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
           <div style={{
             width: 44, height: 44, borderRadius: "50%",
             background: avatarColor,
-            border: `2.5px solid ${EA.ink}`,
-            boxShadow: `2px 2px 0 ${EA.ink}`,
+            border: `2.5px solid ${RR.ink}`,
+            boxShadow: `2px 2px 0 ${RR.ink}`,
             flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "var(--font-display)", fontSize: 20, color: EA.ink,
+            fontFamily: "var(--font-display)", fontSize: 20, color: RR.ink,
           }}>
             {avatarUrl?.startsWith("preset:")
               ? avatarUrl.slice(7)
@@ -585,12 +585,12 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
           disabled={colorSaving}
           style={{
             fontFamily: "var(--font-display)", fontSize: 14,
-            color: EA.violetDeep,
-            background: colorSaved ? "#22C55E" : colorSaving ? "rgba(255,255,255,0.2)" : EA.butter,
-            border: `2px solid ${EA.ink}`,
+            color: RR.violetDeep,
+            background: colorSaved ? "#22C55E" : colorSaving ? "rgba(255,255,255,0.2)" : RR.butter,
+            border: `2px solid ${RR.ink}`,
             borderRadius: 999, padding: "11px 24px",
             cursor: colorSaving ? "wait" : "pointer",
-            boxShadow: colorSaving ? "none" : `3px 3px 0 ${EA.ink}`,
+            boxShadow: colorSaving ? "none" : `3px 3px 0 ${RR.ink}`,
             transform: "skewX(-4deg)", textTransform: "uppercase",
             transition: "background .2s",
             opacity: colorSaving ? 0.6 : 1,
@@ -603,7 +603,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
       </SectionCard>
 
       {/* Pseudo */}
-      <SectionCard accent={EA.cyan}>
+      <SectionCard accent={RR.cyan}>
         <SectionTitle>Changer de pseudo</SectionTitle>
         <form action={pseudoAction}>
           <FocusInput
@@ -620,7 +620,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
 
       {/* Compte invité → conversion */}
       {isGuest && (
-        <SectionCard accent={EA.pink}>
+        <SectionCard accent={RR.pink}>
           <SectionTitle>⚠️ Compte invité</SectionTitle>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: 16 }}>
             Ton compte sera supprimé après la soirée. Crée un compte permanent pour garder tes stats et rejouer plus tard.
@@ -645,7 +645,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               autoComplete="new-password"
               style={inputStyle(false)}
             />
-            <SubmitButton pending={convertPending} label="✨ Créer mon compte permanent" color={EA.pink} />
+            <SubmitButton pending={convertPending} label="✨ Créer mon compte permanent" color={RR.pink} />
             {convertState?.error && (
               <Feedback state={{ error: convertState.error }} />
             )}
@@ -655,7 +655,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
 
       {/* Password — compte permanent uniquement */}
       {!isGuest && (
-        <SectionCard accent={EA.butter}>
+        <SectionCard accent={RR.butter}>
           <SectionTitle>Changer de mot de passe</SectionTitle>
           <form action={pwAction} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <PasswordInput
@@ -664,14 +664,14 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               autoComplete="new-password"
               style={inputStyle(false)}
             />
-            <SubmitButton pending={pwPending} label="Mettre à jour" color={EA.butter} />
+            <SubmitButton pending={pwPending} label="Mettre à jour" color={RR.butter} />
             <Feedback state={pwState} />
           </form>
         </SectionCard>
       )}
 
       {/* Mode invisible */}
-      <SectionCard accent={EA.violetDeep}>
+      <SectionCard accent={RR.violetDeep}>
         <SectionTitle>👻 Visibilité dans le lobby</SectionTitle>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <div>
@@ -689,8 +689,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
             style={{
               width: 52, height: 28,
               borderRadius: 999,
-              background: isInvisible ? EA.pink : "rgba(255,255,255,0.15)",
-              border: `2px solid ${EA.ink}`,
+              background: isInvisible ? RR.pink : "rgba(255,255,255,0.15)",
+              border: `2px solid ${RR.ink}`,
               cursor: invisibleSaving ? "wait" : "pointer",
               position: "relative",
               transition: "background .2s",
@@ -705,8 +705,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               left: isInvisible ? 26 : 2,
               width: 20, height: 20,
               borderRadius: "50%",
-              background: EA.white,
-              border: `2px solid ${EA.ink}`,
+              background: RR.white,
+              border: `2px solid ${RR.ink}`,
               transition: "left .2s",
               display: "block",
             }} />
@@ -715,7 +715,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
       </SectionCard>
 
       {/* Sons */}
-      <SectionCard accent={EA.pink}>
+      <SectionCard accent={RR.pink}>
         <SectionTitle>Sons du jeu</SectionTitle>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
@@ -727,8 +727,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
             style={{
               width: 52, height: 28,
               borderRadius: 999,
-              background: soundEnabled ? EA.cyan : "rgba(255,255,255,0.15)",
-              border: `2px solid ${EA.ink}`,
+              background: soundEnabled ? RR.cyan : "rgba(255,255,255,0.15)",
+              border: `2px solid ${RR.ink}`,
               cursor: "pointer",
               position: "relative",
               transition: "background .2s",
@@ -741,8 +741,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               left: soundEnabled ? 26 : 2,
               width: 20, height: 20,
               borderRadius: "50%",
-              background: EA.white,
-              border: `2px solid ${EA.ink}`,
+              background: RR.white,
+              border: `2px solid ${RR.ink}`,
               transition: "left .2s",
               display: "block",
             }} />
@@ -752,7 +752,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
 
       {/* Notifications */}
       {notifPermission !== null && (
-        <SectionCard accent={EA.butter}>
+        <SectionCard accent={RR.butter}>
           <SectionTitle>🔔 Notifications de défi</SectionTitle>
 
           {notifPermission === "default" && (
@@ -766,10 +766,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 style={{
                   alignSelf: "flex-start",
                   fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.violetDeep, background: EA.butter,
-                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.violetDeep, background: RR.butter,
+                  border: `2px solid ${RR.ink}`, borderRadius: 999,
                   padding: "11px 24px", cursor: "pointer",
-                  boxShadow: `3px 3px 0 ${EA.ink}`,
+                  boxShadow: `3px 3px 0 ${RR.ink}`,
                   transform: "skewX(-4deg)", textTransform: "uppercase",
                 }}
               >
@@ -795,8 +795,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 onClick={toggleNotif}
                 style={{
                   width: 52, height: 28, borderRadius: 999,
-                  background: notifEnabled ? EA.butter : "rgba(255,255,255,0.15)",
-                  border: `2px solid ${EA.ink}`,
+                  background: notifEnabled ? RR.butter : "rgba(255,255,255,0.15)",
+                  border: `2px solid ${RR.ink}`,
                   cursor: "pointer", position: "relative",
                   transition: "background .2s", padding: 0, flexShrink: 0,
                 }}
@@ -805,7 +805,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                   position: "absolute", top: 2,
                   left: notifEnabled ? 26 : 2,
                   width: 20, height: 20, borderRadius: "50%",
-                  background: EA.white, border: `2px solid ${EA.ink}`,
+                  background: RR.white, border: `2px solid ${RR.ink}`,
                   transition: "left .2s", display: "block",
                 }} />
               </button>
@@ -816,7 +816,7 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{
                 display: "flex", alignItems: "center", gap: 10,
-                background: "rgba(255,30,140,0.1)", border: `2px solid ${EA.pink}`,
+                background: "rgba(255,30,140,0.1)", border: `2px solid ${RR.pink}`,
                 borderRadius: 12, padding: "12px 14px",
               }}>
                 <span style={{ fontSize: 20, flexShrink: 0 }}>🚫</span>
@@ -844,10 +844,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
               fontFamily: "var(--font-display)",
               fontSize: 14,
               background: "rgba(255,30,140,0.15)",
-              border: `2px solid ${EA.pink}`,
+              border: `2px solid ${RR.pink}`,
               borderRadius: 999,
               padding: "11px 24px",
-              color: EA.pink,
+              color: RR.pink,
               cursor: "pointer",
               transform: "skewX(-4deg)",
               textTransform: "uppercase",
@@ -868,9 +868,9 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 onClick={() => setConfirmDelete(false)}
                 style={{
                   fontFamily: "var(--font-display)", fontSize: 13,
-                  background: "rgba(255,255,255,0.1)", border: `2px solid ${EA.ink}`,
+                  background: "rgba(255,255,255,0.1)", border: `2px solid ${RR.ink}`,
                   borderRadius: 999, padding: "10px 18px",
-                  color: EA.white, cursor: "pointer",
+                  color: RR.white, cursor: "pointer",
                 }}
               >
                 Annuler
@@ -881,10 +881,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                   disabled={deletePending}
                   style={{
                     fontFamily: "var(--font-display)", fontSize: 13,
-                    background: EA.pink, border: `2px solid ${EA.ink}`,
+                    background: RR.pink, border: `2px solid ${RR.ink}`,
                     borderRadius: 999, padding: "10px 18px",
-                    color: EA.white, cursor: deletePending ? "wait" : "pointer",
-                    boxShadow: `3px 3px 0 ${EA.ink}`,
+                    color: RR.white, cursor: deletePending ? "wait" : "pointer",
+                    boxShadow: `3px 3px 0 ${RR.ink}`,
                     opacity: deletePending ? 0.7 : 1,
                   }}
                 >
@@ -902,14 +902,14 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
         href="/contact"
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: EA.violetDeep, border: `2.5px solid ${EA.cyan}`,
+          background: RR.violetDeep, border: `2.5px solid ${RR.cyan}`,
           borderRadius: 20, padding: "18px 20px",
-          boxShadow: `4px 4px 0 ${EA.cyan}`,
+          boxShadow: `4px 4px 0 ${RR.cyan}`,
           textDecoration: "none",
         }}
       >
         <div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: EA.white, transform: "skewX(-4deg)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: RR.white, transform: "skewX(-4deg)" }}>
             Nous contacter
           </div>
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
@@ -949,14 +949,14 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
         }}>
           <div style={{
             background: "rgba(26,18,58,0.97)",
-            border: `2.5px solid ${EA.ink}`,
+            border: `2.5px solid ${RR.ink}`,
             borderRadius: 24,
             padding: "28px 32px",
-            boxShadow: `6px 6px 0 ${EA.cyan}`,
+            boxShadow: `6px 6px 0 ${RR.cyan}`,
             width: "100%",
             maxWidth: "min(480px, calc(100vw - 40px))",
           }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: EA.white, transform: "skewX(-6deg)", marginBottom: 4 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: RR.white, transform: "skewX(-6deg)", marginBottom: 4 }}>
               Cadrer la photo
             </div>
             <div style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
@@ -970,13 +970,13 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 margin: "0 auto",
                 overflow: "hidden",
                 borderRadius: 14,
-                border: `2.5px solid ${EA.ink}`,
-                boxShadow: `3px 3px 0 ${EA.cyan}`,
+                border: `2.5px solid ${RR.ink}`,
+                boxShadow: `3px 3px 0 ${RR.cyan}`,
                 cursor: cropDisplay && (cropDisplay.w > CROP_SIZE || cropDisplay.h > CROP_SIZE) ? "grab" : "default",
                 userSelect: "none",
                 touchAction: "none",
                 position: "relative",
-                background: EA.violetDeep,
+                background: RR.violetDeep,
               }}
               onPointerDown={onCropPointerDown}
               onPointerMove={onCropPointerMove}
@@ -1006,8 +1006,8 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 onClick={handleCropCancel}
                 style={{
                   flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.white, background: "rgba(255,255,255,0.08)",
-                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.white, background: "rgba(255,255,255,0.08)",
+                  border: `2px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", cursor: "pointer", textTransform: "uppercase",
                 }}
               >
@@ -1019,10 +1019,10 @@ export function SettingsClient({ initialPseudo, initialAvatarUrl, initialAvatarC
                 disabled={!cropDisplay || avatarSaving}
                 style={{
                   flex: 1, fontFamily: "var(--font-display)", fontSize: 14,
-                  color: EA.ink, background: EA.cyan,
-                  border: `2px solid ${EA.ink}`, borderRadius: 999,
+                  color: RR.ink, background: RR.cyan,
+                  border: `2px solid ${RR.ink}`, borderRadius: 999,
                   padding: "12px 0", cursor: (!cropDisplay || avatarSaving) ? "wait" : "pointer",
-                  boxShadow: `3px 3px 0 ${EA.ink}`, textTransform: "uppercase",
+                  boxShadow: `3px 3px 0 ${RR.ink}`, textTransform: "uppercase",
                   opacity: (!cropDisplay || avatarSaving) ? 0.6 : 1,
                 }}
               >

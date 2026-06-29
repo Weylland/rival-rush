@@ -1,9 +1,9 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 export function CellX({ size = "70%" }: { size?: string }) {
   return (
     <svg viewBox="0 0 60 60" style={{ width: size, height: size }}>
-      <path d="M 12 12 L 48 48 M 48 12 L 12 48" stroke={EA.pink} strokeWidth="9" strokeLinecap="round" fill="none" />
+      <path d="M 12 12 L 48 48 M 48 12 L 12 48" stroke={RR.pink} strokeWidth="9" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -11,7 +11,7 @@ export function CellX({ size = "70%" }: { size?: string }) {
 export function CellO({ size = "70%" }: { size?: string }) {
   return (
     <svg viewBox="0 0 60 60" style={{ width: size, height: size }}>
-      <circle cx="30" cy="30" r="18" stroke={EA.cyan} strokeWidth="9" fill="none" />
+      <circle cx="30" cy="30" r="18" stroke={RR.cyan} strokeWidth="9" fill="none" />
     </svg>
   );
 }

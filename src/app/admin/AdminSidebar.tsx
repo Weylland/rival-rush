@@ -1,6 +1,6 @@
 "use client";
 
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { logout } from "@/app/(auth)/login/actions";
 import type { SectionMeta } from "./AdminShell";
 
@@ -84,7 +84,7 @@ export function AdminSidebar({
             width: 40,
             height: 40,
             borderRadius: 12,
-            background: `linear-gradient(135deg, ${EA.cyan} 0%, ${EA.pink} 100%)`,
+            background: `linear-gradient(135deg, ${RR.cyan} 0%, ${RR.pink} 100%)`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -100,7 +100,7 @@ export function AdminSidebar({
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 14,
-              color: EA.white,
+              color: RR.white,
               transform: "skewX(-4deg)",
               letterSpacing: 0.5,
               lineHeight: 1.1,
@@ -113,7 +113,7 @@ export function AdminSidebar({
               fontFamily: "var(--font-sans)",
               fontSize: 9,
               fontWeight: 900,
-              color: EA.cyan,
+              color: RR.cyan,
               textTransform: "uppercase",
               letterSpacing: 2.5,
               marginTop: 2,
@@ -145,7 +145,7 @@ export function AdminSidebar({
 
       {/* Navigation */}
       <nav
-        className="ea-admin-scroll"
+        className="rr-admin-scroll"
         style={{
           flex: 1,
           overflowY: "auto",
@@ -196,13 +196,13 @@ export function AdminSidebar({
                       width: "100%",
                       transition: "all .15s",
                       fontFamily: "var(--font-sans)",
-                      color: active ? EA.white : "rgba(255,255,255,0.65)",
+                      color: active ? RR.white : "rgba(255,255,255,0.65)",
                     }}
                     onMouseEnter={(e) => {
                       if (!active) {
                         e.currentTarget.style.background =
                           "rgba(255,255,255,0.04)";
-                        e.currentTarget.style.color = EA.white;
+                        e.currentTarget.style.color = RR.white;
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -245,7 +245,7 @@ export function AdminSidebar({
                           fontFamily: "var(--font-sans)",
                           fontSize: 10,
                           fontWeight: 900,
-                          color: item.badgeColor ? EA.white : "rgba(255,255,255,0.7)",
+                          color: item.badgeColor ? RR.white : "rgba(255,255,255,0.7)",
                           background: item.badgeColor ?? "rgba(255,255,255,0.1)",
                           borderRadius: 999,
                           padding: "2px 7px",
@@ -283,13 +283,13 @@ export function AdminSidebar({
             width: 36,
             height: 36,
             borderRadius: 999,
-            background: `linear-gradient(135deg, ${EA.violet} 0%, ${EA.violetDeep} 100%)`,
+            background: `linear-gradient(135deg, ${RR.violet} 0%, ${RR.violetDeep} 100%)`,
             border: `1.5px solid rgba(255,255,255,0.15)`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: 15,
-            color: EA.white,
+            color: RR.white,
             flexShrink: 0,
           }}
         >
@@ -301,7 +301,7 @@ export function AdminSidebar({
               fontFamily: "var(--font-sans)",
               fontSize: 12,
               fontWeight: 900,
-              color: EA.white,
+              color: RR.white,
             }}
           >
             Admin
@@ -328,7 +328,7 @@ export function AdminSidebar({
               borderRadius: 10,
               background: "rgba(255,30,140,0.1)",
               border: `1.5px solid rgba(255,30,140,0.3)`,
-              color: EA.pink,
+              color: RR.pink,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -336,12 +336,12 @@ export function AdminSidebar({
               transition: "all .15s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = EA.pink;
-              e.currentTarget.style.color = EA.white;
+              e.currentTarget.style.background = RR.pink;
+              e.currentTarget.style.color = RR.white;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "rgba(255,30,140,0.1)";
-              e.currentTarget.style.color = EA.pink;
+              e.currentTarget.style.color = RR.pink;
             }}
           >
             <svg

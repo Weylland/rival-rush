@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { PreventLeave } from "@/components/PreventLeave";
 import { RulesButton } from "@/components/ui/rules-button";
 import { useGameOpponent } from "@/app/(game)/chat/ChatSystem";
@@ -154,7 +154,7 @@ export function MastermindClient({
   return (
     <div style={{
       minHeight: "100dvh",
-      background: EA.violet,
+      background: RR.violet,
       display: "flex", flexDirection: "column", alignItems: "center",
       padding: desktop ? "20px 24px 100px" : "12px 14px 100px",
       gap: 12,
@@ -177,21 +177,21 @@ export function MastermindClient({
         }}>
           <PlayerBadge
             pseudo={myPseudo} avatar={myAvatarUrl} avatarColor={myAvatarColor}
-            guessCount={myBoard.length} cracked={iCracked} color={EA.cyan}
+            guessCount={myBoard.length} cracked={iCracked} color={RR.cyan}
             active={canPlay}
             align="left"
           />
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
               🎨 MASTER
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, letterSpacing: 2, transform: "skewX(-4deg)", lineHeight: 1.1 }}>
               MIND
             </div>
           </div>
           <PlayerBadge
             pseudo={opPseudo} avatar={opAvatarUrl} avatarColor={opAvatarColor}
-            guessCount={opCount} cracked={opCracked} color={EA.pink}
+            guessCount={opCount} cracked={opCracked} color={RR.pink}
             active={!isFinished && !opCracked}
             align="right"
           />
@@ -199,15 +199,15 @@ export function MastermindClient({
 
         {/* ── Ton code secret ─────────────────────────────────────────────── */}
         <div style={{
-          background: EA.violetDeep,
-          border: `2.5px solid ${revealedCode ? EA.butter : EA.ink}`,
+          background: RR.violetDeep,
+          border: `2.5px solid ${revealedCode ? RR.butter : RR.ink}`,
           borderRadius: 18, padding: "12px 16px",
-          boxShadow: revealedCode ? `3px 3px 0 ${EA.butter}` : `2px 2px 0 ${EA.ink}`,
+          boxShadow: revealedCode ? `3px 3px 0 ${RR.butter}` : `2px 2px 0 ${RR.ink}`,
           display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
         }}>
           <div style={{
             fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 900,
-            color: revealedCode ? EA.butter : "rgba(255,255,255,0.4)",
+            color: revealedCode ? RR.butter : "rgba(255,255,255,0.4)",
             textTransform: "uppercase", letterSpacing: 2,
           }}>
             {revealedCode ? "🔓 TON CODE ÉTAIT…" : "🔒 TON CODE SECRET À CRAQUER"}
@@ -221,10 +221,10 @@ export function MastermindClient({
 
         {/* ── Plateau (uniquement mes essais) ─────────────────────────────── */}
         <div style={{
-          background: EA.violetDeep,
-          border: `2.5px solid ${EA.ink}`,
+          background: RR.violetDeep,
+          border: `2.5px solid ${RR.ink}`,
           borderRadius: 18,
-          boxShadow: `2px 2px 0 ${EA.ink}`,
+          boxShadow: `2px 2px 0 ${RR.ink}`,
           overflow: "hidden",
         }}>
           <div style={{
@@ -250,7 +250,7 @@ export function MastermindClient({
                 border: `1.5px solid rgba(255,255,255,0.08)`,
                 borderRadius: 12,
               }}>
-                <div style={{ width: 4, height: 36, borderRadius: 2, background: EA.cyan, flexShrink: 0 }} />
+                <div style={{ width: 4, height: 36, borderRadius: 2, background: RR.cyan, flexShrink: 0 }} />
                 <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "right", flexShrink: 0 }}>
                   {i + 1}
                 </div>
@@ -267,12 +267,12 @@ export function MastermindClient({
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "10px 10px",
                 background: "rgba(0,212,232,0.08)",
-                border: `2px solid ${EA.cyan}`,
+                border: `2px solid ${RR.cyan}`,
                 borderRadius: 12,
                 boxShadow: `0 0 12px rgba(0,212,232,0.2)`,
               }}>
-                <div style={{ width: 4, height: 40, borderRadius: 2, background: EA.cyan, flexShrink: 0 }} />
-                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, textAlign: "right", flexShrink: 0 }}>
+                <div style={{ width: 4, height: 40, borderRadius: 2, background: RR.cyan, flexShrink: 0 }} />
+                <div style={{ width: 20, fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, textAlign: "right", flexShrink: 0 }}>
                   {activeRow + 1}
                 </div>
                 <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
@@ -297,17 +297,17 @@ export function MastermindClient({
         {/* ── Zone de saisie ──────────────────────────────────────────────── */}
         {!isFinished && (
           <div style={{
-            background: EA.violetDeep,
-            border: `2.5px solid ${EA.ink}`,
+            background: RR.violetDeep,
+            border: `2.5px solid ${RR.ink}`,
             borderRadius: 18,
-            boxShadow: `2px 2px 0 ${EA.ink}`,
+            boxShadow: `2px 2px 0 ${RR.ink}`,
             padding: "14px 16px",
             display: "flex", flexDirection: "column", gap: 14,
           }}>
             <div style={{
               textAlign: "center",
               fontFamily: "var(--font-display)", fontSize: 14,
-              color: iCracked ? EA.butter : canPlay ? EA.cyan : "rgba(255,255,255,0.4)",
+              color: iCracked ? RR.butter : canPlay ? RR.cyan : "rgba(255,255,255,0.4)",
               transform: "skewX(-4deg)",
               letterSpacing: 0.8,
             }}>
@@ -359,9 +359,9 @@ export function MastermindClient({
                       <div style={{
                         position: "absolute", top: -5, right: -5,
                         width: 16, height: 16, borderRadius: "50%",
-                        background: EA.white, border: `2px solid ${EA.ink}`,
+                        background: RR.white, border: `2px solid ${RR.ink}`,
                         fontFamily: "var(--font-display)", fontSize: 9,
-                        color: EA.ink, lineHeight: "13px", textAlign: "center",
+                        color: RR.ink, lineHeight: "13px", textAlign: "center",
                         zIndex: 1,
                       }}>{usedCount}</div>
                     )}
@@ -382,12 +382,12 @@ export function MastermindClient({
                 style={{
                   flexShrink: 0, width: 52, height: 52,
                   background: "rgba(255,255,255,0.07)",
-                  border: `2.5px solid ${EA.ink}`,
+                  border: `2.5px solid ${RR.ink}`,
                   borderRadius: 14,
-                  boxShadow: `2px 2px 0 ${EA.ink}`,
+                  boxShadow: `2px 2px 0 ${RR.ink}`,
                   cursor: (!canPlay || submitting || currentGuess.every(c => c === null)) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-display)", fontSize: 18,
-                  color: EA.white,
+                  color: RR.white,
                   opacity: (!canPlay || submitting || currentGuess.every(c => c === null)) ? 0.3 : 1,
                   transition: "opacity 0.15s",
                 }}
@@ -401,15 +401,15 @@ export function MastermindClient({
                   flex: 1, height: 52,
                   background: (!canPlay || !guessReady || submitting)
                     ? "rgba(255,255,255,0.06)"
-                    : EA.cyan,
-                  border: `2.5px solid ${EA.ink}`,
+                    : RR.cyan,
+                  border: `2.5px solid ${RR.ink}`,
                   borderRadius: 14,
                   boxShadow: (!canPlay || !guessReady || submitting)
-                    ? `2px 2px 0 ${EA.ink}`
-                    : `3px 3px 0 ${EA.ink}`,
+                    ? `2px 2px 0 ${RR.ink}`
+                    : `3px 3px 0 ${RR.ink}`,
                   cursor: (!canPlay || !guessReady || submitting) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-display)", fontSize: 15,
-                  color: (!canPlay || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : EA.ink,
+                  color: (!canPlay || !guessReady || submitting) ? "rgba(255,255,255,0.2)" : RR.ink,
                   letterSpacing: 1,
                   transition: "all 0.15s",
                 }}

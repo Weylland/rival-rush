@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { grantAdmin, revokeAdmin } from "./actions";
 
 interface Player {
@@ -40,7 +40,7 @@ function ConfirmModal({
       background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 24,
-      animation: "ea-admin-fade-in .15s ease-out",
+      animation: "rr-admin-fade-in .15s ease-out",
     }}>
       <div style={{
         width: "100%", maxWidth: 400,
@@ -59,7 +59,7 @@ function ConfirmModal({
         {/* Texte */}
         <div style={{ textAlign: "center" }}>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 18, color: EA.white,
+            fontFamily: "var(--font-display)", fontSize: 18, color: RR.white,
             marginBottom: 10,
           }}>
             {isRevoke ? "Retirer les droits admin ?" : "Accorder les droits admin ?"}
@@ -69,8 +69,8 @@ function ConfirmModal({
             color: "rgba(255,255,255,0.6)", lineHeight: 1.5,
           }}>
             {isRevoke
-              ? <>Le compte <strong style={{ color: EA.white }}>{action.player.pseudo}</strong> perdra l&apos;accès à l&apos;administration du site.</>
-              : <>Le compte <strong style={{ color: EA.white }}>{action.player.pseudo}</strong> aura accès à l&apos;intégralité du panel admin.</>
+              ? <>Le compte <strong style={{ color: RR.white }}>{action.player.pseudo}</strong> perdra l&apos;accès à l&apos;administration du site.</>
+              : <>Le compte <strong style={{ color: RR.white }}>{action.player.pseudo}</strong> aura accès à l&apos;intégralité du panel admin.</>
             }
           </div>
         </div>
@@ -96,10 +96,10 @@ function ConfirmModal({
             disabled={isPending}
             style={{
               flex: 1, padding: "11px 0",
-              background: isRevoke ? EA.pink : EA.cyan,
+              background: isRevoke ? RR.pink : RR.cyan,
               border: "none", borderRadius: 12,
               fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 800,
-              color: isRevoke ? EA.white : EA.ink,
+              color: isRevoke ? RR.white : RR.ink,
               cursor: isPending ? "not-allowed" : "pointer",
               opacity: isPending ? 0.7 : 1,
             }}
@@ -219,9 +219,9 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                   {/* Avatar */}
                   <div style={{
                     width: 36, height: 36, borderRadius: 999, flexShrink: 0,
-                    background: `linear-gradient(135deg, ${EA.cyan}, ${EA.pink})`,
+                    background: `linear-gradient(135deg, ${RR.cyan}, ${RR.pink})`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-display)", fontSize: 15, color: EA.white,
+                    fontFamily: "var(--font-display)", fontSize: 15, color: RR.white,
                     overflow: "hidden",
                   }}>
                     {p.avatar_url
@@ -232,13 +232,13 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 900,
-                      color: EA.white, display: "flex", alignItems: "center", gap: 6,
+                      color: RR.white, display: "flex", alignItems: "center", gap: 6,
                     }}>
                       {p.pseudo}
                       {isProtected && (
                         <span style={{
                           fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 900,
-                          background: EA.butter, color: EA.ink,
+                          background: RR.butter, color: RR.ink,
                           borderRadius: 999, padding: "2px 7px",
                           textTransform: "uppercase", letterSpacing: 1,
                         }}>Protégé</span>
@@ -246,7 +246,7 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                     </div>
                     <div style={{
                       fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
-                      color: isProtected ? EA.butter : EA.cyan,
+                      color: isProtected ? RR.butter : RR.cyan,
                       textTransform: "uppercase", letterSpacing: 1,
                     }}>
                       {isProtected ? "🔒 Super admin" : "👑 Admin"}
@@ -256,7 +256,7 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                   {fb && (
                     <span style={{
                       fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-                      color: fb.ok ? "#4ade80" : EA.pink,
+                      color: fb.ok ? "#4ade80" : RR.pink,
                     }}>{fb.msg}</span>
                   )}
 
@@ -285,16 +285,16 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                         border: `1.5px solid rgba(255,30,140,0.3)`,
                         borderRadius: 10,
                         fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                        color: EA.pink, cursor: "pointer",
+                        color: RR.pink, cursor: "pointer",
                         transition: "all .15s", flexShrink: 0,
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = EA.pink;
-                        e.currentTarget.style.color = EA.white;
+                        e.currentTarget.style.background = RR.pink;
+                        e.currentTarget.style.color = RR.white;
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = "rgba(255,30,140,0.1)";
-                        e.currentTarget.style.color = EA.pink;
+                        e.currentTarget.style.color = RR.pink;
                       }}
                     >
                       Retirer admin
@@ -328,14 +328,14 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
               border: `1.5px solid rgba(255,255,255,0.1)`,
               borderRadius: 12, outline: "none",
               fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-              color: EA.white, marginBottom: 12,
+              color: RR.white, marginBottom: 12,
             }}
           />
 
           <div style={{
             display: "flex", flexDirection: "column", gap: 6,
             maxHeight: 340, overflowY: "auto",
-          }} className="ea-admin-scroll">
+          }} className="rr-admin-scroll">
             {nonAdmins.length === 0 && (
               <div style={{
                 padding: "14px 20px",
@@ -359,7 +359,7 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                     width: 32, height: 32, borderRadius: 999, flexShrink: 0,
                     background: "rgba(255,255,255,0.1)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-display)", fontSize: 14, color: EA.white,
+                    fontFamily: "var(--font-display)", fontSize: 14, color: RR.white,
                     overflow: "hidden",
                   }}>
                     {p.avatar_url
@@ -376,7 +376,7 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                   {fb && (
                     <span style={{
                       fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-                      color: fb.ok ? "#4ade80" : EA.pink,
+                      color: fb.ok ? "#4ade80" : RR.pink,
                     }}>{fb.msg}</span>
                   )}
 
@@ -389,16 +389,16 @@ export function AdminsClient({ players, adminPlayerIds: initial, superAdminId }:
                       border: `1.5px solid rgba(0,212,232,0.3)`,
                       borderRadius: 10,
                       fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 800,
-                      color: EA.cyan, cursor: "pointer",
+                      color: RR.cyan, cursor: "pointer",
                       transition: "all .15s", flexShrink: 0,
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = EA.cyan;
-                      e.currentTarget.style.color = EA.ink;
+                      e.currentTarget.style.background = RR.cyan;
+                      e.currentTarget.style.color = RR.ink;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "rgba(0,212,232,0.1)";
-                      e.currentTarget.style.color = EA.cyan;
+                      e.currentTarget.style.color = RR.cyan;
                     }}
                   >
                     Rendre admin

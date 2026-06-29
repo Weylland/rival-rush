@@ -1,4 +1,4 @@
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 
 const DOT_CELLS: Record<number, number[]> = {
   1: [4],
@@ -25,11 +25,11 @@ export function DieFace({ value, size, bg, dotColor, glowColor, shaking = false 
     <div style={{
       width: size, height: size,
       background: bg,
-      border: `3.5px solid ${EA.ink}`,
+      border: `3.5px solid ${RR.ink}`,
       borderRadius: radius,
       boxShadow: glowColor
-        ? `5px 5px 0 ${EA.ink}, 0 0 18px ${glowColor}99, 0 0 40px ${glowColor}44`
-        : `5px 5px 0 ${EA.ink}`,
+        ? `5px 5px 0 ${RR.ink}, 0 0 18px ${glowColor}99, 0 0 40px ${glowColor}44`
+        : `5px 5px 0 ${RR.ink}`,
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
       gridTemplateRows: "repeat(3, 1fr)",

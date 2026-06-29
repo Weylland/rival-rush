@@ -7,7 +7,7 @@ import {
 import { usePathname } from "next/navigation";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import {
   sendLobbyMessage, sendDirectMessage,
@@ -538,16 +538,16 @@ export function ChatProvider({
           width: desktop ? "auto" : 56,
           padding: desktop ? "0 20px 0 14px" : 0,
           borderRadius: desktop ? 999 : "50%",
-          background: isOpen ? EA.cyan : EA.pink,
-          border: `2.5px solid ${EA.ink}`,
-          color: EA.white, cursor: "pointer",
+          background: isOpen ? RR.cyan : RR.pink,
+          border: `2.5px solid ${RR.ink}`,
+          color: RR.white, cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           gap: desktop ? 8 : 0,
-          boxShadow: `4px 4px 0 ${EA.ink}`,
+          boxShadow: `4px 4px 0 ${RR.ink}`,
           transition: "background 0.2s, transform 0.1s",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "translate(2px,2px)"; e.currentTarget.style.boxShadow = `2px 2px 0 ${EA.ink}`; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `4px 4px 0 ${EA.ink}`; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translate(2px,2px)"; e.currentTarget.style.boxShadow = `2px 2px 0 ${RR.ink}`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `4px 4px 0 ${RR.ink}`; }}
       >
         <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -561,9 +561,9 @@ export function ChatProvider({
           <span style={{
             position: "absolute", top: -5, right: desktop ? -5 : -5,
             minWidth: 20, height: 20, borderRadius: 10,
-            background: EA.butter, border: `2px solid ${EA.ink}`,
+            background: RR.butter, border: `2px solid ${RR.ink}`,
             fontFamily: "var(--font-display)", fontSize: 11,
-            color: EA.ink, display: "flex", alignItems: "center", justifyContent: "center",
+            color: RR.ink, display: "flex", alignItems: "center", justifyContent: "center",
             padding: "0 4px", fontWeight: 900,
           }}>{totalUnread > 9 ? "9+" : totalUnread}</span>
         )}
@@ -587,9 +587,9 @@ export function ChatProvider({
         position: "fixed", zIndex: 220,
         right: 0, top: 0, bottom: 0,
         width: drawerW,
-        background: EA.violetDeep,
-        borderLeft: `2.5px solid ${EA.ink}`,
-        boxShadow: `-6px 0 0 ${EA.ink}`,
+        background: RR.violetDeep,
+        borderLeft: `2.5px solid ${RR.ink}`,
+        boxShadow: `-6px 0 0 ${RR.ink}`,
         display: "flex", flexDirection: "column",
         transform: isOpen ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
@@ -608,7 +608,7 @@ export function ChatProvider({
                 style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
               >←</button>
             )}
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: EA.white, transform: "skewX(-4deg)" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: RR.white, transform: "skewX(-4deg)" }}>
               {activeConvId ? activeConvPseudo.toUpperCase() : "💬 CHAT"}
             </span>
           </div>
@@ -628,9 +628,9 @@ export function ChatProvider({
                 style={{
                   flex: 1, padding: "10px 0",
                   background: "none", border: "none",
-                  borderBottom: tab === t ? `3px solid ${EA.cyan}` : "3px solid transparent",
+                  borderBottom: tab === t ? `3px solid ${RR.cyan}` : "3px solid transparent",
                   fontFamily: "var(--font-display)", fontSize: 14,
-                  color: tab === t ? EA.cyan : "rgba(255,255,255,0.4)",
+                  color: tab === t ? RR.cyan : "rgba(255,255,255,0.4)",
                   cursor: "pointer", transition: "color 0.15s",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                 }}
@@ -638,8 +638,8 @@ export function ChatProvider({
                 {t === "lobby" ? (activeRoomId ? `🏠 ${activeRoomName?.toUpperCase() ?? "SALLE"}` : "🌐 LOBBY") : (
                   <>💬 MESSAGES{conversations.reduce((n, c) => n + c.unread, 0) > 0 && (
                     <span style={{
-                      background: EA.pink, borderRadius: 8, padding: "1px 5px",
-                      fontSize: 10, color: EA.white,
+                      background: RR.pink, borderRadius: 8, padding: "1px 5px",
+                      fontSize: 10, color: RR.white,
                     }}>{conversations.reduce((n, c) => n + c.unread, 0)}</span>
                   )}</>
                 )}
@@ -662,21 +662,21 @@ export function ChatProvider({
                 return (
                   <div key={m.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
                     {!isMe && (
-                      <Avatar name={m.pseudo} src={m.avatar_url ?? null} color={m.avatar_color ?? EA.cyan} size={28} />
+                      <Avatar name={m.pseudo} src={m.avatar_url ?? null} color={m.avatar_color ?? RR.cyan} size={28} />
                     )}
                     <div style={{ maxWidth: "75%" }}>
                       {!isMe && (
-                        <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: EA.cyan, marginBottom: 3, transform: "skewX(-3deg)" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: RR.cyan, marginBottom: 3, transform: "skewX(-3deg)" }}>
                           {m.pseudo}
                         </div>
                       )}
                       <div style={{
-                        background: isMe ? EA.cyan : "rgba(255,255,255,0.08)",
-                        border: `2px solid ${isMe ? EA.ink : "rgba(255,255,255,0.1)"}`,
+                        background: isMe ? RR.cyan : "rgba(255,255,255,0.08)",
+                        border: `2px solid ${isMe ? RR.ink : "rgba(255,255,255,0.1)"}`,
                         borderRadius: isMe ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                         padding: "8px 12px",
                         fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
-                        color: isMe ? EA.ink : EA.white,
+                        color: isMe ? RR.ink : RR.white,
                         wordBreak: "break-word",
                       }}>{m.content}</div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 2, textAlign: isMe ? "right" : "left" }}>
@@ -698,7 +698,7 @@ export function ChatProvider({
                 style={{
                   flex: 1, background: "rgba(255,255,255,0.07)", border: `2px solid rgba(255,255,255,0.15)`,
                   borderRadius: 12, padding: "10px 14px",
-                  fontFamily: "var(--font-sans)", fontSize: 13, color: EA.white,
+                  fontFamily: "var(--font-sans)", fontSize: 13, color: RR.white,
                   outline: "none",
                 }}
               />
@@ -706,12 +706,12 @@ export function ChatProvider({
                 type="submit"
                 disabled={!lobbyInput.trim() || sendingLobby}
                 style={{
-                  background: EA.cyan, border: `2px solid ${EA.ink}`,
+                  background: RR.cyan, border: `2px solid ${RR.ink}`,
                   borderRadius: 12, padding: "0 16px",
-                  fontFamily: "var(--font-display)", fontSize: 14, color: EA.ink,
+                  fontFamily: "var(--font-display)", fontSize: 14, color: RR.ink,
                   cursor: !lobbyInput.trim() || sendingLobby ? "default" : "pointer",
                   opacity: !lobbyInput.trim() ? 0.4 : 1,
-                  boxShadow: `2px 2px 0 ${EA.ink}`,
+                  boxShadow: `2px 2px 0 ${RR.ink}`,
                   transition: "opacity 0.15s",
                 }}
               >↑</button>
@@ -744,17 +744,17 @@ export function ChatProvider({
                   onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
                 >
                   <div style={{ position: "relative", flexShrink: 0 }}>
-                    <Avatar name={c.otherPseudo} src={c.otherAvatarUrl} color={c.otherAvatarColor ?? EA.cyan} size={40} />
+                    <Avatar name={c.otherPseudo} src={c.otherAvatarUrl} color={c.otherAvatarColor ?? RR.cyan} size={40} />
                     {c.unread > 0 && (
                       <span style={{
                         position: "absolute", top: -3, right: -3,
                         width: 14, height: 14, borderRadius: "50%",
-                        background: EA.pink, border: `2px solid ${EA.violetDeep}`,
+                        background: RR.pink, border: `2px solid ${RR.violetDeep}`,
                       }} />
                     )}
                   </div>
                   <div style={{ flex: 1, textAlign: "left", overflow: "hidden" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: c.unread > 0 ? EA.white : "rgba(255,255,255,0.7)", transform: "skewX(-3deg)" }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: c.unread > 0 ? RR.white : "rgba(255,255,255,0.7)", transform: "skewX(-3deg)" }}>
                       {c.otherPseudo.toUpperCase()}
                     </div>
                     {c.lastContent && (
@@ -779,11 +779,11 @@ export function ChatProvider({
               <button
                 onClick={() => { setShowNewDm(true); loadOnlinePlayers(); }}
                 style={{
-                  width: "100%", background: EA.pink, border: `2.5px solid ${EA.ink}`,
+                  width: "100%", background: RR.pink, border: `2.5px solid ${RR.ink}`,
                   borderRadius: 14, padding: "12px",
-                  fontFamily: "var(--font-display)", fontSize: 15, color: EA.ink,
+                  fontFamily: "var(--font-display)", fontSize: 15, color: RR.ink,
                   cursor: "pointer", transform: "skewX(-4deg)",
-                  boxShadow: `3px 3px 0 ${EA.ink}`,
+                  boxShadow: `3px 3px 0 ${RR.ink}`,
                 }}
               >
                 <span style={{ display: "inline-block", transform: "skewX(4deg)" }}>✏️ NOUVEAU MESSAGE</span>
@@ -822,10 +822,10 @@ export function ChatProvider({
                   style={{
                     width: "100%", boxSizing: "border-box",
                     background: "rgba(255,255,255,0.07)",
-                    border: `1.5px solid ${dmSearch ? EA.cyan : "rgba(255,255,255,0.15)"}`,
+                    border: `1.5px solid ${dmSearch ? RR.cyan : "rgba(255,255,255,0.15)"}`,
                     borderRadius: 10, padding: "8px 12px",
                     fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-                    color: EA.white, outline: "none",
+                    color: RR.white, outline: "none",
                     transition: "border-color 0.15s",
                   }}
                 />
@@ -861,16 +861,16 @@ export function ChatProvider({
                       onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
                     >
                       <div style={{ position: "relative", flexShrink: 0 }}>
-                        <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.avatar_color ?? EA.cyan} size={34} />
+                        <Avatar name={p.pseudo} src={p.avatar_url ?? null} color={p.avatar_color ?? RR.cyan} size={34} />
                         <span style={{
                           position: "absolute", bottom: 0, right: 0,
                           width: 9, height: 9, borderRadius: "50%",
                           background: isOnline ? "#1ee29a" : "rgba(255,255,255,0.2)",
-                          border: `1.5px solid ${EA.violetDeep}`,
+                          border: `1.5px solid ${RR.violetDeep}`,
                         }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                        <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: EA.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: RR.white, transform: "skewX(-3deg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {p.pseudo.toUpperCase()}
                         </div>
                         <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, color: isOnline ? "#1ee29a" : "rgba(255,255,255,0.3)", marginTop: 1 }}>
@@ -900,12 +900,12 @@ export function ChatProvider({
                   <div key={m.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
                     <div style={{ maxWidth: "80%" }}>
                       <div style={{
-                        background: isMe ? EA.pink : "rgba(255,255,255,0.08)",
-                        border: `2px solid ${isMe ? EA.ink : "rgba(255,255,255,0.1)"}`,
+                        background: isMe ? RR.pink : "rgba(255,255,255,0.08)",
+                        border: `2px solid ${isMe ? RR.ink : "rgba(255,255,255,0.1)"}`,
                         borderRadius: isMe ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                         padding: "8px 12px",
                         fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
-                        color: isMe ? EA.ink : EA.white,
+                        color: isMe ? RR.ink : RR.white,
                         wordBreak: "break-word",
                       }}>{m.content}</div>
                       <div style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 2, textAlign: isMe ? "right" : "left" }}>
@@ -927,7 +927,7 @@ export function ChatProvider({
                 style={{
                   flex: 1, background: "rgba(255,255,255,0.07)", border: `2px solid rgba(255,255,255,0.15)`,
                   borderRadius: 12, padding: "10px 14px",
-                  fontFamily: "var(--font-sans)", fontSize: 13, color: EA.white,
+                  fontFamily: "var(--font-sans)", fontSize: 13, color: RR.white,
                   outline: "none",
                 }}
               />
@@ -935,12 +935,12 @@ export function ChatProvider({
                 type="submit"
                 disabled={!dmInput.trim() || sendingDm}
                 style={{
-                  background: EA.pink, border: `2px solid ${EA.ink}`,
+                  background: RR.pink, border: `2px solid ${RR.ink}`,
                   borderRadius: 12, padding: "0 16px",
-                  fontFamily: "var(--font-display)", fontSize: 14, color: EA.ink,
+                  fontFamily: "var(--font-display)", fontSize: 14, color: RR.ink,
                   cursor: !dmInput.trim() || sendingDm ? "default" : "pointer",
                   opacity: !dmInput.trim() ? 0.4 : 1,
-                  boxShadow: `2px 2px 0 ${EA.ink}`,
+                  boxShadow: `2px 2px 0 ${RR.ink}`,
                   transition: "opacity 0.15s",
                 }}
               >↑</button>

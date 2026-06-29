@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { EA } from "@/lib/design";
+import { RR } from "@/lib/design";
 import { Avatar } from "@/components/ui/avatar";
 import { kickPresence, clearAllPresence } from "./actions";
 
@@ -173,7 +173,7 @@ export function PresenceClient() {
               fontFamily: "var(--font-sans)",
               fontSize: 10,
               fontWeight: 900,
-              color: EA.cyan,
+              color: RR.cyan,
               textTransform: "uppercase",
               letterSpacing: 1,
             }}
@@ -184,7 +184,7 @@ export function PresenceClient() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 32,
-              color: EA.cyan,
+              color: RR.cyan,
               transform: "skewX(-4deg)",
               marginTop: 2,
               lineHeight: 1,
@@ -206,7 +206,7 @@ export function PresenceClient() {
               fontFamily: "var(--font-sans)",
               fontSize: 10,
               fontWeight: 900,
-              color: EA.butter,
+              color: RR.butter,
               textTransform: "uppercase",
               letterSpacing: 1,
             }}
@@ -217,7 +217,7 @@ export function PresenceClient() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 32,
-              color: EA.butter,
+              color: RR.butter,
               transform: "skewX(-4deg)",
               marginTop: 2,
               lineHeight: 1,
@@ -262,9 +262,9 @@ export function PresenceClient() {
               fontFamily: "var(--font-sans)",
               fontSize: 11,
               fontWeight: 800,
-              color: EA.pink,
+              color: RR.pink,
               background: "rgba(255,30,140,0.08)",
-              border: `1.5px solid ${EA.pink}`,
+              border: `1.5px solid ${RR.pink}`,
               borderRadius: 999,
               padding: "6px 12px",
               cursor: "pointer",
@@ -283,7 +283,7 @@ export function PresenceClient() {
                 fontFamily: "var(--font-sans)",
                 fontSize: 11,
                 fontWeight: 800,
-                color: EA.white,
+                color: RR.white,
                 background: "rgba(255,255,255,0.1)",
                 border: `1.5px solid rgba(255,255,255,0.15)`,
                 borderRadius: 999,
@@ -300,13 +300,13 @@ export function PresenceClient() {
                 fontFamily: "var(--font-sans)",
                 fontSize: 11,
                 fontWeight: 900,
-                color: EA.white,
-                background: EA.pink,
-                border: `1.5px solid ${EA.ink}`,
+                color: RR.white,
+                background: RR.pink,
+                border: `1.5px solid ${RR.ink}`,
                 borderRadius: 999,
                 padding: "6px 12px",
                 cursor: pending ? "wait" : "pointer",
-                boxShadow: `2px 2px 0 ${EA.ink}`,
+                boxShadow: `2px 2px 0 ${RR.ink}`,
               }}
             >
               Vider tout
@@ -319,14 +319,14 @@ export function PresenceClient() {
         <div
           style={{
             background: "rgba(255,30,140,0.12)",
-            border: `2px solid ${EA.pink}`,
+            border: `2px solid ${RR.pink}`,
             borderRadius: 10,
             padding: "10px 14px",
             marginBottom: 12,
             fontFamily: "var(--font-sans)",
             fontSize: 12,
             fontWeight: 800,
-            color: EA.pink,
+            color: RR.pink,
           }}
         >
           ⚠ {error}
@@ -383,7 +383,7 @@ export function PresenceClient() {
                   <Avatar
                     name={e.pseudo}
                     src={e.avatar_url}
-                    color={e.avatar_color ?? (inGame ? EA.cyan : EA.violet)}
+                    color={e.avatar_color ?? (inGame ? RR.cyan : RR.violet)}
                     ring="transparent"
                     size={40}
                   />
@@ -396,11 +396,11 @@ export function PresenceClient() {
                       width: 12,
                       height: 12,
                       borderRadius: "50%",
-                      background: inGame ? EA.cyan : "#4ade80",
+                      background: inGame ? RR.cyan : "#4ade80",
                       border: "2px solid #0a0218",
-                      boxShadow: `0 0 8px ${inGame ? EA.cyan : "#4ade80"}`,
+                      boxShadow: `0 0 8px ${inGame ? RR.cyan : "#4ade80"}`,
                     }}
-                    className={inGame ? undefined : "ea-admin-pulse-dot"}
+                    className={inGame ? undefined : "rr-admin-pulse-dot"}
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -408,7 +408,7 @@ export function PresenceClient() {
                     style={{
                       fontFamily: "var(--font-display)",
                       fontSize: 14,
-                      color: EA.white,
+                      color: RR.white,
                       transform: "skewX(-4deg)",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -422,7 +422,7 @@ export function PresenceClient() {
                       fontFamily: "var(--font-sans)",
                       fontSize: 11,
                       fontWeight: 700,
-                      color: inGame ? EA.cyan : "#4ade80",
+                      color: inGame ? RR.cyan : "#4ade80",
                       marginTop: 2,
                     }}
                   >
@@ -438,10 +438,10 @@ export function PresenceClient() {
                   style={{
                     fontSize: 13,
                     background: "rgba(255,30,140,0.1)",
-                    border: `1.5px solid ${EA.pink}`,
+                    border: `1.5px solid ${RR.pink}`,
                     borderRadius: 8,
                     padding: "5px 10px",
-                    color: EA.pink,
+                    color: RR.pink,
                     cursor: "pointer",
                     flexShrink: 0,
                   }}
