@@ -46,7 +46,7 @@ export default function MaintenancePage() {
           transform: "skewX(-6deg)",
           textShadow: `4px 4px 0 ${RR.pink}`,
         }}>
-          EXPRESSION <span style={{ color: RR.cyan }}>ARENA</span>
+          RIVAL <span style={{ color: RR.cyan }}>RUSH</span>
         </div>
 
         {/* Badge */}

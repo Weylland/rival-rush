@@ -190,14 +190,14 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           color: RR.white, transform: "skewX(-8deg)",
           textShadow: `3px 3px 0 ${RR.pink}`,
           marginTop: 8,
-        }}>EXPRESSION</div>
+        }}>RIVAL</div>
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: 32, lineHeight: 0.9,
           color: RR.cyan, transform: "skewX(-8deg)",
           textShadow: `3px 3px 0 ${RR.violetDeep}`,
           marginTop: -2,
-        }}>ARENA</div>
+        }}>RUSH</div>
         <div style={{
           fontFamily: "var(--font-sans)",
           fontSize: 11, fontWeight: 800, fontStyle: "italic",
@@ -207,7 +207,7 @@ export function LoginForm({ qrSvg, appUrl }: { qrSvg: string | null; appUrl: str
           padding: "3px 10px",
           borderRadius: 20,
           transform: "rotate(-2deg)",
-        }}>✦ Fête de l'Expression · 20 juin ✦</div>
+        }}>✦ Mini-jeux en duel ✦</div>
       </div>
 
       {/* Form */}

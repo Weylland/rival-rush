@@ -106,7 +106,7 @@ export function AdminSidebar({
               lineHeight: 1.1,
             }}
           >
-            EXPRESSION
+            RIVAL RUSH
           </div>
           <div
             style={{

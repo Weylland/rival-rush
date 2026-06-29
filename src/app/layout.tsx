@@ -24,7 +24,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "RivalRush",
-  description: "Mini-jeux en duel · Fête de l'Expression",
+  description: "Mini-jeux en duel · Rival Rush",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: "/favicon.svg",
