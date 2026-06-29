@@ -4,7 +4,7 @@ import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const DEST_EMAIL = "samiernicolas62@gmail.com";
+const DEST_EMAIL = process.env.CONTACT_EMAIL!;
 const RATE_LIMIT_MINUTES = 10;
 
 export type ContactState = { error?: string; success?: boolean } | null;

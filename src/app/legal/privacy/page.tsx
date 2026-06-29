@@ -63,12 +63,12 @@ export default function PrivacyPage() {
       <h2 style={h2}>Vos droits (RGPD)</h2>
       <p style={p}>
         Vous disposez d'un droit d'accès, de rectification et de suppression de vos données.
-        Pour toute demande : <a href="mailto:samiernicolas62@gmail.com" style={{ color: EA.cyan }}>samiernicolas62@gmail.com</a>
+        Pour toute demande : <a href={`mailto:${process.env.CONTACT_EMAIL}`} style={{ color: EA.cyan }}>{process.env.CONTACT_EMAIL}</a>
       </p>
 
       <h2 style={h2}>Contact DPA</h2>
       <p style={p}>
-        Responsable du traitement : Nicolas Samier — samiernicolas62@gmail.com
+        Responsable du traitement : Nicolas Samier — {process.env.CONTACT_EMAIL}
       </p>
     </div>
   );

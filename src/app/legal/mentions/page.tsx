@@ -32,7 +32,7 @@ export default function MentionsPage() {
       <h2 style={h2}>Éditeur</h2>
       <p style={p}>
         ExpressionArena est édité par Nicolas Samier, développeur indépendant.<br />
-        Email : samiernicolas62@gmail.com
+        Email : {process.env.CONTACT_EMAIL}
       </p>
 
       <h2 style={h2}>Hébergement</h2>

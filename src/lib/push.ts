@@ -22,7 +22,7 @@ export async function sendPushToSubscriptions(
   const webpush = (await import("web-push")).default;
 
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT ?? "mailto:samiernicolas62@gmail.com",
+    process.env.VAPID_SUBJECT!,
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!,
   );
